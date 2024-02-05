@@ -23,7 +23,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private double m_lastSimTime;
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
-        super(driveTrainConstants, OdometryUpdateFrequency, modules);
+        super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -53,4 +53,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
+
+    public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
+        seedFieldRelative();
+    }
+
 }
