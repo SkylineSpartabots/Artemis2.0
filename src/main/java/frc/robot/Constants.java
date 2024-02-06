@@ -70,6 +70,8 @@ public final class Constants {
   public static final IdleMode intakeNeutralMode = IdleMode.kCoast;
   public static final IdleMode shooterNeutralMode = IdleMode.kBrake;
 
+  public static final double openLoopRamp = 0.25;
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
