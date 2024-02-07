@@ -27,6 +27,12 @@ public final class Constants {
   public static final double stickDeadband = 0.15;
   public static final double triggerDeadzone = 0.2;
 
+  public static final class vision {
+    public static final int aprilTagMax = 16;
+    public static final String cameraName = "cam";
+  }
+
+
   // hardware ports for all hardware components on the robot
   // these include CAN IDs, pneumatic hub ports, etc. 
 
