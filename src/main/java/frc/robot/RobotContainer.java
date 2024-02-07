@@ -19,9 +19,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Camera;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RobotContainer {
+
+  private final Camera camera2 = Camera.getInstance();
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(0); // My joystick
