@@ -22,8 +22,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RobotContainer {
-  private double MaxSpeed = 7; // 6 meters per second desired top speed
-  private double MaxAngularRate = 2 * Math.PI; // 3/4 of a rotation per second max angular velocity
+  private double MaxSpeed = 6; // 6 meters per second desired top speed
+  private double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(0); // My joystick
