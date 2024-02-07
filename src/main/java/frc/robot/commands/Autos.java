@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import com.choreo.lib.*;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Pivot.PivotState;
 
@@ -46,11 +50,14 @@ public final class Autos {
     PIDController xController = new PIDController(5, 0, 0);
     PIDController yController = new PIDController(5, 0, 0);
     PIDController thetaController = new PIDController(2, 0, 0);
+    SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+      .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
+      .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     ArrayList<Command> commandsToSchedule = new ArrayList<Command>();
 
-    s_Swerve.resetOdometry(traj.get(0).getInitialPose());
+    s_Swerve.resetOdo(traj.get(0).getInitialPose());
     for(int i = 0; i < traj.size(); i++){
       Command swerveCommand = Choreo.choreoSwerveCommand(
       traj.get(i), 
@@ -58,7 +65,7 @@ public final class Autos {
       xController,
       yController,
       thetaController,
-      (ChassisSpeeds speeds) -> s_Swerve.drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond, false, true), //this has to be robot-relative, need to check that auto-drive function works for this (may have to use drive function and set field-relative to false idk)
+      (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withVelocityX(speeds.vxMetersPerSecond).withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond)),
       () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
         return alliance.isPresent() && alliance.get() == Alliance.Red; }, //decides whether or not the math should be mirrored (depends on alliance)
       s_Swerve);

@@ -8,6 +8,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -67,6 +68,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
         seedFieldRelative();
+    }
+
+    public void resetOdo(Pose2d pose){
+        seedFieldRelative(pose);
+    }
+
+    public Pose2d getPose(){
+        return s_Swerve.m_odometry.getEstimatedPosition();
     }
 
 }
