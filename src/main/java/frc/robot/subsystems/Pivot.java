@@ -100,5 +100,5 @@ public class Pivot extends SubsystemBase {
         CANcoderConfiguration swerveCanCoderConfig = new CANcoderConfiguration();
         swerveCanCoderConfig.MagnetSensor = magnetSensorConfigs;  
         pivotCANcoder.getConfigurator().apply(swerveCanCoderConfig);
-    }   
+    }
 }
