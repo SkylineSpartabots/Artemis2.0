@@ -21,10 +21,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Camera;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.EthansGlasses;
 
 public class RobotContainer {
 
   private final Camera camera2 = Camera.getInstance();
+  private final EthansGlasses Glasses = EthansGlasses.getInstance();
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -69,6 +71,8 @@ public class RobotContainer {
       drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
     drivetrain.registerTelemetry(logger::telemeterize);
+
+    driverRighTrigger.onTrue(new InstantCommand(() -> Glasses.turnOn(0.5)));
   }
 
   public RobotContainer() {
