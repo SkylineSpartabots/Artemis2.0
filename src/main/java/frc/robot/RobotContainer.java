@@ -51,6 +51,9 @@ public class RobotContainer {
   private final Trigger driverLeftBumper = driver.rightBumper();
   private final Trigger driverLefTrigger = driver.leftTrigger();
   private final Trigger driverRighTrigger = driver.rightTrigger();
+  private final Trigger driverDpadUp = driver.povUp();
+  private final Trigger driverDpadDown = driver.povDown();
+  
 
   private void configureBindings() {
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
@@ -72,7 +75,12 @@ public class RobotContainer {
     }
     drivetrain.registerTelemetry(logger::telemeterize);
 
-    driverRighTrigger.onTrue(new InstantCommand(() -> Glasses.turnOn(0.5)));
+    
+    
+    // temp code i know it sucks lol 
+    driverRighTrigger.onTrue(new InstantCommand(() -> Glasses.setSpeed(0.5)));
+    driverDpadUp.onTrue(new InstantCommand(() -> Glasses.setSpeed(Glasses.getSpeed() + 0.1)));
+    driverDpadDown.onTrue(new InstantCommand(() -> Glasses.setSpeed(Glasses.getSpeed() - 0.1)));
   }
 
   public RobotContainer() {

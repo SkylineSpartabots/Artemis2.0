@@ -18,9 +18,12 @@ public class EthansGlasses extends SubsystemBase {
   /** Creates a new EthansGlasses. */
 
 
+// sorry i was rushed and i did this rlly quickly lol mb
 
   private CANSparkFlex intakeLeader;
   private CANSparkFlex intakeFollower;
+
+  private double percentSpeed;
 
   private static EthansGlasses instance;
   public static EthansGlasses getInstance() {
@@ -31,14 +34,19 @@ public class EthansGlasses extends SubsystemBase {
   
   public EthansGlasses() {
       intakeLeader = new CANSparkFlex(44, MotorType.kBrushless);
-      intakeFollower = new CANSparkFlex(43, MotorType.kBrushless);
+      intakeFollower = new CANSparkFlex(43, MotorType.kBrushless); 
+      intakeFollower.follow(intakeLeader, false);
 
 
   }
 
-  public void turnOn(double val) {
+  public double getSpeed() {
+    return percentSpeed;
+  }
+
+  public void setSpeed(double val) {
+      this.percentSpeed = val;
       intakeLeader.set(val);
-      intakeFollower.set(val);
   }
 
 
