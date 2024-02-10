@@ -50,6 +50,12 @@ public class RobotContainer {
   private final Trigger driverLefTrigger = driver.leftTrigger();
   private final Trigger driverRighTrigger = driver.rightTrigger();
 
+  private final Trigger driverDpadUp = driver.pov(0);
+  private final Trigger driverDpadRight = driver.pov(90);
+  private final Trigger driverDpadDown = driver.pov(180);
+  private final Trigger driverDpadLeft = driver.pov(270);
+
+
   private void configureBindings() {
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
