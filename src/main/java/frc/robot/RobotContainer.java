@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Camera;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Climb;
 
 public class RobotContainer {
 
@@ -29,7 +30,7 @@ public class RobotContainer {
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(0); // My joystick
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
-
+  private final Climb climb = Climb.getInstance();
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
@@ -75,6 +76,12 @@ public class RobotContainer {
       drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
     drivetrain.registerTelemetry(logger::telemeterize);
+
+    //climb controls; change to dpad after figuring that out, y extends, x shortens
+    driver.y().onTrue(new InstantCommand(() -> climb.setClimbSpeed(0.8)));
+    driver.y().onFalse(new InstantCommand(() -> climb.setClimbSpeed(0)));
+    driver.x().onTrue(new InstantCommand(() -> climb.setClimbSpeed(-0.8)));
+    driver.x().onFalse(new InstantCommand(() -> climb.setClimbSpeed(0)));
   }
 
   public RobotContainer() {

@@ -67,6 +67,8 @@ public final class Constants {
   public static final int shooterPeakCurrentLimit = 70;
   public static final int pivotContinuousCurrentLimit = 30;
   public static final int pivotPeakCurrentLimit = 60;
+  public static final int climbContinuousCurrentLimit = 40; //TODO: ask build for the real numbers
+  public static final int climbPeakCurrentLimit = 80;
 
   public static final double FIELD_WIDTH_METERS = 8.21055;
   public static final double FIELD_LENGTH_METERS = 16.54175;
