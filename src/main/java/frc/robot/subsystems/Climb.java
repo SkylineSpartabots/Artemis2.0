@@ -12,16 +12,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Climb extends SubsystemBase {
-  private static Climb mClimb;
+  private static Climb s_Climb;
 
   private CANSparkFlex mLeaderClimb;
   private CANSparkFlex mFollowerClimb;
   
   public static Climb getInstance() {
-    if(mClimb == null){
-      mClimb = new Climb();
+    if(s_Climb == null){
+      s_Climb = new Climb();
   }
-  return mClimb;
+  return s_Climb;
   }
 
   public Climb() {
@@ -45,12 +45,12 @@ public class Climb extends SubsystemBase {
     followerMotor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
     followerMotor.setIdleMode(IdleMode.kBrake);
     followerMotor.enableVoltageCompensation(12);
-    
+
     followerMotor.follow(leaderMotor);
   }
 
   public void setClimbSpeed(double speed){
-    mLeaderClimb.set(speed);
+    mLeaderClimb.set(speed); //speed should be -1.0 to 1.0
   }
   
   @Override

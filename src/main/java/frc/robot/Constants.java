@@ -57,7 +57,7 @@ public final class Constants {
     public static final int climbFollowerMotor = 4;
     public static final int pivotMotor = 30;
     public static final int pivotCANcoderID = 31;
-
+    public static final int ampMotor = 5;
   }
 
     /* Mechanism Current Limits */
@@ -67,8 +67,10 @@ public final class Constants {
   public static final int shooterPeakCurrentLimit = 70;
   public static final int pivotContinuousCurrentLimit = 30;
   public static final int pivotPeakCurrentLimit = 60;
-  public static final int climbContinuousCurrentLimit = 40; //TODO: ask build for the real numbers
-  public static final int climbPeakCurrentLimit = 80;
+  public static final int climbContinuousCurrentLimit = 40; //TODO: arbitrary numbers, figure out later
+  public static final int climbPeakCurrentLimit = 80; //find actual number later
+  public static final int ampContinuousCurrentLimit = 10; //find actual number later
+  public static final int ampPeakCurrentLimit = 20; //if this fails, blame SAKET for giving us an arbitrary number
 
   public static final double FIELD_WIDTH_METERS = 8.21055;
   public static final double FIELD_LENGTH_METERS = 16.54175;
