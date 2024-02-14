@@ -21,12 +21,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Camera;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.EthansGlasses;
+import frc.robot.subsystems.Intake;
 
 public class RobotContainer {
 
   private final Camera camera2 = Camera.getInstance();
-  private final EthansGlasses Glasses = EthansGlasses.getInstance();
+  private final Intake s_Intake = Intake.getInstance();
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -78,9 +78,9 @@ public class RobotContainer {
     
     
     // temp code i know it sucks lol 
-    driverRighTrigger.onTrue(new InstantCommand(() -> Glasses.setSpeed(0.5)));
-    driverDpadUp.onTrue(new InstantCommand(() -> Glasses.setSpeed(Glasses.getSpeed() + 0.1)));
-    driverDpadDown.onTrue(new InstantCommand(() -> Glasses.setSpeed(Glasses.getSpeed() - 0.1)));
+    driverRighTrigger.onTrue(new InstantCommand(() -> s_Intake.setSpeed(0.5)));
+    driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.setSpeed(s_Intake.getSpeed() + 0.1)));
+    driverDpadDown.onTrue(new InstantCommand(() -> s_Intake.setSpeed(s_Intake.getSpeed() - 0.1)));
   }
 
   public RobotContainer() {

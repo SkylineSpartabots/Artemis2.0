@@ -50,9 +50,13 @@ public final class Constants {
   }
   public static final class HardwarePorts {
     // motors (predicted) IDs not fixed
-    public static final int shooterLeaderMotor = 22;
-    public static final int shooterFollowerMotor = 23;
-    public static final int intakeMotor = 24;
+    // public static final int shooterLeaderMotor = 22;
+    // public static final int shooterFollowerMotor = 23;
+    // public static final int intakeMotor = 24;
+    public static final int intakeFollowerMotor = 43;
+    public static final int intakeLeaderMotor = 44;
+    public static final int intakeCerealMotor = 45;
+
     public static final int climbLeaderMotor = 3;
     public static final int climbFollowerMotor = 4;
     public static final int pivotMotor = 30;
@@ -63,6 +67,8 @@ public final class Constants {
     /* Mechanism Current Limits */
   public static final int intakeContinuousCurrentLimit = 30;
   public static final int intakePeakCurrentLimit = 70;
+
+
   public static final int shooterContinuousCurrentLimit = 30;
   public static final int shooterPeakCurrentLimit = 70;
   public static final int pivotContinuousCurrentLimit = 30;
