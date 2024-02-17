@@ -78,4 +78,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
 
+    public void updateWithVision(){
+        //s_Swerve.m_odometry.addVisionMeasurement(getPose(), ModuleCount); like this
+    }
+
 }

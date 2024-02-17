@@ -11,39 +11,51 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class Camera extends SubsystemBase {
-    private static Camera instance;
+public class Vision extends SubsystemBase {
+    private static Vision instance;
     private static PhotonCamera aprilTagCamera;
     private static PhotonPipelineResult aprilTagCamResult;
     private static PhotonTrackedTarget lastValidTarget;
 
     
-      // The observer fuses our encoder data and voltage inputs to reject noise.
-    //   private final KalmanFilter<N1, N1, N1> m_observer =
-    //   new KalmanFilter<>(
-    //       Nat.N1(),
-    //       Nat.N1(),
-    //       m_flywheelPlant,
-    //       VecBuilder.fill(3.0), // How accurate we think our model is
-    //       VecBuilder.fill(0.01), // How accurate we think our encoder
-    //       // data is
-    //       0.020);
+    //   public static final LinearSystem<N2, N1, N1> swervePlant =
+    //     LinearSystemId.identifyDrivetrainSystem(
+    //         DCMotor.getFalcon500(2),
+    //         Units.lbsToKilograms(7.5),
+    //         1.75, // Do we need to multiple b/c cascading elevator?
+    //         elevatorGearRatio);
+
+    // public static final KalmanFilter<N2, N1, N1> elevatorEstimator =
+    //     new KalmanFilter<>(
+    //         Nat.N2(),
+    //         Nat.N1(),
+    //         elevatorPlant,
+    //         VecBuilder.fill(2, 40), // How accurate we
+    //         // think our model is, in inches and inches/second.
+    //         VecBuilder.fill(0.001), // How accurate we think our encoder position
+    //         // data is. In this case we very highly trust our encoder position reading.
+    //         0.020);
     
     private Rotation2d targetYaw;
 //    private static PhotonCamera visionCamera;
-    public static Camera getInstance() {
+    public static Vision getInstance() {
         if (instance == null) {
-            instance = new Camera();
+            instance = new Vision();
         }
         return instance;
     }
-    private Camera() {
+    private Vision() {
         aprilTagCamera = new PhotonCamera(Constants.vision.cameraName);
         updateAprilTagResult();
     }
