@@ -21,10 +21,20 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.IntakeStates;
+import frc.robot.subsystems.Indexer;
+import frc.robot.commands.SetIndexer;
+import frc.robot.commands.SetIntake;
+import frc.robot.commands.SetShooter;
 
 public class RobotContainer {
 
   private final Vision camera2 = Vision.getInstance();
+  private final Shooter s_Shooter = Shooter.getInstance();
+  private final  Indexer s_Indexer =  Indexer.getInstance();
+  private final  Intake Is_intake =  Intake.getInstance();
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -49,8 +59,13 @@ public class RobotContainer {
   private final Trigger driverLeftBumper = driver.rightBumper();
   private final Trigger driverLefTrigger = driver.leftTrigger();
   private final Trigger driverRighTrigger = driver.rightTrigger();
+  private final Trigger driverDpadUp = driver.povUp();
+  private final Trigger driverDpadDown = driver.povDown();
 
   private void configureBindings() {
+
+    //nothing is binded to intake, indexer, or shooter yet
+
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
                                                                                            // negative Y (forward)
@@ -74,6 +89,20 @@ public class RobotContainer {
   public RobotContainer() {
     configureBindings();
   }
+
+  public Command onIntake() {
+    return new SetIntake(IntakeStates.ON);
+  }
+
+  public Command offIntake() {
+    return new SetIntake(IntakeStates.OFF);
+  }
+
+  public Command revIntake() {
+    return new SetIntake(IntakeStates.REV);
+  }
+
+
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
