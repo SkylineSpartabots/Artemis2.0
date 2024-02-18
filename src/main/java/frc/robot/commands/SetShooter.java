@@ -7,20 +7,33 @@ import frc.robot.subsystems.Shooter;
 public class SetShooter extends Command {
     private final Shooter s_Shooter;
     double finalSpeed;
+    Boolean motorLoc = true;
 
-    public SetShooter(Shooter.ShooterStates state) { //change from off or max speed
+    /**
+     * @param MotorLocation
+     * true = top motor
+     * false = bottom motor
+     */
+    public SetShooter(Shooter.ShooterStates state, boolean MotorLocation) { //change from off or max speed
         s_Shooter = Shooter.getInstance();
         finalSpeed = state.getValue();
+        motorLoc = MotorLocation;
         addRequirements(s_Shooter);
     }
 
-    public SetShooter(double difference) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
+    /**
+     * @param MotorLocation
+     * true = top motor
+     * false = bottom motor
+     */
+    public SetShooter(double difference, boolean MotorLocation) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
         s_Shooter = Shooter.getInstance();
 
-        double addedSpeed = s_Shooter.getSpeed() + difference;
+        double addedSpeed = s_Shooter.getSpeed(MotorLocation) + difference;
 
         if (addedSpeed <= 1 && addedSpeed >= 0) {
             finalSpeed = addedSpeed;
+            motorLoc = MotorLocation;
         }
 
         addRequirements(s_Shooter);
@@ -33,7 +46,7 @@ public class SetShooter extends Command {
 
     @Override
     public void execute() {
-        s_Shooter.setSpeed(finalSpeed);
+        s_Shooter.setSpeed(finalSpeed, motorLoc);
     }
 
     @Override

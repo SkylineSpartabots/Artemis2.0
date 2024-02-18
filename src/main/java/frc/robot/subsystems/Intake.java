@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+
 public class Intake extends SubsystemBase {
 
     private static Intake instance;
@@ -26,14 +27,17 @@ public class Intake extends SubsystemBase {
 
     private String state;
 
-    private TalonFX intakeFollowerM;
+    private CANSparkMax intakeFollowerM;
     private CANSparkMax intakeLeaderM;
+
+    private TalonFX SerializationM; // Someone told me this will control both
 
     public Intake() {
         intakeLeaderM = new CANSparkMax(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
-        intakeFollowerM = new TalonFX(Constants.HardwarePorts.intakeFollowerM);
+        intakeFollowerM = new CANSparkMax(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
         intakeFollowerM.setInverted(true);
-        intakeFollowerM.setControl(new StrictFollower(Constants.HardwarePorts.intakeLeaderM));
+        intakeFollowerM.follow(intakeLeaderM);
+        SerializationM.setControl( new StrictFollower(Constants.HardwarePorts.intakeLeaderM));
     }
 
     public enum IntakeStates {
@@ -51,6 +55,7 @@ public class Intake extends SubsystemBase {
         intakeLeaderM.set(state.speed);
         this.state = state.name();
     }
+
 
     @Override
     public void periodic() {

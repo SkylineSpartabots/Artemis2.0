@@ -22,16 +22,16 @@ public class Shooter extends SubsystemBase {
         return instance;
     }
 
-    private CANSparkMax shooterLeaderM;
-    private CANSparkMax shooterFollowerM;
+    private CANSparkMax shooterTopM;
+    private CANSparkMax shooterBottomM;
 
-    private double currentSpeed;
+    private double currentTopSpeed = 0;
+    private double currentBottomSpeed = 0;
 
     public Shooter() {
-        shooterLeaderM = new CANSparkMax(Constants.HardwarePorts.shooterLeaderM, MotorType.kBrushless);
-        shooterFollowerM = new CANSparkMax(Constants.HardwarePorts.shooterFollowerM, MotorType.kBrushless);
-        shooterFollowerM.setInverted(true);
-        shooterFollowerM.follow(shooterLeaderM);
+        shooterTopM = new CANSparkMax(Constants.HardwarePorts.shooterLeaderM, MotorType.kBrushless);
+        shooterBottomM = new CANSparkMax(Constants.HardwarePorts.shooterFollowerM, MotorType.kBrushless);
+        shooterBottomM.setInverted(true);
     }
 
     public enum ShooterStates {
@@ -49,23 +49,27 @@ public class Shooter extends SubsystemBase {
 
     }
 
-    public void setSpeed(ShooterStates state) { //change state
-        shooterLeaderM.set(state.speed);
-        currentSpeed = state.getValue();
+    public void setSpeed(double speed, boolean MotorLocation) {
+        if(MotorLocation) {
+            shooterTopM.set(speed);
+            currentTopSpeed = speed;
+        } else if (MotorLocation) {
+            shooterBottomM.set(speed);
+            currentBottomSpeed = speed;
+        }
     }
 
-    public void setSpeed(double newSpeed) { //change specific Speed
-        shooterLeaderM.set(newSpeed);
-        currentSpeed = newSpeed;
-    }
-
-    public double getSpeed() { //gets specific Speed (i hope)
-        return currentSpeed;
+    /**
+     * @param MotorLocation
+     * true = top motor
+     * false = bottom motor
+     */
+    public double getSpeed(boolean MotorLocation) { //gets specific Speed (i hope)
+        if(MotorLocation) {return currentTopSpeed;} else{ return currentBottomSpeed;}
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Current speed", currentSpeed);
     }
 
     @Override

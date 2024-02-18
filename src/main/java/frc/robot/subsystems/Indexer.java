@@ -21,38 +21,52 @@ public class Indexer extends SubsystemBase {
         return instance;
     }
 
-    private String state;   // hi
-
-    private CANSparkMax indexerM;
+    private String state;
+    private double currentTopSpeed = 0;
+    private double currentBottomSpeed = 0;
+    private CANSparkMax indexerTopM;
+    private CANSparkMax indexerBottomM;
 
     public Indexer() {
-        indexerM = new CANSparkMax(Constants.HardwarePorts.indexerM, MotorType.kBrushless);
+        indexerTopM = new CANSparkMax(Constants.HardwarePorts.indexerM, MotorType.kBrushless);
+        indexerBottomM = new CANSparkMax(Constants.HardwarePorts.indexerM, MotorType.kBrushless);
+        indexerBottomM.setInverted(true);
     }
 
     public enum IndexerStates {
         ON(1),
         OFF(0);
         private double speed;
+        public double getValue() {
+            return speed;
+        } // how use
 
-        IndexerStates(double speed) {
+        IndexerStates(double    speed) {
             this.speed = speed;
         }
     }
 
-    public void setSpeed(IndexerStates state) {
-        indexerM.set(state.speed);
-        this.state = state.name();
+    /**
+     * @param MotorLocation
+     * true = top motor
+     * false = bottom motor
+     */
+    public void setSpeed(double speed, boolean MotorLocation) {
+        if(MotorLocation) {
+            indexerTopM.set(speed);
+            currentTopSpeed = speed;
+        } else if (MotorLocation) {
+            indexerBottomM.set(speed);
+            currentBottomSpeed = speed;
+        }
     }
 
-    public void setSpeed(double speed) {
-        indexerM.set(speed);
+    public double getSpeed(boolean MotorLocation) { //gets specific Speed (i hope)
+        if(MotorLocation) {return currentTopSpeed;} else{ return currentBottomSpeed;}
     }
 
     @Override
     public void periodic() {
-        if (state != null) {
-            SmartDashboard.putString("indexer state", state);
-        }
     }
 
     @Override
