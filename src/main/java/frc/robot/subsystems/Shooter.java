@@ -34,6 +34,18 @@ public class Shooter extends SubsystemBase {
         shooterBottomM = new CANSparkMax(Constants.HardwarePorts.shooterFollowerM, MotorType.kBrushless);
         shooterBottomM.setInverted(true);
     }
+    
+    private void configMotors(){
+        shooterTopM.getPIDController().setFF(0.0078);
+        shooterTopM.getPIDController().setP(0.3);
+        shooterTopM.getPIDController().setI(0.017);
+        shooterTopM.getPIDController().setD(0.005);
+        
+        // shooterBottomM.getPIDController().setFF(0.0);
+        // shooterBottomM.getPIDController().setP(0.0);
+        // shooterBottomM.getPIDController().setI(0.0);
+        // shooterBottomM.getPIDController().setD(0.0);
+    }
 
     public enum ShooterStates {
         MAX(1),
