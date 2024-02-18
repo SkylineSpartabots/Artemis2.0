@@ -29,7 +29,6 @@ public class Intake extends SubsystemBase {
 
     private CANSparkMax intakeFollowerM;
     private CANSparkMax intakeLeaderM;
-
     private TalonSRX SerializationM; // Someone told me this will control both
 
     public Intake() {
@@ -37,7 +36,7 @@ public class Intake extends SubsystemBase {
         intakeFollowerM = new CANSparkMax(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
         intakeFollowerM.setInverted(true);
         intakeFollowerM.follow(intakeLeaderM);
-        SerializationM.follow((IMotorController) intakeLeaderM); // this seems illegal but idk
+        SerializationM.follow((IMotorController) intakeLeaderM);
     }
 
     public enum IntakeStates {
@@ -47,7 +46,7 @@ public class Intake extends SubsystemBase {
         private double speed;
         public double getValue() {
             return speed;
-        } // how use
+        }
 
         IntakeStates(double speed) {
             this.speed = speed;

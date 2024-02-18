@@ -29,8 +29,8 @@ public class Indexer extends SubsystemBase {
     private CANSparkMax indexerBottomM;
 
     public Indexer() {
-        indexerTopM = new CANSparkMax(Constants.HardwarePorts.indexerM, MotorType.kBrushless);
-        indexerBottomM = new CANSparkMax(Constants.HardwarePorts.indexerM, MotorType.kBrushless);
+        indexerTopM = new CANSparkMax(Constants.HardwarePorts.indexerTopM, MotorType.kBrushless);
+        indexerBottomM = new CANSparkMax(Constants.HardwarePorts.indexerBottomM, MotorType.kBrushless);
         indexerBottomM.setInverted(true);
     }
 
@@ -38,20 +38,22 @@ public class Indexer extends SubsystemBase {
         ON(1),
         OFF(0);
         private double speed;
+
         public double getValue() {
             return speed;
         }
 
-        IndexerStates(double    speed) {
+        IndexerStates(double speed) {
             this.speed = speed;
         }
     }
 
-    public enum IndexerMotors{
-        BOTTOM(0),
-        TOP(1),
-        BOTH(2);
-        private int motor; //
+    public enum IndexerMotors {
+        BOTTOM(1),
+        TOP(2),
+        BOTH(0);
+        private int motor;
+
         public int getValue() {
             return motor;
         }
@@ -61,37 +63,45 @@ public class Indexer extends SubsystemBase {
         }
 
     }
-    public void setSpeed(double[] speeds, int MotorLocation) {
-        if (MotorLocation == 0) {
-            indexerBottomM.set(speeds[MotorLocation]);
-            currentBottomSpeed = speeds[MotorLocation];
-        } else if(MotorLocation == 1) {
-            indexerTopM.set(speeds[MotorLocation]);
-            currentTopSpeed = speeds[MotorLocation];
-        } else if (MotorLocation == 2) {
-            indexerTopM.set(speeds[MotorLocation]);
-            currentTopSpeed = speeds[MotorLocation];
-            indexerBottomM.set(speeds[MotorLocation]);
-            currentBottomSpeed = speeds[MotorLocation];
+
+    public void setSpeed(double[] speeds, IndexerMotors MotorLocation) {
+        var motor = MotorLocation.getValue();
+        if (MotorLocation == IndexerMotors.BOTTOM) {
+            indexerBottomM.set(speeds[motor]);
+            currentBottomSpeed = speeds[motor];
+        } else if (MotorLocation == IndexerMotors.TOP) {
+            indexerTopM.set(speeds[motor]);
+            currentTopSpeed = speeds[motor];
+        } else if (MotorLocation == IndexerMotors.BOTH) {
+            indexerTopM.set(speeds[motor]);
+            indexerBottomM.set(speeds[motor]);
+            currentTopSpeed = speeds[motor];
+            currentBottomSpeed = speeds[motor];
         }
 //        this.stateName = state.name();
 
     }
+
     public double getSpeed(IndexerMotors motor) {
-        if(motor == IndexerMotors.BOTTOM) {
+        if (motor == IndexerMotors.BOTTOM) {
             return currentBottomSpeed;
-        } else if (motor == IndexerMotors.TOP){
+        } else if (motor == IndexerMotors.TOP) {
             return currentTopSpeed;
         } else {
-            return 0; // how do i handle this - it wants a return but like there is no default case?
+            return -1;
         }
     }
 
-    public double getTopSpeed() { //gets specific Speed (i hope)
+    public double getTopSpeed() {
         return currentTopSpeed;
     }
-    public double getBottomSpeed() { //gets specific Speed (i hope)
+
+    public double getBottomSpeed() {
         return currentBottomSpeed;
+    }
+
+    public double[] getBothSpeeds() {
+        return new double[]{currentBottomSpeed, currentTopSpeed};
     }
 
     @Override

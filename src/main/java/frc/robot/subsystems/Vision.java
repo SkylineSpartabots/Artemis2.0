@@ -79,7 +79,7 @@ public class Vision extends SubsystemBase {
     }
 
     public boolean hasValidTarget() {
-        return aprilTagCamResult.hasTargets() && 1 <= aprilTagCamResult.getBestTarget().getFiducialId() && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        return aprilTagCamResult.hasTargets() && aprilTagCamResult.getBestTarget().getFiducialId() >= 1 && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.vision.aprilTagMax;
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set
@@ -101,7 +101,13 @@ public class Vision extends SubsystemBase {
         return targetDistance;
     }
 
-    public void updateOdometry(){
+    public void visionUpdateOdometry(){
+        
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Caluclated Robot Posiiton", 0);
     }
 }
 
