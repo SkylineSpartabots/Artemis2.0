@@ -54,6 +54,7 @@ public class Shooter extends SubsystemBase {
         TOP(1),
         BOTH(2);
         private int motor; // can i just use an int idk but it didnt like a motor like CANSparxflex or whatevr
+        //this setup is lowk wack ngl
         public int getValue() {
             return motor;
         }
@@ -64,6 +65,11 @@ public class Shooter extends SubsystemBase {
 
     }
 
+    /**
+     * 
+     * @param speeds
+     * @param MotorLocation: 1 is top motor, 2 is bottom motor, 0 is both
+     */
     public void setSpeed(double[] speeds, int MotorLocation) {
         if (MotorLocation == 0) {
             shooterBottomM.set(speeds[MotorLocation]);
@@ -78,8 +84,16 @@ public class Shooter extends SubsystemBase {
             currentBottomSpeed = speeds[MotorLocation];
         }
 //        this.stateName = state.name();
-
     }
+
+    public void setSpeed(double rpm){
+        double[] speeds = new double[3];
+        for(int i = 0;  i < 3; i++){
+            speeds[i] = rpm;
+        }
+        setSpeed(speeds, 0);
+    }
+    
     public double getSpeed(Shooter.ShooterMotors motor) {
         if(motor == Shooter.ShooterMotors.BOTTOM) {
             return currentBottomSpeed;
