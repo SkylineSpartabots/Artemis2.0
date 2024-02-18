@@ -62,13 +62,14 @@ public final class Constants {
         public static final int shooterBottomM = 4;
         public static final int indexerTopM = 5;
         public static final int indexerBottomM = 6;
-        public static final int intakeLeaderM = 2;
-        public static final int intakeFollowerM = 1;
+        public static final int intakeLeaderM = 20;
+        public static final int intakeFollowerM = 21;
         public static final int climbLeaderMotor = 3;
         public static final int climbFollowerMotor = 4;
         public static final int pivotMotor = 30;
         public static final int pivotCANcoderID = 31;
         public static final int ampMotor = 0;
+        
     }
 
     /* Mechanism Current Limits */

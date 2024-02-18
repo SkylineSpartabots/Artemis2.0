@@ -4,10 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkFlex;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -27,16 +28,16 @@ public class Intake extends SubsystemBase {
 
     private String stateName;
 
-    private CANSparkMax intakeFollowerM;
-    private CANSparkMax intakeLeaderM;
+    private CANSparkFlex intakeFollowerM;
+    private CANSparkFlex intakeLeaderM;
     private TalonSRX SerializationM; // Someone told me this will control both
 
     public Intake() {
-        intakeLeaderM = new CANSparkMax(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
-        intakeFollowerM = new CANSparkMax(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
+        intakeLeaderM = new CANSparkFlex(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
+        intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
         intakeFollowerM.setInverted(true);
         intakeFollowerM.follow(intakeLeaderM);
-        SerializationM.follow((IMotorController) intakeLeaderM);
+        SerializationM = new TalonSRX(22);
     }
 
     public enum IntakeStates {
@@ -55,7 +56,14 @@ public class Intake extends SubsystemBase {
 
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.set(state.speed);
+        if (state == IntakeStates.ON) {
+            SerializationM.set(ControlMode.PercentOutput, 0.2);
+        } else {
+            SerializationM.set(ControlMode.PercentOutput, 0);
+        }
+        
         this.stateName = state.name();
+
     }
 
 

@@ -57,14 +57,18 @@ public class RobotContainer {
     private final Trigger driverY = driver.y();
     private final Trigger driverRightBumper = driver.rightBumper();
     private final Trigger driverLeftBumper = driver.rightBumper();
-    private final Trigger driverLefTrigger = driver.leftTrigger();
-    private final Trigger driverRighTrigger = driver.rightTrigger();
+    private final Trigger driverLeftTrigger = driver.leftTrigger();
+    private final Trigger driverRightTrigger = driver.rightTrigger();
     private final Trigger driverDpadUp = driver.povUp();
     private final Trigger driverDpadDown = driver.povDown();
 
     private void configureBindings() {
 
         //nothing is binded to intake, indexer, or shooter yet
+        driver.a().onTrue(onIntake());
+        driver.b().onTrue(offIntake());
+        driver.x().onTrue(revIntake());
+
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with

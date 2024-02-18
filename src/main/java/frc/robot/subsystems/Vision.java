@@ -79,7 +79,7 @@ public class Vision extends SubsystemBase {
     }
 
     public boolean hasValidTarget() {
-        return aprilTagCamResult.hasTargets() && aprilTagCamResult.getBestTarget().getFiducialId() >= 1 && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.vision.aprilTagMax;
+        return aprilTagCamResult.hasTargets() && aprilTagCamResult.getBestTarget().getFiducialId() >= 1 && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set

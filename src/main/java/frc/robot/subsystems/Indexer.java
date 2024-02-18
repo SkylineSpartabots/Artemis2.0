@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkFlex;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -25,12 +25,12 @@ public class Indexer extends SubsystemBase {
     // issue is that indexer can be any random number
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
-    private CANSparkMax indexerTopM;
-    private CANSparkMax indexerBottomM;
+    private CANSparkFlex indexerTopM;
+    private CANSparkFlex indexerBottomM;
 
     public Indexer() {
-        indexerTopM = new CANSparkMax(Constants.HardwarePorts.indexerTopM, MotorType.kBrushless);
-        indexerBottomM = new CANSparkMax(Constants.HardwarePorts.indexerBottomM, MotorType.kBrushless);
+        indexerTopM = new CANSparkFlex(Constants.HardwarePorts.indexerTopM, MotorType.kBrushless);
+        indexerBottomM = new CANSparkFlex(Constants.HardwarePorts.indexerBottomM, MotorType.kBrushless);
         indexerBottomM.setInverted(true);
     }
 
