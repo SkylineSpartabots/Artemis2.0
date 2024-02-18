@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -23,16 +23,16 @@ public class Shooter extends SubsystemBase {
     }
     private String stateName; // to be used for periodic display - should be set everytime shooter is set
     // issue is that shooter can be any random number
-    private CANSparkMax shooterTopM;
-    private CANSparkMax shooterBottomM;
+    private CANSparkFlex m_shooterTop; // Top Roller
+    private CANSparkFlex m_shooterBottom; // Bottom Roller
 
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
 
     public Shooter() {
-        shooterTopM = new CANSparkMax(Constants.HardwarePorts.shooterLeaderM, MotorType.kBrushless);
-        shooterBottomM = new CANSparkMax(Constants.HardwarePorts.shooterFollowerM, MotorType.kBrushless);
-        shooterBottomM.setInverted(true);
+        m_shooterTop = new CANSparkFlex(Constants.HardwarePorts.m_shooterTop, MotorType.kBrushless);
+        m_shooterBottom = new CANSparkFlex(Constants.HardwarePorts.m_shooterBottom, MotorType.kBrushless);
+        m_shooterBottom.setInverted(true);
     }
 
     public enum ShooterStates {
@@ -66,15 +66,15 @@ public class Shooter extends SubsystemBase {
 
     public void setSpeed(double[] speeds, int MotorLocation) {
         if (MotorLocation == 0) {
-            shooterBottomM.set(speeds[MotorLocation]);
+            m_shooterBottom.set(speeds[MotorLocation]);
             currentBottomSpeed = speeds[MotorLocation];
         } else if(MotorLocation == 1) {
-            shooterTopM.set(speeds[MotorLocation]);
+            m_shooterTop.set(speeds[MotorLocation]);
             currentTopSpeed = speeds[MotorLocation];
         } else if (MotorLocation == 2) {
-            shooterTopM.set(speeds[MotorLocation]);
+            m_shooterTop.set(speeds[MotorLocation]);
             currentTopSpeed = speeds[MotorLocation];
-            shooterBottomM.set(speeds[MotorLocation]);
+            m_shooterBottom.set(speeds[MotorLocation]);
             currentBottomSpeed = speeds[MotorLocation];
         }
 //        this.stateName = state.name();

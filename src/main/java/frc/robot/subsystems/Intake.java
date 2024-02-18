@@ -6,8 +6,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -27,17 +27,20 @@ public class Intake extends SubsystemBase {
 
     private String stateName;
 
-    private CANSparkMax intakeFollowerM;
-    private CANSparkMax intakeLeaderM;
+        private CANSparkFlex m_intakeLeader;
+    private CANSparkFlex m_intakeFollower;
 
-    private TalonSRX SerializationM; // Someone told me this will control both
+    private TalonSRX m_serialization; // Someone told me this will control both
 
     public Intake() {
-        intakeLeaderM = new CANSparkMax(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
-        intakeFollowerM = new CANSparkMax(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
-        intakeFollowerM.setInverted(true);
-        intakeFollowerM.follow(intakeLeaderM);
-        SerializationM.follow((IMotorController) intakeLeaderM); // this seems illegal but idk
+        m_intakeLeader = new CANSparkFlex(Constants.HardwarePorts.m_intakeLeft, MotorType.kBrushless);
+        m_intakeFollower = new CANSparkFlex(Constants.HardwarePorts.m_intakeRight, MotorType.kBrushless);
+        m_intakeFollower.setInverted(true);
+        m_intakeFollower.follow(m_intakeLeader);
+
+        //! check if this is correct
+        m_serialization = new TalonSRX(Constants.HardwarePorts.m_serialization); //! this spins at a different speed than intake motors
+        // SerializationM.follow((IMotorController) intakeLeaderM); // this seems illegal but idk
     }
 
     public enum IntakeStates {
@@ -55,7 +58,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void setSpeed(IntakeStates state) {
-        intakeLeaderM.set(state.speed);
+        m_intakeLeader.set(state.speed);
         this.stateName = state.name();
     }
 

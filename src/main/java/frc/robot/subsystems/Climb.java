@@ -14,8 +14,8 @@ import frc.robot.Constants;
 public class Climb extends SubsystemBase {
   private static Climb s_Climb;
 
-  private CANSparkFlex mLeaderClimb;
-  private CANSparkFlex mFollowerClimb;
+  private CANSparkFlex m_leaderClimb;
+  private CANSparkFlex m_followerClimb;
   
   public static Climb getInstance() {
     if(s_Climb == null){
@@ -25,11 +25,11 @@ public class Climb extends SubsystemBase {
   }
 
   public Climb() {
-    mLeaderClimb = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
-    configLeaderMotor(mLeaderClimb);
+    m_leaderClimb = new CANSparkFlex(Constants.HardwarePorts.m_climbLeft, MotorType.kBrushless);
+    configLeaderMotor(m_leaderClimb);
 
-    mFollowerClimb = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
-    configFollowerMotor(mFollowerClimb, mLeaderClimb);
+    m_followerClimb = new CANSparkFlex(Constants.HardwarePorts.m_climbRight, MotorType.kBrushless);
+    configFollowerMotor(m_followerClimb, m_leaderClimb);
   }
 
 
@@ -50,7 +50,7 @@ public class Climb extends SubsystemBase {
   }
 
   public void setClimbSpeed(double speed){
-    mLeaderClimb.set(speed); //speed should be -1.0 to 1.0
+    m_leaderClimb.set(speed); //speed should be -1.0 to 1.0
   }
   
   @Override

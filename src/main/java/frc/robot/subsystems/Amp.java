@@ -22,19 +22,20 @@ public class Amp extends SubsystemBase {
         }
         return s_Amp;
     }
+  private TalonSRX m_amp;
+
   public Amp() {
-    mAmp = new TalonSRX(Constants.HardwarePorts.ampMotor);
-    mAmp.setNeutralMode(NeutralMode.Brake);
+    m_amp = new TalonSRX(Constants.HardwarePorts.m_amp);
+    m_amp.setNeutralMode(NeutralMode.Brake);
   }
 
-  private TalonSRX mAmp;
 
   public void setVelocity(double velocity){
-    mAmp.set(ControlMode.Velocity, velocity);
+    m_amp.set(ControlMode.Velocity, velocity);
   }
 
   public void setPercentPower(double power){
-    mAmp.set(ControlMode.PercentOutput, power); //input values in [-1, 1]
+    m_amp.set(ControlMode.PercentOutput, power); //input values in [-1, 1]
   }
 
   public void ejectNote(){

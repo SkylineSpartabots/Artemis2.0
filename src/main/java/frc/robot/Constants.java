@@ -55,18 +55,24 @@ public final class Constants {
     public static final double pivotkD = 0.00;
   }
   public static final class HardwarePorts {
-    // motors (predicted) IDs not fixed
+    // motors CAN IDs
+    // left motor is the leader motor (ends in 0)
+    // right motor is the follower motor (ends in 1)
 
-    public static final int shooterLeaderM = 3;
-    public static final int shooterFollowerM = 4;
-    public static final int indexerM = 5;
-    public static final int intakeLeaderM = 2;
-    public static final int intakeFollowerM = 1;
-    public static final int climbLeaderMotor = 3;
-    public static final int climbFollowerMotor = 4;
-    public static final int pivotMotor = 30;
-    public static final int pivotCANcoderID = 31;
-    public static final int ampMotor = 0;
+    
+    public static final int m_intakeLeft = 20;
+    public static final int m_intakeRight = 21;
+    public static final int m_serialization = 22;
+    public static final int m_indexerTop = 30;
+    public static final int m_indexerBottom = 31;
+    public static final int m_pivotLeft = 40;
+    public static final int m_pivotRight = 41;
+    public static final int pivotCANcoderID = 42;
+    public static final int m_shooterBottom = 50; //Left 
+    public static final int m_shooterTop = 51; //Right 
+    public static final int m_climbLeft = 60;
+    public static final int m_climbRight = 61;
+    public static final int m_amp = 62;
   }
 
     /* Mechanism Current Limits */

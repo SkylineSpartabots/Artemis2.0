@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -25,13 +25,13 @@ public class Indexer extends SubsystemBase {
     // issue is that indexer can be any random number
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
-    private CANSparkMax indexerTopM;
-    private CANSparkMax indexerBottomM;
+    private CANSparkFlex m_indexerTop;
+    private CANSparkFlex m_indexerBottom;
 
     public Indexer() {
-        indexerTopM = new CANSparkMax(Constants.HardwarePorts.indexerM, MotorType.kBrushless);
-        indexerBottomM = new CANSparkMax(Constants.HardwarePorts.indexerM, MotorType.kBrushless);
-        indexerBottomM.setInverted(true);
+        m_indexerTop = new CANSparkFlex(Constants.HardwarePorts.m_indexerTop, MotorType.kBrushless);
+        m_indexerBottom = new CANSparkFlex(Constants.HardwarePorts.m_indexerBottom, MotorType.kBrushless);
+        m_indexerBottom.setInverted(true);
     }
 
     public enum IndexerStates {
@@ -63,15 +63,15 @@ public class Indexer extends SubsystemBase {
     }
     public void setSpeed(double[] speeds, int MotorLocation) {
         if (MotorLocation == 0) {
-            indexerBottomM.set(speeds[MotorLocation]);
+            m_indexerBottom.set(speeds[MotorLocation]);
             currentBottomSpeed = speeds[MotorLocation];
         } else if(MotorLocation == 1) {
-            indexerTopM.set(speeds[MotorLocation]);
+            m_indexerTop.set(speeds[MotorLocation]);
             currentTopSpeed = speeds[MotorLocation];
         } else if (MotorLocation == 2) {
-            indexerTopM.set(speeds[MotorLocation]);
+            m_indexerTop.set(speeds[MotorLocation]);
             currentTopSpeed = speeds[MotorLocation];
-            indexerBottomM.set(speeds[MotorLocation]);
+            m_indexerBottom.set(speeds[MotorLocation]);
             currentBottomSpeed = speeds[MotorLocation];
         }
 //        this.stateName = state.name();
