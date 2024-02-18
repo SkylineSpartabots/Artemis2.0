@@ -10,12 +10,15 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Pose2d;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
@@ -47,7 +50,9 @@ public class Vision extends SubsystemBase {
     //         // data is. In this case we very highly trust our encoder position reading.
     //         0.020);
     
-    private Rotation2d targetYaw;
+    private double targetYaw;
+    private double targetDistance;
+    private int targetID;
 //    private static PhotonCamera visionCamera;
     public static Vision getInstance() {
         if (instance == null) {
@@ -85,6 +90,15 @@ public class Vision extends SubsystemBase {
             lastValidTarget = newTarget;
         }
         return lastValidTarget;
+    }
+
+    public double getDistance(){
+        targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
+            Constants.Vision.cameraHeight, 
+            Constants.Vision.aprilTagHeight, 
+            Constants.Vision.cameraPitchOffset, 
+            Units.degreesToRadians(getBestTarget().getPitch()));
+        return targetDistance;
     }
 
     public void updateOdometry(){

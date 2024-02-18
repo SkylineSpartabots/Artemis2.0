@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -30,9 +31,14 @@ public final class Constants {
   public static final double stickDeadband = 0.15;
   public static final double triggerDeadzone = 0.2;
 
-  public static final class vision {
+  public static final class Vision {
     public static final int aprilTagMax = 16;
     public static final String cameraName = "cam";
+    public static final double cameraHeight = 0; //fix
+    public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet
+    public static final double cameraRollOffset = Units.degreesToRadians(0); 
+    public static final double cameraPitchOffset = Units.degreesToRadians(0);
+    public static final double cameraYawOffset = Units.degreesToRadians(0);
   }
 
 
@@ -60,7 +66,7 @@ public final class Constants {
     public static final int climbFollowerMotor = 4;
     public static final int pivotMotor = 30;
     public static final int pivotCANcoderID = 31;
-
+    public static final int ampMotor = 0;
   }
 
     /* Mechanism Current Limits */
@@ -70,6 +76,8 @@ public final class Constants {
   public static final int shooterPeakCurrentLimit = 70;
   public static final int pivotContinuousCurrentLimit = 30;
   public static final int pivotPeakCurrentLimit = 60;
+  public static final int climbContinuousCurrentLimit = 30; //arbitrary, fix later
+  public static final int climbPeakCurrentLimit = 70; //arbitrary, fix later
 
   public static final double FIELD_WIDTH_METERS = 8.21055;
   public static final double FIELD_LENGTH_METERS = 16.54175;
