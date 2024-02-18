@@ -30,9 +30,14 @@ public final class Constants {
   public static final double stickDeadband = 0.15;
   public static final double triggerDeadzone = 0.2;
 
-  public static final class vision {
+  public static final class Vision {
     public static final int aprilTagMax = 16;
     public static final String cameraName = "cam";
+    public static final double cameraHeight = 0; //fix
+    public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet
+    public static final double cameraRollOffset = 0;
+    public static final double cameraPitchOffset = 0;
+    public static final double cameraYawOffset = 0;
   }
 
 
