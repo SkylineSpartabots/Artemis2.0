@@ -97,7 +97,7 @@ public class Vision extends SubsystemBase {
             Constants.Vision.cameraHeight, 
             Constants.Vision.aprilTagHeight, 
             Constants.Vision.cameraPitchOffset, 
-            getBestTarget().getPitch());
+            Units.degreesToRadians(getBestTarget().getPitch()));
         return targetDistance;
     }
 
