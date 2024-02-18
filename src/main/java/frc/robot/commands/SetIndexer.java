@@ -17,8 +17,9 @@ public class SetIndexer extends Command {
      * @param MotorLocation
      * true = top motor
      * false = bottom motor
+     * null = both
      */
-    public SetIndexer(Indexer.IndexerStates state, boolean MotorLocation) {
+    public SetIndexer(Indexer.IndexerStates state, Boolean MotorLocation) {
         s_Indexer = Indexer.getInstance();
         finalSpeed = state.getValue();
         motorLoc = MotorLocation;
@@ -28,8 +29,9 @@ public class SetIndexer extends Command {
      * @param MotorLocation
      * true = top motor
      * false = bottom motor
+     * null = both
      */
-    public SetIndexer(double difference, boolean MotorLocation) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
+    public SetIndexer(double difference, Boolean MotorLocation) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
         s_Indexer = Indexer.getInstance();
 
         double addedSpeed = s_Indexer.getSpeed(MotorLocation) + difference;

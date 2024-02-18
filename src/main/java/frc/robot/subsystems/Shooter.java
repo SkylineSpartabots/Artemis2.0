@@ -53,15 +53,23 @@ public class Shooter extends SubsystemBase {
      * @param MotorLocation
      * true = top motor
      * false = bottom motor
+     * null = both
      */
-    public void setSpeed(double speed, boolean MotorLocation) {
+    public void setSpeed(double speed, Boolean MotorLocation) {
         if(MotorLocation) {
             shooterTopM.set(speed);
             currentTopSpeed = speed;
-        } else if (MotorLocation) {
+        } else if (!MotorLocation) {
+            shooterBottomM.set(speed);
+            currentBottomSpeed = speed;
+        } else if (MotorLocation == null) {
+            shooterTopM.set(speed);
+            currentTopSpeed = speed;
             shooterBottomM.set(speed);
             currentBottomSpeed = speed;
         }
+//        this.stateName = state.name();
+
     }
 
     /**
@@ -69,6 +77,7 @@ public class Shooter extends SubsystemBase {
      * true = top motor
      * false = bottom motor
      */
+    // nuh uh no null to get both cause thats whacky weird do it yourself
     public double getSpeed(boolean MotorLocation) { //gets specific Speed (i hope)
         if(MotorLocation) {return currentTopSpeed;} else{ return currentBottomSpeed;}
     }

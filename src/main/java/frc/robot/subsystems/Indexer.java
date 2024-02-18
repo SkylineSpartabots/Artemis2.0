@@ -51,21 +51,30 @@ public class Indexer extends SubsystemBase {
      * @param MotorLocation
      * true = top motor
      * false = bottom motor
+     * null = both
      */
-    public void setSpeed(double speed, boolean MotorLocation) {
+    public void setSpeed(double speed, Boolean MotorLocation) {
         if(MotorLocation) {
             indexerTopM.set(speed);
             currentTopSpeed = speed;
-        } else if (MotorLocation) {
+        } else if (!MotorLocation) {
+            indexerBottomM.set(speed);
+            currentBottomSpeed = speed;
+        } else if (MotorLocation == null) {
+            indexerTopM.set(speed);
+            currentTopSpeed = speed;
             indexerBottomM.set(speed);
             currentBottomSpeed = speed;
         }
+//        this.stateName = state.name();
+
     }
     /**
      * @param MotorLocation
      * true = top motor
      * false = bottom motor
      */
+    // you cant do null for this cause just get both them your self lazy lazy
     public double getSpeed(boolean MotorLocation) { //gets specific Speed (i hope)
         if(MotorLocation) {return currentTopSpeed;} else{ return currentBottomSpeed;}
     }

@@ -13,8 +13,9 @@ public class SetShooter extends Command {
      * @param MotorLocation
      * true = top motor
      * false = bottom motor
+     * null = both
      */
-    public SetShooter(Shooter.ShooterStates state, boolean MotorLocation) { //change from off or max speed
+    public SetShooter(Shooter.ShooterStates state, Boolean MotorLocation) { //change from off or max speed
         s_Shooter = Shooter.getInstance();
         finalSpeed = state.getValue();
         motorLoc = MotorLocation;
@@ -25,8 +26,9 @@ public class SetShooter extends Command {
      * @param MotorLocation
      * true = top motor
      * false = bottom motor
+     * null = both
      */
-    public SetShooter(double difference, boolean MotorLocation) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
+    public SetShooter(double difference, Boolean MotorLocation) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
         s_Shooter = Shooter.getInstance();
 
         double addedSpeed = s_Shooter.getSpeed(MotorLocation) + difference;
