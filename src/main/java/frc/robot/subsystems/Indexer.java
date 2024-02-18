@@ -60,7 +60,11 @@ public class Indexer extends SubsystemBase {
             currentBottomSpeed = speed;
         }
     }
-
+    /**
+     * @param MotorLocation
+     * true = top motor
+     * false = bottom motor
+     */
     public double getSpeed(boolean MotorLocation) { //gets specific Speed (i hope)
         if(MotorLocation) {return currentTopSpeed;} else{ return currentBottomSpeed;}
     }

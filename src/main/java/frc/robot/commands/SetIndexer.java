@@ -24,6 +24,11 @@ public class SetIndexer extends Command {
         motorLoc = MotorLocation;
         addRequirements(s_Indexer);
     }
+    /**
+     * @param MotorLocation
+     * true = top motor
+     * false = bottom motor
+     */
     public SetIndexer(double difference, boolean MotorLocation) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
         s_Indexer = Indexer.getInstance();
 

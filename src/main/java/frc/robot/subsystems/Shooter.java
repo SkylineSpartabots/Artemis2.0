@@ -48,7 +48,11 @@ public class Shooter extends SubsystemBase {
         }
 
     }
-
+    /**
+     * @param MotorLocation
+     * true = top motor
+     * false = bottom motor
+     */
     public void setSpeed(double speed, boolean MotorLocation) {
         if(MotorLocation) {
             shooterTopM.set(speed);
