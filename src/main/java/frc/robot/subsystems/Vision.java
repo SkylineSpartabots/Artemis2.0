@@ -61,7 +61,7 @@ public class Vision extends SubsystemBase {
         return instance;
     }
     private Vision() {
-        aprilTagCamera = new PhotonCamera(Constants.vision.cameraName);
+        aprilTagCamera = new PhotonCamera(Constants.Vision.cameraName);
         updateAprilTagResult();
     }
 
@@ -79,7 +79,7 @@ public class Vision extends SubsystemBase {
     }
 
     public boolean hasValidTarget() {
-        return aprilTagCamResult.hasTargets() && 1 <= aprilTagCamResult.getBestTarget().getFiducialId() && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.vision.aprilTagMax;
+        return aprilTagCamResult.hasTargets() && 1 <= aprilTagCamResult.getBestTarget().getFiducialId() && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set

@@ -6,36 +6,43 @@ import frc.robot.subsystems.Shooter;
 
 public class SetShooter extends Command {
     private final Shooter s_Shooter;
-    double finalSpeed;
-    Boolean motorLoc = true;
+    double[] addedSpeeds = {0,0}; // top, bottom
+    double[] finalSpeeds = {0,0}; // top, bottom
+    int motorLoc;
 
-    /**
-     * @param MotorLocation
-     * true = top motor
-     * false = bottom motor
-     * null = both
-     */
-    public SetShooter(Shooter.ShooterStates state, Boolean MotorLocation) { //change from off or max speed
+    public SetShooter(Shooter.ShooterStates state, Shooter.ShooterMotors motor) { //change from off or max speed
         s_Shooter = Shooter.getInstance();
-        finalSpeed = state.getValue();
-        motorLoc = MotorLocation;
+        motorLoc = motor.getValue();
+        finalSpeeds[motorLoc] = state.getValue();
         addRequirements(s_Shooter);
     }
 
-    /**
-     * @param MotorLocation
-     * true = top motor
-     * false = bottom motor
-     * null = both
-     */
-    public SetShooter(double difference, Boolean MotorLocation) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
+    public SetShooter(double difference, Shooter.ShooterMotors motor) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
         s_Shooter = Shooter.getInstance();
+        motorLoc = motor.getValue();
 
-        double addedSpeed = s_Shooter.getSpeed(MotorLocation) + difference;
+        if (motor == Shooter.ShooterMotors.BOTH){
+            // cause if they are diff vals then that difference must be preserved by the both increase
+            addedSpeeds[0] = s_Shooter.getBottomSpeed() + difference;
+            addedSpeeds[1] = s_Shooter.getTopSpeed() + difference;
+        } else {
+            addedSpeeds [motorLoc] = s_Shooter.getSpeed(motor) + difference;
+        }
 
-        if (addedSpeed <= 1 && addedSpeed >= 0) {
-            finalSpeed = addedSpeed;
-            motorLoc = MotorLocation;
+        // could do a for loop ig - but like okay loop for 2 values, cuts down line count
+        if (addedSpeeds[0] <= 1 && addedSpeeds[0] >= 0) {
+            finalSpeeds[0] = addedSpeeds[0];
+        } else if (addedSpeeds[0] > 1){
+            finalSpeeds[0] = 1;
+        } else if (addedSpeeds[0] < 0){
+            finalSpeeds[0] = 0;
+        }
+        if (addedSpeeds[1] <= 1 && addedSpeeds[1] >= 0) {
+            finalSpeeds[1] = addedSpeeds[1];
+        } else if (addedSpeeds[1] > 1){
+            finalSpeeds[1] = 1;
+        } else if (addedSpeeds[1] < 0){
+            finalSpeeds[1] = 0;
         }
 
         addRequirements(s_Shooter);
@@ -48,7 +55,7 @@ public class SetShooter extends Command {
 
     @Override
     public void execute() {
-        s_Shooter.setSpeed(finalSpeed, motorLoc);
+        s_Shooter.setSpeed(finalSpeeds, motorLoc);
     }
 
     @Override
@@ -56,7 +63,5 @@ public class SetShooter extends Command {
     }
 
     @Override
-    public boolean isFinished() {
-        return false;
-    }
+    public boolean isFinished() {return false;}
 }

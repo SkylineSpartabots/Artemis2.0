@@ -49,37 +49,51 @@ public class Shooter extends SubsystemBase {
         }
 
     }
-    /**
-     * @param MotorLocation
-     * true = top motor
-     * false = bottom motor
-     * null = both
-     */
-    public void setSpeed(double speed, Boolean MotorLocation) {
-        if(MotorLocation) {
-            shooterTopM.set(speed);
-            currentTopSpeed = speed;
-        } else if (!MotorLocation) {
-            shooterBottomM.set(speed);
-            currentBottomSpeed = speed;
-        } else if (MotorLocation == null) {
-            shooterTopM.set(speed);
-            currentTopSpeed = speed;
-            shooterBottomM.set(speed);
-            currentBottomSpeed = speed;
+    public enum ShooterMotors{
+        BOTTOM(0),
+        TOP(1),
+        BOTH(2);
+        private int motor; // can i just use an int idk but it didnt like a motor like CANSparxflex or whatevr
+        public int getValue() {
+            return motor;
+        }
+
+        ShooterMotors(int motor) {
+            this.motor = motor;
+        }
+
+    }
+
+    public void setSpeed(double[] speeds, int MotorLocation) {
+        if (MotorLocation == 0) {
+            shooterBottomM.set(speeds[MotorLocation]);
+            currentBottomSpeed = speeds[MotorLocation];
+        } else if(MotorLocation == 1) {
+            shooterTopM.set(speeds[MotorLocation]);
+            currentTopSpeed = speeds[MotorLocation];
+        } else if (MotorLocation == 2) {
+            shooterTopM.set(speeds[MotorLocation]);
+            currentTopSpeed = speeds[MotorLocation];
+            shooterBottomM.set(speeds[MotorLocation]);
+            currentBottomSpeed = speeds[MotorLocation];
         }
 //        this.stateName = state.name();
 
     }
-
-    /**
-     * @param MotorLocation
-     * true = top motor
-     * false = bottom motor
-     */
-    // nuh uh no null to get both cause thats whacky weird do it yourself
-    public double getSpeed(boolean MotorLocation) { //gets specific Speed (i hope)
-        if(MotorLocation) {return currentTopSpeed;} else{ return currentBottomSpeed;}
+    public double getSpeed(Shooter.ShooterMotors motor) {
+        if(motor == Shooter.ShooterMotors.BOTTOM) {
+            return currentBottomSpeed;
+        } else if (motor == Shooter.ShooterMotors.TOP){
+            return currentTopSpeed;
+        } else {
+            return 0; // how do i handle this - it wants a return but like there is no default case?
+        }
+    }
+    public double getTopSpeed() { //gets specific Speed (i hope)
+        return currentTopSpeed;
+    }
+    public double getBottomSpeed() { //gets specific Speed (i hope)
+        return currentBottomSpeed;
     }
 
     @Override
