@@ -6,11 +6,14 @@ import frc.robot.Constants;
 import java.util.List;
 import java.util.ArrayList;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
@@ -19,47 +22,35 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import com.ctre.phoenix.Logger;
+
 public class Vision extends SubsystemBase {
     private static Vision instance;
     private static PhotonCamera aprilTagCamera;
     private static PhotonPipelineResult aprilTagCamResult;
     private static PhotonTrackedTarget lastValidTarget;
-
-    
-    //   public static final LinearSystem<N2, N1, N1> swervePlant =
-    //     LinearSystemId.identifyDrivetrainSystem(
-    //         DCMotor.getFalcon500(2),
-    //         Units.lbsToKilograms(7.5),
-    //         1.75, // Do we need to multiple b/c cascading elevator?
-    //         elevatorGearRatio);
-
-    // public static final KalmanFilter<N2, N1, N1> elevatorEstimator =
-    //     new KalmanFilter<>(
-    //         Nat.N2(),
-    //         Nat.N1(),
-    //         elevatorPlant,
-    //         VecBuilder.fill(2, 40), // How accurate we
-    //         // think our model is, in inches and inches/second.
-    //         VecBuilder.fill(0.001), // How accurate we think our encoder position
-    //         // data is. In this case we very highly trust our encoder position reading.
-    //         0.020);
     
     private double targetYaw;
     private double targetDistance;
     private int targetID;
+
+    private AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 //    private static PhotonCamera visionCamera;
+
     public static Vision getInstance() {
         if (instance == null) {
             instance = new Vision();
         }
         return instance;
     }
+
     private Vision() {
         aprilTagCamera = new PhotonCamera(Constants.Vision.cameraName);
         updateAprilTagResult();
@@ -79,7 +70,7 @@ public class Vision extends SubsystemBase {
     }
 
     public boolean hasValidTarget() {
-        return aprilTagCamResult.hasTargets() && aprilTagCamResult.getBestTarget().getFiducialId() >= 1 && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        return aprilTagCamResult.hasTargets() && 1 <= aprilTagCamResult.getBestTarget().getFiducialId() && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set
@@ -92,7 +83,10 @@ public class Vision extends SubsystemBase {
         return lastValidTarget;
     }
 
-    public double getDistance(){
+    /**
+     * @return the absolute distance in meters (there are different methods for horizontal or vertical)
+     */
+    public double getHypotenuseDistance(){
         targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
             Constants.Vision.cameraHeight, 
             Constants.Vision.aprilTagHeight, 
@@ -101,13 +95,22 @@ public class Vision extends SubsystemBase {
         return targetDistance;
     }
 
-    public void visionUpdateOdometry(){
-        
+    /**
+     * calculates field-relative robot pose from vision reading, feed to pose estimator (Kalman filter)
+     */
+    public Pose3d calculatePoseFromVision() throws Exception{ //TODO: integrate multicamera resetting
+        PhotonTrackedTarget bestTarget = getBestTarget();
+        if(bestTarget == null){
+            throw new Exception("No vision target");
+        } else {
+            Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
+            return PhotonUtils.estimateFieldToRobotAprilTag(bestTarget.getBestCameraToTarget(), targetPose, new Transform3d());
+        }
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Caluclated Robot Posiiton", 0);
+        SmartDashboard.putBoolean("Has Target", hasValidTarget());
     }
 }
 
