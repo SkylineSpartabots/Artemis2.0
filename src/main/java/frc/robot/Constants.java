@@ -57,7 +57,7 @@ public final class Constants {
     public static final int climbFollowerMotor = 4;
     public static final int pivotMotor = 30;
     public static final int pivotCANcoderID = 31;
-
+    public static final int ampMotor = 0;
   }
 
     /* Mechanism Current Limits */
