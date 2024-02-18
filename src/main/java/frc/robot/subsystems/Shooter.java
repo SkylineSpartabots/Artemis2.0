@@ -21,6 +21,7 @@ public class Shooter extends SubsystemBase {
         }
         return instance;
     }
+
     private String stateName; // to be used for periodic display - should be set everytime shooter is set
     // issue is that shooter can be any random number
     private CANSparkMax shooterTopM;
@@ -30,8 +31,8 @@ public class Shooter extends SubsystemBase {
     private double currentBottomSpeed = 0;
 
     public Shooter() {
-        shooterTopM = new CANSparkMax(Constants.HardwarePorts.shooterLeaderM, MotorType.kBrushless);
-        shooterBottomM = new CANSparkMax(Constants.HardwarePorts.shooterFollowerM, MotorType.kBrushless);
+        shooterTopM = new CANSparkMax(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
+        shooterBottomM = new CANSparkMax(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
         shooterBottomM.setInverted(true);
     }
 
@@ -49,12 +50,13 @@ public class Shooter extends SubsystemBase {
         }
 
     }
-    public enum ShooterMotors{
-        BOTTOM(0),
-        TOP(1),
-        BOTH(2);
-        private int motor; // can i just use an int idk but it didnt like a motor like CANSparxflex or whatevr
-        //this setup is lowk wack ngl
+
+    public enum ShooterMotors {
+        BOTTOM(1),
+        TOP(2),
+        BOTH(0);
+        private int motor;
+
         public int getValue() {
             return motor;
         }
@@ -62,54 +64,56 @@ public class Shooter extends SubsystemBase {
         ShooterMotors(int motor) {
             this.motor = motor;
         }
-
     }
 
     /**
-     * 
      * @param speeds
      * @param MotorLocation: 1 is top motor, 2 is bottom motor, 0 is both
      */
-    public void setSpeed(double[] speeds, int MotorLocation) {
-        if (MotorLocation == 0) {
-            shooterBottomM.set(speeds[MotorLocation]);
-            currentBottomSpeed = speeds[MotorLocation];
-        } else if(MotorLocation == 1) {
-            shooterTopM.set(speeds[MotorLocation]);
-            currentTopSpeed = speeds[MotorLocation];
-        } else if (MotorLocation == 2) {
-            shooterTopM.set(speeds[MotorLocation]);
-            currentTopSpeed = speeds[MotorLocation];
-            shooterBottomM.set(speeds[MotorLocation]);
-            currentBottomSpeed = speeds[MotorLocation];
+    public void setSpeed(double[] speeds, ShooterMotors MotorLocation) {
+        var motor = MotorLocation.getValue();
+        if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
+            shooterBottomM.set(speeds[motor]);
+            currentBottomSpeed = speeds[motor];
+        } else if (MotorLocation == Shooter.ShooterMotors.TOP) {
+            shooterTopM.set(speeds[motor]);
+            currentTopSpeed = speeds[motor];
+        } else if (MotorLocation == Shooter.ShooterMotors.BOTH) {
+            shooterTopM.set(speeds[motor]);
+            shooterBottomM.set(speeds[motor]);
+            currentTopSpeed = speeds[motor];
+            currentBottomSpeed = speeds[motor];
         }
-//        this.stateName = state.name();
     }
 
-    public void setSpeed(double rpm){
+    public void setSpeed(double rpm) {
         double[] speeds = new double[3];
-        for(int i = 0;  i < 3; i++){
+        for (int i = 0; i < 3; i++) {
             speeds[i] = rpm;
         }
-        setSpeed(speeds, 0);
-    }
-    
+          setSpeed(speeds, ShooterMotors.BOTH);
+    } //what does do 🦅🦅🍔🍔🌭
+
     public double getSpeed(Shooter.ShooterMotors motor) {
-        if(motor == Shooter.ShooterMotors.BOTTOM) {
+        if (motor == Shooter.ShooterMotors.BOTTOM) {
             return currentBottomSpeed;
-        } else if (motor == Shooter.ShooterMotors.TOP){
+        } else if (motor == Shooter.ShooterMotors.TOP) {
             return currentTopSpeed;
         } else {
-            return 0; // how do i handle this - it wants a return but like there is no default case?
+            return -1; //need to have this bc yk
         }
     }
+
     public double getTopSpeed() { //gets specific Speed (i hope)
         return currentTopSpeed;
     }
+
     public double getBottomSpeed() { //gets specific Speed (i hope)
         return currentBottomSpeed;
     }
-
+    public double[] getBothSpeeds() {
+        return new double[]{currentBottomSpeed, currentTopSpeed};
+    }
     @Override
     public void periodic() {
         SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
