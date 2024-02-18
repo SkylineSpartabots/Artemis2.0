@@ -21,7 +21,8 @@ public class Shooter extends SubsystemBase {
         }
         return instance;
     }
-
+    private String stateName; // to be used for periodic display - should be set everytime shooter is set
+    // issue is that shooter can be any random number
     private CANSparkMax shooterTopM;
     private CANSparkMax shooterBottomM;
 
@@ -74,6 +75,8 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
+        SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));
     }
 
     @Override

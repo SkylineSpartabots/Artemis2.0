@@ -21,7 +21,8 @@ public class Indexer extends SubsystemBase {
         return instance;
     }
 
-    private String stateName;
+    private String stateName; // to be used for periodic display - should be set everytime indexer is set
+    // issue is that indexer can be any random number
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
     private CANSparkMax indexerTopM;
