@@ -7,13 +7,13 @@ import frc.robot.subsystems.Shooter;
 
 public class SetShooter extends Command {
     private final Shooter s_Shooter;
-    double[] addedSpeeds = {0,0}; // top, bottom
-    double[] finalSpeeds = {0,0}; // top, bottom
+    double[] addedSpeeds = {0, 0}; // top, bottom
+    double[] finalSpeeds = {0, 0}; // top, bottom
     Shooter.ShooterMotors motorLoc;
 
-    public SetShooter(Shooter.ShooterStates state, Shooter.ShooterMotors motor) { //change from off or max speed
+    public SetShooter(Shooter.ShooterStates state, Shooter.ShooterMotors motor) { //Set using states, max or off
         s_Shooter = Shooter.getInstance();
-        if (motor == Shooter.ShooterMotors.BOTH){
+        if (motor == Shooter.ShooterMotors.BOTH) {
             finalSpeeds[1] = state.getValue();
             finalSpeeds[2] = state.getValue();
         } else {
@@ -22,32 +22,32 @@ public class SetShooter extends Command {
         addRequirements(s_Shooter);
     }
 
-    public SetShooter(double difference, Shooter.ShooterMotors motor) { //increase or decrease speed. Makes sure not to increase above max or decrease below 0
+    public SetShooter(double difference, Shooter.ShooterMotors motor) { //increase or decrease speed incrementally. Also checks if they are within speed bounds
         s_Shooter = Shooter.getInstance();
 
-        if (motor == Shooter.ShooterMotors.BOTH){
+        if (motor == Shooter.ShooterMotors.BOTH) {
             // cause if they are diff vals then that difference must be preserved by the both increase
             addedSpeeds[1] = s_Shooter.getBottomSpeed() + difference;
             addedSpeeds[2] = s_Shooter.getTopSpeed() + difference;
         } else {
-            addedSpeeds[motor.getValue()] = s_Shooter.getBothSpeeds()[motor.getValue() - 1] + difference;
+            addedSpeeds[motor.getValue() - 1] = s_Shooter.getBothSpeeds()[motor.getValue() - 1] + difference;
         }
 
-        // bottom
+        // check bottom
         if (addedSpeeds[1] <= 1 && addedSpeeds[1] >= 0) {
             finalSpeeds[1] = addedSpeeds[1];
-        } else if (addedSpeeds[1] > 1){
+        } else if (addedSpeeds[1] > 1) {
             finalSpeeds[1] = 1;
-        } else if (addedSpeeds[1] < 0){
+        } else if (addedSpeeds[1] < 0) {
             finalSpeeds[1] = 0;
         }
 
-        // top
+        // check top
         if (addedSpeeds[2] <= 1 && addedSpeeds[2] >= 0) {
             finalSpeeds[2] = addedSpeeds[2];
-        } else if (addedSpeeds[2] > 1){
+        } else if (addedSpeeds[2] > 1) {
             finalSpeeds[2] = 1;
-        } else if (addedSpeeds[2] < 0){
+        } else if (addedSpeeds[2] < 0) {
             finalSpeeds[2] = 0;
         }
 
@@ -62,12 +62,14 @@ public class SetShooter extends Command {
     @Override
     public void execute() {
         s_Shooter.setSpeed(finalSpeeds, motorLoc);
-    }
+    } //sets motors with final speeds
 
     @Override
     public void end(boolean interrupted) {
     }
 
     @Override
-    public boolean isFinished() {return false;}
+    public boolean isFinished() {
+        return false;
+    }
 }

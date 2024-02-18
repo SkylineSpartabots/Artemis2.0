@@ -38,6 +38,7 @@ public class Indexer extends SubsystemBase {
         ON(1),
         OFF(0);
         private double speed;
+
         public double getValue() {
             return speed;
         }
@@ -47,11 +48,12 @@ public class Indexer extends SubsystemBase {
         }
     }
 
-    public enum IndexerMotors{
+    public enum IndexerMotors {
         BOTTOM(1),
         TOP(2),
         BOTH(0);
         private int motor;
+
         public int getValue() {
             return motor;
         }
@@ -61,12 +63,13 @@ public class Indexer extends SubsystemBase {
         }
 
     }
+
     public void setSpeed(double[] speeds, IndexerMotors MotorLocation) {
         var motor = MotorLocation.getValue();
         if (MotorLocation == IndexerMotors.BOTTOM) {
             indexerBottomM.set(speeds[motor]);
             currentBottomSpeed = speeds[motor];
-        } else if(MotorLocation == IndexerMotors.TOP) {
+        } else if (MotorLocation == IndexerMotors.TOP) {
             indexerTopM.set(speeds[motor]);
             currentTopSpeed = speeds[motor];
         } else if (MotorLocation == IndexerMotors.BOTH) {
@@ -78,10 +81,11 @@ public class Indexer extends SubsystemBase {
 //        this.stateName = state.name();
 
     }
+
     public double getSpeed(IndexerMotors motor) {
-        if(motor == IndexerMotors.BOTTOM) {
+        if (motor == IndexerMotors.BOTTOM) {
             return currentBottomSpeed;
-        } else if (motor == IndexerMotors.TOP){
+        } else if (motor == IndexerMotors.TOP) {
             return currentTopSpeed;
         } else {
             return -1;
@@ -91,9 +95,11 @@ public class Indexer extends SubsystemBase {
     public double getTopSpeed() {
         return currentTopSpeed;
     }
-    public double getBottomSpeed() { 
+
+    public double getBottomSpeed() {
         return currentBottomSpeed;
     }
+
     public double[] getBothSpeeds() {
         return new double[]{currentBottomSpeed, currentTopSpeed};
     }

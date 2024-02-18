@@ -31,80 +31,79 @@ import frc.robot.commands.SetShooter;
 
 public class RobotContainer {
 
-  private final Vision camera2 = Vision.getInstance();
-  private final Shooter s_Shooter = Shooter.getInstance();
-  private final  Indexer s_Indexer =  Indexer.getInstance();
-  private final  Intake Is_intake =  Intake.getInstance();
+    private final Vision camera2 = Vision.getInstance();
+    private final Shooter s_Shooter = Shooter.getInstance();
+    private final Indexer s_Indexer = Indexer.getInstance();
+    private final Intake Is_intake = Intake.getInstance();
 
-  /* Setting up bindings for necessary control of the swerve drive platform */
-  private final CommandXboxController driver = new CommandXboxController(0); // My joystick
-  private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
+    /* Setting up bindings for necessary control of the swerve drive platform */
+    private final CommandXboxController driver = new CommandXboxController(0); // My joystick
+    private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-                                                               // driving in open loop
-  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-  private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
+    // driving in open loop
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
-  /* Driver Buttons */
-  private final Trigger driverBack = driver.back();
-  private final Trigger driverStart = driver.start();
-  private final Trigger driverA = driver.a();
-  private final Trigger driverB = driver.b();
-  private final Trigger driverX = driver.x();
-  private final Trigger driverY = driver.y();
-  private final Trigger driverRightBumper = driver.rightBumper();
-  private final Trigger driverLeftBumper = driver.rightBumper();
-  private final Trigger driverLefTrigger = driver.leftTrigger();
-  private final Trigger driverRighTrigger = driver.rightTrigger();
-  private final Trigger driverDpadUp = driver.povUp();
-  private final Trigger driverDpadDown = driver.povDown();
+    /* Driver Buttons */
+    private final Trigger driverBack = driver.back();
+    private final Trigger driverStart = driver.start();
+    private final Trigger driverA = driver.a();
+    private final Trigger driverB = driver.b();
+    private final Trigger driverX = driver.x();
+    private final Trigger driverY = driver.y();
+    private final Trigger driverRightBumper = driver.rightBumper();
+    private final Trigger driverLeftBumper = driver.rightBumper();
+    private final Trigger driverLefTrigger = driver.leftTrigger();
+    private final Trigger driverRighTrigger = driver.rightTrigger();
+    private final Trigger driverDpadUp = driver.povUp();
+    private final Trigger driverDpadDown = driver.povDown();
 
-  private void configureBindings() {
+    private void configureBindings() {
 
-    //nothing is binded to intake, indexer, or shooter yet
+        //nothing is binded to intake, indexer, or shooter yet
 
-    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
-                                                                                           // negative Y (forward)
-            .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-        ));
+        drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
+                        // negative Y (forward)
+                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                ));
 
-    driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-    driver.b().whileTrue(drivetrain
-        .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
+        driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        driver.b().whileTrue(drivetrain
+                .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
-    // reset the field-centric heading on left bumper press. AKA reset odometry
-    driver.leftBumper().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
+        // reset the field-centric heading on left bumper press. AKA reset odometry
+        driver.leftBumper().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
 
-    if (Utils.isSimulation()) {
-      drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+        if (Utils.isSimulation()) {
+            drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+        }
+        drivetrain.registerTelemetry(logger::telemeterize);
     }
-    drivetrain.registerTelemetry(logger::telemeterize);
-  }
 
-  public RobotContainer() {
-    configureBindings();
-  }
+    public RobotContainer() {
+        configureBindings();
+    }
 
-  public Command onIntake() {
-    return new SetIntake(IntakeStates.ON);
-  }
+    public Command onIntake() {
+        return new SetIntake(IntakeStates.ON);
+    }
 
-  public Command offIntake() {
-    return new SetIntake(IntakeStates.OFF);
-  }
+    public Command offIntake() {
+        return new SetIntake(IntakeStates.OFF);
+    }
 
-  public Command revIntake() {
-    return new SetIntake(IntakeStates.REV);
-  }
+    public Command revIntake() {
+        return new SetIntake(IntakeStates.REV);
+    }
 
 
-
-  public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
-  }
+    public Command getAutonomousCommand() {
+        return Commands.print("No autonomous command configured");
+    }
 }

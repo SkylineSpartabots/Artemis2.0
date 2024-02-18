@@ -22,8 +22,7 @@ public class Shooter extends SubsystemBase {
         return instance;
     }
 
-    private String stateName; // to be used for periodic display - should be set everytime shooter is set
-    // issue is that shooter can be any random number
+    private String stateName; // to be used for periodic display - set everytime shooter motor is changed
     private CANSparkMax shooterTopM;
     private CANSparkMax shooterBottomM;
 
@@ -70,7 +69,7 @@ public class Shooter extends SubsystemBase {
      * @param speeds
      * @param MotorLocation: 1 is top motor, 2 is bottom motor, 0 is both
      */
-    public void setSpeed(double[] speeds, ShooterMotors MotorLocation) {
+    public void setSpeed(double[] speeds, ShooterMotors MotorLocation) { //sets speed of motors using specific speed values
         var motor = MotorLocation.getValue();
         if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
             shooterBottomM.set(speeds[motor]);
@@ -91,16 +90,16 @@ public class Shooter extends SubsystemBase {
         for (int i = 0; i < 3; i++) {
             speeds[i] = rpm;
         }
-          setSpeed(speeds, ShooterMotors.BOTH);
-    } //what does do 🦅🦅🍔🍔🌭
+        setSpeed(speeds, ShooterMotors.BOTH);
+    } //what does do 🦅🦅🍔🍔🌭 ??
 
     public double getSpeed(Shooter.ShooterMotors motor) {
         if (motor == Shooter.ShooterMotors.BOTTOM) {
             return currentBottomSpeed;
-        } else if (motor == Shooter.ShooterMotors.TOP) {
+        } else if (motor == Shooter.ShooterMotors.TOP) { //could just have this be else but it would look weird
             return currentTopSpeed;
         } else {
-            return -1; //need to have this bc yk
+            return -1;
         }
     }
 
@@ -111,9 +110,11 @@ public class Shooter extends SubsystemBase {
     public double getBottomSpeed() { //gets specific Speed (i hope)
         return currentBottomSpeed;
     }
+
     public double[] getBothSpeeds() {
         return new double[]{currentBottomSpeed, currentTopSpeed};
     }
+
     @Override
     public void periodic() {
         SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
