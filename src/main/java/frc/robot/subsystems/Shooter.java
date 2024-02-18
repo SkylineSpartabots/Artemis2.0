@@ -56,7 +56,7 @@ public class Shooter extends SubsystemBase {
         BOTH(0);
         private int motor;
 
-        public int getValue() {
+        public int getMotor() {
             return motor;
         }
 
@@ -70,7 +70,7 @@ public class Shooter extends SubsystemBase {
      * @param MotorLocation: 1 is top motor, 2 is bottom motor, 0 is both
      */
     public void setSpeed(double[] speeds, ShooterMotors MotorLocation) { //sets speed of motors using specific speed values
-        var motor = MotorLocation.getValue();
+        var motor = MotorLocation.getMotor();
         if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
             shooterBottomM.set(speeds[motor]);
             currentBottomSpeed = speeds[motor];

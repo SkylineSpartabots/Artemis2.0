@@ -6,9 +6,9 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ShootByDistance extends Command {
-  /** Creates a new ShootByDistance. */
-  public ShootByDistance() {
+public class ClimbBalence extends Command {
+  /** Creates a new ClimbBalence. */
+  public ClimbBalence() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 

@@ -17,7 +17,7 @@ public class SetShooter extends Command {
             finalSpeeds[1] = state.getValue();
             finalSpeeds[2] = state.getValue();
         } else {
-            finalSpeeds[motor.getValue()] = state.getValue();
+            finalSpeeds[motor.getMotor()] = state.getValue();
         }
         addRequirements(s_Shooter);
     }
@@ -30,7 +30,7 @@ public class SetShooter extends Command {
             addedSpeeds[1] = s_Shooter.getBottomSpeed() + difference;
             addedSpeeds[2] = s_Shooter.getTopSpeed() + difference;
         } else {
-            addedSpeeds[motor.getValue() - 1] = s_Shooter.getBothSpeeds()[motor.getValue() - 1] + difference;
+            addedSpeeds[motor.getMotor() - 1] = s_Shooter.getBothSpeeds()[motor.getMotor() - 1] + difference;
         }
 
         // check bottom
