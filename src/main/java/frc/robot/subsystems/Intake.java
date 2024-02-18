@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.StrictFollower;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix.motorcontrol.IMotorController;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,19 +25,19 @@ public class Intake extends SubsystemBase {
         return instance;
     }
 
-    private String state;
+    private String stateName;
 
     private CANSparkMax intakeFollowerM;
     private CANSparkMax intakeLeaderM;
 
-    private TalonFX SerializationM; // Someone told me this will control both
+    private TalonSRX SerializationM; // Someone told me this will control both
 
     public Intake() {
         intakeLeaderM = new CANSparkMax(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
         intakeFollowerM = new CANSparkMax(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
         intakeFollowerM.setInverted(true);
         intakeFollowerM.follow(intakeLeaderM);
-        SerializationM.setControl( new StrictFollower(Constants.HardwarePorts.intakeLeaderM));
+        SerializationM.follow((IMotorController) intakeLeaderM); // this seems illegal but idk
     }
 
     public enum IntakeStates {
@@ -45,6 +45,9 @@ public class Intake extends SubsystemBase {
         OFF(0),
         REV(-1);
         private double speed;
+        public double getValue() {
+            return speed;
+        } // how use
 
         IntakeStates(double speed) {
             this.speed = speed;
@@ -53,14 +56,14 @@ public class Intake extends SubsystemBase {
 
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.set(state.speed);
-        this.state = state.name();
+        this.stateName = state.name();
     }
 
 
     @Override
     public void periodic() {
-        if (state != null) {
-            SmartDashboard.putString("Intake state", state);
+        if (stateName != null) {
+            SmartDashboard.putString("Intake State", stateName);
         }
     }
 

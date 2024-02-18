@@ -21,7 +21,7 @@ public class Indexer extends SubsystemBase {
         return instance;
     }
 
-    private String state;
+    private String stateName;
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
     private CANSparkMax indexerTopM;
@@ -67,6 +67,8 @@ public class Indexer extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
+        SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));
     }
 
     @Override
