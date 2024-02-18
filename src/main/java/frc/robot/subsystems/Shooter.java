@@ -33,6 +33,7 @@ public class Shooter extends SubsystemBase {
         shooterTopM = new CANSparkMax(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
         shooterBottomM = new CANSparkMax(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
         shooterBottomM.setInverted(true);
+        configMotors();
     }
     
     private void configMotors(){
