@@ -7,8 +7,8 @@ import frc.robot.subsystems.Shooter;
 
 public class SetShooter extends Command {
     private final Shooter s_Shooter;
-    double[] addedSpeeds = {0, 0}; // top, bottom
-    double[] finalSpeeds = {0, 0}; // top, bottom
+    double[] addedSpeeds = {0, 0}; // bottom, top
+    double[] finalSpeeds = {0, 0}; // bottom, top
     Shooter.ShooterMotors motorLoc;
 
     public SetShooter(Shooter.ShooterStates state, Shooter.ShooterMotors motor) { //Set using states, max or off
@@ -17,7 +17,7 @@ public class SetShooter extends Command {
             finalSpeeds[0] = state.getValue();
             finalSpeeds[1] = state.getValue();
         } else {
-            finalSpeeds[motor.getMotor()] = state.getValue();
+            finalSpeeds[motor.getMotor() - 1] = state.getValue();
         }
         addRequirements(s_Shooter);
     }

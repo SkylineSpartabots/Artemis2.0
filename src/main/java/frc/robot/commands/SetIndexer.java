@@ -16,7 +16,7 @@ public class SetIndexer extends Command {
             finalSpeeds[0] = state.getValue();
             finalSpeeds[1] = state.getValue();
         } else {
-            finalSpeeds[motor.getValue()] = state.getValue();
+            finalSpeeds[motor.getMotor()] = state.getValue();
         }
         addRequirements(s_Indexer);
     }
@@ -29,7 +29,7 @@ public class SetIndexer extends Command {
             addedSpeeds[0] = s_Indexer.getBottomSpeed() + difference;
             addedSpeeds[1] = s_Indexer.getTopSpeed() + difference;
         } else { // -1 is for the indexes cause getMotor returns 1 for bottom and 2 for top motor but indexes...
-            addedSpeeds[motor.getValue() - 1] = s_Indexer.getBothSpeeds()[motor.getValue() - 1] + difference;
+            addedSpeeds[motor.getMotor() - 1] = s_Indexer.getBothSpeeds()[motor.getMotor() - 1] + difference;
         }
 
         // way less jank way - called a clamp statement or smth (java21 has it built in but i dunno if we run that?)

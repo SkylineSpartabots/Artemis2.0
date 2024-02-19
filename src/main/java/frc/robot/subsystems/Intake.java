@@ -59,6 +59,7 @@ public class Intake extends SubsystemBase {
 
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.set(state.speed);
+        // I mean we could just make a second enum value right? but this works and theres really no reason to do so
         if (state == IntakeStates.ON) {
             SerializationM.set(ControlMode.PercentOutput, 1);
         } else {

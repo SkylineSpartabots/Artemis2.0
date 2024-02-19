@@ -79,11 +79,12 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * @param speeds
-     * @param MotorLocation: 1 is top motor, 2 is bottom motor, 0 is both
+     * @param speeds: Array containing speeds for Bottom and Top motors (bottom, top)
+     * @param MotorLocation: Choose motors to set, 1 is Bottom motor, 2 is Top motor, 0 is Both
      */
     public void setSpeed(double[] speeds, ShooterMotors MotorLocation) { //sets speed of motors using specific speed values
-        var motor = MotorLocation.getMotor();
+        int motor = MotorLocation.getMotor() - 1; // cause like must be 1 less bc indexes wont match
+
         if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
             shooterBottomM.set(speeds[motor]);
             currentBottomSpeed = speeds[motor];
@@ -91,10 +92,10 @@ public class Shooter extends SubsystemBase {
             shooterTopM.set(speeds[motor]);
             currentTopSpeed = speeds[motor];
         } else if (MotorLocation == Shooter.ShooterMotors.BOTH) {
-            shooterTopM.set(speeds[motor]);
-            shooterBottomM.set(speeds[motor]);
-            currentTopSpeed = speeds[motor];
-            currentBottomSpeed = speeds[motor];
+            shooterTopM.set(speeds[0]);
+            shooterBottomM.set(speeds[1]);
+            currentTopSpeed = speeds[0];
+            currentBottomSpeed = speeds[1];
         }
     }
 
@@ -105,17 +106,6 @@ public class Shooter extends SubsystemBase {
         }
         setSpeed(speeds, ShooterMotors.BOTH);
     } //what does do 🦅🦅🍔🍔🌭 ??
-
-    public double getSpeed(Shooter.ShooterMotors motor) {
-        if (motor == Shooter.ShooterMotors.BOTTOM) {
-            return currentBottomSpeed;
-        } else if (motor == Shooter.ShooterMotors.TOP) { //could just have this be else but it would look weird
-            return currentTopSpeed;
-        } else {
-            return -1;
-        }
-    }
-
     public double getTopSpeed() { //gets specific Speed (i hope)
         return currentTopSpeed;
     }
