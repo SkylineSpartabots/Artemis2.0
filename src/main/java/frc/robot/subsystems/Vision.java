@@ -72,7 +72,7 @@ public class Vision extends SubsystemBase {
     }
 
     public boolean hasValidTarget() {
-        return aprilTagCamResult.hasTargets() && 1 <= aprilTagCamResult.getBestTarget().getFiducialId() && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        return aprilTagCamResult.hasTargets() && aprilTagCamResult.getBestTarget().getFiducialId() >= 1 && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set
@@ -112,7 +112,10 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
+        updateAprilTagResult();
         SmartDashboard.putBoolean("Has Target", hasValidTarget());
+        SmartDashboard.putBoolean("Has target", hasValidTarget());
+        SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
     }
 }
 

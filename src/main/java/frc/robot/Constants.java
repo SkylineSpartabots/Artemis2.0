@@ -33,7 +33,7 @@ public final class Constants {
 
     public static final class Vision {
         public static final int aprilTagMax = 16;
-        public static final String cameraName = "cam";
+        public static final String cameraName = "Arducam_OV9281_USB_Camera";
         public static final double cameraHeight = 0; //fix
         public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet
         public static final double cameraRollOffset = Units.degreesToRadians(0);
@@ -58,17 +58,18 @@ public final class Constants {
     public static final class HardwarePorts {
         // motors (predicted) IDs not fixed
 
-        public static final int shooterTopM = 3;
-        public static final int shooterBottomM = 4;
-        public static final int indexerTopM = 5;
-        public static final int indexerBottomM = 6;
-        public static final int intakeLeaderM = 2;
-        public static final int intakeFollowerM = 1;
-        public static final int climbLeaderMotor = 3;
-        public static final int climbFollowerMotor = 4;
-        public static final int pivotMotor = 30;
-        public static final int pivotCANcoderID = 31;
-        public static final int ampMotor = 0;
+        public static final int shooterTopM = 50;
+        public static final int shooterBottomM = 51;
+        public static final int indexerTopM = 31;
+        public static final int indexerBottomM = 30;
+        public static final int intakeLeaderM = 20;
+        public static final int intakeFollowerM = 21;
+        public static final int climbLeaderMotor = 60;
+        public static final int climbFollowerMotor = 61;
+        public static final int pivotMotor = 40;
+        public static final int pivotCANcoderID = 42;
+        public static final int ampMotor = 62;
+        
     }
 
     /* Mechanism Current Limits */

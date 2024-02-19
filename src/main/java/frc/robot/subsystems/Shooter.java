@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkFlex;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -23,15 +23,15 @@ public class Shooter extends SubsystemBase {
     }
 
     private String stateName; // to be used for periodic display - set everytime shooter motor is changed
-    private CANSparkMax shooterTopM;
-    private CANSparkMax shooterBottomM;
+    private CANSparkFlex shooterTopM;
+    private CANSparkFlex shooterBottomM;
 
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
 
     public Shooter() {
-        shooterTopM = new CANSparkMax(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
-        shooterBottomM = new CANSparkMax(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
+        shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
+        shooterBottomM = new CANSparkFlex(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
         shooterBottomM.setInverted(true);
         configMotors();
     }

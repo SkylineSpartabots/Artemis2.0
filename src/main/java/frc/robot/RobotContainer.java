@@ -20,10 +20,14 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Indexer.IndexerMotors;
+import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeStates;
+import frc.robot.subsystems.Shooter.ShooterMotors;
+import frc.robot.subsystems.Shooter.ShooterStates;
 import frc.robot.subsystems.Indexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
@@ -57,14 +61,20 @@ public class RobotContainer {
     private final Trigger driverY = driver.y();
     private final Trigger driverRightBumper = driver.rightBumper();
     private final Trigger driverLeftBumper = driver.rightBumper();
-    private final Trigger driverLefTrigger = driver.leftTrigger();
-    private final Trigger driverRighTrigger = driver.rightTrigger();
+    private final Trigger driverLeftTrigger = driver.leftTrigger();
+    private final Trigger driverRightTrigger = driver.rightTrigger();
     private final Trigger driverDpadUp = driver.povUp();
     private final Trigger driverDpadDown = driver.povDown();
 
     private void configureBindings() {
 
         //nothing is binded to intake, indexer, or shooter yet
+        driver.y().onTrue(onIntake());
+        driver.x().onTrue(onIndexer());
+        driver.a().onTrue(offIndexer());
+        driver.b().onTrue(offIntake());
+
+
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
@@ -98,8 +108,12 @@ public class RobotContainer {
         return new SetIntake(IntakeStates.OFF);
     }
 
-    public Command revIntake() {
-        return new SetIntake(IntakeStates.REV);
+    //shooter
+    public Command onIndexer() {
+        return new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH);
+    }
+     public Command offIndexer() {
+        return new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH);
     }
 
 
