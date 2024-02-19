@@ -27,7 +27,13 @@ public class Amp extends SubsystemBase {
     
   public Amp() {
     ampM = new TalonSRX(Constants.HardwarePorts.ampMotor);
+    configMotor();
+  }
+
+  private void configMotor() {
     ampM.setNeutralMode(NeutralMode.Brake);
+    ampM.configContinuousCurrentLimit(Constants.ampContinuousCurrentLimit);
+    ampM.configPeakCurrentLimit(Constants.ampPeakCurrentLimit);
   }
 
   //TODO add configure amp motor method and pid if needed by mechanism
@@ -40,16 +46,20 @@ public class Amp extends SubsystemBase {
     ampM.set(ControlMode.PercentOutput, power); //input values in [-1, 1]
   }
 
-  public void ejectNote(){
-    setPercentPower(-0.05); //arbitrary number; should spin motor very slowly outwards to eject
+  public void setAction(AmpActions action) {
+    ampM.set(ControlMode.PercentOutput, action.power);
   }
 
-  public void intakeNote(){
-    setPercentPower(0.1); //arbitrary number
-  }
+  public enum AmpActions {
+    EJECT_NOTE(-0.05),
+    INTAKE_NOTE(0.1),
+    HOLD_NOTE(0);
 
-  public void holdNote(){
-    setPercentPower(0);
+    private double power;
+    private AmpActions( double power) {
+
+      this.power = power;
+    }
   }
 
   @Override

@@ -77,6 +77,10 @@ public final class Constants {
     /* Mechanism Current Limits */
     public static final int intakeContinuousCurrentLimit = 30;
     public static final int intakePeakCurrentLimit = 70;
+    public static final int serializationContinuousCurrentLimit = 30;
+    public static final int serializationPeakCurrentLimit = 70;
+    public static final int ampContinuousCurrentLimit = 30;
+    public static final int ampPeakCurrentLimit = 70;
     public static final int shooterContinuousCurrentLimit = 30;
     public static final int shooterPeakCurrentLimit = 70;
     public static final int pivotContinuousCurrentLimit = 30;

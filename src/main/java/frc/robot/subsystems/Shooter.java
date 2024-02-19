@@ -40,6 +40,8 @@ public class Shooter extends SubsystemBase {
     }
     
     private void configMotors(){
+        shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
+
         shooterTopM.getPIDController().setFF(0.0078);
         shooterTopM.getPIDController().setP(0.3);
         shooterTopM.getPIDController().setI(0.017);

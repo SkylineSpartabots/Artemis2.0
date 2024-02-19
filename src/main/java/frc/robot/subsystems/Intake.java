@@ -9,6 +9,8 @@ import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkBase.IdleMode;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -30,17 +32,30 @@ public class Intake extends SubsystemBase {
 
     private CANSparkFlex intakeLeaderM;
     private CANSparkFlex intakeFollowerM;
-    private TalonSRX SerializationM; // Someone told me this will control both
+    private TalonSRX serializationM; // Someone told me this will control both
 
     //TODO configure motor methods for motors, pid???
 
     public Intake() {
         intakeLeaderM = new CANSparkFlex(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
+        configMotor(intakeLeaderM);
         intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
-        intakeFollowerM.setInverted(true);
-        intakeFollowerM.follow(intakeLeaderM);
-        SerializationM = new TalonSRX(Constants.HardwarePorts.serializationM);
-        SerializationM.setInverted(true);
+        configMotor(intakeFollowerM);
+
+        intakeFollowerM.follow(intakeLeaderM, true);
+        serializationM = new TalonSRX(Constants.HardwarePorts.serializationM);
+        configMotor(serializationM, false);
+    }
+
+    private void configMotor(CANSparkFlex motor) {
+        motor.setSmartCurrentLimit(Constants.intakePeakCurrentLimit);
+        motor.setIdleMode(IdleMode.kCoast);
+    }
+
+    private void configMotor(TalonSRX motor, boolean inverted) {
+        motor.setInverted(true);
+        motor.configPeakCurrentLimit(Constants.serializationPeakCurrentLimit);
+        motor.configContinuousCurrentLimit(Constants.serializationContinuousCurrentLimit);
     }
 
     public enum IntakeStates {
@@ -61,9 +76,9 @@ public class Intake extends SubsystemBase {
         intakeLeaderM.set(state.speed);
         // I mean we could just make a second enum value right? but this works and theres really no reason to do so
         if (state == IntakeStates.ON) {
-            SerializationM.set(ControlMode.PercentOutput, 1);
+            serializationM.set(ControlMode.PercentOutput, 1);
         } else {
-            SerializationM.set(ControlMode.PercentOutput, 0);
+            serializationM.set(ControlMode.PercentOutput, 0);
         }
         
         this.stateName = state.name();
