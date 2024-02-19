@@ -2,7 +2,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 
 public class SetShooter extends Command {
@@ -13,6 +12,7 @@ public class SetShooter extends Command {
 
     public SetShooter(Shooter.ShooterStates state, Shooter.ShooterMotors motor) { //Set using states, max or off
         s_Shooter = Shooter.getInstance();
+        motorLoc = motor;
         if (motor == Shooter.ShooterMotors.BOTH) {
             finalSpeeds[0] = state.getValue();
             finalSpeeds[1] = state.getValue();
