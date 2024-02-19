@@ -12,24 +12,24 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Climb extends SubsystemBase {
-  private static Climb s_Climb;
-
-  private CANSparkFlex mLeaderClimb;
-  private CANSparkFlex mFollowerClimb;
+  private static Climb instance;
   
   public static Climb getInstance() {
-    if(s_Climb == null){
-      s_Climb = new Climb();
+    if(instance == null){
+      instance = new Climb();
   }
-  return s_Climb;
+    return instance;
   }
+
+  private CANSparkFlex climbLeaderM;
+  private CANSparkFlex climbFollowerM;
 
   public Climb() {
-    mLeaderClimb = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
-    configLeaderMotor(mLeaderClimb);
+    climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeftM, MotorType.kBrushless);
+    configLeaderMotor(climbLeaderM);
 
-    mFollowerClimb = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
-    configFollowerMotor(mFollowerClimb, mLeaderClimb);
+    climbFollowerM = new CANSparkFlex(Constants.HardwarePorts.climbRightM, MotorType.kBrushless);
+    configFollowerMotor(climbFollowerM, climbLeaderM);
   }
 
 
@@ -50,7 +50,7 @@ public class Climb extends SubsystemBase {
   }
 
   public void setClimbSpeed(double speed){
-    mLeaderClimb.set(speed); //speed should be -1.0 to 1.0
+    climbLeaderM.set(speed); //speed should be -1.0 to 1.0
   }
   
   @Override

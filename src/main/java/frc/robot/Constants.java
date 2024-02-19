@@ -58,18 +58,35 @@ public final class Constants {
     public static final class HardwarePorts {
         // motors (predicted) IDs not fixed
 
-        public static final int shooterTopM = 3;
-        public static final int shooterBottomM = 4;
-        public static final int indexerTopM = 5;
-        public static final int indexerBottomM = 6;
-        public static final int intakeLeaderM = 20;
-        public static final int intakeFollowerM = 21;
-        public static final int climbLeaderMotor = 3;
-        public static final int climbFollowerMotor = 4;
-        public static final int pivotMotor = 30;
-        public static final int pivotCANcoderID = 31;
-        public static final int ampMotor = 0;
-        
+        // public static final int shooterTopM = 3;
+        // public static final int shooterBottomM = 4;
+        // public static final int indexerTopM = 5;
+        // public static final int indexerBottomM = 6;
+        // public static final int intakeLeaderM = 2;
+        // public static final int intakeFollowerM = 1;
+        // public static final int climbLeaderMotor = 3;
+        // public static final int climbFollowerMotor = 4;
+        // public static final int pivotMotor = 30;
+        // public static final int pivotCANcoderID = 42;
+        // public static final int ampMotor = 62;
+
+        // motors CAN IDs
+        // left motor is the leader motor (ends in 0)
+        // right motor is the follower motor (ends in 1)
+
+        public static final int intakeLeftM = 20;
+        public static final int intakeRightM = 21;
+        public static final int intakeCerealM = 22;
+        public static final int indexerTopM = 30;
+        public static final int indexerBottomM = 31;
+        public static final int pivotLeftM = 40;
+        public static final int pivotRightM = 41;
+        public static final int pivotCANcoderID = 42;
+        public static final int shooterBottomM = 50; //Left 
+        public static final int shooterTopM = 51; //Right 
+        public static final int climbLeftM = 60;
+        public static final int climbRightM = 61;
+        public static final int ampM = 62;
     }
 
     /* Mechanism Current Limits */
