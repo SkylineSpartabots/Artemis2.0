@@ -47,7 +47,7 @@ public class Pivot extends SubsystemBase {
         configMotor(pivotFollowerM);
         pivotFollowerM.follow(pivotLeaderM, true);
 
-        
+
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
         configCANcoder();
     } 
@@ -58,6 +58,13 @@ public class Pivot extends SubsystemBase {
      */
     public void setState(PivotState state) {
         currState = state;
+    }
+
+    /**
+     * Sets the speed of the motor to 0, effectively stopping it. 
+     */
+    public void stopMotor(){
+        pivotLeaderM.set(0);
     }
 
     /**
@@ -96,9 +103,6 @@ public class Pivot extends SubsystemBase {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
         motor.setIdleMode(IdleMode.kBrake);
 
-        motor.getPIDController().setP(Constants.hardwarePIDs.pivotkP);
-        motor.getPIDController().setI(Constants.hardwarePIDs.pivotkI);
-        motor.getPIDController().setD(Constants.hardwarePIDs.pivotkD);
     }
 
     /**
