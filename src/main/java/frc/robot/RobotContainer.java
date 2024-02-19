@@ -70,11 +70,11 @@ public class RobotContainer {
 
         //nothing is binded to intake, indexer, or shooter yet
         driver.y().onTrue(onIntake());
+        driver.y().onFalse(offIntake());
         driver.x().onTrue(onIndexer());
-        driver.a().onTrue(offIndexer());
-        driver.b().onTrue(offIntake());
+        driver.x().onFalse(offIndexer());
 
-
+        driver.rightBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(12)));
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with

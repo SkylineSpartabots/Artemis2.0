@@ -115,6 +115,11 @@ public class Shooter extends SubsystemBase {
         return currentTopSpeed;
     }
 
+    public void setVoltage(double volts){
+        shooterTopM.setVoltage(volts);
+        shooterBottomM.setVoltage(volts);
+    }
+
     public double getBottomSpeed() { //gets specific Speed (i hope)
         return currentBottomSpeed;
     }
