@@ -20,10 +20,14 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Indexer.IndexerMotors;
+import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeStates;
+import frc.robot.subsystems.Shooter.ShooterMotors;
+import frc.robot.subsystems.Shooter.ShooterStates;
 import frc.robot.subsystems.Indexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
@@ -65,9 +69,11 @@ public class RobotContainer {
     private void configureBindings() {
 
         //nothing is binded to intake, indexer, or shooter yet
-        driver.a().onTrue(onIntake());
+        driver.y().onTrue(onIntake());
+        driver.x().onTrue(onIndexer());
+        driver.a().onTrue(offIndexer());
         driver.b().onTrue(offIntake());
-        driver.x().onTrue(revIntake());
+
 
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
@@ -102,8 +108,12 @@ public class RobotContainer {
         return new SetIntake(IntakeStates.OFF);
     }
 
-    public Command revIntake() {
-        return new SetIntake(IntakeStates.REV);
+    //shooter
+    public Command onIndexer() {
+        return new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH);
+    }
+     public Command offIndexer() {
+        return new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH);
     }
 
 

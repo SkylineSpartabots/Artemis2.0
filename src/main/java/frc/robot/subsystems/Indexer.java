@@ -31,11 +31,11 @@ public class Indexer extends SubsystemBase {
     public Indexer() {
         indexerTopM = new CANSparkFlex(Constants.HardwarePorts.indexerTopM, MotorType.kBrushless);
         indexerBottomM = new CANSparkFlex(Constants.HardwarePorts.indexerBottomM, MotorType.kBrushless);
-        indexerBottomM.setInverted(true);
+        indexerTopM.setInverted(true);
     }
 
     public enum IndexerStates {
-        ON(1),
+        ON(0.8),
         OFF(0);
         private double speed;
 
@@ -65,7 +65,10 @@ public class Indexer extends SubsystemBase {
     }
 
     public void setSpeed(double[] speeds, IndexerMotors MotorLocation) {
-        var motor = MotorLocation.getValue();
+
+        int motor = MotorLocation.getValue(); // maybe comment this out cause it goes null
+        // if this all doesnt work to test just use the last else if and put that as all that is in this method
+
         if (MotorLocation == IndexerMotors.BOTTOM) {
             indexerBottomM.set(speeds[motor]);
             currentBottomSpeed = speeds[motor];
@@ -73,10 +76,9 @@ public class Indexer extends SubsystemBase {
             indexerTopM.set(speeds[motor]);
             currentTopSpeed = speeds[motor];
         } else if (MotorLocation == IndexerMotors.BOTH) {
-            indexerTopM.set(speeds[motor]);
-            indexerBottomM.set(speeds[motor]);
-            currentTopSpeed = speeds[motor];
-            currentBottomSpeed = speeds[motor];
+            indexerTopM.set(speeds[0]);
+            indexerBottomM.set(speeds[1]);
+            
         }
 //        this.stateName = state.name();
 
