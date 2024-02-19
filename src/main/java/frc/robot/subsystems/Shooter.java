@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkFlex;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -22,18 +22,30 @@ public class Shooter extends SubsystemBase {
         return instance;
     }
 
-    private String stateName; // to be used for periodic display - should be set everytime shooter is set
-    // issue is that shooter can be any random number
-    private CANSparkMax shooterTopM;
-    private CANSparkMax shooterBottomM;
+    private String stateName; // to be used for periodic display - set everytime shooter motor is changed
+    private CANSparkFlex shooterTopM;
+    private CANSparkFlex shooterBottomM;
 
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
 
     public Shooter() {
-        shooterTopM = new CANSparkMax(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
-        shooterBottomM = new CANSparkMax(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
+        shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
+        shooterBottomM = new CANSparkFlex(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
         shooterBottomM.setInverted(true);
+        configMotors();
+    }
+    
+    private void configMotors(){
+        shooterTopM.getPIDController().setFF(0.0078);
+        shooterTopM.getPIDController().setP(0.3);
+        shooterTopM.getPIDController().setI(0.017);
+        shooterTopM.getPIDController().setD(0.005);
+        
+        // shooterBottomM.getPIDController().setFF(0.0);
+        // shooterBottomM.getPIDController().setP(0.0);
+        // shooterBottomM.getPIDController().setI(0.0);
+        // shooterBottomM.getPIDController().setD(0.0);
     }
 
     public enum ShooterStates {
@@ -57,7 +69,7 @@ public class Shooter extends SubsystemBase {
         BOTH(0);
         private int motor;
 
-        public int getValue() {
+        public int getMotor() {
             return motor;
         }
 
@@ -70,8 +82,8 @@ public class Shooter extends SubsystemBase {
      * @param speeds
      * @param MotorLocation: 1 is top motor, 2 is bottom motor, 0 is both
      */
-    public void setSpeed(double[] speeds, ShooterMotors MotorLocation) {
-        var motor = MotorLocation.getValue();
+    public void setSpeed(double[] speeds, ShooterMotors MotorLocation) { //sets speed of motors using specific speed values
+        var motor = MotorLocation.getMotor();
         if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
             shooterBottomM.set(speeds[motor]);
             currentBottomSpeed = speeds[motor];
@@ -91,16 +103,16 @@ public class Shooter extends SubsystemBase {
         for (int i = 0; i < 3; i++) {
             speeds[i] = rpm;
         }
-          setSpeed(speeds, ShooterMotors.BOTH);
-    } //what does do 🦅🦅🍔🍔🌭
+        setSpeed(speeds, ShooterMotors.BOTH);
+    } //what does do 🦅🦅🍔🍔🌭 ??
 
     public double getSpeed(Shooter.ShooterMotors motor) {
         if (motor == Shooter.ShooterMotors.BOTTOM) {
             return currentBottomSpeed;
-        } else if (motor == Shooter.ShooterMotors.TOP) {
+        } else if (motor == Shooter.ShooterMotors.TOP) { //could just have this be else but it would look weird
             return currentTopSpeed;
         } else {
-            return -1; //need to have this bc yk
+            return -1;
         }
     }
 
@@ -111,9 +123,11 @@ public class Shooter extends SubsystemBase {
     public double getBottomSpeed() { //gets specific Speed (i hope)
         return currentBottomSpeed;
     }
+
     public double[] getBothSpeeds() {
         return new double[]{currentBottomSpeed, currentTopSpeed};
     }
+
     @Override
     public void periodic() {
         SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));

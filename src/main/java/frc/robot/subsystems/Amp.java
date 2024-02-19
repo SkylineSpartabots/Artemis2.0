@@ -14,27 +14,30 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.Constants;
 
 public class Amp extends SubsystemBase {
-  private static Amp s_Amp;
+  private static Amp instance;
 
     public static Amp getInstance(){
-        if(s_Amp == null){
-            s_Amp = new Amp();
+        if(instance == null){
+            instance = new Amp();
         }
-        return s_Amp;
+        return instance;
     }
+
+  private TalonSRX ampM;
+    
   public Amp() {
-    mAmp = new TalonSRX(Constants.HardwarePorts.ampMotor);
-    mAmp.setNeutralMode(NeutralMode.Brake);
+    ampM = new TalonSRX(Constants.HardwarePorts.ampM);
+    ampM.setNeutralMode(NeutralMode.Brake);
   }
 
-  private TalonSRX mAmp;
+  //TODO add configure amp motor method and pid if needed by mechanism
 
   public void setVelocity(double velocity){
-    mAmp.set(ControlMode.Velocity, velocity);
+    ampM.set(ControlMode.Velocity, velocity);
   }
 
   public void setPercentPower(double power){
-    mAmp.set(ControlMode.PercentOutput, power); //input values in [-1, 1]
+    ampM.set(ControlMode.PercentOutput, power); //input values in [-1, 1]
   }
 
   public void ejectNote(){
