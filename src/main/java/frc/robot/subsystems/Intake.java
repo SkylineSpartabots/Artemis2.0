@@ -42,7 +42,7 @@ public class Intake extends SubsystemBase {
         intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
         configMotor(intakeFollowerM);
 
-        intakeFollowerM.follow(intakeLeaderM, true);
+        intakeFollowerM.follow(intakeLeaderM, false);
         serializationM = new TalonSRX(Constants.HardwarePorts.serializationM);
         configMotor(serializationM, false);
     }
@@ -59,7 +59,7 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeStates {
-        ON(1),
+        ON(.8),
         OFF(0),
         REV(-1);
         private double speed;
@@ -76,7 +76,7 @@ public class Intake extends SubsystemBase {
         intakeLeaderM.set(state.speed);
         // I mean we could just make a second enum value right? but this works and theres really no reason to do so
         if (state == IntakeStates.ON) {
-            serializationM.set(ControlMode.PercentOutput, 1);
+            serializationM.set(ControlMode.PercentOutput, 0.5);
         } else {
             serializationM.set(ControlMode.PercentOutput, 0);
         }
