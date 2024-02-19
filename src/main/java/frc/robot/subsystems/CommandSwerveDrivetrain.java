@@ -3,7 +3,8 @@ package frc.robot.subsystems;
 import java.sql.Time;
 import java.util.function.Supplier;
 
-import com.ctre.phoenix.Logger;
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
@@ -97,7 +98,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         } catch (Exception e) {
         }
         if(poseFromVision != null){
-            s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Timer.getFPGATimestamp());
+            s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
 
         }
     }

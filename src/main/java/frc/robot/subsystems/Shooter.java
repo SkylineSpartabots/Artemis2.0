@@ -5,6 +5,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.CANSparkFlex;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -130,8 +133,13 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
-        SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));
+        Logger.recordOutput("Shooter/TopSetpoints", currentTopSpeed);
+        Logger.recordOutput("Shooter/BottomSetpoints", currentBottomSpeed);
+        Logger.recordOutput("Shooter/topSpeed", shooterTopM.getEncoder().getVelocity());
+        Logger.recordOutput("Shooter/botSpeed", shooterBottomM.getEncoder().getVelocity());
+        
+        // SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
+        // SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));
     }
 
     @Override
