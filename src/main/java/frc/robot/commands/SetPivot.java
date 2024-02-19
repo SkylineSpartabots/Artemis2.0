@@ -23,7 +23,7 @@ public class SetPivot extends Command {
     @Override
     public void initialize() {
         s_Pivot.setState(state);
-        // pivotController.reset(s_Pivot.getCANcoderPosition());
+        pivotController.reset();
     }
 
     @Override
@@ -37,7 +37,7 @@ public class SetPivot extends Command {
 
     @Override
 	public boolean isFinished() {
-		return Math.abs(s_Pivot.getSetPoint() - s_Pivot.getCANcoderPosition()) < 45;
+		return Math.abs(s_Pivot.getSetPoint() - s_Pivot.getCANcoderAbsolutePosition()) < 0.005;
 	}
 		
 	@Override
