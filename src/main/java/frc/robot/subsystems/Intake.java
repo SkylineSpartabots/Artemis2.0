@@ -38,6 +38,7 @@ public class Intake extends SubsystemBase {
         intakeFollowerM.setInverted(true);
         intakeFollowerM.follow(intakeLeaderM);
         SerializationM = new TalonSRX(22);
+        SerializationM.setInverted(true);
     }
 
     public enum IntakeStates {
@@ -57,7 +58,7 @@ public class Intake extends SubsystemBase {
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.set(state.speed);
         if (state == IntakeStates.ON) {
-            SerializationM.set(ControlMode.PercentOutput, 0.2);
+            SerializationM.set(ControlMode.PercentOutput, 0.5);
         } else {
             SerializationM.set(ControlMode.PercentOutput, 0);
         }
