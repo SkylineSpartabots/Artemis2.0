@@ -40,7 +40,8 @@ public class SetPivot extends Command {
 		
 	@Override
 	public void end(boolean interrupted) {
-		s_Pivot.setVoltage(0);
+        s_Pivot.stopMotor();        
+
 		SmartDashboard.putString("eleEnd", "elevator end");
 	}
 }
