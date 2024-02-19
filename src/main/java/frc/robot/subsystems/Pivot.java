@@ -40,10 +40,14 @@ public class Pivot extends SubsystemBase {
 
     public Pivot() {
         pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
-        configMotor();
+        configMotor(pivotLeaderM);
+
 
         pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotFollowerM, MotorType.kBrushless);
-        pivotFollowerM.follow(pivotLeaderM);
+        configMotor(pivotFollowerM);
+        pivotFollowerM.follow(pivotLeaderM, true);
+
+        
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
         configCANcoder();
     } 
@@ -78,22 +82,23 @@ public class Pivot extends SubsystemBase {
 
     /**
      * Sets the voltage of the pivot motor
-     * @param Desired voltage. 
+     * @param voltage Desired voltage. 
      */
     public void setVoltage(double voltage) {
         pivotLeaderM.setVoltage(voltage);
     }
 
     /**
-     * Configures the pivot motor with current limit, idle mode, and PID values
+     * Configures the specified motor with current limit and idle mode plus PID. 
+     * @param motor The motor to be configured. 
      */
-    private void configMotor() {
-        pivotLeaderM.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
-        pivotLeaderM.setIdleMode(IdleMode.kBrake);
+    private void configMotor(CANSparkFlex motor) {
+        motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
+        motor.setIdleMode(IdleMode.kBrake);
 
-        pivotLeaderM.getPIDController().setP(Constants.hardwarePIDs.pivotkP);
-        pivotLeaderM.getPIDController().setI(Constants.hardwarePIDs.pivotkI);
-        pivotLeaderM.getPIDController().setD(Constants.hardwarePIDs.pivotkD);
+        motor.getPIDController().setP(Constants.hardwarePIDs.pivotkP);
+        motor.getPIDController().setI(Constants.hardwarePIDs.pivotkI);
+        motor.getPIDController().setD(Constants.hardwarePIDs.pivotkD);
     }
 
     /**
