@@ -16,7 +16,7 @@ public class SetIndexer extends Command {
             finalSpeeds[0] = state.getValue();
             finalSpeeds[1] = state.getValue();
         } else {
-            finalSpeeds[motor.getValue()] = state.getValue();
+            finalSpeeds[motor.getMotor()] = state.getValue();
         }
         addRequirements(s_Indexer);
     }
@@ -28,27 +28,14 @@ public class SetIndexer extends Command {
             // cause if they are diff vals then that difference must be preserved by the both increase
             addedSpeeds[0] = s_Indexer.getBottomSpeed() + difference;
             addedSpeeds[1] = s_Indexer.getTopSpeed() + difference;
-        } else {
-            addedSpeeds[motor.getValue() - 1] = s_Indexer.getBothSpeeds()[motor.getValue() - 1] + difference;
+        } else { // -1 is for the indexes cause getMotor returns 1 for bottom and 2 for top motor but indexes...
+            addedSpeeds[motor.getMotor() - 1] = s_Indexer.getBothSpeeds()[motor.getMotor() - 1] + difference;
         }
 
-        // bottom
-        if (addedSpeeds[0] <= 1 && addedSpeeds[0] >= 0) {
-            finalSpeeds[0] = addedSpeeds[0];
-        } else if (addedSpeeds[0] > 1) {
-            finalSpeeds[0] = 1;
-        } else if (addedSpeeds[0] < 0) {
-            finalSpeeds[0] = 0;
-        }
-
-        // top
-        if (addedSpeeds[1] <= 1 && addedSpeeds[1] >= 0) {
-            finalSpeeds[1] = addedSpeeds[1];
-        } else if (addedSpeeds[1] > 1) {
-            finalSpeeds[1] = 1;
-        } else if (addedSpeeds[1] < 0) {
-            finalSpeeds[1] = 0;
-        }
+        // way less jank way - called a clamp statement or smth (java21 has it built in but i dunno if we run that?)
+        finalSpeeds[0] = Math.max(0.0,Math.min(addedSpeeds[0], 1.0));
+        finalSpeeds[1] = Math.max(0.0,Math.min(addedSpeeds[1], 1.0));
+        // How it works: min gives which ever is lower - addedspeed or 1. then max gives whichever is bigger 0 or result of min
 
         addRequirements(s_Indexer);
     }

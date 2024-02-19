@@ -54,7 +54,7 @@ public class Indexer extends SubsystemBase {
         BOTH(0);
         private int motor;
 
-        public int getValue() {
+        public int getMotor() {
             return motor;
         }
 
@@ -63,10 +63,13 @@ public class Indexer extends SubsystemBase {
         }
 
     }
-
+    /**
+     * @param speeds: Array containing speeds for Bottom and Top motors (bottom, top)
+     * @param MotorLocation: Choose motors to set, 1 is Bottom motor, 2 is Top motor, 0 is Both
+     */
     public void setSpeed(double[] speeds, IndexerMotors MotorLocation) {
 
-        int motor = MotorLocation.getValue(); // maybe comment this out cause it goes null
+        int motor = MotorLocation.getMotor() - 1; // maybe comment this out cause it goes null
         // if this all doesnt work to test just use the last else if and put that as all that is in this method
 
         if (MotorLocation == IndexerMotors.BOTTOM) {
@@ -76,24 +79,13 @@ public class Indexer extends SubsystemBase {
             indexerTopM.set(speeds[motor]);
             currentTopSpeed = speeds[motor];
         } else if (MotorLocation == IndexerMotors.BOTH) {
-            indexerTopM.set(speeds[0]);
-            indexerBottomM.set(speeds[1]);
-            
+            indexerBottomM.set(speeds[0]);
+            indexerTopM.set(speeds[1]);
+            currentBottomSpeed = speeds[0];
+            currentTopSpeed = speeds[1];
         }
 //        this.stateName = state.name();
-
     }
-
-    public double getSpeed(IndexerMotors motor) {
-        if (motor == IndexerMotors.BOTTOM) {
-            return currentBottomSpeed;
-        } else if (motor == IndexerMotors.TOP) {
-            return currentTopSpeed;
-        } else {
-            return -1;
-        }
-    }
-
     public double getTopSpeed() {
         return currentTopSpeed;
     }
