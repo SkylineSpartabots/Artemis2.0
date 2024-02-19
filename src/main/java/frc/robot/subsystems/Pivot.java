@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -61,6 +63,11 @@ public class Pivot extends SubsystemBase {
     public double getCANcoderPosition() {
         return pivotCANcoder.getPosition().getValueAsDouble();
     }
+
+    public double getCANcoderAbsolutePosition() {
+        return pivotCANcoder.getAbsolutePosition().getValueAsDouble();
+    }
+    
     /**
      * Gets the current set point of the pivot. 
      * @return Current set point in CANcoder values. 
@@ -103,5 +110,11 @@ public class Pivot extends SubsystemBase {
         CANcoderConfiguration swerveCanCoderConfig = new CANcoderConfiguration();
         swerveCanCoderConfig.MagnetSensor = magnetSensorConfigs;  
         pivotCANcoder.getConfigurator().apply(swerveCanCoderConfig);
+    }
+
+    @Override
+    public void periodic() {
+        Logger.recordOutput("Pivot/CurrentRotation", getCANcoderAbsolutePosition());
+        Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
     }
 }
