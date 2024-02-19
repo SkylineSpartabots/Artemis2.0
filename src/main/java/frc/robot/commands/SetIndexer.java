@@ -28,7 +28,7 @@ public class SetIndexer extends Command {
             // cause if they are diff vals then that difference must be preserved by the both increase
             addedSpeeds[0] = s_Indexer.getBottomSpeed() + difference;
             addedSpeeds[1] = s_Indexer.getTopSpeed() + difference;
-        } else {
+        } else { // -1 is for the indexes cause getMotor returns 1 for bottom and 2 for top motor but indexes...
             addedSpeeds[motor.getValue() - 1] = s_Indexer.getBothSpeeds()[motor.getValue() - 1] + difference;
         }
 
