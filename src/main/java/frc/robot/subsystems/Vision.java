@@ -112,10 +112,11 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        updateAprilTagResult();
-        SmartDashboard.putBoolean("Has Target", hasValidTarget());
-        SmartDashboard.putBoolean("Has target", hasValidTarget());
-        SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
+        // no cam rn lol
+        // updateAprilTagResult();
+        // SmartDashboard.putBoolean("Has Target", hasValidTarget());
+        // SmartDashboard.putBoolean("Has target", hasValidTarget());
+        // SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
     }
 }
 
