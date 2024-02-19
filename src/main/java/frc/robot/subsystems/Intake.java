@@ -42,7 +42,7 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeStates {
-        ON(0.8),
+        ON(1),
         OFF(0),
         REV(-1);
         private double speed;
@@ -58,7 +58,7 @@ public class Intake extends SubsystemBase {
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.set(state.speed);
         if (state == IntakeStates.ON) {
-            SerializationM.set(ControlMode.PercentOutput, 0.8);
+            SerializationM.set(ControlMode.PercentOutput, 1);
         } else {
             SerializationM.set(ControlMode.PercentOutput, 0);
         }
