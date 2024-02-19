@@ -12,6 +12,7 @@ public class SetIndexer extends Command {
 
     public SetIndexer(Indexer.IndexerStates state, Indexer.IndexerMotors motor) {
         s_Indexer = Indexer.getInstance();
+        motorLoc = motor;
         if (motor == Indexer.IndexerMotors.BOTH) {
             finalSpeeds[0] = state.getValue();
             finalSpeeds[1] = state.getValue();
