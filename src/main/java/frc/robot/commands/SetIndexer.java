@@ -32,23 +32,10 @@ public class SetIndexer extends Command {
             addedSpeeds[motor.getValue() - 1] = s_Indexer.getBothSpeeds()[motor.getValue() - 1] + difference;
         }
 
-        // bottom
-        if (addedSpeeds[0] <= 1 && addedSpeeds[0] >= 0) {
-            finalSpeeds[0] = addedSpeeds[0];
-        } else if (addedSpeeds[0] > 1) {
-            finalSpeeds[0] = 1;
-        } else if (addedSpeeds[0] < 0) {
-            finalSpeeds[0] = 0;
-        }
-
-        // top
-        if (addedSpeeds[1] <= 1 && addedSpeeds[1] >= 0) {
-            finalSpeeds[1] = addedSpeeds[1];
-        } else if (addedSpeeds[1] > 1) {
-            finalSpeeds[1] = 1;
-        } else if (addedSpeeds[1] < 0) {
-            finalSpeeds[1] = 0;
-        }
+        // way less jank way - called a clamp statement or smth (java21 has it built in but i dunno if we run that?)
+        finalSpeeds[0] = Math.max(0.0,Math.min(addedSpeeds[0], 1.0));
+        finalSpeeds[1] = Math.max(0.0,Math.min(addedSpeeds[1], 1.0));
+        // How it works: min gives which ever is lower - addedspeed or 1. then max gives whichever is bigger 0 or result of min
 
         addRequirements(s_Indexer);
     }

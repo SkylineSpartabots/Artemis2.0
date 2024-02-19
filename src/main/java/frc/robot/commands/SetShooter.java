@@ -33,23 +33,10 @@ public class SetShooter extends Command {
             addedSpeeds[motor.getMotor() - 1] = s_Shooter.getBothSpeeds()[motor.getMotor() - 1] + difference;
         }
 
-        // check bottom
-        if (addedSpeeds[1] <= 1 && addedSpeeds[1] >= 0) {
-            finalSpeeds[1] = addedSpeeds[1];
-        } else if (addedSpeeds[1] > 1) {
-            finalSpeeds[1] = 1;
-        } else if (addedSpeeds[1] < 0) {
-            finalSpeeds[1] = 0;
-        }
-
-        // check top
-        if (addedSpeeds[2] <= 1 && addedSpeeds[2] >= 0) {
-            finalSpeeds[2] = addedSpeeds[2];
-        } else if (addedSpeeds[2] > 1) {
-            finalSpeeds[2] = 1;
-        } else if (addedSpeeds[2] < 0) {
-            finalSpeeds[2] = 0;
-        }
+        // way less jank way - called a clamp statement or smth (java21 has it built in but i dunno if we run that?)
+        finalSpeeds[0] = Math.max(0.0,Math.min(addedSpeeds[0], 1.0));
+        finalSpeeds[1] = Math.max(0.0,Math.min(addedSpeeds[1], 1.0));
+        // How it works: min gives which ever is lower - addedspeed or 1. then max gives whichever is bigger 0 or result of min
 
         addRequirements(s_Shooter);
     }
