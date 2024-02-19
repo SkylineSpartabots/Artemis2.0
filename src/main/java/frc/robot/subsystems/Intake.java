@@ -28,16 +28,18 @@ public class Intake extends SubsystemBase {
 
     private String stateName;
 
-    private CANSparkFlex intakeFollowerM;
     private CANSparkFlex intakeLeaderM;
+    private CANSparkFlex intakeFollowerM;
     private TalonSRX SerializationM; // Someone told me this will control both
 
+    //TODO configure motor methods for motors, pid???
+
     public Intake() {
-        intakeLeaderM = new CANSparkFlex(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
-        intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
+        intakeLeaderM = new CANSparkFlex(Constants.HardwarePorts.intakeLeftM, MotorType.kBrushless);
+        intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeRightM, MotorType.kBrushless);
         intakeFollowerM.setInverted(true);
         intakeFollowerM.follow(intakeLeaderM);
-        SerializationM = new TalonSRX(22);
+        SerializationM = new TalonSRX(Constants.HardwarePorts.intakeCerealM);
         SerializationM.setInverted(true);
     }
 
