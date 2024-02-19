@@ -64,9 +64,11 @@ public final class Constants {
         public static final int indexerBottomM = 30;
         public static final int intakeLeaderM = 20;
         public static final int intakeFollowerM = 21;
+        public static final int serializationM = 22;
         public static final int climbLeaderMotor = 60;
         public static final int climbFollowerMotor = 61;
-        public static final int pivotMotor = 40;
+        public static final int pivotLeaderM = 40;
+        public static final int pivotFollowerM = 41;
         public static final int pivotCANcoderID = 42;
         public static final int ampMotor = 62;
         

@@ -26,7 +26,7 @@ public class Amp extends SubsystemBase {
   private TalonSRX ampM;
     
   public Amp() {
-    ampM = new TalonSRX(Constants.HardwarePorts.ampM);
+    ampM = new TalonSRX(Constants.HardwarePorts.ampMotor);
     ampM.setNeutralMode(NeutralMode.Brake);
   }
 

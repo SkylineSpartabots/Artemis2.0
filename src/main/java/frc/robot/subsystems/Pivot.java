@@ -37,10 +37,10 @@ public class Pivot extends SubsystemBase {
     private PivotState currState = PivotState.GROUND;
 
     public Pivot() {
-        pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeftM, MotorType.kBrushless);
+        pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
         configMotor();
 
-        pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotRightM, MotorType.kBrushless);
+        pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotFollowerM, MotorType.kBrushless);
         pivotFollowerM.follow(pivotLeaderM);
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
         configCANcoder();

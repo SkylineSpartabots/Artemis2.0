@@ -25,10 +25,10 @@ public class Climb extends SubsystemBase {
   private CANSparkFlex climbFollowerM;
 
   public Climb() {
-    climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeftM, MotorType.kBrushless);
+    climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
     configLeaderMotor(climbLeaderM);
 
-    climbFollowerM = new CANSparkFlex(Constants.HardwarePorts.climbRightM, MotorType.kBrushless);
+    climbFollowerM = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
     configFollowerMotor(climbFollowerM, climbLeaderM);
   }
 
