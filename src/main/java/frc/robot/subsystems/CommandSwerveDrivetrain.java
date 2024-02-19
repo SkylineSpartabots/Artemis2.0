@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.generated.TunerConstants;
@@ -27,6 +28,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
+    private double lastTimeReset = -1;
 
     private static CommandSwerveDrivetrain s_Swerve;
 
@@ -87,10 +90,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
 
-    public void updateWithVision(){
-        //s_Swerve.m_odometry.addVisionMeasurement(getPose(), ModuleCount); like this
-    }
-
     public void updateOdometryByVision(){
         Pose3d poseFromVision = null;
         try {
@@ -99,7 +98,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
         if(poseFromVision != null){
             s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Timer.getFPGATimestamp());
+
         }
+    }
+
+    @Override
+    public void periodic() {
+        //allows driver to see if resetting worked
+        SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
     }
 
 }

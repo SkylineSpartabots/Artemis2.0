@@ -41,6 +41,8 @@ public class Vision extends SubsystemBase {
     private double targetDistance;
     private int targetID;
 
+    private Transform3d cameraToRobotTransform = new Transform3d(); //TODO: edit this
+
     private AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 //    private static PhotonCamera visionCamera;
 
@@ -104,7 +106,7 @@ public class Vision extends SubsystemBase {
             throw new Exception("No vision target");
         } else {
             Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
-            return PhotonUtils.estimateFieldToRobotAprilTag(bestTarget.getBestCameraToTarget(), targetPose, new Transform3d());
+            return PhotonUtils.estimateFieldToRobotAprilTag(bestTarget.getBestCameraToTarget(), targetPose, cameraToRobotTransform);
         }
     }
 
