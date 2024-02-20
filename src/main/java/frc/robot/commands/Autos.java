@@ -47,9 +47,9 @@ public final class Autos {
     traj.add(Choreo.getTrajectory(auto.name));
     //ArrayList<ChoreoTrajectory> traj = Choreo.getTrajectoryGroup(auto.name);
 
-    PIDController xController = new PIDController(5, 0, 0);
-    PIDController yController = new PIDController(5, 0, 0);
-    PIDController thetaController = new PIDController(2, 0, 0);
+    PIDController xController = new PIDController(1, 0, 0); //TODO: tune
+    PIDController yController = new PIDController(1, 0, 0);
+    PIDController thetaController = new PIDController(1, 0, 0);
     SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
