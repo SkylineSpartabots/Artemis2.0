@@ -7,18 +7,65 @@
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
+//Math Explainer
+/* Assuming a primarySize (g) of 5 and a blackOffset (k) of 0 and a secondarySize (b) of 5
+The goal is to turn every 5th (g) LED (i) off 
+To find if i is the 5th LED we subtract k from i to get some number which if it is the 5th LED it should be evenly divisible by 5 (g)
+If (i - k) % g == 0 then the LED at i should be set to black
+If (i - k) % g != 0 then the LED at i should be set to the desired color, in this case red
+
+We first progress through every LED in the strip, every value of i
+The above formula will turn every 5th LED off
+(0 - 0) % 5 == 0 and (5 - 0) % 5 == 0 but (2 - 0) % 5 != 0
 
 
+But we want the black spaces to move to create the animation
 
-//Ant Variables - ag and b are function specific - passed as params - k is global and used by methods and kflip and kreset so it needs to be global, starts at 0 
-int k = 0; // Turns every nth LED off
-// int g = 6; // Size of colored section
-// int b = 3; // Size of other colored sections - eats into g size; set b = 0 to have g = g; otherwise g will appear as g - b; adjust g accordingly (desired g of 7 andb of 2 means g should be 9)
-// b is also used to flip k so as to make it set what was previously the first color to the other in cautionJump
+To do this we must increment k after we have looped throught the whole LED strip
+This makes it so that every 5th LED is still off but it is now one value of i farther down the strip
+For example: (1 - 1) % 5 == 0 and  (6 - 1) % 5 == 0 mean that LEDs 1 & 6 are black
+but the previously black LED with i value of 5 will be red because (5 - 1) % 5 != 0
 
+**Remember that i of 1 is actually the second LED in the stip as 0 is the first**
+
+We continue this looping through every i value and then incrementing k until k is equal to g
+When k == g we can reset it to be 0 because (5 - 0) % 5 == 0 and (5 - 5) % 5 == 0
+This helps to keep numbers small
+
+Now one final thing, what if we want more than one LED to be turned off
+Simple we create a b value which tells us how many LEDs behind the currently off LED should also be set to black
+It looks like this: if (i - k) % g == 0 then we will set the LEDs from i - b to i as black
+
+*/
+
+// --Ant Variables--
+int k = 0; // Turns every nth LED off -- global; is flipped/reset when incremented to primarySize
+// Set each time function is run - can be changed
+int primarySize; // Size of colored (primary) section 
+int secondarySize; // Size of black (secondary) sections - eats into g size; set b = 0 to have g = g; otherwise g will appear as g - b; adjust g accordingly (desired g of 7 and b of 2 means g should be 9)
+
+int hueAnt; // Hue input into an ant method call
+int satAnt; // Saturation input into an ant method call
+int valAnt; // Value/Brightness input into an ant method call
+
+int antDelay; // Delay input into an ant method call
+boolean antEnabled = false;
+
+
+// --Flash Variables--
+int hueFlash; // Hue input into a flash method call
+int satFlash; // Saturation input into a flash method call
+int valFlash; // Value/Brightness input into a flash method call
+
+int flashOnDelay; // On delay input into a flash method call
+int flashOffDelay; // Off delay input into a flash method call
+boolean flashEnabled = false;
+
+
+// --Serial and Mode--
 int inByte = 0;
 int selected;
-boolean antEnabled = false;
+
 
 void setup() {
   Serial.begin(9600);
@@ -29,6 +76,7 @@ void setup() {
 
 void loop() {
   if (Serial.available() > 0){
+    digitalWrite(13, 1);
     inByte = Serial.read();
     Serial.println(inByte);
     //TODO decide what each means and which should be ants (rem 9 - rn its just for demo)
@@ -55,24 +103,38 @@ void loop() {
         setSolid(192, 255, 255);
         break;
       case '7'://PINK
-        setSolid(224, 255, 255);
+        flashSolid(224, 255, 255, 200, 200);
+        // setSolid(224, 255, 255);
         break;
       case '8'://WHITE
         setSolid(0, 0, 127);
         break;
       case '9'://redAnt - just demo really rn
-        antEnabled = true;
-        runAnt(7, 3, 35);
+        runAnt(0, 255, 255, 7, 3, 35);
         break;
     }
   }
+  digitalWrite(13, 0);
   if (antEnabled){
-    runAnt(7, 3, 35);
+    runAnt(hueAnt, satAnt, valAnt, primarySize, secondarySize, antDelay);
+  } 
+  else if (flashEnabled) {
+    flashSolid(hueFlash, satFlash, valFlash, flashOnDelay, flashOffDelay);
   }
   delay(0);
 }
+//
+void runAnt(int H, int S, int V, int g, int b, int delayMS){// Add differing color functionality
+  // Set the variables so they can be used every loop cycle
+  hueAnt = H;
+  satAnt = S;
+  valAnt = V;
+  primarySize = g;
+  secondarySize = b;
+  antDelay = delayMS;
+  antEnabled = true;
+  flashEnabled = false;
 
-void runAnt(int g, int b, int delayMS){// Add differing color functionality
   for (int i = 0; i < NUM_LEDS; i++) {
     if((i - k)% g ==0) { 
       for (int j = 0; j < b; j++){
@@ -89,10 +151,35 @@ void runAnt(int g, int b, int delayMS){// Add differing color functionality
 }
 void setSolid(int H, int S, int V){
   antEnabled = false;
+  flashEnabled = false;
+
   for (int i =0 ; i < NUM_LEDS; i++){
     leds[i].setHSV(H, S, V);
   }
   FastLED.show();
+}
+void flashSolid(int H, int S, int V, int onMS, int offMS){
+  // Set the variables so they can be used every loop cycle
+  hueFlash = H;
+  satFlash = S;
+  valFlash = V;
+  flashOnDelay = onMS;
+  flashOffDelay = offMS;
+  antEnabled = false;
+  flashEnabled = true;
+
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i].setHSV(H, S, V);
+  }
+  FastLED.show();
+  delay(onMS);
+
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i] = CRGB::Black;
+  }
+  FastLED.show();
+  delay(offMS);
+
 }
 // Extra Modes
 void cautionAnt(int g, int b, int delayMS){
