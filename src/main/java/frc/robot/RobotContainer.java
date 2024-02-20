@@ -25,6 +25,7 @@ import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Shooter.ShooterMotors;
 import frc.robot.subsystems.Shooter.ShooterStates;
@@ -39,6 +40,7 @@ public class RobotContainer {
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake Is_intake = Intake.getInstance();
+    private final Pivot s_Pivot = Pivot.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -70,11 +72,14 @@ public class RobotContainer {
 
         //nothing is binded to intake, indexer, or shooter yet
         driver.y().onTrue(onIntake());
-        driver.y().onFalse(offIntake());
+        driver.a().onFalse(offIntake());
         driver.x().onTrue(onIndexer());
-        driver.x().onFalse(offIndexer());
+        driver.b().onFalse(offIndexer());
+
+        
 
         driver.rightBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(12)));
+        driver.rightBumper().onFalse(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
@@ -83,9 +88,9 @@ public class RobotContainer {
                         .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
                 ));
 
-        driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        driver.b().whileTrue(drivetrain
-                .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
+        // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // driver.b().whileTrue(drivetrain
+        //         .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
         // reset the field-centric heading on left bumper press. AKA reset odometry
         driver.leftBumper().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());

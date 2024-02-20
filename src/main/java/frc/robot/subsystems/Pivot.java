@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -24,7 +25,10 @@ public class Pivot extends SubsystemBase {
     }
 
     public enum PivotState {
-        GROUND(0);
+        GROUND(0.578125),
+        // Current max is .72, can change later
+        MAX(0.72265625);
+        //WING(position);
 
         private double pos;
 
@@ -101,7 +105,7 @@ public class Pivot extends SubsystemBase {
      */
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
-        motor.setIdleMode(IdleMode.kBrake);
+        motor.setIdleMode(IdleMode.kCoast);
 
     }
 
@@ -123,7 +127,8 @@ public class Pivot extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Logger.recordOutput("Pivot/CurrentRotation", getCANcoderAbsolutePosition());
-        Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
+        // Logger.recordOutput("Pivot/CurrentRotation", getCANcoderAbsolutePosition());
+        // Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
+        SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
     }
 }

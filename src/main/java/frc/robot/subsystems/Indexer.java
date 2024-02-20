@@ -32,10 +32,11 @@ public class Indexer extends SubsystemBase {
         indexerTopM = new CANSparkFlex(Constants.HardwarePorts.indexerTopM, MotorType.kBrushless);
         indexerBottomM = new CANSparkFlex(Constants.HardwarePorts.indexerBottomM, MotorType.kBrushless);
         indexerTopM.setInverted(true);
+        indexerBottomM.setInverted(true);
     }
 
     public enum IndexerStates {
-        ON(1),
+        ON(0.7),
         OFF(0);
         private double speed;
 

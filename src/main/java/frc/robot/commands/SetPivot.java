@@ -12,7 +12,7 @@ public class SetPivot extends Command {
     Pivot s_Pivot;
     PivotState state;
     // ProfiledPIDController pivotController = new ProfiledPIDController(0.06, 1e-2, 1e-3, new TrapezoidProfile.Constraints(500000, 3000*1e5));
-    PIDController pivotController = new PIDController(0.06, 1e-2, 1e-3);
+    PIDController pivotController = new PIDController(0.06, 0, 0);
 
     public SetPivot(PivotState state) {
         s_Pivot = Pivot.getInstance();
@@ -44,6 +44,6 @@ public class SetPivot extends Command {
 	public void end(boolean interrupted) {
         s_Pivot.stopMotor();        
 
-		SmartDashboard.putString("eleEnd", "elevator end");
+		SmartDashboard.putString("pivot", "pivot end");
 	}
 }

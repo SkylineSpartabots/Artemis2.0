@@ -59,7 +59,7 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeStates {
-        ON(1),
+        ON(0.7),
         OFF(0),
         REV(-1);
         private double speed;
