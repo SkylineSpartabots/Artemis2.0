@@ -128,6 +128,10 @@ public class Pivot extends SubsystemBase {
         return (pivotLeaderM.getOutputCurrent() + pivotFollowerM.getOutputCurrent())/2;
     }
 
+    public double getMotorPosition() {
+        return pivotLeaderM.getEncoder().getPosition();
+    }
+
     /**
      * Configures the specified motor with current limit and idle mode plus PID. 
      * @param motor The motor to be configured. 
@@ -173,5 +177,6 @@ public class Pivot extends SubsystemBase {
         Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
         SmartDashboard.putNumber("Pivot measured angle", shooterAngle());
+        SmartDashboard.putNumber("Motor Encoder", getMotorPosition());
     }
 }

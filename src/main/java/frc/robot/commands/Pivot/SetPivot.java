@@ -28,7 +28,13 @@ public class SetPivot extends Command {
 
     @Override
     public void execute() {
-        double voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(), s_Pivot.getSetPoint());
+        double voltage;
+        if (s_Pivot.CANcoderWorking()) {
+            voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(), s_Pivot.getSetPoint());
+        }
+        else {
+            voltage = 0;
+        }
         // if (Math.abs(s_Pivot.getCANcoderPosition() - s_Pivot.getSetPoint()) < 15) {
 		// 	voltage = 0.7;
 		// }
