@@ -17,7 +17,7 @@ public class Lightz extends SubsystemBase {
         return instance;
     }
 
-    public enum ledModes {
+    public enum ledModes { //
         OFF(0),
         RED(1),
         ORANGE(2),

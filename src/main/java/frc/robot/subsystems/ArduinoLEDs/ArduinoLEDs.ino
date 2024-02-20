@@ -67,6 +67,18 @@ int inByte = 0;
 int selected;
 
 
+// --Color Tuples--
+int  OFF[] = {0, 0, 0};
+int  RED[] = {0, 255, 255};
+int  ORANGE[] = {15, 255, 255};
+int  YELLOW[] = {55, 255, 255};
+int  GREEN[] = {96, 255, 255};
+int  BLUE[] = {160, 255, 255};
+int  PURPLE[] = {192, 255, 255};
+int  PINK[] = {224, 255, 255};
+int  WHITE[] = {0, 0, 127}; // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
+
+
 void setup() {
   Serial.begin(9600);
 
@@ -76,11 +88,12 @@ void setup() {
 
 void loop() {
   if (Serial.available() > 0){
-    digitalWrite(13, 1);
+    digitalWrite(13, 1); // Debug
     inByte = Serial.read();
     Serial.println(inByte);
-    //TODO decide what each means and which should be ants (rem 9 - rn its just for demo)
-    switch (inByte) {
+    //TODO Decide on mode meanings and what patterns they should be
+    switch (inByte) { 
+//    ****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
       case '0': //OFF
         setSolid(0, 0, 0);
         break;
@@ -107,24 +120,78 @@ void loop() {
         // setSolid(224, 255, 255);
         break;
       case '8'://WHITE
-        setSolid(0, 0, 127);
+        setSolid(0, 0, 127); // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
         break;
       case '9'://redAnt - just demo really rn
-        runAnt(0, 255, 255, 7, 3, 35);
+        runAnt(PURPLE, 7, 3, 35);
         break;
     }
   }
-  digitalWrite(13, 0);
-  if (antEnabled){
-    runAnt(hueAnt, satAnt, valAnt, primarySize, secondarySize, antDelay);
-  } 
-  else if (flashEnabled) {
-    flashSolid(hueFlash, satFlash, valFlash, flashOnDelay, flashOffDelay);
-  }
+  digitalWrite(13, 0); // Debug
+  if (antEnabled){runAnt(hueAnt, satAnt, valAnt, primarySize, secondarySize, antDelay);} 
+  else if (flashEnabled) {flashSolid(hueFlash, satFlash, valFlash, flashOnDelay, flashOffDelay);}
   delay(0);
 }
-//
-void runAnt(int H, int S, int V, int g, int b, int delayMS){// Add differing color functionality
+// --Color Mode Methods--
+void runAnt(int color[], int g, int b, int delayMS){// Add differing color functionality
+  // Set the variables so they can be used every loop cycle
+  hueAnt = color[0];
+  satAnt = color[1];
+  valAnt = color[2];
+  primarySize = g;
+  secondarySize = b;
+  antDelay = delayMS;
+  antEnabled = true;
+  flashEnabled = false;
+
+  for (int i = 0; i < NUM_LEDS; i++) {
+    if((i - k)% g ==0) { 
+      for (int j = 0; j < b; j++){
+        if (i - j >= 0){
+          leds[i - j] = CRGB::Black;
+        }
+      }
+    }
+    else{leds[i] = CHSV(color[0], color[1], color[2]);}
+  } 
+  FastLED.show();
+  delay(delayMS);
+  kReset(g);
+}
+void setSolid(int color[]){
+  antEnabled = false;
+  flashEnabled = false;
+
+  for (int i =0 ; i < NUM_LEDS; i++){
+    leds[i].setHSV(color[0], color[1], color[2]);
+  }
+  FastLED.show();
+}
+void flashSolid(int color[], int onMS, int offMS){
+  // Set the variables so they can be used every loop cycle
+  hueFlash = color[0];
+  satFlash = color[1];
+  valFlash = color[2];
+  flashOnDelay = onMS;
+  flashOffDelay = offMS;
+  antEnabled = false;
+  flashEnabled = true;
+
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i].setHSV(color[0], color[1], color[2]);
+  }
+  FastLED.show();
+  delay(onMS);
+
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i] = CRGB::Black;
+  }
+  FastLED.show();
+  delay(offMS);
+
+}
+// --Overloading--
+void runAnt(int H, int S, int V, int g, int b, int delayMS){
   // Set the variables so they can be used every loop cycle
   hueAnt = H;
   satAnt = S;
@@ -143,7 +210,7 @@ void runAnt(int H, int S, int V, int g, int b, int delayMS){// Add differing col
         }
       }
     }
-    else{leds[i] = CHSV(0, 255, 255);}
+    else{leds[i].setHSV(H, S, V);}
   } 
   FastLED.show();
   delay(delayMS);
@@ -181,7 +248,7 @@ void flashSolid(int H, int S, int V, int onMS, int offMS){
   delay(offMS);
 
 }
-// Extra Modes
+// --Extra Modes--
 void cautionAnt(int g, int b, int delayMS){
   
   for (int i = 0; i < NUM_LEDS; i++) {
