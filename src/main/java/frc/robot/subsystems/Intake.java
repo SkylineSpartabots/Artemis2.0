@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkFlex;
@@ -114,6 +113,7 @@ public class Intake extends SubsystemBase {
         // if (stateName != null) {
         //     SmartDashboard.putString("Intake State", stateName);
         // }
+        SmartDashboard.putBoolean("Intake On", intakeLeaderM.getBusVoltage() > 2);
     }
 
     @Override
