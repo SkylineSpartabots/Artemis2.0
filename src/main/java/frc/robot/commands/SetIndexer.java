@@ -36,8 +36,8 @@ public class SetIndexer extends Command {
 
         // CHECK this for REV cause no negative
         // way less jank way - called a clamp statement or smth (java21 has it built in but i dunno if we run that?)
-        finalSpeeds[0] = Math.max(0.0,Math.min(addedSpeeds[0], 1.0));
-        finalSpeeds[1] = Math.max(0.0,Math.min(addedSpeeds[1], 1.0));
+        finalSpeeds[0] = Math.max(0.0, Math.min(addedSpeeds[0], 1.0));
+        finalSpeeds[1] = Math.max(0.0, Math.min(addedSpeeds[1], 1.0));
         // How it works: min gives which ever is lower - addedspeed or 1. then max gives whichever is bigger 0 or result of min
 
         addRequirements(s_Indexer);

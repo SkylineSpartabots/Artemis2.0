@@ -17,7 +17,30 @@ public class Lightz extends SubsystemBase {
         return instance;
     }
 
-    public Lightz() { // idk if this code should be in this constructor or in the setLEDs method
+    public enum ledModes {
+        RED(0),
+        ORANGE(1),
+        YELLOW(2),
+        GREEN(3),
+        BLUE(4),
+        PURPLE(5),
+        PINK(6),
+        WHITE(7),
+        OFF(8),
+        ;
+        private int modeNum;
+
+        public int getModeNum() {
+            return modeNum;
+        }
+
+        ledModes(int modeNum) {
+            this.modeNum = modeNum;
+        }
+    }
+
+    public Lightz() { // idk if this code should be in this
+        // constructor or in the setLEDs method
         try {
             arduino = new SerialPort(9600, SerialPort.Port.kUSB);
             System.out.println("Connect kUSB");
@@ -40,8 +63,8 @@ public class Lightz extends SubsystemBase {
         timer.start();
     }
 
-    public void setLEDs(int selected) {
-        this.selected = selected;
+    public void setLEDs(ledModes mode) {
+        this.selected = mode.getModeNum();
     }
 
     public int getLEDs() {

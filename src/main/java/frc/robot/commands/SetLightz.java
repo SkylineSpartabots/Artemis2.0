@@ -8,10 +8,11 @@ import frc.robot.subsystems.Lightz;
 
 public class SetLightz extends Command {
     private final Lightz s_Lightz;
-    private int selected;
-    public SetLightz(int selected) {
+    private Lightz.ledModes selectedMode;
+
+    public SetLightz(Lightz.ledModes mode) {
         s_Lightz = Lightz.getInstance();
-        this.selected = selected;
+        this.selectedMode = mode;
         addRequirements(s_Lightz);
     }
 
@@ -20,7 +21,9 @@ public class SetLightz extends Command {
     }
 
     @Override
-    public void execute() {s_Lightz.setLEDs(selected);}
+    public void execute() {
+        s_Lightz.setLEDs(selectedMode);
+    }
 
     @Override
     public void end(boolean interrupted) {

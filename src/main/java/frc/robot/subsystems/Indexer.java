@@ -63,8 +63,9 @@ public class Indexer extends SubsystemBase {
         }
 
     }
+
     /**
-     * @param speeds: Array containing speeds for Bottom and Top motors (bottom, top)
+     * @param speeds:        Array containing speeds for Bottom and Top motors (bottom, top)
      * @param MotorLocation: Choose motors to set, 1 is Bottom motor, 2 is Top motor, 0 is Both
      */
     public void setSpeed(double[] speeds, IndexerMotors MotorLocation) {
@@ -85,6 +86,7 @@ public class Indexer extends SubsystemBase {
         }
 //        this.stateName = state.name();
     }
+
     public double getTopSpeed() {
         return currentTopSpeed;
     }

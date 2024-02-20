@@ -38,15 +38,15 @@ public class Shooter extends SubsystemBase {
         shooterBottomM.setInverted(true);
         configMotors();
     }
-    
-    private void configMotors(){
+
+    private void configMotors() {
         shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
 
         shooterTopM.getPIDController().setFF(0.0078);
         shooterTopM.getPIDController().setP(0.3);
         shooterTopM.getPIDController().setI(0.017);
         shooterTopM.getPIDController().setD(0.005);
-        
+
         // shooterBottomM.getPIDController().setFF(0.0);
         // shooterBottomM.getPIDController().setP(0.0);
         // shooterBottomM.getPIDController().setI(0.0);
@@ -84,7 +84,7 @@ public class Shooter extends SubsystemBase {
     }
 
     /**
-     * @param speeds: Array containing speeds for Bottom and Top motors (bottom, top)
+     * @param speeds:        Array containing speeds for Bottom and Top motors (bottom, top)
      * @param MotorLocation: Choose motors to set, 1 is Bottom motor, 2 is Top motor, 0 is Both
      */
     public void setSpeed(double[] speeds, ShooterMotors MotorLocation) { //sets speed of motors using specific speed values
@@ -110,6 +110,7 @@ public class Shooter extends SubsystemBase {
         }
         setSpeed(speeds, ShooterMotors.BOTH);
     } //what does do 🦅🦅🍔🍔🌭 ??
+
     public double getTopSpeed() { //gets specific Speed (i hope)
         return currentTopSpeed;
     }
@@ -128,7 +129,7 @@ public class Shooter extends SubsystemBase {
         Logger.recordOutput("Shooter/BottomSetpoints", currentBottomSpeed);
         Logger.recordOutput("Shooter/topSpeed", shooterTopM.getEncoder().getVelocity());
         Logger.recordOutput("Shooter/botSpeed", shooterBottomM.getEncoder().getVelocity());
-        
+
         // SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
         // SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));
     }

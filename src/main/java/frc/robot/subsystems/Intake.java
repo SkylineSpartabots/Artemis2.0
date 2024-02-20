@@ -63,6 +63,7 @@ public class Intake extends SubsystemBase {
         OFF(0),
         REV(-1);
         private double speed;
+
         public double getValue() {
             return speed;
         }
@@ -80,7 +81,7 @@ public class Intake extends SubsystemBase {
         } else {
             serializationM.set(ControlMode.PercentOutput, 0);
         }
-        
+
         this.stateName = state.name();
 
     }
