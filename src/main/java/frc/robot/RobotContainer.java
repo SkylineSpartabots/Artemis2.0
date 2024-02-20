@@ -12,6 +12,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -28,6 +29,7 @@ import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.subsystems.Indexer;
+import frc.robot.commands.Autos;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
@@ -66,6 +68,8 @@ public class RobotContainer {
     private final Trigger driverDpadUp = driver.povUp();
     private final Trigger driverDpadDown = driver.povDown();
     private final Trigger driverDpadLeft = driver.povLeft();
+
+    SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
 
     private void configureBindings() {
 
@@ -106,6 +110,9 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
+        autoChooser.setDefaultOption("straight path", Autos.AutoPath.StraightPathTesting);
+        autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
+        autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
         configureBindings();
     }
 
@@ -121,12 +128,14 @@ public class RobotContainer {
     public Command onIndexer() {
         return new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH);
     }
-     public Command offIndexer() {
+    
+    public Command offIndexer() {
         return new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH);
     }
 
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return Autos.getAutoCommand(autoChooser.getSelected());
+        // return Commands.print("No autonomous command configured");
     }
 }

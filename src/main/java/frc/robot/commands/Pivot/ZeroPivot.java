@@ -31,6 +31,6 @@ public class ZeroPivot extends Command {
 		
 	@Override
 	public void end(boolean interrupted) {
-        s_Pivot.resetMotorEncoders(0.0);
+        s_Pivot.resetMotorEncoders(0.2);
 	}
 }
