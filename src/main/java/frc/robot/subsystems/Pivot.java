@@ -41,6 +41,7 @@ public class Pivot extends SubsystemBase {
     }
 
 
+
     private CANSparkFlex pivotLeaderM;
     private CANSparkFlex pivotFollowerM;
     private CANcoder pivotCANcoder;
@@ -108,6 +109,11 @@ public class Pivot extends SubsystemBase {
      */
     public void setVoltage(double voltage) {
         pivotLeaderM.setVoltage(voltage);
+        pivotCANcoder.getMagnetHealth();
+    }
+    
+    public boolean CANcoderWorking() {
+        return !pivotCANcoder.getFault_BadMagnet().getValue() && pivotCANcoder.getFault_Hardware().getValue();
     }
 
     /**
