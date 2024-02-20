@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import javax.management.InstanceAlreadyExistsException;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -25,12 +27,15 @@ import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Intake.IntakeStates;
+import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.subsystems.Shooter.ShooterMotors;
 import frc.robot.subsystems.Shooter.ShooterStates;
 import frc.robot.subsystems.Indexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
+import frc.robot.commands.SetPivot;
 import frc.robot.commands.SetShooter;
 
 public class RobotContainer {
@@ -39,6 +44,7 @@ public class RobotContainer {
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
+    private final Pivot s_Pivot = Pivot.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -77,11 +83,11 @@ public class RobotContainer {
         driver.rightBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setPercentOutput(0.55)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
-        driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
-        driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
-        driver.povRight().onTrue(new InstantCommand(() -> s_Shooter.incPercentOutput()));
-        driver.povLeft().onTrue(new InstantCommand(() -> s_Shooter.decPercentOutput()));
+        // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
+        // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
 
+        driverDpadDown.onTrue(new SetPivot(PivotState.MAX));
+        driverDpadUp.onTrue(new InstantCommand(() -> s_Pivot.setVoltage(2.0)));
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with

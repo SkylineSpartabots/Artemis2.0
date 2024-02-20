@@ -12,7 +12,7 @@ public class SetPivot extends Command {
     Pivot s_Pivot;
     PivotState state;
     // ProfiledPIDController pivotController = new ProfiledPIDController(0.06, 1e-2, 1e-3, new TrapezoidProfile.Constraints(500000, 3000*1e5));
-    PIDController pivotController = new PIDController(0.06, 1e-2, 1e-3);
+    PIDController pivotController = new PIDController(0.1, 0, 0);
 
     public SetPivot(PivotState state) {
         s_Pivot = Pivot.getInstance();
@@ -28,11 +28,12 @@ public class SetPivot extends Command {
 
     @Override
     public void execute() {
-        double voltage = pivotController.calculate(s_Pivot.getCANcoderPosition(), s_Pivot.getSetPoint());
+        double voltage = pivotController.calculate(s_Pivot.getCANcoderAbsolutePosition(), s_Pivot.getSetPoint());
         // if (Math.abs(s_Pivot.getCANcoderPosition() - s_Pivot.getSetPoint()) < 15) {
 		// 	voltage = 0.7;
 		// }
         s_Pivot.setVoltage(voltage);
+        SmartDashboard.putBoolean("Running", true);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class SetPivot extends Command {
 	@Override
 	public void end(boolean interrupted) {
         s_Pivot.stopMotor();        
-
-		SmartDashboard.putString("eleEnd", "elevator end");
+        SmartDashboard.putBoolean("Running", false);
+		SmartDashboard.putString("pivot", "pivot end");
 	}
 }
