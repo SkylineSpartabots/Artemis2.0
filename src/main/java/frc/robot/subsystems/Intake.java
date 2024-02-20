@@ -48,15 +48,15 @@ public class Intake extends SubsystemBase {
     }
 
     private void configMotor(CANSparkFlex motor) {
-        motor.setSmartCurrentLimit(Constants.intakePeakCurrentLimit);
+        // motor.setSmartCurrentLimit(Constants.intakePeakCurrentLimit); for testing
         motor.setIdleMode(IdleMode.kCoast);
         motor.setInverted(true);
     }
 
     private void configMotor(TalonSRX motor, boolean inverted) {
         motor.setInverted(true);
-        motor.configPeakCurrentLimit(Constants.serializationPeakCurrentLimit);
-        motor.configContinuousCurrentLimit(Constants.serializationContinuousCurrentLimit);
+        // motor.configPeakCurrentLimit(Constants.serializationPeakCurrentLimit); for testing
+        // motor.configContinuousCurrentLimit(Constants.serializationContinuousCurrentLimit); for testing
     }
 
     public enum IntakeStates {

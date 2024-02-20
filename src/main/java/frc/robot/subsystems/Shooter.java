@@ -33,14 +33,16 @@ public class Shooter extends SubsystemBase {
     private double currentBottomSpeed = 0;
 
     public Shooter() {
+        currentPercentage = 0.0;
         shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
         shooterBottomM = new CANSparkFlex(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
+        shooterTopM.setInverted(true);
         shooterBottomM.setInverted(true);
         configMotors();
     }
     
     private void configMotors(){
-        shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
+        // shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit); for testing
 
         // shooterTopM.getPIDController().setFF(0.0078);
         // shooterTopM.getPIDController().setP(0.3);
@@ -117,6 +119,30 @@ public class Shooter extends SubsystemBase {
     public void setVoltage(double volts){
         shooterTopM.setVoltage(volts);
         shooterBottomM.setVoltage(volts);
+    }
+
+
+    /**
+     * testing purposes only
+     */
+    double currentPercentage;
+
+    public void setPercentOutput(double percent){
+        shooterTopM.set(percent);
+        shooterBottomM.set(percent);
+        currentPercentage = percent;
+    }
+
+    public void incPercentOutput(){
+        currentPercentage += 0.05;
+        shooterTopM.set(currentPercentage);
+        shooterBottomM.set(currentBottomSpeed);
+    }
+
+    public void decPercentOutput(){
+        currentPercentage -= 0.05;
+        shooterTopM.set(currentPercentage);
+        shooterBottomM.set(currentPercentage);
     }
 
     public double getBottomSpeed() { //gets specific Speed (i hope)
