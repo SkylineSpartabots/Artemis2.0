@@ -12,7 +12,8 @@ public class SetPivot extends Command {
     Pivot s_Pivot;
     PivotState state;
     // ProfiledPIDController pivotController = new ProfiledPIDController(0.06, 1e-2, 1e-3, new TrapezoidProfile.Constraints(500000, 3000*1e5));
-    PIDController pivotController = new PIDController(0.1, 0, 0);
+    PIDController pivotController = new PIDController(50
+    , 10, 0);
 
     public SetPivot(PivotState state) {
         s_Pivot = Pivot.getInstance();

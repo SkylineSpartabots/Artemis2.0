@@ -71,6 +71,7 @@ public class RobotContainer {
     private final Trigger driverRightTrigger = driver.rightTrigger();
     private final Trigger driverDpadUp = driver.povUp();
     private final Trigger driverDpadDown = driver.povDown();
+    private final Trigger driverDpadLeft = driver.povLeft();
 
     private void configureBindings() {
 
@@ -86,8 +87,9 @@ public class RobotContainer {
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
 
-        driverDpadDown.onTrue(new SetPivot(PivotState.MAX));
-        driverDpadUp.onTrue(new InstantCommand(() -> s_Pivot.setVoltage(2.0)));
+        driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
+        driverDpadUp.onTrue(new SetPivot(PivotState.MAX));
+        driverDpadLeft.onTrue(new SetPivot(PivotState.MIDDLE));
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
@@ -101,7 +103,7 @@ public class RobotContainer {
         //         .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
         // reset the field-centric heading on left bumper press. AKA reset odometry
-        driver.leftBumper().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
+        driver.start().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));

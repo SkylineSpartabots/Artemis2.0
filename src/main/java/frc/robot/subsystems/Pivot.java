@@ -27,7 +27,8 @@ public class Pivot extends SubsystemBase {
     public enum PivotState {
         GROUND(0.578125),
         // Current max is .72, can change later
-        MAX(0.72265625);
+        MIDDLE(0.6),
+        MAX(0.75);
         //WING(position);
 
         private double pos;
@@ -106,6 +107,9 @@ public class Pivot extends SubsystemBase {
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
         motor.setIdleMode(IdleMode.kCoast);
+
+        // motor.getPIDController().setP(Constants.hardwarePIDs.pivotkP);
+        // motor.getPIDController().setI(Constants.hardwarePIDs.pivotkI);
 
     }
 
