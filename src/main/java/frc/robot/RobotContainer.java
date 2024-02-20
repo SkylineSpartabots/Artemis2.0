@@ -35,8 +35,8 @@ import frc.robot.subsystems.Shooter.ShooterStates;
 import frc.robot.subsystems.Indexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
-import frc.robot.commands.SetPivot;
 import frc.robot.commands.SetShooter;
+import frc.robot.commands.Pivot.SetPivot;
 
 public class RobotContainer {
 

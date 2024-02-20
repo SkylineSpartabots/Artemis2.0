@@ -17,6 +17,7 @@ import frc.robot.Constants;
 
 public class Pivot extends SubsystemBase {
     public static Pivot instance;
+    
     public static Pivot getInstance() {
         if (instance == null) {
             instance = new Pivot();
@@ -55,6 +56,8 @@ public class Pivot extends SubsystemBase {
 
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
         configCANcoder();
+
+        resetMotorEncoders(0.0);
     } 
 
     /**
@@ -70,6 +73,10 @@ public class Pivot extends SubsystemBase {
      */
     public void stopMotor(){
         pivotLeaderM.set(0);
+    }
+
+    public void resetMotorEncoders(double relativePosition){
+        pivotLeaderM.getEncoder().setPosition(relativePosition);
     }
 
     /**
@@ -93,11 +100,23 @@ public class Pivot extends SubsystemBase {
     }
 
     /**
-     * Sets the voltage of the pivot motor
+     * Sets the voltage of the pivot motor, use setPercentageOutput for backwards movement
      * @param voltage Desired voltage. 
      */
     public void setVoltage(double voltage) {
         pivotLeaderM.setVoltage(voltage);
+    }
+
+    /**
+     * Sets percentage output, value between -1.0 and 1.0. Positive increases pivot's angle, negative decreases
+     * @param percentage
+     */
+    public void setPercentageOutput(double percentage){
+        pivotLeaderM.set(percentage);
+    }
+
+    public double getMotorCurrent(){
+        return (pivotLeaderM.getOutputCurrent() + pivotFollowerM.getOutputCurrent())/2;
     }
 
     /**
