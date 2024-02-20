@@ -10,61 +10,90 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Climb extends SubsystemBase {
-  private static Climb instance;
-  CANcoder encoder = new CANcoder(Constants.HardwarePorts.climbCANcoderID);
-  public static Climb getInstance() {
-    if(instance == null){
-      instance = new Climb();
-  }
-    return instance;
-  }
-  public enum ClimbPositions {
-
-  }
-  private CANSparkFlex climbLeaderM;
-  private CANSparkFlex climbFollowerM;
-
-  public Climb() {
-    climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
-    configLeaderMotor(climbLeaderM);
-
-    climbFollowerM = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
-    configFollowerMotor(climbFollowerM, climbLeaderM);
-
-
-  }
   
+    private static Climb instance;
+    public static Climb getInstance() {
+        if(instance == null){
+            instance = new Climb();
+        }
+        return instance;
+    }
 
-  private void configLeaderMotor(CANSparkFlex motor) {
-    motor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
-    motor.setIdleMode(IdleMode.kBrake);
-    motor.enableVoltageCompensation(12);
-    motor.getPIDController().setFF(0.00);
-    motor.getPIDController().setP(0.00);
-    motor.getPIDController().setI(0.0);
-    motor.getPIDController().setD(0.00);
-  }
+    private CANSparkFlex climbLeaderM;
+    private CANSparkFlex climbFollowerM;
 
-  
-  private void configFollowerMotor(CANSparkFlex followerMotor, CANSparkFlex leaderMotor) {
-    followerMotor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
-    followerMotor.setIdleMode(IdleMode.kBrake);
-    followerMotor.enableVoltageCompensation(12);
+    public Climb() {
+        climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
+        configLeaderMotor(climbLeaderM);
 
-    followerMotor.follow(leaderMotor);
-  }
+        climbFollowerM = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
+        configFollowerMotor(climbFollowerM, climbLeaderM);
+    }
+    
 
-  public void setClimbSpeed(double speed){
-    climbLeaderM.set(speed); //speed should be -1.0 to 1.0
-    climbleaderM.set
-  }
-  
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    private void configLeaderMotor(CANSparkFlex motor) {
+        motor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
+        motor.setIdleMode(IdleMode.kBrake);
+        motor.enableVoltageCompensation(12);
+        motor.getPIDController().setFF(0.00);
+        motor.getPIDController().setP(0.00);
+        motor.getPIDController().setI(0.0);
+        motor.getPIDController().setD(0.00);
+    }
+
+    
+    private void configFollowerMotor(CANSparkFlex followerMotor, CANSparkFlex leaderMotor) {
+        followerMotor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
+        followerMotor.setIdleMode(IdleMode.kBrake);
+        followerMotor.enableVoltageCompensation(12);
+
+        followerMotor.follow(leaderMotor);
+    } 
+
+    private double speed;
+
+    public void setClimbSpeed(double speed){
+        climbLeaderM.set(speed); //speed should be -1.0 to 1.0
+        this.speed = speed;
+    }
+
+    public double getClimbSpeed() {
+        return speed;
+    }
+
+    private double currentOutput;
+
+    public void updateOutputCurrent() {
+        currentOutput = climbLeaderM.getOutputCurrent();
+    }
+
+    public double getOutputCurrent() {
+        return currentOutput;
+    }
+
+    private boolean isPeaked = false;
+
+    public boolean isPeaked() {
+        return isPeaked;
+    }
+    
+    @Override
+    public void periodic() {
+    //   SmartDashboard.putNumber("Climb Rotations", climbLeaderM.getEncoder().getPosition());
+      SmartDashboard.putNumber("Climb Output Current", climbLeaderM.getOutputCurrent());
+      
+      updateOutputCurrent();
+      if (currentOutput > 5){ // figure valie
+        setClimbSpeed(0);
+        isPeaked = true;
+      }
+      else {
+        isPeaked = false;
+      }
+    }
 }
