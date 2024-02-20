@@ -94,6 +94,14 @@ public class Pivot extends SubsystemBase {
     public double getCANcoderAbsolutePosition() {
         return pivotCANcoder.getAbsolutePosition().getValueAsDouble();
     }
+
+    /**
+     * 
+     * @return leader motor's integrated encoder value
+     */
+    public double getMotorEncoderPosition(){
+        return pivotLeaderM.getEncoder().getPosition();
+    }
     
     /**
      * Gets the current set point of the pivot. 
@@ -159,7 +167,8 @@ public class Pivot extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Logger.recordOutput("Pivot/CurrentRotation", getCANcoderAbsolutePosition());
+        Logger.recordOutput("Pivot/CurrentCANcoderRotation", getCANcoderAbsolutePosition());
+        Logger.recordOutput("Pivot/CurrentMotorEncoderRotation", getMotorEncoderPosition());
         Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
         SmartDashboard.putNumber("Pivot measured angle", Conversions.CANcoderToDegrees(getCANcoderAbsolutePosition(), 1));
