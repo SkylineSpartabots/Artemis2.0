@@ -74,6 +74,15 @@ public final class Constants {
         
     }
 
+    public static final class FieldConstants {
+        public static final double speakerOpeningHeightMeters = 0.2;
+
+        // how far the middle of the speaker opening extends onto the field
+        public static final double speakerOpeningMiddleExtendsMeters = 0.023;
+        public static final double speakerOpeningAngleDegrees = 14;
+        public static final double subwooferExtendsMeters = 0.0939;
+    }
+
     /* Mechanism Current Limits */
     public static final int intakeContinuousCurrentLimit = 30;
     public static final int intakePeakCurrentLimit = 70;

@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.math.Conversions;
 import frc.robot.Constants;
 
 public class Pivot extends SubsystemBase {
@@ -38,10 +39,12 @@ public class Pivot extends SubsystemBase {
         }
     }
 
+
     private CANSparkFlex pivotLeaderM;
     private CANSparkFlex pivotFollowerM;
     private CANcoder pivotCANcoder;
     private PivotState currState = PivotState.GROUND;
+    private double pivotCANcoderAngleOffset = 194;
 
     public Pivot() {
         pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
@@ -106,7 +109,7 @@ public class Pivot extends SubsystemBase {
      */
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
-        motor.setIdleMode(IdleMode.kBrake);
+        motor.setIdleMode(IdleMode.kCoast);
 
         // motor.getPIDController().setP(Constants.hardwarePIDs.pivotkP);
         // motor.getPIDController().setI(Constants.hardwarePIDs.pivotkI);
@@ -134,5 +137,6 @@ public class Pivot extends SubsystemBase {
         Logger.recordOutput("Pivot/CurrentRotation", getCANcoderAbsolutePosition());
         Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
+        SmartDashboard.putNumber("Pivot measured angle", Conversions.CANcoderToDegrees(getCANcoderAbsolutePosition(), 1));
     }
 }
