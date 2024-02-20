@@ -12,6 +12,7 @@ public class SetIndexer extends Command {
 
     public SetIndexer(Indexer.IndexerStates state, Indexer.IndexerMotors motor) {
         s_Indexer = Indexer.getInstance();
+        motorLoc = motor;
         if (motor == Indexer.IndexerMotors.BOTH) {
             finalSpeeds[0] = state.getValue();
             finalSpeeds[1] = state.getValue();
@@ -32,6 +33,8 @@ public class SetIndexer extends Command {
             addedSpeeds[motor.getMotor() - 1] = s_Indexer.getBothSpeeds()[motor.getMotor() - 1] + difference;
         }
 
+
+        // CHECK this for REV cause no negative
         // way less jank way - called a clamp statement or smth (java21 has it built in but i dunno if we run that?)
         finalSpeeds[0] = Math.max(0.0,Math.min(addedSpeeds[0], 1.0));
         finalSpeeds[1] = Math.max(0.0,Math.min(addedSpeeds[1], 1.0));

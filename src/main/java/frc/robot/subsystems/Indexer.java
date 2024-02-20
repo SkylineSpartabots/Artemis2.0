@@ -35,7 +35,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public enum IndexerStates {
-        ON(0.8),
+        ON(1),
         OFF(0);
         private double speed;
 
@@ -69,9 +69,20 @@ public class Indexer extends SubsystemBase {
      */
     public void setSpeed(double[] speeds, IndexerMotors MotorLocation) {
 
-            indexerBottomM.set(0.8);
-            indexerTopM.set(0.8);
-        
+        // if this all doesnt work to test just use the last else if and put that as all that is in this method
+
+        if (MotorLocation == IndexerMotors.BOTTOM) {
+            indexerBottomM.set(speeds[0]);
+            currentBottomSpeed = speeds[0];
+        } else if (MotorLocation == IndexerMotors.TOP) {
+            indexerTopM.set(speeds[1]);
+            currentTopSpeed = speeds[1];
+        } else if (MotorLocation == IndexerMotors.BOTH) {
+            indexerTopM.set(speeds[1]);
+            currentTopSpeed = speeds[1];
+            indexerBottomM.set(speeds[0]);
+            currentBottomSpeed = speeds[0];
+        }
 //        this.stateName = state.name();
     }
     public double getTopSpeed() {

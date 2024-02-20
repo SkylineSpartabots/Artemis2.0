@@ -88,18 +88,17 @@ public class Shooter extends SubsystemBase {
      * @param MotorLocation: Choose motors to set, 1 is Bottom motor, 2 is Top motor, 0 is Both
      */
     public void setSpeed(double[] speeds, ShooterMotors MotorLocation) { //sets speed of motors using specific speed values
-        int motor = MotorLocation.getMotor() - 1; // cause like must be 1 less bc indexes wont match
 
         if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
-            shooterBottomM.set(speeds[motor]);
-            currentBottomSpeed = speeds[motor];
+            shooterBottomM.set(speeds[0]);
+            currentBottomSpeed = speeds[0];
         } else if (MotorLocation == Shooter.ShooterMotors.TOP) {
-            shooterTopM.set(speeds[motor]);
-            currentTopSpeed = speeds[motor];
+            shooterTopM.set(speeds[1]);
+            currentTopSpeed = speeds[1];
         } else if (MotorLocation == Shooter.ShooterMotors.BOTH) {
             shooterTopM.set(speeds[0]);
-            shooterBottomM.set(speeds[1]);
             currentTopSpeed = speeds[0];
+            shooterBottomM.set(speeds[1]);
             currentBottomSpeed = speeds[1];
         }
     }
@@ -113,6 +112,11 @@ public class Shooter extends SubsystemBase {
     } //what does do 🦅🦅🍔🍔🌭 ??
     public double getTopSpeed() { //gets specific Speed (i hope)
         return currentTopSpeed;
+    }
+
+    public void setVoltage(double volts){
+        shooterTopM.setVoltage(volts);
+        shooterBottomM.setVoltage(volts);
     }
 
     public double getBottomSpeed() { //gets specific Speed (i hope)
