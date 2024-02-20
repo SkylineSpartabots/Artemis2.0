@@ -7,7 +7,7 @@ import frc.robot.subsystems.Pivot.PivotState;;
 public class ZeroPivot extends Command {
     Pivot s_Pivot;
 
-    public ZeroPivot(PivotState state) {
+    public ZeroPivot() {
         s_Pivot = Pivot.getInstance();
 
         addRequirements(s_Pivot);
@@ -32,5 +32,6 @@ public class ZeroPivot extends Command {
 	@Override
 	public void end(boolean interrupted) {
         s_Pivot.resetMotorEncoders(0.2);
+        s_Pivot.resetCANcoder(0.2);
 	}
 }
