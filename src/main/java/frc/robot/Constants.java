@@ -24,7 +24,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final double MaxSpeed = 6; // 6 meters per second desired top speed
+    public static final double MaxSpeed = 4.5; // 6 meters per second desired top speed, changed to 4.5 for testing
     public static final double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
     public static final int timeOutMs = 10;
@@ -35,7 +35,7 @@ public final class Constants {
         public static final int aprilTagMax = 16;
         public static final String cameraName = "Arducam_OV9281_USB_Camera";
         public static final double cameraHeight = 0; //fix
-        public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet
+        public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet | unnecessary, we have photonvision's field layout import
         public static final double cameraRollOffset = Units.degreesToRadians(0);
         public static final double cameraPitchOffset = Units.degreesToRadians(0);
         public static final double cameraYawOffset = Units.degreesToRadians(0);
@@ -58,8 +58,8 @@ public final class Constants {
     public static final class HardwarePorts {
         // motors (predicted) IDs not fixed
 
-        public static final int shooterTopM = 50;
-        public static final int shooterBottomM = 51;
+        public static final int shooterBottomM = 50;
+        public static final int shooterTopM = 51;
         public static final int indexerTopM = 31;
         public static final int indexerBottomM = 30;
         public static final int intakeLeaderM = 20;
@@ -81,7 +81,7 @@ public final class Constants {
     public static final int serializationPeakCurrentLimit = 70;
     public static final int ampContinuousCurrentLimit = 30;
     public static final int ampPeakCurrentLimit = 70;
-    public static final int shooterContinuousCurrentLimit = 30;
+    public static final int shooterContinuousCurrentLimit = 30; //commented out because the shooters stop too fast t
     public static final int shooterPeakCurrentLimit = 70;
     public static final int pivotContinuousCurrentLimit = 30;
     public static final int pivotPeakCurrentLimit = 60;

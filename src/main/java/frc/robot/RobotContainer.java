@@ -74,11 +74,14 @@ public class RobotContainer {
         driver.x().onTrue(onIndexer());
         driver.b().onTrue(offIndexer());
 
-        driver.rightBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(10)));
+        driver.rightBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setPercentOutput(0.55)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
         driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
         driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
+        driver.povRight().onTrue(new InstantCommand(() -> s_Shooter.incPercentOutput()));
+        driver.povLeft().onTrue(new InstantCommand(() -> s_Shooter.decPercentOutput()));
+
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
