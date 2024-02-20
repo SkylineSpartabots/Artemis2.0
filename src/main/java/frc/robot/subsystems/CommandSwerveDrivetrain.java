@@ -99,7 +99,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
         if(poseFromVision != null){
             s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-
+            //TODO: add our own timer
+            
         }
     }
 
