@@ -27,10 +27,10 @@ public class Pivot extends SubsystemBase {
     }
 
     public enum PivotState {
-        GROUND(0.578125),
+        GROUND(0.8356933),
         // Current max is .72, can change later
-        MIDDLE(0.67),
-        MAX(0.75);
+        MIDDLE(0.9),
+        MAX(0.0292);
         //WING(position);
 
         private double pos;
@@ -46,7 +46,7 @@ public class Pivot extends SubsystemBase {
     private CANSparkFlex pivotFollowerM;
     private CANcoder pivotCANcoder;
     private PivotState currState = PivotState.GROUND;
-    private double pivotCANcoderAngleOffset = 194;
+    private double pivotCANcoderAngleOffset = 57.89;
 
     public Pivot() {
         pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
@@ -113,7 +113,7 @@ public class Pivot extends SubsystemBase {
     }
     
     public boolean CANcoderWorking() {
-        return !pivotCANcoder.getFault_BadMagnet().getValue() && pivotCANcoder.getFault_Hardware().getValue();
+        return !pivotCANcoder.getFault_BadMagnet().getValue() && !pivotCANcoder.getFault_Hardware().getValue();
     }
 
     /**
@@ -141,6 +141,10 @@ public class Pivot extends SubsystemBase {
 
     }
 
+    public void resetCANcoder(double value) {
+        pivotCANcoder.setPosition(value);
+    }
+
     /**
      * Configures the pivot CANcoder with sensor direction and absolute range. 
      */
@@ -150,11 +154,17 @@ public class Pivot extends SubsystemBase {
 
         MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
         magnetSensorConfigs.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
+         
         magnetSensorConfigs.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         
         CANcoderConfiguration swerveCanCoderConfig = new CANcoderConfiguration();
         swerveCanCoderConfig.MagnetSensor = magnetSensorConfigs;  
         pivotCANcoder.getConfigurator().apply(swerveCanCoderConfig);
+        resetCANcoder(0.2);
+    }
+
+    public double shooterAngle() {
+        return Conversions.CANcoderToDegrees(getCANcoderAbsolutePosition(), 1) - pivotCANcoderAngleOffset;
     }
 
     @Override
@@ -162,6 +172,6 @@ public class Pivot extends SubsystemBase {
         Logger.recordOutput("Pivot/CurrentRotation", getCANcoderAbsolutePosition());
         Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
-        SmartDashboard.putNumber("Pivot measured angle", Conversions.CANcoderToDegrees(getCANcoderAbsolutePosition(), 1));
+        SmartDashboard.putNumber("Pivot measured angle", shooterAngle());
     }
 }

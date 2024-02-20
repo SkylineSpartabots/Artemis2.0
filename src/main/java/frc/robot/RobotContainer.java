@@ -37,6 +37,7 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.SetShooter;
 import frc.robot.commands.Pivot.SetPivot;
+import frc.robot.commands.Pivot.ZeroPivot;
 
 public class RobotContainer {
 
@@ -72,6 +73,7 @@ public class RobotContainer {
     private final Trigger driverDpadUp = driver.povUp();
     private final Trigger driverDpadDown = driver.povDown();
     private final Trigger driverDpadLeft = driver.povLeft();
+    private final Trigger driverDpadRight = driver.povRight();
 
     private void configureBindings() {
 
@@ -90,6 +92,7 @@ public class RobotContainer {
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.MAX));
         driverDpadLeft.onTrue(new SetPivot(PivotState.MIDDLE));
+        driverDpadRight.onTrue(new ZeroPivot());
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
