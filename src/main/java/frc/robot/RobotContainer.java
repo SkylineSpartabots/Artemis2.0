@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import javax.management.InstanceAlreadyExistsException;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -27,11 +29,13 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Intake.IntakeStates;
+import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.subsystems.Shooter.ShooterMotors;
 import frc.robot.subsystems.Shooter.ShooterStates;
 import frc.robot.subsystems.Indexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
+import frc.robot.commands.SetPivot;
 import frc.robot.commands.SetShooter;
 
 public class RobotContainer {
@@ -39,7 +43,7 @@ public class RobotContainer {
     private final Vision camera2 = Vision.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Indexer s_Indexer = Indexer.getInstance();
-    private final Intake Is_intake = Intake.getInstance();
+    private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -79,8 +83,11 @@ public class RobotContainer {
         driver.rightBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(10)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
-        driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
-        driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
+        // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
+        // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
+
+        driverDpadDown.onTrue(new SetPivot(PivotState.MAX));
+        driverDpadUp.onTrue(new InstantCommand(() -> s_Pivot.setVoltage(2.0)));
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with

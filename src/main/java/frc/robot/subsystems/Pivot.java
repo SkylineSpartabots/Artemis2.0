@@ -127,8 +127,8 @@ public class Pivot extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Logger.recordOutput("Pivot/CurrentRotation", getCANcoderAbsolutePosition());
-        // Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
+        Logger.recordOutput("Pivot/CurrentRotation", getCANcoderAbsolutePosition());
+        Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
     }
 }
