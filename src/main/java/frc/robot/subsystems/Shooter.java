@@ -157,8 +157,8 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", currentTopSpeed);
         Logger.recordOutput("Shooter/BottomSetpoints", currentBottomSpeed);
-        Logger.recordOutput("Shooter/topSpeed", shooterTopM.getEncoder().getVelocity());
-        Logger.recordOutput("Shooter/botSpeed", shooterBottomM.getEncoder().getVelocity());
+        Logger.recordOutput("Shooter/topMotorSpeed", shooterTopM.getEncoder().getVelocity());
+        Logger.recordOutput("Shooter/bottomMotorSpeed", shooterBottomM.getEncoder().getVelocity());
         
         // SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
         // SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));

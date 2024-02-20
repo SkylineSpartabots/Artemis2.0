@@ -9,8 +9,12 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.UnitBuilder;
+import frc.robot.subsystems.Pivot;
+import frc.robot.subsystems.Shooter;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -110,7 +114,51 @@ public final class Constants {
 
     public static final double openLoopRamp = 0.25;
 
-    public static class OperatorConstants {
+    public static final class OperatorConstants {
         public static final int kDriverControllerPort = 0;
+    }
+
+    /**
+     * Returns the value from an interpolating double tree map (based on measure values)
+     * @param distance
+     * @return shooter velocity for given distance
+     */
+    public static double getVelocityForDistance(double distance){
+        //TODO: add a case for a distance that is past furthest or too close
+        return ShootingLookupTable.FlywheelVelocitiesMap.get(distance);
+    }
+
+    /**
+     * Returns the value from an interpolating double tree map (based on measure values)
+     * @param distance
+     * @return pivot angle for given distance
+     */
+    public static double getAngleForDistance(double distance){
+        //TODO: add a case for a distance that is past furthest or too close
+        return ShootingLookupTable.PivotAngleMap.get(distance);
+    }
+
+    public static final class ShootingLookupTable {
+        public static final InterpolatingDoubleTreeMap FlywheelVelocitiesMap = new InterpolatingDoubleTreeMap();
+
+        public static final InterpolatingDoubleTreeMap PivotAngleMap = new InterpolatingDoubleTreeMap();
+
+        public static final double[][] velocitiesMatrix = { //TODO: populate these with real measured values
+            {Units.feetToMeters(4), 9}, //example
+        };
+
+        public static final double[][] anglesMatrix = {
+            {Units.feetToMeters(4), 9},
+        };
+
+        static {
+            for(int i = 0; i < velocitiesMatrix.length; i++){
+                FlywheelVelocitiesMap.put(velocitiesMatrix[i][0], velocitiesMatrix[i][1]);
+            }
+
+            for(int i = 0; i < anglesMatrix.length; i++){
+                PivotAngleMap.put(anglesMatrix[i][0], anglesMatrix[i][1]);
+            }
+        }
     }
 }
