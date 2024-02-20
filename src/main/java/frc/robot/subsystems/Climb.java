@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems;
 
+
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -13,14 +15,16 @@ import frc.robot.Constants;
 
 public class Climb extends SubsystemBase {
   private static Climb instance;
-  
+  CANcoder encoder = new CANcoder(Constants.HardwarePorts.climbCANcoderID);
   public static Climb getInstance() {
     if(instance == null){
       instance = new Climb();
   }
     return instance;
   }
+  public enum ClimbPositions {
 
+  }
   private CANSparkFlex climbLeaderM;
   private CANSparkFlex climbFollowerM;
 
@@ -30,14 +34,19 @@ public class Climb extends SubsystemBase {
 
     climbFollowerM = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
     configFollowerMotor(climbFollowerM, climbLeaderM);
-  }
 
+
+  }
+  
 
   private void configLeaderMotor(CANSparkFlex motor) {
     motor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
     motor.setIdleMode(IdleMode.kBrake);
     motor.enableVoltageCompensation(12);
-
+    motor.getPIDController().setFF(0.00);
+    motor.getPIDController().setP(0.00);
+    motor.getPIDController().setI(0.0);
+    motor.getPIDController().setD(0.00);
   }
 
   
@@ -51,6 +60,7 @@ public class Climb extends SubsystemBase {
 
   public void setClimbSpeed(double speed){
     climbLeaderM.set(speed); //speed should be -1.0 to 1.0
+    climbleaderM.set
   }
   
   @Override

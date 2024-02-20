@@ -53,6 +53,10 @@ public final class Constants {
         public static final double pivotkP = 0.5;
         public static final double pivotkI = 0.00;
         public static final double pivotkD = 0.00;
+
+        public static final double climbkP = 0.5;
+        public static final double climbkI = 0.00;
+        public static final double climbkD = 0.00;
     }
 
     public static final class HardwarePorts {
@@ -67,10 +71,11 @@ public final class Constants {
         public static final int serializationM = 22;
         public static final int climbLeaderMotor = 60;
         public static final int climbFollowerMotor = 61;
+        public static final int climbCANcoderID = 59;
         public static final int pivotLeaderM = 40;
         public static final int pivotFollowerM = 41;
         public static final int pivotCANcoderID = 42;
-        public static final int ampMotor = 62;
+        public static final int ampMotor = 63;
         
     }
 
