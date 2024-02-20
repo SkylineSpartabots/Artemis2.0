@@ -18,16 +18,16 @@ public class Lightz extends SubsystemBase {
     }
 
     public enum ledModes {
-        RED(0),
-        ORANGE(1),
-        YELLOW(2),
-        GREEN(3),
-        BLUE(4),
-        PURPLE(5),
-        PINK(6),
-        WHITE(7),
-        OFF(8),
-        ;
+        OFF(0),
+        RED(1),
+        ORANGE(2),
+        YELLOW(3),
+        GREEN(4),
+        BLUE(5),
+        PURPLE(6),
+        PINK(7),
+        WHITE(8),
+        REDANT(9);
         private int modeNum;
 
         public int getModeNum() {
