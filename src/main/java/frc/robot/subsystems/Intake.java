@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
         return instance;
     }
 
-    private String stateName;
+    private IntakeStates currentState = IntakeStates.OFF;
 
     private CANSparkFlex intakeLeaderM;
     private CANSparkFlex intakeFollowerM;
@@ -59,38 +59,60 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeStates {
-        ON(0.7),
-        OFF(0),
-        REV(-1);
+        ON(0.8, 0.8),
+        OFF(0, 0),
+        REV(-0.8, -0.8);
+        
         private double speed;
+        private double serialSpeed;
+
         public double getValue() {
             return speed;
         }
 
-        IntakeStates(double speed) {
+        IntakeStates(double speed, double serialSpeed) {
             this.speed = speed;
+            this.serialSpeed = serialSpeed;
         }
     }
 
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.set(state.speed);
-        // I mean we could just make a second enum value right? but this works and theres really no reason to do so
-        if (state == IntakeStates.ON) {
-            serializationM.set(ControlMode.PercentOutput, IntakeStates.ON.speed);
-        } else {
-            serializationM.set(ControlMode.PercentOutput, 0);
-        }
-        
-        this.stateName = state.name();
+        serializationM.set(ControlMode.PercentOutput, state.serialSpeed);
+       currentState = state;    
+    }
 
+    /**
+     * Testing purposes only, should not be used during any comps
+     */
+    private double currentIntakePercentage = Integer.MAX_VALUE;
+
+    public void incPower(){
+        if(currentIntakePercentage == Integer.MAX_VALUE){
+            if(currentState != null){
+                currentIntakePercentage = currentState.speed;
+            }
+        }
+        currentIntakePercentage += 0.05;
+        intakeLeaderM.set(currentIntakePercentage);
+    }
+
+    public void decPower(){
+        if(currentIntakePercentage == Integer.MAX_VALUE){
+            if(currentState != null){
+                currentIntakePercentage = currentState.speed;
+            }
+        }
+        currentIntakePercentage -= 0.05;
+        intakeLeaderM.set(currentIntakePercentage);
     }
 
 
     @Override
     public void periodic() {
-        if (stateName != null) {
-            SmartDashboard.putString("Intake State", stateName);
-        }
+        // if (stateName != null) {
+        //     SmartDashboard.putString("Intake State", stateName);
+        // }
     }
 
     @Override
