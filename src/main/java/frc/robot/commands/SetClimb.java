@@ -4,16 +4,19 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climb;
 
 public class SetClimb extends Command {
     
     private final Climb s_Climb;
-    private double direction = 1; //1 is up, -1 is down
+    private double direction;
+    private double speed = 0.5;
 
-    public SetClimb() {
+    public SetClimb(double direction) {
         s_Climb = Climb.getInstance();
+        this.direction = direction;
         addRequirements(s_Climb);
     }
 
@@ -24,20 +27,27 @@ public class SetClimb extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        s_Climb.setClimbSpeed(0.5 * direction);
-        if (s_Climb.isPeaked() == true) {
-            direction = -1 * direction;
-            s_Climb.setClimbSpeed(s_Climb.getClimbSpeed() * direction);
+        
+        Timer failsafe = new Timer();
+        failsafe.start();
+        
+        s_Climb.setIsPeaked(false);
+        while ((s_Climb.getIsPeaked() != true) && failsafe.get() <= 10) {
+            s_Climb.setSpeed(speed * direction);
         }
+
+        s_Climb.setSpeed(0);
     }
 
     // Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+        s_Climb.setSpeed(0);
+    }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return (s_Climb.isPeaked() && (direction == -1));
+        return false;
     }
 }
