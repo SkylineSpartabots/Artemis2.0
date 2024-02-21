@@ -75,6 +75,14 @@ public class RobotContainer {
     private final Trigger driverDpadRight = driver.povRight();
 
     SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
+    private double power;
+
+    private void incPower() {
+        power += 0.05;
+    }
+    private void decPower() {
+        power -= 0.05;
+    }
 
     private void configureBindings() {
 
@@ -85,10 +93,12 @@ public class RobotContainer {
         driver.b().onTrue(offIndexer());
 
         // driver.rightBumper().whileTrue(new SetShooterVelocity(1600));
-        driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
-        //driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.2)));
+        //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
+        driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
+        // driver.leftTrigger().onTrue(new InstantCommand(() ->decPower()));
+        // driver.rightTrigger().onTrue(new InstantCommand(() -> incPower()));
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
 
@@ -110,7 +120,7 @@ public class RobotContainer {
         //         .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
         // reset the field-centric heading on left bumper press. AKA reset odometry
-        driver.rightTrigger().onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
         //driver.start().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
 
         if (Utils.isSimulation()) {
@@ -120,6 +130,7 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
+        power = 0.3;
         autoChooser.setDefaultOption("straight path", Autos.AutoPath.StraightPathTesting);
         autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
         autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
@@ -148,4 +159,5 @@ public class RobotContainer {
         return Autos.getAutoCommand(autoChooser.getSelected());
         // return Commands.print("No autonomous command configured");
     }
+
 }

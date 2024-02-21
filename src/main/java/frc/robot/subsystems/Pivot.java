@@ -29,7 +29,7 @@ public class Pivot extends SubsystemBase {
     public enum PivotState {
         GROUND(0.2),
         // Current max is .38, can change later
-        SUBWOOFER(Pivot.pivotDegreeToCANcoder(60)),
+        SUBWOOFER(Pivot.pivotDegreeToCANcoder(57)),
 
         MIDDLE(0.3),
         AMP(Pivot.pivotDegreeToCANcoder(90));
