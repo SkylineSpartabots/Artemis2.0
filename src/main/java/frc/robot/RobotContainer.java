@@ -74,7 +74,6 @@ public class RobotContainer {
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
 
-    SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
     private double power;
 
     private void incPower() {
@@ -131,9 +130,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         power = 0.3;
-        autoChooser.setDefaultOption("straight path", Autos.AutoPath.StraightPathTesting);
-        autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
-        autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
+        
         configureBindings();
     }
 
@@ -154,10 +151,5 @@ public class RobotContainer {
         return new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH);
     }
 
-
-    public Command getAutonomousCommand() {
-        return Autos.getAutoCommand(autoChooser.getSelected());
-        // return Commands.print("No autonomous command configured");
-    }
 
 }

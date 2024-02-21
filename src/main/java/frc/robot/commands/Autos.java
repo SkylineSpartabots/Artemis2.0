@@ -52,9 +52,8 @@ public final class Autos {
     ArrayList<Command> commandsToSchedule = new ArrayList<Command>();
 
     s_Swerve.resetOdo(traj.get(0).getInitialPose());
-    for(int i = 0; i < traj.size(); i++){
-      Command swerveCommand = Choreo.choreoSwerveCommand(
-      traj.get(i), 
+    Command swerveCommand = Choreo.choreoSwerveCommand(
+      traj.get(0), 
       s_Swerve::getPose, 
       xController,
       yController,
@@ -64,23 +63,36 @@ public final class Autos {
         return alliance.isPresent() && alliance.get() == Alliance.Red; }, //decides whether or not the math should be mirrored (depends on alliance)
       s_Swerve);
 
-      if(auto.parallelToPath[i]){
-        ParallelCommandGroup curr = new ParallelCommandGroup();
-        curr.addCommands(auto.mechCommands[i]);
-        curr.addCommands(swerveCommand);
-        commandsToSchedule.add(curr);
-      } else {
-        commandsToSchedule.add(swerveCommand);
-        commandsToSchedule.add(auto.mechCommands[i]);
-      }
-    }
+
+    // for(int i = 0; i < traj.size(); i++){
+    //   swerveCommand = Choreo.choreoSwerveCommand(
+    //   traj.get(i), 
+    //   s_Swerve::getPose, 
+    //   xController,
+    //   yController,
+    //   thetaController,
+    //   (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withVelocityX(speeds.vxMetersPerSecond).withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond)),
+    //   () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+    //     return alliance.isPresent() && alliance.get() == Alliance.Red; }, //decides whether or not the math should be mirrored (depends on alliance)
+    //   s_Swerve);
+
+      // if(auto.parallelToPath[i]){
+      //   ParallelCommandGroup curr = new ParallelCommandGroup();
+      //   curr.addCommands(auto.mechCommands[i]);
+      //   curr.addCommands(swerveCommand);
+      //   commandsToSchedule.add(curr);
+      // } else {
+      //   commandsToSchedule.add(swerveCommand);
+      //   commandsToSchedule.add(auto.mechCommands[i]);
+      // }
+    //}
     SequentialCommandGroup group = new SequentialCommandGroup();
     for (Command i : commandsToSchedule) {
       group.addCommands(i);
     }
 
-    return group;
-      // return swerveCommand;
+    // return group;
+      return swerveCommand;
   }
 
   /*
