@@ -34,6 +34,8 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
+import frc.robot.commands.Shooter.SetShooter;
+import frc.robot.commands.Shooter.SetShooterVelocity;
 
 public class RobotContainer {
 
@@ -81,7 +83,7 @@ public class RobotContainer {
         driver.x().onTrue(onIndexer());
         driver.b().onTrue(offIndexer());
 
-        driver.rightBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setPercentOutput(0.35)));
+        driver.rightBumper().whileTrue(new SetShooterVelocity(1600));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
