@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
@@ -84,15 +85,16 @@ public class RobotContainer {
         driver.b().onTrue(offIndexer());
 
         // driver.rightBumper().whileTrue(new SetShooterVelocity(1600));
-        driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.3)));
+        driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
+        //driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.2)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
-        driverDpadUp.onTrue(new SetPivot(PivotState.MAX));
-        driverDpadLeft.onTrue(new SetPivot(PivotState.MIDDLE));
+        driverDpadUp.onTrue(new SetPivot(PivotState.AMP));
+        driverDpadLeft.onTrue(new SetPivot(PivotState.SUBWOOFER));
         driverDpadRight.onTrue(new ZeroPivot());
 
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
@@ -101,13 +103,15 @@ public class RobotContainer {
                         .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
                 ));
+        
 
         // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driver.b().whileTrue(drivetrain
         //         .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
         // reset the field-centric heading on left bumper press. AKA reset odometry
-        driver.start().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
+        driver.rightTrigger().onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+        //driver.start().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));

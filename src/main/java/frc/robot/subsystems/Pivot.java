@@ -29,8 +29,10 @@ public class Pivot extends SubsystemBase {
     public enum PivotState {
         GROUND(0.2),
         // Current max is .38, can change later
+        SUBWOOFER(Pivot.pivotDegreeToCANcoder(60)),
+
         MIDDLE(0.3),
-        MAX(0.38);
+        AMP(Pivot.pivotDegreeToCANcoder(90));
         //WING(position);
 
         private double pos;
@@ -46,7 +48,7 @@ public class Pivot extends SubsystemBase {
     private CANSparkFlex pivotFollowerM;
     private CANcoder pivotCANcoder;
     private PivotState currState = PivotState.GROUND;
-    private double pivotCANcoderAngleOffset = 57.89;
+    private static double pivotCANcoderAngleOffset = 57.89;
 
     public Pivot() {
         pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
@@ -61,7 +63,6 @@ public class Pivot extends SubsystemBase {
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
         configCANcoder();
 
-        resetMotorEncoders(0.2);
     } 
 
     /**
@@ -70,6 +71,10 @@ public class Pivot extends SubsystemBase {
      */
     public void setState(PivotState state) {
         currState = state;
+    }
+
+    public static double pivotDegreeToCANcoder(double pivotDegrees) {
+        return Conversions.degreesToCANcoder(pivotDegrees + pivotCANcoderAngleOffset, 1);
     }
 
     /**
@@ -147,7 +152,7 @@ public class Pivot extends SubsystemBase {
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
         motor.setIdleMode(IdleMode.kCoast);
-
+        motor.getEncoder().setPosition(0.2);
         // motor.getPIDController().setP(Constants.hardwarePIDs.pivotkP);
         // motor.getPIDController().setI(Constants.hardwarePIDs.pivotkI);
 
@@ -175,7 +180,7 @@ public class Pivot extends SubsystemBase {
         resetCANcoder(0.2);
     }
 
-    public double shooterAngle() {
+    public double pivotAngle() {
         return Conversions.CANcoderToDegrees(getCANcoderAbsolutePosition(), 1) - pivotCANcoderAngleOffset;
     }
 
@@ -185,7 +190,7 @@ public class Pivot extends SubsystemBase {
         Logger.recordOutput("Pivot/CurrentMotorEncoderRotation", getMotorEncoderPosition());
         Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
-        SmartDashboard.putNumber("Pivot measured angle", shooterAngle());
+        SmartDashboard.putNumber("Pivot measured angle", pivotAngle());
         SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());
         SmartDashboard.putBoolean("CANcoder working", CANcoderWorking());
     }

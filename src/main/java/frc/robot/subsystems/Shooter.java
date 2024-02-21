@@ -154,6 +154,13 @@ public class Shooter extends SubsystemBase {
         shooterBottomM.setVoltage(voltage);
     }
 
+    public void setTopPercent(double percent) {
+        shooterTopM.set(percent);
+    }
+    public void setBotPercent(double percent) {
+        shooterBottomM.set(percent);
+    }
+
     @Override
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", currentTopSpeed);

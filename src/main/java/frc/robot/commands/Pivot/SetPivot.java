@@ -11,7 +11,7 @@ public class SetPivot extends Command {
     PivotState state;
     // ProfiledPIDController pivotController = new ProfiledPIDController(0.06, 1e-2, 1e-3, new TrapezoidProfile.Constraints(500000, 3000*1e5));
     PIDController CANController = new PIDController(50
-    , 10, 0);
+    , 12, 0);
     PIDController motorContorller = new PIDController(0, 0, 0);
 
     public SetPivot(PivotState state) {
