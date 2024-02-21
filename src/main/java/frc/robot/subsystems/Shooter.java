@@ -40,17 +40,17 @@ public class Shooter extends SubsystemBase {
     }
     
     private void configMotors(){
-        // shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit); for testing
+        shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
 
         // shooterTopM.getPIDController().setFF(0.0078);
-        // shooterTopM.getPIDController().setP(0.3);
-        // shooterTopM.getPIDController().setI(0.017);
-        // shooterTopM.getPIDController().setD(0.005);
+        shooterTopM.getPIDController().setP(0.3);
+        shooterTopM.getPIDController().setI(0.0);
+        shooterTopM.getPIDController().setD(0.0);
         
-        // shooterBottomM.getPIDController().setFF(0.0);
-        // shooterBottomM.getPIDController().setP(0.0);
-        // shooterBottomM.getPIDController().setI(0.0);
-        // shooterBottomM.getPIDController().setD(0.0);
+        // shooterBottomM.getPIDController().setFF(0.3);
+        shooterBottomM.getPIDController().setP(0.3);
+        shooterBottomM.getPIDController().setI(0.0);
+        shooterBottomM.getPIDController().setD(0.0);
     }
 
     public enum ShooterStates {
@@ -119,6 +119,9 @@ public class Shooter extends SubsystemBase {
         shooterBottomM.setVoltage(volts);
     }
 
+    public void setVelocity(double velocity){
+    }
+
 
     /**
      * testing purposes only
@@ -148,7 +151,15 @@ public class Shooter extends SubsystemBase {
     }
 
     public double[] getBothSpeeds() {
-        return new double[]{currentBottomSpeed, currentTopSpeed};
+        return new double[]{shooterTopM.getEncoder().getVelocity(), shooterBottomM.getEncoder().getVelocity()};
+    }
+    
+    public void setTopVoltage(double voltage){
+        shooterTopM.setVoltage(voltage);
+    }
+
+    public void setBotVoltage(double voltage){
+        shooterBottomM.setVoltage(voltage);
     }
 
     @Override
