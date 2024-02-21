@@ -27,10 +27,10 @@ public class Pivot extends SubsystemBase {
     }
 
     public enum PivotState {
-        GROUND(0.8356933),
-        // Current max is .72, can change later
-        MIDDLE(0.9),
-        MAX(0.0292);
+        GROUND(0.2),
+        // Current max is .38, can change later
+        MIDDLE(0.3),
+        MAX(0.38);
         //WING(position);
 
         private double pos;
@@ -61,7 +61,7 @@ public class Pivot extends SubsystemBase {
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
         configCANcoder();
 
-        resetMotorEncoders(0.0);
+        resetMotorEncoders(0.2);
     } 
 
     /**
@@ -186,6 +186,7 @@ public class Pivot extends SubsystemBase {
         Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
         SmartDashboard.putNumber("Pivot measured angle", shooterAngle());
-        SmartDashboard.putNumber("Motor Encoder", getMotorPosition());
+        SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());
+        SmartDashboard.putBoolean("CANcoder working", CANcoderWorking());
     }
 }

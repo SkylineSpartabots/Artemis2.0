@@ -1,5 +1,6 @@
 package frc.robot.commands.Pivot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Pivot.PivotState;;
@@ -20,17 +21,21 @@ public class ZeroPivot extends Command {
     @Override
     public void execute() {
         s_Pivot.setPercentageOutput(-0.1);
+        SmartDashboard.putBoolean("Running zero", true);
     }
 
-    private double currentTreshold = 10.0;
+    private double currentTreshold = 30;
 
     @Override
 	public boolean isFinished() {
+        
         return s_Pivot.getMotorCurrent() > currentTreshold;
 	}
 		
 	@Override
 	public void end(boolean interrupted) {
+        SmartDashboard.putBoolean("Running zero", false);
+        s_Pivot.setPercentageOutput(0);
         s_Pivot.resetMotorEncoders(0.2);
         s_Pivot.resetCANcoder(0.2);
 	}
