@@ -9,8 +9,30 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.CANSparkFlex;
+
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
+import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+
+import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj2.command.Command;
+import java.util.function.DoubleSupplier;
 
 public class Shooter extends SubsystemBase {
 
@@ -30,6 +52,15 @@ public class Shooter extends SubsystemBase {
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
 
+    // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+    private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+    // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+    private final MutableMeasure<Angle> m_angle = mutable(Rotations.of(0));
+    // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+    private final MutableMeasure<Velocity<Angle>> m_velocity = mutable(RotationsPerSecond.of(0));
+
+    private final PWMSparkMax m_shooterMotor = new PWMSparkMax(0);
+
     public Shooter() {
         currentPercentage = 0.0;
         shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
@@ -37,12 +68,41 @@ public class Shooter extends SubsystemBase {
         shooterTopM.setInverted(true);
         shooterBottomM.setInverted(true);
         configMotors();
+
+        shooterTopM.getEncoder().setPositionConversionFactor(2);
+
+        // Creates a SysIdRoutine
+        SysIdRoutine routineTop = new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism((Measure<Voltage> volts) -> {
+                shooterTopM.setVoltage(volts.in(Volts));
+              },
+              log -> {
+                // Record a frame for the shooter motor.
+                log.motor("shooter-wheel")
+                    .voltage(
+                        m_appliedVoltage.mut_replace(
+                            shooterTopM.get() * RobotController.getBatteryVoltage(), Volts))
+                    .angularPosition(m_angle.mut_replace(shooterTopM.getEncoder().getPosition(), Rotations))
+                    .angularVelocity(
+                        m_velocity.mut_replace(shooterTopM.getEncoder().getVelocity()/60, RotationsPerSecond));
+              }, this)
+        );
+        SysIdRoutine routineBot = new SysIdRoutine(new SysIdRoutine.Config(), null);
     }
     
     private void configMotors(){
         shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
         shooterTopM.enableVoltageCompensation(12.0);
         shooterBottomM.enableVoltageCompensation(12.0);
+    }
+
+    private void logMotors(SysIdRoutineLog log){
+
+    }
+
+    public void voltageDrive(Measure<Voltage> voltage){
+
     }
 
     public enum ShooterStates {
@@ -159,6 +219,14 @@ public class Shooter extends SubsystemBase {
     }
     public void setBotPercent(double percent) {
         shooterBottomM.set(percent);
+    }
+
+    public void setTopSetpoint(double velocity){
+        currentTopSpeed = velocity;
+    }
+
+    public void setBotSetpoint(double velocity){
+        currentBottomSpeed = velocity;
     }
 
     @Override
