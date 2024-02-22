@@ -31,8 +31,7 @@ public class Intake extends SubsystemBase {
 
     private CANSparkFlex intakeLeaderM;
     private CANSparkFlex intakeFollowerM;
-    private TalonFX serialLeaderM; // Someone told me this will control both
-    private TalonFX serialFollowerM;
+    private TalonFX serialM; // Someone told me this will control both
 
     //TODO configure motor methods for motors, pid??? // DONE?
 
@@ -45,11 +44,8 @@ public class Intake extends SubsystemBase {
         intakeFollowerM.follow(intakeLeaderM, false);
 
         // Serial
-        serialLeaderM = new TalonFX(Constants.HardwarePorts.serialLeaderM);
-        configMotor(serialLeaderM, false);
-        serialFollowerM = new TalonFX(Constants.HardwarePorts.serialFollowerM);
-        configMotor(serialFollowerM, false);
-        serialFollowerM.setControl(new StrictFollower(Constants.HardwarePorts.serialLeaderM));
+        serialM = new TalonFX(Constants.HardwarePorts.serialM);
+        configMotor(serialM, false);
     }
 
     private void configMotor(CANSparkFlex motor) {
@@ -84,7 +80,7 @@ public class Intake extends SubsystemBase {
 
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.set(state.speed);
-        serialLeaderM.set(state.serialSpeed);
+        serialM.set(state.serialSpeed);
         currentState = state;
     }
 
