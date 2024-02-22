@@ -79,7 +79,7 @@ public class Shooter extends SubsystemBase {
               },
               log -> {
                 // Record a frame for the shooter motor.
-                log.motor("shooter-wheel")
+                log.motor("top-shooter-motor")
                     .voltage(
                         m_appliedVoltage.mut_replace(
                             shooterTopM.get() * RobotController.getBatteryVoltage(), Volts))
