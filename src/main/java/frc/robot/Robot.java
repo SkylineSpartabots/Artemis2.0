@@ -13,15 +13,11 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.Autos;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
-  SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
 
 
   private RobotContainer m_robotContainer;
@@ -43,11 +39,6 @@ public class Robot extends LoggedRobot {
 
     // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-    autoChooser.setDefaultOption("straight path", Autos.AutoPath.StraightPathTesting);
-    autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
-    autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
-    SmartDashboard.putData("Auto choices", autoChooser);
-    m_robotContainer = new RobotContainer();
 
   }
 
@@ -67,7 +58,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand =  Autos.getAutoCommand(autoChooser.getSelected());
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
