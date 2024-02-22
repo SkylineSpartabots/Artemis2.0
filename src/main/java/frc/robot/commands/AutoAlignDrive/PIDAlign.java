@@ -6,46 +6,62 @@ package frc.robot.commands.AutoAlignDrive;
 
 import java.beans.Visibility;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 
 
 public class PIDAlign extends Command {
 
-  private final CommandSwerveDrivetrain s_Drive;
+  private final CommandSwerveDrivetrain s_Swerve;
   private final Vision s_Vision;
-
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
   PIDController alignPID = new PIDController(0, 0, 0);
-  //TODO: get real pid values
+  private double currentYaw;
+  private double desiredYaw;
 
-  /** Creates a new PIDAlign. */
   public PIDAlign() {
     s_Vision = Vision.getInstance();
-    s_Drive = CommandSwerveDrivetrain.getInstance();
+    s_Swerve = CommandSwerveDrivetrain.getInstance();
+
+    desiredYaw = s_Vision.getBestTarget().getYaw(); //This must be radians
+
     addRequirements(s_Vision);
-    addRequirements(s_Drive);
-    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(s_Swerve);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
+    alignPID.reset();
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
 
-  // Called once the command ends or is interrupted.
+    try {
+      currentYaw = s_Vision.calculatePoseFromVision().getRotation().toRotation2d().getRadians();
+    } catch (Exception e) {} //IF WE DONT SEE NUFFIN WE DONT DO NUFFIN!!!! 🦅🦅🦅
+
+    double errorYaw = currentYaw - desiredYaw;
+
+    double rotationSpeed = alignPID.calculate(errorYaw, desiredYaw);
+
+
+    s_Swerve.applyRequest(() -> drive.withRotationalRate(rotationSpeed));
+  }
+
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    s_Swerve.applyRequest(() -> drive.withRotationalRate(0));
+  }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return Math.abs(desiredYaw - currentYaw) < 2; // eor of too degwees fo now
   }
 }
