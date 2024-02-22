@@ -32,16 +32,18 @@ public final class Autos {
    */
   public static Command getAutoCommand(AutoPath auto) {
     SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
-    var thetaController = new PIDController(1, 0, 0);
-    PIDController xController = new PIDController(1, 0, 0); //TODO: tune
-    PIDController yController = new PIDController(1, 0, 0);
+    PIDController thetaController = new PIDController(1, 0, 0); //TODO: tune
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
+    ChoreoTrajectory traj = Choreo.getTrajectory(auto.name);
+    thetaController.reset();
+
+    s_Swerve.resetOdo(traj.getInitialPose());
     Command swerveCommand = Choreo.choreoSwerveCommand(
-      Choreo.getTrajectory(auto.name),
+      traj,
         s_Swerve::getPose,
-        xController,
-        yController,                                                           
+        new PIDController(0.5, 0, 0),
+        new PIDController(0.5, 0, 0),                                                           
         thetaController,
         (ChassisSpeeds speeds) -> s_Swerve.setControl(drive.withSpeeds(speeds)),
         // (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
@@ -49,9 +51,7 @@ public final class Autos {
               return alliance.isPresent() && alliance.get() == Alliance.Red;},
               s_Swerve);
       
-      return Commands.sequence(
-        Commands.runOnce(() -> s_Swerve.resetOdo(Choreo.getTrajectory(auto.name).getInitialPose())),
-        swerveCommand);
+      return swerveCommand;
   }
 
   /*
@@ -67,7 +67,8 @@ public final class Autos {
       StraightPathTesting("StraightPathTesting", new Command[]{}),
       AngledDrivingTesting("AngledDrivingTesting", new Command[]{}),
       StraightAndTurn180Testing("StraightAndTurn180Testing", new Command[]{}),
-      TESTPATH("TestPath", new Command[]{new InstantCommand()});
+      TESTPATH("TestPath", new Command[]{new InstantCommand()}),
+      NOTHINGTEST("NothingTesting", new Command[]{});
 
       String name;
       Command[] mechCommands;

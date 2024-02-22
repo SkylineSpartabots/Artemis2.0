@@ -47,7 +47,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
     SmartDashboard.putData("Auto choices", autoChooser);
-      m_robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer();
 
   }
 

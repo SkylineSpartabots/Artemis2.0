@@ -12,6 +12,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -79,11 +80,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
-        seedFieldRelative();
+        tareEverything();
     }
 
     public void resetOdo(Pose2d pose){
-        seedFieldRelative(pose);
+        for (int i = 0; i < ModuleCount; ++i) {
+            Modules[i].resetPosition();
+            m_modulePositions[i] = Modules[i].getPosition(true);
+        }
+        s_Swerve.m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, pose);
     }
 
     public Pose2d getPose(){
@@ -107,6 +112,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void periodic() {
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
+        SmartDashboard.putNumber("ODO X", getPose().getX());
+        SmartDashboard.putNumber("ODO Y", getPose().getY());
+        SmartDashboard.putNumber("ODO ROT", getPose().getRotation().getRadians());
     }
 
 }

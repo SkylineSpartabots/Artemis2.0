@@ -115,8 +115,8 @@ public class RobotContainer {
         // driver.b().whileTrue(drivetrain
         //         .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
-        // reset the field-centric heading on left bumper press. AKA reset odometry
-        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+        // reset the field-centric heading. AKA reset odometry
+        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d())));
         //driver.start().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
 
         if (Utils.isSimulation()) {
