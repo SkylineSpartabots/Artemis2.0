@@ -43,7 +43,8 @@ public final class Autos {
         xController,
         yController,                                                           
         thetaController,
-        (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
+        (ChassisSpeeds speeds) -> s_Swerve.setControl(drive.withSpeeds(speeds)),
+        // (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
             () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
               return alliance.isPresent() && alliance.get() == Alliance.Red;},
               s_Swerve);

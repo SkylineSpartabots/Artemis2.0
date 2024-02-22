@@ -88,7 +88,7 @@ public class Shooter extends SubsystemBase {
                         m_velocity.mut_replace(shooterTopM.getEncoder().getVelocity()/60, RotationsPerSecond));
               }, this)
         );
-        SysIdRoutine routineBot = new SysIdRoutine(new SysIdRoutine.Config(), null);
+        // SysIdRoutine routineBot = new SysIdRoutine(new SysIdRoutine.Config(), null);
     }
     
     private void configMotors(){
