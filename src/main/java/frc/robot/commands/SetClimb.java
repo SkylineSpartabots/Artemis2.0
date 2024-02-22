@@ -14,29 +14,28 @@ public class SetClimb extends Command {
     private double direction;
     private double speed = 0.5;
 
+    Timer failsafe;
+
     public SetClimb(double direction) {
         s_Climb = Climb.getInstance();
         this.direction = direction;
         addRequirements(s_Climb);
+        
+        failsafe = new Timer();
+        failsafe.start();
     }
 
     // Called when the command is initially scheduled.
     @Override
-    public void initialize() {}
+    public void initialize() {
+
+        s_Climb.setIsPeaked(false);
+    }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        
-        Timer failsafe = new Timer();
-        failsafe.start();
-        
-        s_Climb.setIsPeaked(false);
-        while ((s_Climb.getIsPeaked() != true) && failsafe.get() <= 10) {
-            s_Climb.setSpeed(speed * direction);
-        }
-
-        s_Climb.setSpeed(0);
+        s_Climb.setSpeed(speed * direction);
     }
 
     // Called once the command ends or is interrupted.
@@ -48,6 +47,6 @@ public class SetClimb extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        return !((s_Climb.getIsPeaked() != true) && failsafe.get() <= 10);
     }
 }
