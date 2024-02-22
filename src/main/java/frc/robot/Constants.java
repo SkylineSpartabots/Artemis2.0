@@ -34,6 +34,25 @@ public final class Constants {
         public static final double cameraRollOffset = Units.degreesToRadians(0);
         public static final double cameraPitchOffset = Units.degreesToRadians(0);
         public static final double cameraYawOffset = Units.degreesToRadians(0);
+        public static final class AprilTags {
+            public static final int blueSourceRight = 1;
+            public static final int blueSourceLeft = 2;
+            public static final int redSpeakerOffset = 3;
+            public static final int redSpeakerCenter = 4;
+            public static final int redAmp = 5;
+            public static final int blueAmp = 6;
+            public static final int blueSpeakerCenter = 7;
+            public static final int blueSpeakerOffset = 8;
+            public static final int redSourceRight = 9;
+            public static final int redSourceLeft = 10;
+            public static final int redStageLeft = 11;
+            public static final int redStageRight = 12;
+            public static final int redStageCenter = 13;
+            public static final int blueStageCenter = 14;
+            public static final int blueStageLeft = 15;
+            public static final int blueStageRight = 16;
+
+        }
     }
 
 

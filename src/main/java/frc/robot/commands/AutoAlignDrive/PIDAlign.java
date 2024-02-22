@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 
 public class PIDAlign extends Command {
@@ -25,6 +26,7 @@ public class PIDAlign extends Command {
 
   private double currentYaw;
   private double desiredYaw;
+  private PhotonTrackedTarget targetTag;
 
   public PIDAlign() {
     s_Vision = Vision.getInstance();
@@ -38,8 +40,10 @@ public class PIDAlign extends Command {
   @Override
   public void initialize() {
     alignPID.reset();
-    
-    desiredYaw = s_Vision.getBestTarget().getYaw(); //This must be radians
+
+    targetTag = s_Vision.getBestTarget();
+
+    desiredYaw = targetTag.getYaw(); //This must be radians
   }
 
   @Override
@@ -50,11 +54,11 @@ public class PIDAlign extends Command {
       currentYaw = s_Swerve.getPoseByOdometry().getRotation().getRadians(); //grab the "accurate" odometry
     } catch (Exception e) {} //IF WE DONT SEE NUFFIN WE DONT DO NUFFIN!!!! 🦅🦅🦅
 
-    // double errorYaw = currentYaw - desiredYaw;
-
     double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
 
-    s_Swerve.applyRequest(() -> drive.withRotationalRate(rotationSpeed));
+    if (targetTag.getFiducialId() == Constants.Vision.AprilTags.redSpeakerCenter || targetTag.getFiducialId() == Constants.Vision.AprilTags.blueSpeakerCenter){
+      s_Swerve.applyRequest(() -> drive.withRotationalRate(rotationSpeed));
+    }
   }
 
   @Override
