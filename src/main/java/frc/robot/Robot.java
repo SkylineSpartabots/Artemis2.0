@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.Autos;
+import frc.robot.commands.Autos.AutoPath;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -46,6 +47,7 @@ public class Robot extends LoggedRobot {
     autoChooser.setDefaultOption("straight path", Autos.AutoPath.StraightPathTesting);
     autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
+    autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);
     SmartDashboard.putData("Auto choices", autoChooser);
     m_robotContainer = new RobotContainer();
 

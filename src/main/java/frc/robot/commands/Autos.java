@@ -12,7 +12,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -32,18 +32,20 @@ public final class Autos {
    */
   public static Command getAutoCommand(AutoPath auto) {
     SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
-    PIDController thetaController = new PIDController(1, 0, 0); //TODO: tune
+    PIDController thetaController = new PIDController(0.013, 0, 0); //TODO: tune
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     ChoreoTrajectory traj = Choreo.getTrajectory(auto.name);
     thetaController.reset();
 
+    s_Swerve.setAutoStartPose(traj.getPoses()[0]);
+    SmartDashboard.putString("auto path", auto.name);
     s_Swerve.resetOdo(traj.getInitialPose());
     Command swerveCommand = Choreo.choreoSwerveCommand(
       traj,
         s_Swerve::getPose,
-        new PIDController(0.5, 0, 0),
-        new PIDController(0.5, 0, 0),                                                           
+        new PIDController(0.01, 0, 0),
+        new PIDController(0.01, 0, 0),                                                           
         thetaController,
         (ChassisSpeeds speeds) -> s_Swerve.setControl(drive.withSpeeds(speeds)),
         // (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
