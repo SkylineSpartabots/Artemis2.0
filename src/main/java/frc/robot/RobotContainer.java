@@ -55,7 +55,7 @@ public class RobotContainer {
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
-    private Command runAuto = drivetrain.getAutoPath("Tests");
+    private Command runAuto = drivetrain.getAutoPath("StraightTestPath");
 
     /* Driver Buttons */
     private final Trigger driverBack = driver.back();
