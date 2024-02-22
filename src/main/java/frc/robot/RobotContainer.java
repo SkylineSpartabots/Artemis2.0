@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -123,7 +124,13 @@ public class RobotContainer {
         return new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH);
     }
 
-
+    public void autoClimb() {
+        CommandScheduler.getInstance().schedule(
+            new SequentialCommandGroup(
+                new SetClimb(1.0)), //go up first
+                new SetClimb(-1.0)); //go down
+                //does the climb hitting the chain still stop it like it does at the peak climb?
+    }
     public Command getAutonomousCommand() {
         return Commands.print("No autonomous command configured");
     }
