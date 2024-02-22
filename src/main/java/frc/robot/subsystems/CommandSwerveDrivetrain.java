@@ -87,7 +87,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         seedFieldRelative(pose);
     }
 
-    public Pose2d getPose(){
+    public Pose2d getPoseByOdometry(){
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
 

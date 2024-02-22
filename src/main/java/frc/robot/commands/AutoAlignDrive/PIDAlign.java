@@ -21,7 +21,8 @@ public class PIDAlign extends Command {
   private final CommandSwerveDrivetrain s_Swerve;
   private final Vision s_Vision;
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
-  PIDController alignPID = new PIDController(0, 0, 0);
+  PIDController alignPID = new PIDController(0, 0, 0); //TODO: tune this
+
   private double currentYaw;
   private double desiredYaw;
 
@@ -29,28 +30,29 @@ public class PIDAlign extends Command {
     s_Vision = Vision.getInstance();
     s_Swerve = CommandSwerveDrivetrain.getInstance();
 
-    desiredYaw = s_Vision.getBestTarget().getYaw(); //This must be radians
-
-    addRequirements(s_Vision);
+    addRequirements(s_Vision); //always do add requirements first before calling subsystems
     addRequirements(s_Swerve);
-  }
 
+  }
+  
   @Override
   public void initialize() {
     alignPID.reset();
+    
+    desiredYaw = s_Vision.getBestTarget().getYaw(); //This must be radians
   }
 
   @Override
   public void execute() {
 
     try {
-      currentYaw = s_Vision.calculatePoseFromVision().getRotation().toRotation2d().getRadians();
+      s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
+      currentYaw = s_Swerve.getPoseByOdometry().getRotation().getRadians(); //grab the "accurate" odometry
     } catch (Exception e) {} //IF WE DONT SEE NUFFIN WE DONT DO NUFFIN!!!! 🦅🦅🦅
 
-    double errorYaw = currentYaw - desiredYaw;
+    // double errorYaw = currentYaw - desiredYaw;
 
-    double rotationSpeed = alignPID.calculate(errorYaw, desiredYaw);
-
+    double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
 
     s_Swerve.applyRequest(() -> drive.withRotationalRate(rotationSpeed));
   }
@@ -62,6 +64,6 @@ public class PIDAlign extends Command {
 
   @Override
   public boolean isFinished() {
-    return Math.abs(desiredYaw - currentYaw) < 2; // eor of too degwees fo now
+    return Math.abs(desiredYaw - currentYaw) < 3; // error of too degwees fo now, set later
   }
 }

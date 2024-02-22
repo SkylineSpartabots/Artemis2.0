@@ -39,7 +39,7 @@ public final class Autos {
 
     Command swerveCommand = Choreo.choreoSwerveCommand(
       Choreo.getTrajectory(auto.name),
-        s_Swerve::getPose,
+        s_Swerve::getPoseByOdometry,
         xController,
         yController,                                                           
         thetaController,
