@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.generated.TunerConstants;
 
@@ -145,7 +146,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public Command getAutoPath(String pathName) {
-        return new PathPlannerAuto(pathName);
+        // return new PathPlannerAuto(pathName);
+         return Commands.sequence(
+            Commands.runOnce(() -> s_Swerve.resetOdo(PathPlannerAuto.getStaringPoseFromAutoFile(pathName))),
+            new PathPlannerAuto(pathName));
     }
 
     @Override
