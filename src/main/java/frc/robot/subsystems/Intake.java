@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -31,19 +31,25 @@ public class Intake extends SubsystemBase {
 
     private CANSparkFlex intakeLeaderM;
     private CANSparkFlex intakeFollowerM;
-    private TalonSRX serializationM; // Someone told me this will control both
+    private TalonFX serialLeaderM; // Someone told me this will control both
+    private TalonFX serialFollowerM;
 
-    //TODO configure motor methods for motors, pid???
+    //TODO configure motor methods for motors, pid??? // DONE?
 
     public Intake() {
+        // Rollers
         intakeLeaderM = new CANSparkFlex(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
         configMotor(intakeLeaderM);
         intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
         configMotor(intakeFollowerM);
-
         intakeFollowerM.follow(intakeLeaderM, false);
-        serializationM = new TalonSRX(Constants.HardwarePorts.serializationM);
-        configMotor(serializationM, false);
+
+        // Serial
+        serialLeaderM = new TalonFX(Constants.HardwarePorts.serialLeaderM);
+        configMotor(serialLeaderM, false);
+        serialFollowerM = new TalonFX(Constants.HardwarePorts.serialFollowerM);
+        configMotor(serialFollowerM, false);
+        serialFollowerM.setControl(new StrictFollower(Constants.HardwarePorts.serialLeaderM));
     }
 
     private void configMotor(CANSparkFlex motor) {
@@ -52,7 +58,7 @@ public class Intake extends SubsystemBase {
         motor.setInverted(true);
     }
 
-    private void configMotor(TalonSRX motor, boolean inverted) {
+    private void configMotor(TalonFX motor, boolean inverted) {
         motor.setInverted(true);
         // motor.configPeakCurrentLimit(Constants.serializationPeakCurrentLimit); for testing
         // motor.configContinuousCurrentLimit(Constants.serializationContinuousCurrentLimit); for testing
@@ -62,7 +68,7 @@ public class Intake extends SubsystemBase {
         ON(0.8, 0.8),
         OFF(0, 0),
         REV(-0.8, -0.8);
-        
+
         private double speed;
         private double serialSpeed;
 
@@ -78,8 +84,8 @@ public class Intake extends SubsystemBase {
 
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.set(state.speed);
-        serializationM.set(ControlMode.PercentOutput, state.serialSpeed);
-       currentState = state;    
+        serialLeaderM.set(state.serialSpeed);
+        currentState = state;
     }
 
     /**
@@ -87,9 +93,9 @@ public class Intake extends SubsystemBase {
      */
     private double currentIntakePercentage = Integer.MAX_VALUE;
 
-    public void incPower(){
-        if(currentIntakePercentage == Integer.MAX_VALUE){
-            if(currentState != null){
+    public void incPower() {
+        if (currentIntakePercentage == Integer.MAX_VALUE) {
+            if (currentState != null) {
                 currentIntakePercentage = currentState.speed;
             }
         }
@@ -97,9 +103,9 @@ public class Intake extends SubsystemBase {
         intakeLeaderM.set(currentIntakePercentage);
     }
 
-    public void decPower(){
-        if(currentIntakePercentage == Integer.MAX_VALUE){
-            if(currentState != null){
+    public void decPower() {
+        if (currentIntakePercentage == Integer.MAX_VALUE) {
+            if (currentState != null) {
                 currentIntakePercentage = currentState.speed;
             }
         }
