@@ -91,6 +91,7 @@ public final class Constants {
     public static final int pivotPeakCurrentLimit = 60;
     public static final int climbContinuousCurrentLimit = 30; //arbitrary, fix later
     public static final int climbPeakCurrentLimit = 70; //arbitrary, fix later
+    
 
     public static final double FIELD_WIDTH_METERS = 8.21055;
     public static final double FIELD_LENGTH_METERS = 16.54175;

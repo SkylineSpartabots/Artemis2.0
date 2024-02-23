@@ -35,10 +35,6 @@ public class TunerConstants {
     // This needs to be tuned to your individual robot
     private static final double kSlipCurrentA = 300.0;
 
-    // Theoretical free speed (m/s) at 12v applied output;
-    // This needs to be tuned to your individual robot
-    public static final double kSpeedAt12VoltsMps = 4.73; //bro we TODO: need to tune this
-
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 3.5714285714285716;
@@ -53,6 +49,11 @@ public class TunerConstants {
 
     private static final String kCANbusName = "";
     private static final int kPigeonId = 2;
+
+        
+    // Theoretical free speed (m/s) at 12v applied output;
+    // This needs to be tuned to your individual robot
+    public static final double kSpeedAt12VoltsMps = 6.69 * kDriveGearRatio * Units.inchesToMeters(4 * 3.1415); //bro we TODO: need to tune this
 
 
     // These are only used for simulation
