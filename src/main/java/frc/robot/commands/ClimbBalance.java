@@ -6,9 +6,9 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ClimbBalence extends Command {
+public class ClimbBalance extends Command {
   /** Creates a new ClimbBalence. */
-  public ClimbBalence() {
+  public ClimbBalance() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
