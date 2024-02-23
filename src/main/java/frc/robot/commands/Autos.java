@@ -70,7 +70,8 @@ public final class Autos {
       AngledDrivingTesting("AngledDrivingTesting", new Command[]{}),
       StraightAndTurn180Testing("StraightAndTurn180Testing", new Command[]{}),
       TESTPATH("TestPath", new Command[]{new InstantCommand()}),
-      NOTHINGTEST("NothingTesting", new Command[]{});
+      NOTHINGTEST("NothingTesting", new Command[]{}),
+      FENDER("FenderAuto", new Command[]{});
 
       String name;
       Command[] mechCommands;
