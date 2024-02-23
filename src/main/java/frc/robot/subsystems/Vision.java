@@ -62,6 +62,16 @@ public class Vision extends SubsystemBase {
         return aprilTagCamResult.hasTargets() && aprilTagCamResult.getBestTarget().getFiducialId() >= 1 && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
     }
 
+    public boolean hasSpeakerTarget() {
+        boolean found = false;
+        for(int i = 0; i < aprilTagCamResult.getTargets().size(); i++) {
+            if(aprilTagCamResult.getTargets().get(i).getFiducialId() == 4 || aprilTagCamResult.getTargets().get(i).getFiducialId() == 7){
+                found = true;
+            }
+        }
+        return found;
+    }
+
     // TODO verify that by the end of auto we have lastValidTarget set
     // theres like no way you dont see one at the start of auto maybe I think
     public PhotonTrackedTarget getBestTarget() {
