@@ -78,14 +78,14 @@ public class Shooter extends SubsystemBase {
                     .angularPosition(m_angle.mut_replace(shooterTopM.getEncoder().getPosition(), Rotations))
                     .angularVelocity(
                         m_velocity.mut_replace(shooterTopM.getEncoder().getVelocity()/60, RotationsPerSecond));
-              }, this)
-        );
+              } , this
+        ));
 
         public Command sysIdQuasistatic(SysIdRoutine.Direction direction) { //bind these to a button you have to hold
             return routineTop.quasistatic(direction);
           }
           
-          public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        public Command sysIdDynamic(SysIdRoutine.Direction direction) {
             return routineTop.dynamic(direction);
           }
 
@@ -102,7 +102,12 @@ public class Shooter extends SubsystemBase {
     }
     
     private void configMotors(){
-        shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
+        shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit); //soft limit
+        shooterBottomM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);  
+        shooterTopM.setSecondaryCurrentLimit(80); //hard limit
+        shooterBottomM.setSecondaryCurrentLimit(80);
+        //TODO: add to constants
+
         shooterTopM.enableVoltageCompensation(12.0);
         shooterBottomM.enableVoltageCompensation(12.0);
     }

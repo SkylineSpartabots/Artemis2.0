@@ -5,10 +5,13 @@
 package frc.robot;
 
 
+import java.time.Instant;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
+import edu.wpi.first.wpilibj2.command.sysid.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -87,6 +90,11 @@ public class RobotContainer {
         driver.a().onTrue(offIntake());
         driver.x().onTrue(onIndexer());
         driver.b().onTrue(offIndexer());
+
+        // driver.a().whileTrue(new InstantCommand(() -> s_Shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward)));
+        // driver.b().whileTrue(new InstantCommand(() -> s_Shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
+        // driver.x().whileTrue(new InstantCommand(() -> s_Shooter.sysIdDynamic(SysIdRoutine.Direction.kForward)));
+        // driver.y().whileTrue(new InstantCommand(() -> s_Shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
 
         driver.rightBumper().whileTrue(new SetShooterVelocity(2500));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
