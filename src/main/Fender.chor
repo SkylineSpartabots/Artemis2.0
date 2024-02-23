@@ -546,21 +546,21 @@
                         2
                     ],
                     "type": "StopPoint",
-                    "uuid": "78dff3f0-8386-4a89-93bf-c3f25b3acf10"
+                    "uuid": "59e65a0b-7f70-48a1-a7ab-d810b9eb2e5f"
                 },
                 {
                     "scope": [
                         4
                     ],
                     "type": "StopPoint",
-                    "uuid": "ec2f82a5-4a8c-49a7-8b6d-94e20980cda6"
+                    "uuid": "de07bed8-2f4e-4287-a1f3-e493abdb6067"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "6df2dbe5-8935-464e-be27-07dd50b9c2b3"
+                    "uuid": "0c574c18-e9d1-45c9-9c9d-59e57e850e9d"
                 }
             ],
             "usesControlIntervalGuessing": true,
