@@ -17,11 +17,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.Autos;
-import frc.robot.commands.Autos.AutoPath;
+// import frc.robot.commands.Autos.AutoPath;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
+  private SequentialCommandGroup m_mechCommand;
   SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
 
 
@@ -47,7 +50,8 @@ public class Robot extends LoggedRobot {
     autoChooser.setDefaultOption("straight path", Autos.AutoPath.StraightPathTesting);
     autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
-    autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);
+    autoChooser.addOption("Turn in place", Autos.AutoPath.NOTHINGTEST);
+    autoChooser.addOption("Fender Auto", Autos.AutoPath.FENDER);
     SmartDashboard.putData("Auto choices", autoChooser);
     m_robotContainer = new RobotContainer();
 
@@ -69,11 +73,13 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand =  Autos.getAutoCommand(autoChooser.getSelected());
-
+    // m_autonomousCommand =  Autos.getAutoCommand(autoChooser.getSelected());
+    m_autonomousCommand = Autos.getAutoMechCommands(autoChooser.getSelected());
+    
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    
   }
 
   @Override
