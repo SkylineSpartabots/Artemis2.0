@@ -61,17 +61,9 @@ public class Shooter extends SubsystemBase {
 
     private final PWMSparkMax m_shooterMotor = new PWMSparkMax(0);
 
-    public Shooter() {
-        currentPercentage = 0.0;
-        shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
-        shooterBottomM = new CANSparkFlex(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
-        shooterTopM.setInverted(true);
-        shooterBottomM.setInverted(true);
-        configMotors();
-
-        shooterTopM.getEncoder().setPositionConversionFactor(2);
-
-        // Creates a SysIdRoutine
+    // Creates a SysIdRoutine
+        //you have to sysId the top and bottom motors seperately, they have different frictional forces in play.
+        //finish with top, then edit this below routine for the bottom motor and do the process with that
         SysIdRoutine routineTop = new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism((Measure<Voltage> volts) -> {
@@ -88,7 +80,25 @@ public class Shooter extends SubsystemBase {
                         m_velocity.mut_replace(shooterTopM.getEncoder().getVelocity()/60, RotationsPerSecond));
               }, this)
         );
-        // SysIdRoutine routineBot = new SysIdRoutine(new SysIdRoutine.Config(), null);
+
+        public Command sysIdQuasistatic(SysIdRoutine.Direction direction) { //bind these to a button you have to hold
+            return routineTop.quasistatic(direction);
+          }
+          
+          public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+            return routineTop.dynamic(direction);
+          }
+
+    public Shooter() {
+        currentPercentage = 0.0;
+        shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
+        shooterBottomM = new CANSparkFlex(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
+        shooterTopM.setInverted(true);
+        shooterBottomM.setInverted(true);
+        configMotors();
+
+        shooterTopM.getEncoder().setPositionConversionFactor(2);
+
     }
     
     private void configMotors(){

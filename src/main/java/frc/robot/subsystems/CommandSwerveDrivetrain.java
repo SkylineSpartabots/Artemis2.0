@@ -81,14 +81,28 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
         tareEverything();
+        tareEverything();
+        tareEverything();
+    }
+
+    public void resetOdoUtil(Pose2d pose){
+        try {
+            m_stateLock.writeLock().lock();
+
+            for (int i = 0; i < ModuleCount; ++i) {
+                Modules[i].resetPosition();
+                m_modulePositions[i] = Modules[i].getPosition(true);
+            }
+            m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, pose);
+        } finally {
+            m_stateLock.writeLock().unlock();
+        }
     }
 
     public void resetOdo(Pose2d pose){
-        for (int i = 0; i < ModuleCount; ++i) {
-            Modules[i].resetPosition();
-            m_modulePositions[i] = Modules[i].getPosition(true);
-        }
-        s_Swerve.m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, pose);
+        resetOdoUtil(pose);
+        resetOdoUtil(pose);
+        resetOdoUtil(pose);
     }
 
     public Pose2d getPose(){
@@ -108,6 +122,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
+    private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
+
+    public void setAutoStartPose(Pose2d pose){
+        autoStartPose = pose;
+    }
+
     @Override
     public void periodic() {
         //allows driver to see if resetting worked
@@ -115,6 +135,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("ODO X", getPose().getX());
         SmartDashboard.putNumber("ODO Y", getPose().getY());
         SmartDashboard.putNumber("ODO ROT", getPose().getRotation().getRadians());
+        SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
+        SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
     }
 
 }
