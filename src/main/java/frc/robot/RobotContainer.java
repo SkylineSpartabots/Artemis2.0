@@ -86,15 +86,15 @@ public class RobotContainer {
     private void configureBindings() {
 
         //nothing is binded to intake, indexer, or shooter yet
-        driver.y().onTrue(onIntake());
-        driver.a().onTrue(offIntake());
-        driver.x().onTrue(onIndexer());
-        driver.b().onTrue(offIndexer());
+        // driver.y().onTrue(onIntake());
+        // driver.a().onTrue(offIntake());
+        // driver.x().onTrue(onIndexer());
+        // driver.b().onTrue(offIndexer());
 
-        // driver.a().whileTrue(new InstantCommand(() -> s_Shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward)));
-        // driver.b().whileTrue(new InstantCommand(() -> s_Shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
-        // driver.x().whileTrue(new InstantCommand(() -> s_Shooter.sysIdDynamic(SysIdRoutine.Direction.kForward)));
-        // driver.y().whileTrue(new InstantCommand(() -> s_Shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
+        driver.a().whileTrue(s_Shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        driver.b().whileTrue(s_Shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        driver.x().whileTrue(s_Shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        driver.y().whileTrue(s_Shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
         driver.rightBumper().whileTrue(new SetShooterVelocity(2500));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
