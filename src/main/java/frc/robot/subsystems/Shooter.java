@@ -67,7 +67,7 @@ public class Shooter extends SubsystemBase {
         SysIdRoutine routineTop = new SysIdRoutine(
             new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism((Measure<Voltage> volts) -> {
-                shooterTopM.setVoltage(volts.in(Volts));
+                shooterTopM.setVoltage(volts.in(Volts) / RobotController.getBatteryVoltage());
               },
               log -> {
                 // Record a frame for the shooter motor.
