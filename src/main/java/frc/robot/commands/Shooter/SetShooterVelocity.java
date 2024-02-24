@@ -1,7 +1,6 @@
 package frc.robot.commands.Shooter;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 
@@ -21,11 +20,12 @@ public class SetShooterVelocity extends Command {
 
     @Override
     public void initialize() {
+        s_Shooter.setTopSetpoint(desiredVelocity);
+        s_Shooter.setBotSetpoint(desiredVelocity);
     }
 
     @Override
     public void execute() {
-
         double topVoltage = topShooterController.calculate(s_Shooter.getBothSpeeds()[0], desiredVelocity);
         double botVoltage = botShooterController.calculate(s_Shooter.getBothSpeeds()[1], desiredVelocity);
         s_Shooter.setTopVoltage(topVoltage);
