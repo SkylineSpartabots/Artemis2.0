@@ -100,8 +100,8 @@ public class Shooter extends SubsystemBase {
         shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
         shooterTopM.enableVoltageCompensation(12.0);
         shooterBottomM.enableVoltageCompensation(12.0); // units are RPS
-        // shooterTopM.getPIDController().setFF(12 / shooterTopM.get() / 60); // Units are RPS
-        // shooterBottomM.getPIDController().setFF(12 / shooterBottomM.get() / 60);
+        shooterTopM.getPIDController().setFF((12 / (6784 / 10)) * 1.555); // Units are RPS
+        shooterBottomM.getPIDController().setFF((12 / (6784 / 10)) * 1.555);
     }
 
     public void voltageDrive(Measure<Voltage> voltage){
