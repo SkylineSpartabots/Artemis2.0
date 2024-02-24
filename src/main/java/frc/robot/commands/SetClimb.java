@@ -22,13 +22,12 @@ public class SetClimb extends Command {
         addRequirements(s_Climb);
         
         failsafe = new Timer();
-        failsafe.start();
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-
+        failsafe.start();
         s_Climb.setIsPeaked(false);
     }
 
@@ -47,6 +46,6 @@ public class SetClimb extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return !((s_Climb.getIsPeaked() != true) && failsafe.get() <= 10);
+        return ((s_Climb.getIsPeaked() == true) || failsafe.get() >= 10);
     }
 }

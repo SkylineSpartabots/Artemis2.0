@@ -35,10 +35,10 @@ public class Climb extends SubsystemBase {
         configFollowerMotor(climbFollowerM, climbLeaderM);
     }
     
-    private void configLeaderMotor(CANSparkFlex motor) {
-        motor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
-        motor.setIdleMode(IdleMode.kBrake);
-        motor.enableVoltageCompensation(12);
+    private void configLeaderMotor(CANSparkFlex leaderMotor) {
+        leaderMotor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
+        leaderMotor.setIdleMode(IdleMode.kBrake);
+        leaderMotor.enableVoltageCompensation(12);
     }
 
     private void configFollowerMotor(CANSparkFlex followerMotor, CANSparkFlex leaderMotor) {
@@ -62,14 +62,6 @@ public class Climb extends SubsystemBase {
         return speed;
     }
 
-    public void updateOutputCurrent() {
-        currentOutput = climbLeaderM.getOutputCurrent();
-    }
-
-    public double getOutputCurrent() {
-        updateOutputCurrent();
-        return currentOutput;
-    }
 
     private boolean isPeaked = false;
     private double spikeThreshold = 10;
@@ -86,10 +78,9 @@ public class Climb extends SubsystemBase {
     @Override
     public void periodic() {
         // SmartDashboard.putNumber("Climb Rotations", climbLeaderM.getEncoder().getPosition());
-        updateOutputCurrent();
-        setIsPeaked(getOutputCurrent() > spikeThreshold);
+        isPeaked = (climbLeaderM.getOutputCurrent() >= spikeThreshold);
         
-        SmartDashboard.putNumber("Climb Output Current", getOutputCurrent());
+        SmartDashboard.putNumber("Climb Output Current", climbLeaderM.getOutputCurrent());
         SmartDashboard.putNumber("Climb Speed", getSpeed());
         SmartDashboard.putBoolean("Climb Peaked", getIsPeaked());
     }

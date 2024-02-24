@@ -100,8 +100,8 @@ public class RobotContainer {
         }
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        driver.povUp().onTrue(new InstantCommand(() -> new SetClimb(1)));
-        driver.povDown().onTrue(new InstantCommand(() -> new SetClimb(-1)));
+        driver.povUp().whileTrue(new SetClimb(1));
+        driver.povDown().whileTrue(new SetClimb(-1));
     }
 
     public RobotContainer() {
