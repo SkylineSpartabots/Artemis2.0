@@ -23,8 +23,7 @@ import frc.robot.commands.Autos;
 // import frc.robot.commands.Autos.AutoPath;
 
 public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
-  private SequentialCommandGroup m_mechCommand;
+  private SequentialCommandGroup m_autonomousCommand;
   SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
 
 

@@ -113,9 +113,9 @@ public final class Autos {
       String name;
       SequentialCommandGroup mechCommands;
       
-      private AutoPath(String a, SequentialCommandGroup seq){
+      private AutoPath(String a, SequentialCommandGroup sequence){
         name = a;
-        mechCommands = seq;
+        mechCommands = sequence;
       }
 
       private AutoPath(String a){
