@@ -21,6 +21,7 @@ import frc.robot.Constants;
 import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -32,6 +33,8 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 public class Shooter extends SubsystemBase {
@@ -64,8 +67,14 @@ public class Shooter extends SubsystemBase {
     // Creates a SysIdRoutine
         //you have to sysId the top and bottom motors seperately, they have different frictional forces in play.
         //finish with top, then edit this below routine for the bottom motor and do the process with that
+
+        // setting 
+        Measure<Velocity<Voltage>> rampRate =  Volts.of(1).per(Seconds.of(1));
+        Measure<Voltage> stepVoltage = Volts.of(30);
+        Measure<Time> timeout =  Seconds.of(60);
+
         SysIdRoutine routineTop = new SysIdRoutine(
-            new SysIdRoutine.Config(),
+            new SysIdRoutine.Config(rampRate, stepVoltage, timeout),
             new SysIdRoutine.Mechanism((Measure<Voltage> volts) -> {
                 shooterTopM.setVoltage(volts.in(Volts) / RobotController.getBatteryVoltage());
               },

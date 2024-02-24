@@ -97,6 +97,7 @@ public class RobotContainer {
         driver.b().whileTrue(s_Shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
         driver.x().whileTrue(s_Shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
         driver.y().whileTrue(s_Shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        
 
         driver.rightBumper().whileTrue(new SetShooterVelocity(2500));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
@@ -141,9 +142,6 @@ public class RobotContainer {
         configureBindings();
     }
 
-    public SequentialCommandGroup shooterSysID(){
-        return new shooterSysID();
-    }
     public Command onIntake() {
         return new SetIntake(IntakeStates.ON);
     }
