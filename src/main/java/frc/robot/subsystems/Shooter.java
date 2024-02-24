@@ -69,8 +69,8 @@ public class Shooter extends SubsystemBase {
         shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
         shooterTopM.enableVoltageCompensation(12.0);
         shooterBottomM.enableVoltageCompensation(12.0);
-        shooterTopM.getPIDController().setFF((12 / (6784 / 60)) * 1.555);
-        shooterBottomM.getPIDController().setFF((12 / (6784 / 60)) * 1.555);
+        shooterTopM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
+        shooterBottomM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
         shooterTopM.getPIDController().setReference(0.34, ControlType.kVelocity);
         shooterBottomM.getPIDController().setReference(0.43, ControlType.kVelocity);
     }
