@@ -9,12 +9,11 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkBase.ControlType;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 
 import static edu.wpi.first.units.MutableMeasure.mutable;
@@ -25,9 +24,7 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class Shooter extends SubsystemBase {
 
@@ -56,34 +53,6 @@ public class Shooter extends SubsystemBase {
 
     private final PWMSparkMax m_shooterMotor = new PWMSparkMax(0);
 
-    // Creates a SysIdRoutine
-        //you have to sysId the top and bottom motors seperately, they have different frictional forces in play.
-        //finish with top, then edit this below routine for the bottom motor and do the process with that
-        SysIdRoutine routineTop = new SysIdRoutine(
-            new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism((Measure<Voltage> volts) -> {
-                shooterTopM.setVoltage(volts.in(Volts));
-              },
-              log -> {
-                // Record a frame for the shooter motor.
-                log.motor("top-shooter-motor")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            shooterTopM.get() * RobotController.getBatteryVoltage(), Volts))
-                    .angularPosition(m_angle.mut_replace(shooterTopM.getEncoder().getPosition(), Rotations))
-                    .angularVelocity(
-                        m_velocity.mut_replace(shooterTopM.getEncoder().getVelocity()/60, RotationsPerSecond));
-              }, this)
-        );
-
-        public Command sysIdQuasistatic(SysIdRoutine.Direction direction) { //bind these to a button you have to hold
-            return routineTop.quasistatic(direction);
-          }
-          
-          public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-            return routineTop.dynamic(direction);
-          }
-
     public Shooter() {
         currentPercentage = 0.0;
         shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
@@ -99,9 +68,11 @@ public class Shooter extends SubsystemBase {
     private void configMotors(){
         shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
         shooterTopM.enableVoltageCompensation(12.0);
-        shooterBottomM.enableVoltageCompensation(12.0); // units are RPS
-        shooterTopM.getPIDController().setFF((12 / (6784 / 10)) * 1.555); // Units are RPS
-        shooterBottomM.getPIDController().setFF((12 / (6784 / 10)) * 1.555);
+        shooterBottomM.enableVoltageCompensation(12.0);
+        shooterTopM.getPIDController().setFF((12 / (6784 / 60)) * 1.555);
+        shooterBottomM.getPIDController().setFF((12 / (6784 / 60)) * 1.555);
+        shooterTopM.getPIDController().setReference(0.34, ControlType.kVelocity);
+        shooterBottomM.getPIDController().setReference(0.43, ControlType.kVelocity);
     }
 
     public void voltageDrive(Measure<Voltage> voltage){

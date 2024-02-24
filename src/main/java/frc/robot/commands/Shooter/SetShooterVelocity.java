@@ -20,14 +20,16 @@ public class SetShooterVelocity extends Command {
 
     @Override
     public void initialize() {
-        // s_Shooter.setTopSetpoint(desiredVelocity);
-        // s_Shooter.setBotSetpoint(desiredVelocity);
+        s_Shooter.setTopSetpoint(desiredVelocity);
+        s_Shooter.setBotSetpoint(desiredVelocity);
     }
 
     @Override
     public void execute() {
-        s_Shooter.setTopVoltage(desiredVelocity);
-        s_Shooter.setBotVoltage(desiredVelocity);
+        double topVoltage = topShooterController.calculate(s_Shooter.getBothSpeeds()[0], desiredVelocity);
+        double botVoltage = botShooterController.calculate(s_Shooter.getBothSpeeds()[1], desiredVelocity);
+        s_Shooter.setTopVoltage(topVoltage);
+        s_Shooter.setBotVoltage(botVoltage);
     }
 
 
