@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkBase.IdleMode;
 
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -29,29 +30,36 @@ public class Intake extends SubsystemBase {
 
     private IntakeStates currentState = IntakeStates.OFF;
 
-    private CANSparkFlex intakeLeaderM;
-    private CANSparkFlex intakeFollowerM;
+    private TalonFX intakeLeaderM;
+    private TalonFX intakeFollowerM;
+
+    // private CANSparkFlex intakeLeaderM;
+    // private CANSparkFlex intakeFollowerM;
     private TalonFX serialM; // Someone told me this will control both
 
     //TODO configure motor methods for motors, pid??? // DONE?
 
     public Intake() {
         // Rollers
-        intakeLeaderM = new CANSparkFlex(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
-        configMotor(intakeLeaderM);
-        intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
-        configMotor(intakeFollowerM);
-        intakeFollowerM.follow(intakeLeaderM, false);
+        intakeLeaderM = new TalonFX(Constants.HardwarePorts.intakeLeaderM);
+        intakeFollowerM = new TalonFX(Constants.HardwarePorts.intakeFollowerM);
+        // intakeLeaderM = new CANSparkFlex(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
+        // configMotor(intakeLeaderM);
+        // intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
+        // configMotor(intakeFollowerM);
+        // intakeFollowerM.follow(intakeLeaderM, false);
 
         // Serial
         serialM = new TalonFX(Constants.HardwarePorts.serialM);
         configMotor(serialM, false);
     }
 
-    private void configMotor(CANSparkFlex motor) {
+    private void configMotor(TalonFX motor) {
         // motor.setSmartCurrentLimit(Constants.intakePeakCurrentLimit); for testing
-        motor.setIdleMode(IdleMode.kCoast);
-        motor.setInverted(false);
+        // motor.setIdleMode(IdleMode.kCoast);
+        // motor.setInverted(false);
+
+        
     }
 
     private void configMotor(TalonFX motor, boolean inverted) {
