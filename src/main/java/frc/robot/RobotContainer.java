@@ -43,7 +43,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
-    private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
+    private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // My drivetrain
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * 0.2).withRotationalDeadband(Constants.MaxAngularRate * 0.2) // Add a 20% deadband, tune to driver preference
@@ -86,7 +86,7 @@ public class RobotContainer {
         driver.x().onTrue(onIndexer());
         driver.b().onTrue(offIndexer());
 
-        driver.rightBumper().whileTrue(new SetShooterVelocity(1800));
+        driver.rightBumper().whileTrue(new SetShooterVelocity(2000));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));

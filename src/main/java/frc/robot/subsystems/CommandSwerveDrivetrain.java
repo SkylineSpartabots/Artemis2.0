@@ -5,8 +5,10 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
@@ -32,7 +34,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private double lastTimeReset = -1;
 
-    private static CommandSwerveDrivetrain s_Swerve;
+    private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
     Vision m_Camera;
 
@@ -42,6 +44,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
         }
         return s_Swerve;
+        
+    }
+
+    private void limit() {
+        for (SwerveModule module : Modules) {
+            CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
+            configs.SupplyCurrentLimit = 20;
+            configs.SupplyCurrentLimitEnable = true;
+            configs.StatorCurrentLimit = 40;
+            configs.StatorCurrentLimitEnable = true;
+            
+
+            module.getDriveMotor().getConfigurator().apply(configs);
+            module.getSteerMotor().getConfigurator().apply(configs);
+        }
     }
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
@@ -52,12 +69,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        limit();
     }
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        limit();
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {

@@ -4,8 +4,15 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -19,7 +26,8 @@ import frc.robot.Constants;
 public class Intake extends SubsystemBase {
 
     private static Intake instance;
-
+    private Follower follow = new Follower(Constants.HardwarePorts.intakeLeaderM, false );
+    private DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
 
     public static Intake getInstance() {
         if (instance == null) {
@@ -43,6 +51,11 @@ public class Intake extends SubsystemBase {
         // Rollers
         intakeLeaderM = new TalonFX(Constants.HardwarePorts.intakeLeaderM);
         intakeFollowerM = new TalonFX(Constants.HardwarePorts.intakeFollowerM);
+        configMotor(intakeLeaderM);
+        configMotor(intakeFollowerM);
+        //intakeFollowerM.setControl(follow);
+        
+        
         // intakeLeaderM = new CANSparkFlex(Constants.HardwarePorts.intakeLeaderM, MotorType.kBrushless);
         // configMotor(intakeLeaderM);
         // intakeFollowerM = new CANSparkFlex(Constants.HardwarePorts.intakeFollowerM, MotorType.kBrushless);
@@ -59,12 +72,24 @@ public class Intake extends SubsystemBase {
         // motor.setIdleMode(IdleMode.kCoast);
         // motor.setInverted(false);
 
-        
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+
+        Slot0Configs slot0Configs = new Slot0Configs();
+        currentLimitsConfigs.SupplyCurrentLimit = Constants.intakeContinuousCurrentLimit;
+        currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+        currentLimitsConfigs.SupplyCurrentThreshold = Constants.intakePeakCurrentLimit;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        // slot0Configs.kP = Constants.SwerveConstants.driveKP;
+        // slot0Configs.kI = Constants.SwerveConstants.driveKI;
+        // slot0Configs.kD = Constants.SwerveConstants.driveKD;
+        config.CurrentLimits = currentLimitsConfigs;
+        motor.getConfigurator().apply(config);
     }
 
     private void configMotor(TalonFX motor, boolean inverted) {
         motor.setInverted(false);
-        // motor.configPeakCurrentLimit(Constants.serializationPeakCurrentLimit); for testing
+        //motor.configPeakCurrentLimit(Constants.serializationPeakCurrentLimit); for testing
         // motor.configContinuousCurrentLimit(Constants.serializationContinuousCurrentLimit); for testing
     }
 
@@ -87,7 +112,9 @@ public class Intake extends SubsystemBase {
     }
 
     public void setSpeed(IntakeStates state) {
-        intakeLeaderM.set(state.speed);
+        intakeLeaderM.setControl(dutyCycleRequest.withOutput(state.speed));
+        
+        intakeFollowerM.setControl(follow);
         serialM.set(state.serialSpeed);
         currentState = state;
     }
@@ -124,7 +151,7 @@ public class Intake extends SubsystemBase {
         // if (stateName != null) {
         //     SmartDashboard.putString("Intake State", stateName);
         // }
-        SmartDashboard.putBoolean("Intake On", intakeLeaderM.getBusVoltage() > 2);
+        SmartDashboard.putBoolean("Intake On", intakeLeaderM.getMotorVoltage().getValueAsDouble() > 2);
     }
 
     @Override

@@ -51,7 +51,6 @@ public class Shooter extends SubsystemBase {
     // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
     private final MutableMeasure<Velocity<Angle>> m_velocity = mutable(RotationsPerSecond.of(0));
 
-    private final PWMSparkMax m_shooterMotor = new PWMSparkMax(0);
 
     public Shooter() {
         currentPercentage = 0.0;
