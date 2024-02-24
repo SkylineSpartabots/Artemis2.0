@@ -20,9 +20,14 @@ public class SetPivot extends Command {
         addRequirements(s_Pivot);
     }
 
+    public SetPivot(){
+        s_Pivot = Pivot.getInstance();
+        addRequirements(s_Pivot);
+    }
+
     @Override
     public void initialize() {
-        s_Pivot.setState(state);
+        if (state != null) {s_Pivot.setState(state);}
         CANController.reset();
     }
 

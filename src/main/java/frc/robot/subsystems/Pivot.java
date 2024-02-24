@@ -49,6 +49,7 @@ public class Pivot extends SubsystemBase {
     private CANcoder pivotCANcoder;
     private PivotState currState = PivotState.GROUND;
     private static double pivotCANcoderAngleOffset = 57.89;
+    private double setPoint = 0;
 
     public Pivot() {
         pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
@@ -71,6 +72,15 @@ public class Pivot extends SubsystemBase {
      */
     public void setState(PivotState state) {
         currState = state;
+        setPoint = currState.pos;
+    }
+
+    public void incrementSetPoint(){
+        setPoint += pivotDegreeToCANcoder(5);
+    }
+
+    public void deincrementSetPoint(){
+        setPoint -= pivotDegreeToCANcoder(5);
     }
 
     public static double pivotDegreeToCANcoder(double pivotDegrees) {
@@ -113,7 +123,7 @@ public class Pivot extends SubsystemBase {
      * @return Current set point in CANcoder values. 
      */
     public double getSetPoint() {
-        return currState.pos;
+        return setPoint;
     }
 
     /**
