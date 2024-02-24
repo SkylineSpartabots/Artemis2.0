@@ -91,7 +91,7 @@ public class RobotContainer {
         driver.rightBumper().whileTrue(new SetShooterVelocity(2500));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
-        driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
+        driver.leftBumper().whileTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
         // driver.leftTrigger().onTrue(new InstantCommand(() ->decPower()));
         // driver.rightTrigger().onTrue(new InstantCommand(() -> incPower()));

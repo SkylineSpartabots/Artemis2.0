@@ -11,7 +11,6 @@ import org.littletonrobotics.junction.Logger;
 import com.revrobotics.CANSparkFlex;
 
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,16 +22,12 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
-import java.util.function.DoubleSupplier;
 
 public class Shooter extends SubsystemBase {
 
@@ -104,11 +99,9 @@ public class Shooter extends SubsystemBase {
     private void configMotors(){
         shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
         shooterTopM.enableVoltageCompensation(12.0);
-        shooterBottomM.enableVoltageCompensation(12.0);
-    }
-
-    private void logMotors(SysIdRoutineLog log){
-
+        shooterBottomM.enableVoltageCompensation(12.0); // units are RPS
+        // shooterTopM.getPIDController().setFF(12 / shooterTopM.get() / 60); // Units are RPS
+        // shooterBottomM.getPIDController().setFF(12 / shooterBottomM.get() / 60);
     }
 
     public void voltageDrive(Measure<Voltage> voltage){
