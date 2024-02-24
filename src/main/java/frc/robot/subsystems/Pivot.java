@@ -43,7 +43,7 @@ public class Pivot extends SubsystemBase {
     }
 
 
-
+    private double calculatedSetPoint = 0;
     private CANSparkFlex pivotLeaderM;
     private CANSparkFlex pivotFollowerM;
     private CANcoder pivotCANcoder;
@@ -114,6 +114,14 @@ public class Pivot extends SubsystemBase {
      */
     public double getSetPoint() {
         return currState.pos;
+    }
+
+    public void setCalculatedSetpoint(double calculatedSetPoint) {
+        this.calculatedSetPoint = calculatedSetPoint;
+    }
+
+    public double getCalculatedSetPoint(){
+        return calculatedSetPoint;
     }
 
     /**
