@@ -51,11 +51,11 @@ public class Intake extends SubsystemBase {
     private void configMotor(CANSparkFlex motor) {
         // motor.setSmartCurrentLimit(Constants.intakePeakCurrentLimit); for testing
         motor.setIdleMode(IdleMode.kCoast);
-        motor.setInverted(true);
+        motor.setInverted(false);
     }
 
     private void configMotor(TalonFX motor, boolean inverted) {
-        motor.setInverted(true);
+        motor.setInverted(false);
         // motor.configPeakCurrentLimit(Constants.serializationPeakCurrentLimit); for testing
         // motor.configContinuousCurrentLimit(Constants.serializationContinuousCurrentLimit); for testing
     }
@@ -83,6 +83,7 @@ public class Intake extends SubsystemBase {
         serialM.set(state.serialSpeed);
         currentState = state;
     }
+
 
     /**
      * Testing purposes only, should not be used during any comps
