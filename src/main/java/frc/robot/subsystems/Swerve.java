@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import frc.lib.math.*;
+import SushiFrcLib.SmartDashboard.AllianceColor;
+import SushiFrcLib.Swerve.SwerveModules.SwerveModuleTalon;
+import SushiFrcLib.Swerve.SwerveTemplates.VisionBaseSwerve;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
