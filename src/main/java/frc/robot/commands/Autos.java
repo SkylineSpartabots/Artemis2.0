@@ -50,9 +50,7 @@ public final class Autos {
     PIDController xController = new PIDController(5, 0, 0);
     PIDController yController = new PIDController(5, 0, 0);
     PIDController thetaController = new PIDController(2, 0, 0);
-    SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 10% deadband
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     ArrayList<Command> commandsToSchedule = new ArrayList<Command>();
@@ -65,7 +63,7 @@ public final class Autos {
       xController,
       yController,
       thetaController,
-      (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withVelocityX(speeds.vxMetersPerSecond).withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond)),
+      (ChassisSpeeds speeds) -> s_Swerve.setControl(drive.withSpeeds(speeds)),  
       () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
         return alliance.isPresent() && alliance.get() == Alliance.Red; }, //decides whether or not the math should be mirrored (depends on alliance)
       s_Swerve);
