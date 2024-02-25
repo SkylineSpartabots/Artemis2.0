@@ -8,8 +8,8 @@ public class SetShooterVelocity extends Command {
     Shooter s_Shooter;
     Double desiredVelocity;
 
-    PIDController topShooterController = new PIDController(0.12, 0.48, 0.0075);
-    PIDController botShooterController = new PIDController(0.12, 0.48, 0.0075);
+    PIDController topShooterController = new PIDController(0.5, 0.4, 0.01);
+    PIDController botShooterController = new PIDController(0.5, 0.4, 0.01);
 
     public SetShooterVelocity(double desiredVelocity) {
         s_Shooter = Shooter.getInstance();
