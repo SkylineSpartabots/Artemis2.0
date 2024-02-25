@@ -16,8 +16,8 @@
         "StraightPathTesting": {
             "waypoints": [
                 {
-                    "x": 1.5,
-                    "y": 1.532484531402588,
+                    "x": 1,
+                    "y": 1.5324846506118774,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -25,8 +25,8 @@
                     "controlIntervalCount": 11
                 },
                 {
-                    "x": 3.885437488555908,
-                    "y": 1.532484531402588,
+                    "x": 4,
+                    "y": 1.532,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -150,14 +150,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "74b21c9c-9d76-4014-8562-69ce1f316657"
+                    "uuid": "2a57f3a1-47f2-4be5-b1cb-084b32009444"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "a31ccb13-0051-4d8c-945f-ec7ba015a502"
+                    "uuid": "ef02201e-cf60-4fd9-beee-6b496e9a0042"
                 },
                 {
                     "scope": [
@@ -165,7 +165,7 @@
                         1
                     ],
                     "type": "MaxVelocity",
-                    "uuid": "3e9f821c-6503-4bff-8e05-23b37be2a37a",
+                    "uuid": "4e34e60c-4f83-4507-b8be-6648569318ea",
                     "velocity": 2
                 }
             ],
@@ -374,14 +374,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "704d6581-fa5c-4ee0-bba5-24c08b8f6e9a"
+                    "uuid": "fdc22325-cd3a-4b33-9add-a08c6553bf96"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "d2f3f021-a27b-449b-b1a2-e5e7651e2910"
+                    "uuid": "71bfb3f3-f32f-4c9b-92f6-a87d00035f5e"
                 },
                 {
                     "scope": [
@@ -389,7 +389,7 @@
                         1
                     ],
                     "type": "MaxVelocity",
-                    "uuid": "7a7d79d1-d3da-4bd5-a8d2-9859f9153083",
+                    "uuid": "b2d98400-a6d8-4f08-a6e5-38c3bb1034f4",
                     "velocity": 2
                 }
             ],
@@ -697,14 +697,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "0593656e-5dda-4e2f-bcee-d38fe2e4b6ff"
+                    "uuid": "72c273e5-37ae-4322-a00b-2d498887ecf9"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "6ad8a0dd-0dc4-40a5-8063-364723783e5c"
+                    "uuid": "4f0ad431-5e20-494e-993d-893624d1dd4d"
                 },
                 {
                     "scope": [
@@ -712,7 +712,7 @@
                         2
                     ],
                     "type": "StraightLine",
-                    "uuid": "bf825f0f-38d6-43ee-a7ff-7ff4acb37180"
+                    "uuid": "9edfa0a9-3d93-4b1d-9aef-5cb8d07e5476"
                 }
             ],
             "usesControlIntervalGuessing": true,
@@ -902,14 +902,14 @@
                         "first"
                     ],
                     "type": "StopPoint",
-                    "uuid": "e47f6aeb-67f0-4203-b419-38cedff816e4"
+                    "uuid": "09a5d4f3-6026-4c61-9971-b826aab05478"
                 },
                 {
                     "scope": [
                         "last"
                     ],
                     "type": "StopPoint",
-                    "uuid": "4294f0c7-a10b-47e3-b771-49ffcbd7684e"
+                    "uuid": "d720955b-7563-41fd-b98e-3201bc4ab518"
                 }
             ],
             "usesControlIntervalGuessing": true,
