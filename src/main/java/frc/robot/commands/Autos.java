@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import com.choreo.lib.*;
@@ -31,6 +32,10 @@ public final class Autos {
    * @param auto AutoType enum representing the auto path that is to be run. 
    */
   public static Command getAutoCommand(AutoPath auto) {
+    
+    ArrayList<ChoreoTrajectory> traj = Choreo.getTrajectoryGroup(auto.name);
+    
+    
     SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
     PIDController thetaController = new PIDController(0.013, 0, 0); //TODO: tune
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
