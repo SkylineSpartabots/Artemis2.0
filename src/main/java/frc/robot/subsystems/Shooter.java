@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.motorcontrol.ControlFrameEnhanced;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkBase.ControlType;
 
@@ -44,6 +45,9 @@ public class Shooter extends SubsystemBase {
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
 
+    private double topkS = 0.34;
+    private double botkS = 0.43;
+
     // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
     private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
     // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
@@ -68,10 +72,12 @@ public class Shooter extends SubsystemBase {
         shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
         shooterTopM.enableVoltageCompensation(12.0);
         shooterBottomM.enableVoltageCompensation(12.0);
-        shooterTopM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
-        shooterBottomM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
-        shooterTopM.getPIDController().setReference(0.34, ControlType.kVelocity);
-        shooterBottomM.getPIDController().setReference(0.43, ControlType.kVelocity);
+        // shooterTopM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
+        shooterTopM.getPIDController().setFF(0.1);
+        shooterBottomM.getPIDController().setFF(0.1);
+        // shooterBottomM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
+        shooterTopM.getPIDController().setReference(0.34, ControlType.kVoltage);
+        shooterBottomM.getPIDController().setReference(0.43, ControlType.kVoltage);
     }
 
     public void voltageDrive(Measure<Voltage> voltage){
@@ -81,6 +87,7 @@ public class Shooter extends SubsystemBase {
     public enum ShooterStates {
         MAX(1),
         OFF(0);
+
         private double speed;
 
         public double getValue() {
@@ -145,6 +152,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setVelocity(double velocity){
+        shooterTopM.getPIDController().setReference(velocity, ControlType.kVelocity);
+        shooterTopM.getPIDController().setReference(velocity, ControlType.kVelocity);
     }
 
 
