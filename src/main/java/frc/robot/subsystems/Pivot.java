@@ -31,8 +31,10 @@ public class Pivot extends SubsystemBase {
         // Current max is .38, can change later
         SUBWOOFER(Pivot.pivotDegreeToCANcoder(57)),
 
+        FARWING(Pivot.pivotDegreeToCANcoder(20)),
+
         MIDDLE(0.3),
-        AMP(Pivot.pivotDegreeToCANcoder(90));
+        AMP(Pivot.pivotDegreeToCANcoder(70));
         //WING(position);
 
         private double pos;
@@ -151,7 +153,8 @@ public class Pivot extends SubsystemBase {
      */
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
-        motor.setIdleMode(IdleMode.kCoast);
+        // motor.setIdleMode(IdleMode.kCoast);
+        motor.setIdleMode(IdleMode.kBrake);
         motor.getEncoder().setPosition(0.2);
         // motor.getPIDController().setP(Constants.hardwarePIDs.pivotkP);
         // motor.getPIDController().setI(Constants.hardwarePIDs.pivotkI);

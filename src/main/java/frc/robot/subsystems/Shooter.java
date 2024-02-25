@@ -26,6 +26,7 @@ import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends SubsystemBase {
 
@@ -73,8 +74,12 @@ public class Shooter extends SubsystemBase {
         shooterTopM.enableVoltageCompensation(12.0);
         shooterBottomM.enableVoltageCompensation(12.0);
         // shooterTopM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
-        shooterTopM.getPIDController().setFF(0.1);
-        shooterBottomM.getPIDController().setFF(0.1);
+        shooterTopM.getPIDController().setFF(0.000185);
+        shooterTopM.getPIDController().setP(0);
+        // shooterTopM.getPIDController().setP(0.005);
+        shooterBottomM.getPIDController().setFF(0.000175);
+        shooterBottomM.getPIDController().setP(0);
+        // shooterBottomM.getPIDController().setP(0.005);
         // shooterBottomM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
         shooterTopM.getPIDController().setReference(0.34, ControlType.kVoltage);
         shooterBottomM.getPIDController().setReference(0.43, ControlType.kVoltage);
@@ -153,7 +158,7 @@ public class Shooter extends SubsystemBase {
 
     public void setVelocity(double velocity){
         shooterTopM.getPIDController().setReference(velocity, ControlType.kVelocity);
-        shooterTopM.getPIDController().setReference(velocity, ControlType.kVelocity);
+        shooterBottomM.getPIDController().setReference(velocity, ControlType.kVelocity);
     }
 
 
@@ -217,6 +222,9 @@ public class Shooter extends SubsystemBase {
         Logger.recordOutput("Shooter/BottomSetpoints", currentBottomSpeed);
         Logger.recordOutput("Shooter/topMotorSpeed", shooterTopM.getEncoder().getVelocity());
         Logger.recordOutput("Shooter/bottomMotorSpeed", shooterBottomM.getEncoder().getVelocity());
+
+        SmartDashboard.putNumber("ShootT Vel", 3000 - shooterTopM.getEncoder().getVelocity());
+        SmartDashboard.putNumber("ShootB Vel", 3000 - shooterBottomM.getEncoder().getVelocity());
         
         // SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
         // SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));

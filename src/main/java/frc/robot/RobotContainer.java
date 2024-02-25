@@ -86,7 +86,9 @@ public class RobotContainer {
         driver.x().onTrue(onIndexer());
         driver.b().onTrue(offIndexer());
 
-        driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setVelocity(2000)));
+        driver.rightTrigger().whileTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
+
+        driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setVelocity(3000)));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
@@ -97,7 +99,7 @@ public class RobotContainer {
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
-        driverDpadUp.onTrue(new SetPivot(PivotState.AMP));
+        driverDpadUp.onTrue(new SetPivot(PivotState.FARWING));
         driverDpadLeft.onTrue(new SetPivot(PivotState.SUBWOOFER));
         driverDpadRight.onTrue(new ZeroPivot());
 

@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkFlex;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.Intake.IntakeStates;
 
 public class Indexer extends SubsystemBase {
 
@@ -35,7 +36,9 @@ public class Indexer extends SubsystemBase {
 
     public enum IndexerStates {
         ON(0.4),
-        OFF(0);
+        OFF(0),
+        REV(-0.3);
+        
         private double speed;
 
         public double getValue() {
@@ -90,6 +93,11 @@ public class Indexer extends SubsystemBase {
 
     public double getBottomSpeed() {
         return currentBottomSpeed;
+    }
+
+    public void setState(IndexerStates state){
+        indexerTopM.set(state.speed);
+        indexerBottomM.set(state.speed);
     }
 
     public double[] getBothSpeeds() {

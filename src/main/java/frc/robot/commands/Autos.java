@@ -44,8 +44,8 @@ public final class Autos {
     Command swerveCommand = Choreo.choreoSwerveCommand(
       traj,
         s_Swerve::getPose,
-        new PIDController(1, 0.5, 0),
-        new PIDController(1, 0.5, 0),                                                           
+        new PIDController(0.57, 0.2, 0),
+        new PIDController(0.57, 0.2, 0),                                                           
         thetaController,
         (ChassisSpeeds speeds) -> s_Swerve.setControl(drive.withSpeeds(speeds)),
         // (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
