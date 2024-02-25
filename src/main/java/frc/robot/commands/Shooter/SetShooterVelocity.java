@@ -1,5 +1,8 @@
 package frc.robot.commands.Shooter;
 
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
@@ -14,6 +17,7 @@ public class SetShooterVelocity extends Command {
     public SetShooterVelocity(double desiredVelocity) {
         s_Shooter = Shooter.getInstance();
         this.desiredVelocity = desiredVelocity;
+        
 
         addRequirements(s_Shooter);
     }

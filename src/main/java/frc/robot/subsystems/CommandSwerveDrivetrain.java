@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.sql.Driver;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -11,6 +12,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -40,7 +42,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public static CommandSwerveDrivetrain getInstance(){
         if(s_Swerve == null){
-            s_Swerve = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft,
+            s_Swerve = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
         }
         return s_Swerve;
@@ -128,6 +130,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
 
+    public void setVoltage(double voltage){
+        
+        for(int i = 0; i < ModuleCount; i++){
+        }
+        // s_Swerve.Modules[0].apply(null, null);
+    }
+
     public void updateOdometryByVision(){
         Pose3d poseFromVision = null;
         try {
@@ -156,6 +165,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("ODO ROT", getPose().getRotation().getRadians());
         SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
+
+        for(int i = 0; i < ModuleCount; i++){
+            Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getMotorVoltage().getValueAsDouble());
+        }
     }
 
 }
