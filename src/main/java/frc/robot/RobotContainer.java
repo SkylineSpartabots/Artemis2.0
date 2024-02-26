@@ -20,6 +20,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Indexer.IndexerMotors;
 import frc.robot.subsystems.Indexer.IndexerStates;
+import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake;
@@ -40,6 +41,7 @@ public class RobotContainer {
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
+    private final Climb s_Climb = Climb.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -95,6 +97,9 @@ public class RobotContainer {
         // driver.rightTrigger().onTrue(new InstantCommand(() -> incPower()));
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
         // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
+
+        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0.05)));
+        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0)));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.AMP));
