@@ -130,6 +130,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
 
+    public double robotAbsoluteVelocity(){
+        double roughVel = 0.0;
+        for(int i = 0; i < ModuleCount; i++){
+            roughVel += Modules[i].getCurrentState().speedMetersPerSecond;
+        }
+        return roughVel/4.0;
+    }
+
     public void setVoltage(double voltage){
         
         for(int i = 0; i < ModuleCount; i++){
@@ -158,6 +166,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
+        updateOdometryByVision();
+        
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", getPose().getX());
@@ -165,6 +175,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("ODO ROT", getPose().getRotation().getRadians());
         SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
+
+        SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
 
         for(int i = 0; i < ModuleCount; i++){
             Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getMotorVoltage().getValueAsDouble());
