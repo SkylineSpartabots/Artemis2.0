@@ -216,6 +216,10 @@ public class Shooter extends SubsystemBase {
         currentBottomSpeed = velocity;
     }
 
+    public void setToIdle(){
+        setVelocity(1000);
+    }
+
     @Override
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", currentTopSpeed);
