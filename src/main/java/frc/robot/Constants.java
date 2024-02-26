@@ -136,11 +136,11 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap PivotAngleMap = new InterpolatingDoubleTreeMap();
 
         public static final double[][] velocitiesMatrix = { //TODO: populate these with real measured values
-            {Units.feetToMeters(4), 9}, //example
+            {Units.inchesToMeters(265), 3000}, //example
         };
 
         public static final double[][] anglesMatrix = {
-            {Units.feetToMeters(4), 9},
+            {Units.feetToMeters(265), 20},
         };
 
         static {
