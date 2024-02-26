@@ -17,7 +17,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.Pivot.SetPivot;
+import frc.robot.commands.Shooter.SetShooterVelocity;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Indexer.IndexerMotors;
+import frc.robot.subsystems.Indexer.IndexerStates;
+import frc.robot.subsystems.Intake.IntakeStates;
+import frc.robot.subsystems.Pivot.PivotState;
 
 public final class Autos {  
       
@@ -31,23 +39,22 @@ public final class Autos {
    * command group to the command scheduler. 
    * @param auto AutoType enum representing the auto path that is to be run. 
    */
-  public static Command getAutoCommand(AutoPath auto) {
+  public static SequentialCommandGroup getAutoCommand(AutoPath auto) {
     
     ArrayList<ChoreoTrajectory> traj = Choreo.getTrajectoryGroup(auto.name);
-    
+    SequentialCommandGroup autoCommand = new SequentialCommandGroup(null);
     
     SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
     PIDController thetaController = new PIDController(0.013, 0, 0); //TODO: tune
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    ChoreoTrajectory traj = Choreo.getTrajectory(auto.name);
     thetaController.reset();
 
-    s_Swerve.setAutoStartPose(traj.getPoses()[0]);
+    for(int i = 0; i < traj.size(); i++){
+    s_Swerve.setAutoStartPose(traj.get(i).getPoses()[0]);
     SmartDashboard.putString("auto path", auto.name);
-    s_Swerve.resetOdo(traj.getInitialPose());
+    s_Swerve.resetOdo(traj.get(i).getInitialPose());
     Command swerveCommand = Choreo.choreoSwerveCommand(
-      traj,
+      traj.get(i),
         s_Swerve::getPose,
         new PIDController(1, 0.5, 0),
         new PIDController(1, 0.5, 0),                                                           
@@ -57,8 +64,18 @@ public final class Autos {
             () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
               return alliance.isPresent() && alliance.get() == Alliance.Red;},
               s_Swerve);
-      
-      return swerveCommand;
+      autoCommand.addCommands(swerveCommand);
+      if(auto.parallelToPath[i]){
+        ParallelCommandGroup curr = new ParallelCommandGroup();
+        curr.addCommands(auto.mechCommands[i]);
+        curr.addCommands(swerveCommand);
+        autoCommand.addCommands(curr);
+      } else {
+        autoCommand.addCommands(swerveCommand);
+        autoCommand.addCommands(auto.mechCommands[i]);
+      }
+    }
+    return autoCommand;
   }
 
   /*
@@ -76,7 +93,33 @@ public final class Autos {
       StraightAndTurn180Testing("StraightAndTurn180Testing", new Command[]{}),
       TESTPATH("TestPath", new Command[]{new InstantCommand()}),
       NOTHINGTEST("NothingTesting", new Command[]{}),
-      FENDER("FenderAuto", new Command[]{});
+      FENDER("FenderAuto", new Command[]{
+        new ParallelCommandGroup( 
+        new SetShooterVelocity(2500),
+        new SetIntake(IntakeStates.ON),
+        new SetPivot(PivotState.SUBWOOFER),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH)),
+
+        Commands.waitSeconds(2),
+
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        
+        //getAutoCommand("FenderAuto"),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
+        Commands.waitSeconds(2),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        
+        //getAutoCommand("FenderAuto.1"),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
+        Commands.waitSeconds(2),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+
+        //getAutoCommand("FenderAuto.2"),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
+        Commands.waitSeconds(2),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH)
+      },
+      new boolean[]{true,});
 
       String name;
       Command[] mechCommands;
