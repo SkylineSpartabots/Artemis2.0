@@ -46,8 +46,7 @@ public class Shooter extends SubsystemBase {
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
 
-    private double topkS = 0.34;
-    private double botkS = 0.43;
+    private double velocityCap = 3700;
 
     // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
     private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
@@ -157,6 +156,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setVelocity(double velocity){
+        velocity = Math.min(velocity, velocityCap);
+
         shooterTopM.getPIDController().setReference(velocity, ControlType.kVelocity);
         shooterBottomM.getPIDController().setReference(velocity, ControlType.kVelocity);
     }
