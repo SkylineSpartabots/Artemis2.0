@@ -43,12 +43,12 @@ public class SetShooter extends Command {
 
     @Override
     public void initialize() {
+       s_Shooter.setSpeed(finalSpeeds, motorLoc);
 
     }
 
     @Override
     public void execute() {
-        s_Shooter.setSpeed(finalSpeeds, motorLoc);
     } //sets motors with final speeds
 
     @Override
@@ -57,6 +57,6 @@ public class SetShooter extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return true;
     }
 }

@@ -6,6 +6,9 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.ColorSensorV3;
+
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -26,12 +29,16 @@ public class Indexer extends SubsystemBase {
     private double currentBottomSpeed = 0;
     private CANSparkFlex indexerTopM;
     private CANSparkFlex indexerBottomM;
+    private ColorSensorV3 colorSensor;
+    private static final I2C.Port onboardI2C = I2C.Port.kOnboard;
 
     public Indexer() {
         indexerTopM = new CANSparkFlex(Constants.HardwarePorts.indexerTopM, MotorType.kBrushless);
         indexerBottomM = new CANSparkFlex(Constants.HardwarePorts.indexerBottomM, MotorType.kBrushless);
         indexerTopM.setInverted(true);
         indexerBottomM.setInverted(true);
+
+        colorSensor = new ColorSensorV3(onboardI2C);
     }
 
     public enum IndexerStates {
@@ -104,10 +111,23 @@ public class Indexer extends SubsystemBase {
         return new double[]{currentBottomSpeed, currentTopSpeed};
     }
 
+    public double getTopMotorVoltage() {
+        return indexerTopM.getBusVoltage();
+    }
+
+    public double getBotMotorVoltage() {
+        return indexerBottomM.getBusVoltage();
+    }
+
+    public int getColorSensorResult() {
+        return colorSensor.getProximity();
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
         SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));
+        SmartDashboard.putNumber("Color Sensor Proximity", getColorSensorResult());
     }
 
     @Override

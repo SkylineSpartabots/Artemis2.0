@@ -9,6 +9,7 @@ public class SetIndexer extends Command {
     double[] addedSpeeds = {0, 0}; // top, bottom
     double[] finalSpeeds = {0, 0}; // top, bottom
     Indexer.IndexerMotors motorLoc;
+    private final int colorSensorProximityThreshold = 50; // Test this value later
 
     public SetIndexer(Indexer.IndexerStates state, Indexer.IndexerMotors motor) {
         s_Indexer = Indexer.getInstance();
@@ -45,11 +46,11 @@ public class SetIndexer extends Command {
 
     @Override
     public void initialize() {
+        s_Indexer.setSpeed(finalSpeeds, motorLoc);
     }
 
     @Override
     public void execute() {
-        s_Indexer.setSpeed(finalSpeeds, motorLoc);
     }
 
     @Override
@@ -58,6 +59,6 @@ public class SetIndexer extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold;
     }
 }
