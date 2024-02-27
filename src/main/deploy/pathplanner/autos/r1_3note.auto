@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.4971519708633425,
+      "y": 7.565606594085693
+    },
+    "rotation": 0.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ROBOT1_3NOTE_3s_2n.1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ROBOT1_3NOTE_3s_2n.2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ROBOT1_3NOTE_3s_2n.3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ROBOT1_3NOTE_3s_2n.4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ROBOT1_3NOTE_3s_2n.5"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

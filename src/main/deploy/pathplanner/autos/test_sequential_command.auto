@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1,
+      "y": 7
+    },
+    "rotation": 0.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT1_4NOTE_4s_3n.1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetShooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT1_4NOTE_4s_3n.2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT1_4NOTE_4s_3n.3"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

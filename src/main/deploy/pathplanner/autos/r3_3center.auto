@@ -1,0 +1,75 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1,
+      "y": 4
+    },
+    "rotation": 0.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT3_CENTER_0s_3n.1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT3_CENTER_0s_3n.2"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B_ROBOT3_CENTER_0s_3n.3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetShooter"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B_ROBOT3_CENTER_0s_3n.4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetShooter"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT3_CENTER_0s_3n.5"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

@@ -1,0 +1,61 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.375,
+      "y": 5.5
+    },
+    "rotation": -1.1043422773286762e-36
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT2_4NOTE_4s_3n.1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT2_4NOTE_4s_3n.2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT2_4NOTE_4s_3n.3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT2_4NOTE_4s_3n.4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT2_4NOTE_4s_3n.5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT2_4NOTE_4s_3n.6"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B_ROBOT2_4NOTE_4s_3n.7"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}
