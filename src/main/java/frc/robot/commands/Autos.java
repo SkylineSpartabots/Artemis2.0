@@ -95,31 +95,46 @@ public final class Autos {
       NOTHINGTEST("NothingTesting", new Command[]{}),
       FENDER("FenderAuto", new Command[]{
         new ParallelCommandGroup( 
-        new SetShooterVelocity(2500),
         new SetIntake(IntakeStates.ON),
         new SetPivot(PivotState.SUBWOOFER),
-        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH)),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH)
+        ),
 
-        Commands.waitSeconds(2),
+        new SequentialCommandGroup(
+        new SetIntake(IntakeStates.OFF),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        new SetShooterVelocity(2500),
+        Commands.waitSeconds(1.5), //test to find minimum time needed to shoot
+        new SetShooterVelocity(0)
+        ),
 
-        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
-        
-        //getAutoCommand("FenderAuto"),
-        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
-        Commands.waitSeconds(2),
-        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
-        
-        //getAutoCommand("FenderAuto.1"),
-        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
-        Commands.waitSeconds(2),
-        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        new ParallelCommandGroup(
+        new SetIntake(IntakeStates.ON),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH)
+        ),
 
-        //getAutoCommand("FenderAuto.2"),
-        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
-        Commands.waitSeconds(2),
-        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH)
+        new SequentialCommandGroup(
+        new SetIntake(IntakeStates.OFF),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        new SetShooterVelocity(2500),
+        Commands.waitSeconds(1.5), //test to find minimum time needed to shoot
+        new SetShooterVelocity(0)
+        ),
+
+        new ParallelCommandGroup(
+        new SetIntake(IntakeStates.ON),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH)
+        ),
+
+        new SequentialCommandGroup(
+        new SetIntake(IntakeStates.OFF),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        new SetShooterVelocity(2500),
+        Commands.waitSeconds(1.5), //test to find minimum time needed to shoot
+        new SetShooterVelocity(0)
+        ),
       },
-      new boolean[]{true,});
+      new boolean[]{true, false, true, false, true, false});
 
       String name;
       Command[] mechCommands;
