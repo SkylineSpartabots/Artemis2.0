@@ -10,6 +10,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
@@ -29,6 +30,7 @@ public class Vision extends SubsystemBase {
     private int targetID;
 
     private Transform3d cameraToRobotTransform = new Transform3d(); //TODO: edit this
+    private Transform3d backRightCameraOffsetTransform = new Transform3d(-0.2057, 0.2550, -0.2262, new Rotation3d(0, 30, 30));
 
     private AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 //    private static PhotonCamera visionCamera;
