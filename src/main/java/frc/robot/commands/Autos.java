@@ -93,7 +93,7 @@ public final class Autos {
       StraightAndTurn180Testing("StraightAndTurn180Testing", new Command[]{}),
       TESTPATH("TestPath", new Command[]{new InstantCommand()}),
       NOTHINGTEST("NothingTesting", new Command[]{}),
-      FENDER("FenderAuto", new Command[]{
+      FENDER("FenderAuto", new Command[]{ //note: start this path with the robot at the subwoofer
         new ParallelCommandGroup( 
         new SetIntake(IntakeStates.ON),
         new SetPivot(PivotState.SUBWOOFER),
