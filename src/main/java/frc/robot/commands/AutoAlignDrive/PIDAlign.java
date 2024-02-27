@@ -43,7 +43,7 @@ public class PIDAlign extends Command {
 
     targetTag = s_Vision.getBestTarget();
 
-    desiredYaw = targetTag.getYaw(); //This must be radians
+    desiredYaw = Math.toRadians(targetTag.getYaw()); //Im hoping .getYaw gives the value in degrees
   }
 
   @Override
@@ -52,7 +52,8 @@ public class PIDAlign extends Command {
     try {
       s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
       currentYaw = s_Swerve.getPoseByOdometry().getRotation().getRadians(); //grab the "accurate" odometry
-    } catch (Exception e) {} //IF WE DONT SEE NUFFIN WE DONT DO NUFFIN!!!! 🦅🦅🦅
+    } catch (Exception e) {}
+    
 
     double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
 
@@ -68,6 +69,6 @@ public class PIDAlign extends Command {
 
   @Override
   public boolean isFinished() {
-    return Math.abs(desiredYaw - currentYaw) < 3; // error of too degwees fo now, set later
+    return Math.abs(desiredYaw - currentYaw) < 3; // error of three degrees for now, set later
   }
 }
