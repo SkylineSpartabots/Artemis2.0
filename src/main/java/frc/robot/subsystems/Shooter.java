@@ -81,8 +81,8 @@ public class Shooter extends SubsystemBase {
         shooterBottomM.getPIDController().setP(0);
         // shooterBottomM.getPIDController().setP(0.005);
         // shooterBottomM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
-        shooterTopM.getPIDController().setReference(0.34, ControlType.kVoltage);
-        shooterBottomM.getPIDController().setReference(0.43, ControlType.kVoltage);
+        // shooterTopM.getPIDController().setReference(0.34, ControlType.kVoltage);
+        // shooterBottomM.getPIDController().setReference(0.43, ControlType.kVoltage);
     }
 
     public void voltageDrive(Measure<Voltage> voltage){

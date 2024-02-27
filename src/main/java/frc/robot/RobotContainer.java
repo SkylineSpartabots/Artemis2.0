@@ -36,7 +36,7 @@ import frc.robot.commands.Shooter.SetShooterVelocity;
 
 public class RobotContainer {
 
-    private final Vision camera2 = Vision.getInstance();
+    private final Vision s_Vision = Vision.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
