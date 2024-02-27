@@ -28,7 +28,8 @@ public final class Constants {
 
     public static final class Vision {
         public static final int aprilTagMax = 16;
-        public static final String cameraName = "Arducam_OV9281_USB_Camera";
+        public static final String cameraNameL = "Arducam_OV9281_USB_Camera"; // Idk the name yet
+        public static final String cameraNameR = "Arducam_OV9281_USB_Camera";
         public static final double cameraHeight = 0; //fix
         public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet | unnecessary, we have photonvision's field layout import
         public static final double cameraRollOffset = Units.degreesToRadians(0);

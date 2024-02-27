@@ -20,8 +20,10 @@ import com.ctre.phoenix.Logger;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
-    private static PhotonCamera aprilTagCamera;
-    private static PhotonPipelineResult aprilTagCamResult;
+    private static PhotonCamera aprilTagCameraL;
+    private static PhotonCamera aprilTagCameraR;
+    private static PhotonPipelineResult aprilTagCamResultL;
+    private static PhotonPipelineResult aprilTagCamResultR;
     private static PhotonTrackedTarget lastValidTarget;
     
     private double targetYaw;
@@ -41,36 +43,73 @@ public class Vision extends SubsystemBase {
     }
 
     private Vision() {
-        aprilTagCamera = new PhotonCamera(Constants.Vision.cameraName);
-        updateAprilTagResult();
+        aprilTagCameraL = new PhotonCamera(Constants.Vision.cameraNameL);
+        aprilTagCameraR = new PhotonCamera(Constants.Vision.cameraNameR);
+        updateAprilTagResults();
     }
 
-    public void updateAprilTagResult() {
-        aprilTagCamResult = aprilTagCamera.getLatestResult();
+    public void updateAprilTagResults() {
+        aprilTagCamResultL = aprilTagCameraL.getLatestResult();
+        aprilTagCamResultR = aprilTagCameraR.getLatestResult();
     }
 
-    public PhotonPipelineResult getLatestAprilTagResult() {
-        updateAprilTagResult();
-        return aprilTagCamResult;
+    public PhotonPipelineResult getLatestAprilTagResult(Boolean isLeft) { //true is left false is right
+        updateAprilTagResults();
+        if (isLeft) {
+            return aprilTagCamResultL;
+        } else {
+            return aprilTagCamResultR;
+        }
+        
     }
 
-    public List<PhotonTrackedTarget> getTargets() {
-        return aprilTagCamResult.getTargets();
+    public List<PhotonTrackedTarget> getTargets(Boolean isLeft) {
+       if (isLeft) {
+            return aprilTagCamResultL.getTargets();
+        } else {
+            return aprilTagCamResultR.getTargets();
+        }
     }
 
-    public boolean hasValidTarget() {
-        return aprilTagCamResult.hasTargets() && aprilTagCamResult.getBestTarget().getFiducialId() >= 1 && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+    public enum CameraResult { //enum rahh
+        LEFT,
+        RIGHT,
+        BOTH
+    }
+
+    public CameraResult hasValidTarget() {
+        Boolean hasTargetL = aprilTagCamResultL.hasTargets() && aprilTagCamResultL.getBestTarget().getFiducialId() >= 1 && aprilTagCamResultL.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        Boolean hasTargetR = aprilTagCamResultR.hasTargets() && aprilTagCamResultR.getBestTarget().getFiducialId() >= 1 && aprilTagCamResultR.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+
+         if (hasTargetL && !hasTargetR) {
+            return CameraResult.LEFT;
+        } else if (!hasTargetL && hasTargetR) {
+            return CameraResult.RIGHT;
+        } else if (hasTargetL && hasTargetR) {
+            return CameraResult.BOTH;
+        } else {
+            return null; 
+        }
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set
-    // theres like no way you dont see one at the start of auto maybe I think
+
+    
     public PhotonTrackedTarget getBestTarget() {
-        if (hasValidTarget()) {
-            PhotonTrackedTarget newTarget = aprilTagCamResult.getBestTarget();
-            lastValidTarget = newTarget;
-        }
+        CameraResult valids = hasValidTarget();
+        if (valids != null) {
+            if (valids == CameraResult.LEFT) { lastValidTarget = aprilTagCamResultL.getBestTarget();}
+            else if (valids == CameraResult.RIGHT) { lastValidTarget = aprilTagCamResultR.getBestTarget();}
+            else if (valids == CameraResult.BOTH) {
+                if (aprilTagCamResultL.getTimestampSeconds() >= aprilTagCamResultR.getTimestampSeconds()) { // If both cams have a target get the MOST recent one
+                    lastValidTarget = aprilTagCamResultR.getBestTarget();
+                } else {
+                    lastValidTarget = aprilTagCamResultL.getBestTarget();
+                }
+            }
+        } 
         return lastValidTarget;
-    }
+    } 
 
     /**
      * @return the absolute distance in meters (there are different methods for horizontal or vertical)
