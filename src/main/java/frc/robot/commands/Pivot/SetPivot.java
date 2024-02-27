@@ -9,6 +9,8 @@ import frc.robot.subsystems.Pivot.PivotState;;
 public class SetPivot extends Command {
     Pivot s_Pivot;
     PivotState state;
+    double desiredCANcoderAngle;
+
     // Tune later
     PIDController CANController = new PIDController(50
     , 12, 0);
@@ -18,6 +20,14 @@ public class SetPivot extends Command {
         s_Pivot = Pivot.getInstance();
         this.state = state;
         addRequirements(s_Pivot);
+    }
+
+    public SetPivot(double desiredAngle){
+        s_Pivot = Pivot.getInstance();
+        this.state = PivotState.NULL;
+        addRequirements(s_Pivot);
+
+        desiredCANcoderAngle = Pivot.pivotDegreeToCANcoder(desiredAngle);
     }
 
     @Override
@@ -30,7 +40,7 @@ public class SetPivot extends Command {
     public void execute() {
         double voltage;
         if (s_Pivot.CANcoderWorking()) {
-            voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(), s_Pivot.getSetPoint());
+            voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(),  state == PivotState.NULL ? desiredCANcoderAngle : s_Pivot.getSetPoint());
         }
         else {
             voltage = 0;
