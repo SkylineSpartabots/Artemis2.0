@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.Indexer.IndexerMotors;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Amp;
 import frc.robot.subsystems.Climb;
@@ -72,18 +71,6 @@ public class RobotContainer {
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
 
-    private double power;
-    private boolean intakeOn;
-    private boolean indexerOn;
-    private boolean shooterOn;
-
-    private void incPower() {
-        power += 0.05;
-    }
-    private void decPower() {
-        power -= 0.05;
-    }
-
     private void configureBindings() {
 
         driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
@@ -99,10 +86,7 @@ public class RobotContainer {
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
-        // driver.leftTrigger().onTrue(new InstantCommand(() ->decPower()));
-        // driver.rightTrigger().onTrue(new InstantCommand(() -> incPower()));
-        // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
-        // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
+
 
         driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0.05)));
         driver.leftTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0)));
@@ -126,7 +110,6 @@ public class RobotContainer {
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
-        //driver.start().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
@@ -135,7 +118,7 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        power = 0.3;
+
         configureBindings();
     }
 
@@ -144,7 +127,7 @@ public class RobotContainer {
     }
 
     private boolean indexerOn() {
-        return s_Indexer.getBotMotorVoltage() > 0 || s_Indexer.getTopMotorVoltage() > 0;
+        return s_Indexer.getMotorVoltage() > 0;
     }
 
     private boolean intakeOn() {
@@ -152,24 +135,24 @@ public class RobotContainer {
     }
  
     public Command onIntake() {
-        intakeOn = true;
+
         return new SetIntake(IntakeStates.ON);
         
     }
 
     public Command offIntake() {
-        intakeOn = false;
+
         return new SetIntake(IntakeStates.OFF);
     }
 
     //shooter
     public Command onIndexer() {
         
-        return new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH);
+        return new SetIndexer(IndexerStates.ON);
     }
     
     public Command offIndexer() {
-        return new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH);
+        return new SetIndexer(IndexerStates.OFF);
     }
 
 
