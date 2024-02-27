@@ -27,12 +27,10 @@ public class PIDAlign extends Command {
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
   PIDController alignPID = new PIDController(0, 0, 0); //TODO: tune this
   
-
   private double currentYaw;
   private double desiredYaw;
   Point desiredPoint;
   double offsetYaw;
-
 
   public PIDAlign(Point desiredPoint) {
     s_Vision = Vision.getInstance();
@@ -51,9 +49,9 @@ public class PIDAlign extends Command {
 
     Pose2d pose = s_Swerve.getPoseByOdometry();
     Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
-    Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave gloobert
+    Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave Yoon gloobert
 
-    offsetYaw = Math.toRadians(Math.tanh(translatedPoint.y/translatedPoint.x));
+    offsetYaw = (Math.PI/2) - Math.atan2(translatedPoint.y,translatedPoint.x); // gets the non included angle in our current yaw 🦅🦅
   }
 
   @Override
@@ -63,12 +61,11 @@ public class PIDAlign extends Command {
 
     try {
       s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
-      currentYaw = pose.getRotation().getRadians(); //grab the "accurate" odometry
+      currentYaw = pose.getRotation().getRadians(); //hopefully the poes is updated frequently since we should be facing an april tag
     } catch (Exception e) {}
 
     
-    desiredYaw = offsetYaw + currentYaw;
-
+    desiredYaw = currentYaw - offsetYaw; // angle to the target in relation to ourselves
     double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
 
     s_Swerve.applyRequest(() -> drive.withRotationalRate(rotationSpeed));
