@@ -18,6 +18,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "hkj"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "ROBOT1_3NOTE_3s_2n.2"
