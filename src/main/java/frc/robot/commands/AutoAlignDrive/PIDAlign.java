@@ -46,7 +46,7 @@ public class PIDAlign extends Command {
   public void initialize() {
     alignPID.reset();
 
-    Pose2d pose = s_Swerve.getPoseByOdometry();
+    Pose2d pose = s_Swerve.getPose();
     Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
     
     Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave Yoon gloobert
@@ -58,7 +58,7 @@ public class PIDAlign extends Command {
   @Override
   public void execute() {
 
-    Pose2d pose = s_Swerve.getPoseByOdometry();
+    Pose2d pose = s_Swerve.getPose();
 
     try {
       s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
