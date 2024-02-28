@@ -77,6 +77,11 @@ public class Pivot extends SubsystemBase {
         currState = state;
     }
 
+    /**
+     * Converts a desired pivot angle in degrees to CANcoder units. 
+     * @param pivotDegrees The angle of the pivot in relation to the ground.
+     * @return The angle converted to CANcoder units. Units are in rotations. 
+     */
     public static double pivotDegreeToCANcoder(double pivotDegrees) {
         return Conversions.degreesToCANcoder(pivotDegrees + pivotCANcoderAngleOffset, 1);
     }
@@ -88,18 +93,26 @@ public class Pivot extends SubsystemBase {
         pivotLeaderM.set(0);
     }
 
+    /**
+     * Sets the integrated encoder positions of to the specified position. 
+     * @param relativePosition The position to set the encoders to. Measured in rotations. 
+     */
     public void resetMotorEncoders(double relativePosition){
         pivotLeaderM.getEncoder().setPosition(relativePosition);
     }
 
     /**
      * Gets the current position measured by the CANcoder
-     * @return Current position measured by CANcoder
+     * @return Current position measured by CANcoder. Measured in rotations. 
      */
     public double getCANcoderPosition() {
         return pivotCANcoder.getPosition().getValueAsDouble();
     }
 
+    /**
+     * Gets the current absolute position measured by the CANcoder. 
+     * @return Current absolute position measured by CANcoder. The range is between 0.0 and 1.0, as specified in the range for the Pivot's CANcoder configuration. 
+     */
     public double getCANcoderAbsolutePosition() {
         return pivotCANcoder.getAbsolutePosition().getValueAsDouble();
     }
@@ -135,7 +148,7 @@ public class Pivot extends SubsystemBase {
 
     /**
      * Sets percentage output, value between -1.0 and 1.0. Positive increases pivot's angle, negative decreases
-     * @param percentage
+     * @param percentage The desired percentage to set the motor to. 
      */
     public void setPercentageOutput(double percentage){
         pivotLeaderM.set(percentage);
@@ -155,14 +168,16 @@ public class Pivot extends SubsystemBase {
      */
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
-        // motor.setIdleMode(IdleMode.kCoast);
         motor.setIdleMode(IdleMode.kBrake);
         motor.getEncoder().setPosition(0.2);
-        // motor.getPIDController().setP(Constants.hardwarePIDs.pivotkP);
-        // motor.getPIDController().setI(Constants.hardwarePIDs.pivotkI);
+
 
     }
 
+    /**
+     * Resets the CANcoder to the specified value. 
+     * @param value Value to reset the CANcoder to. Units are in rotations. 
+     */
     public void resetCANcoder(double value) {
         pivotCANcoder.setPosition(value);
     }
@@ -171,7 +186,6 @@ public class Pivot extends SubsystemBase {
      * Configures the pivot CANcoder with sensor direction and absolute range. 
      */
     private void configCANcoder(){  
-        /* Swerve CANCoder Configuration */
         // CANcoder is always initialized to absolute position on boot in Phoenix 6 - https://www.chiefdelphi.com/t/what-kind-of-encoders-are-built-into-the-kraken-motors/447253/7
 
         MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
@@ -185,6 +199,10 @@ public class Pivot extends SubsystemBase {
         resetCANcoder(0.2);
     }
 
+    /**
+     * Calculates the current angle the pivot is at in degrees, relative to the ground. 
+     * @return The current angle the pivot is at relative to the ground. This is measured by converting CANcoder units to degrees and then subtracting the offset. 
+     */
     public double pivotAngle() {
         return Conversions.CANcoderToDegrees(getCANcoderAbsolutePosition(), 1) - pivotCANcoderAngleOffset;
     }

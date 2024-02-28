@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.Indexer.IndexerMotors;
 import frc.robot.subsystems.Indexer.IndexerStates;
+import frc.robot.subsystems.Amp;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Shooter;
@@ -32,7 +32,6 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
-import frc.robot.commands.Shooter.SetShooterVelocity;
 
 public class RobotContainer {
 
@@ -42,6 +41,7 @@ public class RobotContainer {
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Climb s_Climb = Climb.getInstance();
+    private final Amp s_Amp = Amp.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -71,34 +71,22 @@ public class RobotContainer {
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
 
-    private double power;
-
-    private void incPower() {
-        power += 0.05;
-    }
-    private void decPower() {
-        power -= 0.05;
-    }
-
     private void configureBindings() {
 
-        //nothing is binded to intake, indexer, or shooter yet
-        driver.y().onTrue(onIntake());
+        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
         driver.a().onTrue(offIntake());
-        driver.x().onTrue(onIndexer());
-        driver.b().onTrue(offIndexer());
+        driver.x().onTrue(indexerOn() ? offIndexer() : onIndexer());
+        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
+
 
         driver.rightTrigger().whileTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
 
-        driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setVelocity(3000)));
+        driver.rightBumper().whileTrue(shooterOn() ? new InstantCommand(() -> Shooter.getInstance().setVoltage(0)) : new InstantCommand(() -> s_Shooter.setVelocity(3000)));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
-        // driver.leftTrigger().onTrue(new InstantCommand(() ->decPower()));
-        // driver.rightTrigger().onTrue(new InstantCommand(() -> incPower()));
-        // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.incPower()));
-        // driverDpadUp.onTrue(new InstantCommand(() -> s_Intake.decPower()));
+
 
         driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0.05)));
         driver.leftTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0)));
@@ -122,7 +110,6 @@ public class RobotContainer {
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
-        //driver.start().onTrue(new InstantCommand(() -> drivetrain.resetOdo())); //drivetrain.runOnce(() -> drivetrain.resetOdo());
 
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
@@ -131,26 +118,41 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
-        power = 0.3;
-        
+
         configureBindings();
     }
 
+    private boolean shooterOn() {
+        return s_Shooter.getBotMotorVoltage() > 0 || s_Shooter.getTopMotorVoltage() > 0;
+    }
+
+    private boolean indexerOn() {
+        return s_Indexer.getMotorVoltage() > 0;
+    }
+
+    private boolean intakeOn() {
+        return s_Intake.getMotorVoltage() > 0;
+    }
+ 
     public Command onIntake() {
+
         return new SetIntake(IntakeStates.ON);
+        
     }
 
     public Command offIntake() {
+
         return new SetIntake(IntakeStates.OFF);
     }
 
     //shooter
     public Command onIndexer() {
-        return new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH);
+        
+        return new SetIndexer(IndexerStates.ON);
     }
     
     public Command offIndexer() {
-        return new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH);
+        return new SetIndexer(IndexerStates.OFF);
     }
 
 

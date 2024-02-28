@@ -64,6 +64,10 @@ public class Climb extends SubsystemBase {
     return climbLeaderM.getEncoder().getPosition();
   }
 
+  /**
+   * Sets the desired voltage to the climb leader motor. 
+   * @param voltage The desired voltage. 
+   */
   public void setVoltage(double voltage) {
     climbLeaderM.setVoltage(voltage);
   }

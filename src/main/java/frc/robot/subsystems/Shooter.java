@@ -221,6 +221,15 @@ public class Shooter extends SubsystemBase {
         setVelocity(1000);
     }
 
+    public double getTopMotorVoltage() {
+        return shooterTopM.getBusVoltage();
+    }
+
+    public double getBotMotorVoltage() {
+        return shooterBottomM.getBusVoltage();
+    }
+
+
     @Override
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", currentTopSpeed);

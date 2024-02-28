@@ -93,6 +93,10 @@ public class Intake extends SubsystemBase {
         // motor.configContinuousCurrentLimit(Constants.serializationContinuousCurrentLimit); for testing
     }
 
+    public double getMotorVoltage() {
+        return intakeLeaderM.getMotorVoltage().getValueAsDouble();
+    }
+
     public enum IntakeStates {
         ON(0.8, 0.8),
         INDEX(0.5, 0.5),

@@ -22,10 +22,10 @@ import com.ctre.phoenix.Logger;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
-    private static PhotonCamera aprilTagCameraL;
-    private static PhotonCamera aprilTagCameraR;
-    private static PhotonPipelineResult aprilTagCamResultL;
-    private static PhotonPipelineResult aprilTagCamResultR;
+    private static PhotonCamera backLeftCamera;
+    private static PhotonCamera backRightCamera;
+    private static PhotonPipelineResult backLeftCameraResult;
+    private static PhotonPipelineResult backRightCameraResult;
     private static PhotonTrackedTarget lastValidTarget;
 
     private static CommandSwerveDrivetrain s_Swerve;
@@ -47,49 +47,49 @@ public class Vision extends SubsystemBase {
     }
 
     private Vision() {
-        aprilTagCameraL = new PhotonCamera(Constants.Vision.cameraNameL);
-        aprilTagCameraR = new PhotonCamera(Constants.Vision.cameraNameR);
-        s_Swerve = CommandSwerveDrivetrain.getInstance();
+        backLeftCamera = new PhotonCamera(Constants.Vision.backLeftCameraName);
+        backRightCamera = new PhotonCamera(Constants.Vision.backRightCameraName);
+        updateAprilTagResults();
     }
 
     public void updateAprilTagResults() {
-        aprilTagCamResultL = aprilTagCameraL.getLatestResult();
-        aprilTagCamResultR = aprilTagCameraR.getLatestResult();
+        backLeftCameraResult = backLeftCamera.getLatestResult();
+        backRightCameraResult = backRightCamera.getLatestResult();
     }
 
-    public PhotonPipelineResult getLatestAprilTagResult(Boolean isLeft) { //true is left false is right
+    public PhotonPipelineResult getLatestAprilTagResult(boolean isBackLeft) { //true is left false is right
         updateAprilTagResults();
-        if (isLeft) {
-            return aprilTagCamResultL;
+        if (isBackLeft) {
+            return backLeftCameraResult;
         } else {
-            return aprilTagCamResultR;
+            return backRightCameraResult;
         }
         
     }
 
-    public List<PhotonTrackedTarget> getTargets(Boolean isLeft) {
-       if (isLeft) {
-            return aprilTagCamResultL.getTargets();
+    public List<PhotonTrackedTarget> getTargets(boolean isBackLeft) {
+       if (isBackLeft) {
+            return backLeftCameraResult.getTargets();
         } else {
-            return aprilTagCamResultR.getTargets();
+            return backRightCameraResult.getTargets();
         }
     }
 
     public enum CameraResult { //enum rahh
-        LEFT,
-        RIGHT,
+        BACK_LEFT,
+        BACK_RIGHT,
         BOTH
     }
 
     public CameraResult hasValidTarget() {
-        Boolean hasTargetL = aprilTagCamResultL.hasTargets() && aprilTagCamResultL.getBestTarget().getFiducialId() >= 1 && aprilTagCamResultL.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
-        Boolean hasTargetR = aprilTagCamResultR.hasTargets() && aprilTagCamResultR.getBestTarget().getFiducialId() >= 1 && aprilTagCamResultR.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        Boolean backLeftHasTarget = backLeftCameraResult.hasTargets() && backLeftCameraResult.getBestTarget().getFiducialId() >= 1 && backLeftCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        Boolean backRightHasTarget = backRightCameraResult.hasTargets() && backRightCameraResult.getBestTarget().getFiducialId() >= 1 && backRightCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
 
-         if (hasTargetL && !hasTargetR) {
-            return CameraResult.LEFT;
-        } else if (!hasTargetL && hasTargetR) {
-            return CameraResult.RIGHT;
-        } else if (hasTargetL && hasTargetR) {
+         if (backLeftHasTarget && !backRightHasTarget) {
+            return CameraResult.BACK_LEFT;
+        } else if (!backLeftHasTarget && backRightHasTarget) {
+            return CameraResult.BACK_RIGHT;
+        } else if (backLeftHasTarget && backRightHasTarget) {
             return CameraResult.BOTH;
         } else {
             return null; 
@@ -101,13 +101,13 @@ public class Vision extends SubsystemBase {
     public PhotonTrackedTarget getBestTarget() {
         CameraResult valids = hasValidTarget();
         if (valids != null) {
-            if (valids == CameraResult.LEFT) { lastValidTarget = aprilTagCamResultL.getBestTarget();}
-            else if (valids == CameraResult.RIGHT) { lastValidTarget = aprilTagCamResultR.getBestTarget();}
+            if (valids == CameraResult.BACK_LEFT) { lastValidTarget = backLeftCameraResult.getBestTarget();}
+            else if (valids == CameraResult.BACK_RIGHT) { lastValidTarget = backRightCameraResult.getBestTarget();}
             else if (valids == CameraResult.BOTH) {
-                if (aprilTagCamResultL.getTimestampSeconds() >= aprilTagCamResultR.getTimestampSeconds()) { // If both cams have a target get the MOST recent one
-                    lastValidTarget = aprilTagCamResultR.getBestTarget();
+                if (backLeftCameraResult.getTimestampSeconds() >= backRightCameraResult.getTimestampSeconds()) { // If both cams have a target get the MOST recent one
+                    lastValidTarget = backRightCameraResult.getBestTarget();
                 } else {
-                    lastValidTarget = aprilTagCamResultL.getBestTarget();
+                    lastValidTarget = backLeftCameraResult.getBestTarget();
                 }
             }
         } 
