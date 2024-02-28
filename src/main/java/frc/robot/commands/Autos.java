@@ -60,8 +60,8 @@ public final class Autos {
       return swerveCommand;
   }
 
-  public static Command FourNoteSubWoofer(){
-    ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteSubWoofer");
+  public static Command FourNoteSubwoofer(){
+    ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteSubwoofer");
     return new SequentialCommandGroup(
       new SetPivot(PivotState.SUBWOOFER),
       new SetShooterVelocity(2500),
@@ -165,7 +165,7 @@ public final class Autos {
     //if you want to run a mechCommand or mechCommandGroup in parallel with a path, create a boolean array with true values corresponding to the mechCommands you want to run in parallel.
       ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
       FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
-      FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubWoofer());
+      FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer());
 
       String name;
       Command autoCommand;
