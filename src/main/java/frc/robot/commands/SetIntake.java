@@ -16,12 +16,11 @@ public class SetIntake extends Command {
 
     @Override
     public void initialize() {
-        s_Intake.setSpeed(state);
-
     }
 
     @Override
     public void execute() {
+        s_Intake.setSpeed(state);
     }
 
     @Override
@@ -30,6 +29,6 @@ public class SetIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        return true;
+        return false;
     }
 }

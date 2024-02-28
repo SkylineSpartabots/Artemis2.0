@@ -30,8 +30,7 @@ public final class Constants {
 
     public static final class Vision {
         public static final int aprilTagMax = 16;
-        public static final String backRightCameraName = "Camera1";
-        public static final String backLeftCameraName = "";
+        public static final String cameraName = "Arducam_OV9281_USB_Camera";
         public static final double cameraHeight = 0; //fix
         public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet | unnecessary, we have photonvision's field layout import
         public static final double cameraRollOffset = Units.degreesToRadians(0);
@@ -77,21 +76,16 @@ public final class Constants {
 
         public static final int shooterBottomM = 50;
         public static final int shooterTopM = 51;
-
         public static final int indexerTopM = 31;
         public static final int indexerBottomM = 30;
-        
-        public static final int intakeLeaderM = 21;
-        public static final int intakeFollowerM = 20;
-        public static final int serialM = 22;
-
+        public static final int intakeLeaderM = 20;
+        public static final int intakeFollowerM = 21;
+        public static final int serializationM = 22;
         public static final int climbLeaderMotor = 60;
         public static final int climbFollowerMotor = 61;
-
         public static final int pivotLeaderM = 40;
         public static final int pivotFollowerM = 41;
         public static final int pivotCANcoderID = 42;
-
         public static final int ampMotor = 62;
         
     }
@@ -132,7 +126,6 @@ public final class Constants {
     public static final int pivotPeakCurrentLimit = 60;
     public static final int climbContinuousCurrentLimit = 30; //arbitrary, fix later
     public static final int climbPeakCurrentLimit = 70; //arbitrary, fix later
-    
 
     public static final double FIELD_WIDTH_METERS = 8.21055;
     public static final double FIELD_LENGTH_METERS = 16.54175;
@@ -177,11 +170,11 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap PivotAngleMap = new InterpolatingDoubleTreeMap();
 
         public static final double[][] velocitiesMatrix = { //TODO: populate these with real measured values
-            {Units.inchesToMeters(265), 3000}, //example
+            {Units.feetToMeters(4), 9}, //example
         };
 
         public static final double[][] anglesMatrix = {
-            {Units.feetToMeters(265), 20},
+            {Units.feetToMeters(4), 9},
         };
 
         static {
