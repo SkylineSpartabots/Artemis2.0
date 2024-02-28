@@ -27,7 +27,7 @@ public class SetShooter extends Command {
 
         if (motor == Shooter.ShooterMotors.BOTH) {
             // cause if they are diff vals then that difference must be preserved by the both increase
-            addedSpeeds[0] = s_Shooter.getBottomSpeed() + difference;
+            addedSpeeds[0] = s_Shooter.getBottomSetpoint() + difference;
             addedSpeeds[1] = s_Shooter.getTopSpeed() + difference;
         } else { // -1 is for the indexes cause getMotor returns 1 for bottom and 2 for top motor but indexes...
             addedSpeeds[motor.getMotor() - 1] = s_Shooter.getBothSpeeds()[motor.getMotor() - 1] + difference;
