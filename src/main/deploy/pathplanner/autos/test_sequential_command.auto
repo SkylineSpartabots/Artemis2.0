@@ -18,9 +18,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "B_ROBOT1_4NOTE_4s_3n.2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeNote"
           }
         },
         {

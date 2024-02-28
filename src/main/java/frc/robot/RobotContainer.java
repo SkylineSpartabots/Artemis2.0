@@ -144,8 +144,8 @@ public class RobotContainer {
         //register named commands for pathplanner
         NamedCommands.registerCommand("ShootNote", shootNote());
         NamedCommands.registerCommand("IntakeNote", intakeNote());
-
-
+        
+        pathplannerLogging();
         configureBindings();
     }
     private void pathplannerLogging() {
