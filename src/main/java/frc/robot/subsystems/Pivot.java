@@ -168,7 +168,7 @@ public class Pivot extends SubsystemBase {
      */
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
-        motor.setIdleMode(IdleMode.kBrake);
+        motor.setIdleMode(IdleMode.kCoast);
         motor.getEncoder().setPosition(0.2);
 
 
