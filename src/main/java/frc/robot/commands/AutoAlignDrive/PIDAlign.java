@@ -25,7 +25,7 @@ public class PIDAlign extends Command {
   private final CommandSwerveDrivetrain s_Swerve;
   private final Vision s_Vision;
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
-  PIDController alignPID = new PIDController(0, 0, 0); //TODO: tune this
+  PIDController alignPID = new PIDController(0.01, 0.1, 0); //TODO: tune this
   
   private double currentYaw;
   private double desiredYaw;
@@ -40,7 +40,6 @@ public class PIDAlign extends Command {
 
     addRequirements(s_Vision);
     addRequirements(s_Swerve);
-
   }
   
   @Override
@@ -49,10 +48,12 @@ public class PIDAlign extends Command {
 
     Pose2d pose = s_Swerve.getPoseByOdometry();
     Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
+    
     Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave Yoon gloobert
 
     offsetYaw = (Math.PI/2) - Math.atan2(translatedPoint.y,translatedPoint.x); // gets the non included angle in our current yaw 🦅🦅
-  }
+    System.out.println("offset yaw: " + offsetYaw + " current location: " + currentLocation.x + "," + currentLocation.y);
+    }
 
   @Override
   public void execute() {

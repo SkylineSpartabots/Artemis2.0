@@ -5,6 +5,8 @@
 package frc.robot;
 
 
+import org.opencv.core.Point;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -33,6 +35,7 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
+import frc.robot.commands.AutoAlignDrive.PIDAlign;
 
 public class RobotContainer {
 
@@ -80,12 +83,12 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-
+        
         //nothing is binded to intake, indexer, or shooter yet
-        driver.y().onTrue(onIntake());
-        driver.a().onTrue(offIntake());
-        driver.x().onTrue(onIndexer());
-        driver.b().onTrue(offIndexer());
+        driver.y().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_AMP.getValue()));
+        driver.a().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_AMP.getValue()));
+        driver.x().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_SPEAKER.getValue()));
+        driver.b().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
 
         // driver.rightBumper().whileTrue(new SetShooterVelocity(1600));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
@@ -128,6 +131,10 @@ public class RobotContainer {
         power = 0.3;
         
         configureBindings();
+    }
+
+    public Command aligntoCordinate(Point point) {
+        return new PIDAlign(point);
     }
 
     public Command onIntake() {

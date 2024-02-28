@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 
+import org.opencv.core.Point;
+
 import com.revrobotics.CANSparkBase.IdleMode;
 
 
@@ -86,6 +88,20 @@ public final class Constants {
         public static final int pivotCANcoderID = 42;
         public static final int ampMotor = 62;
         
+    }
+
+    enum AlignmentTargets {
+            BLUE_SPEAKER(new Point(0,4)),
+            RED_SPEAKER(new Point(0, -1)),
+            BLUE_AMP(new Point(1, 0)),
+            RED_AMP(new Point(1, 0));
+            
+            private Point point;
+
+            public Point getValue(){return point;}
+
+            AlignmentTargets(Point point) {this.point = point;}
+
     }
 
     public static final class FieldConstants {
