@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import java.util.List;
@@ -9,6 +10,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 
 import org.photonvision.PhotonCamera;
@@ -25,6 +27,8 @@ public class Vision extends SubsystemBase {
     private static PhotonPipelineResult aprilTagCamResultL;
     private static PhotonPipelineResult aprilTagCamResultR;
     private static PhotonTrackedTarget lastValidTarget;
+
+    private static CommandSwerveDrivetrain s_Swerve;
     
     private double targetYaw;
     private double targetDistance;
@@ -45,7 +49,7 @@ public class Vision extends SubsystemBase {
     private Vision() {
         aprilTagCameraL = new PhotonCamera(Constants.Vision.cameraNameL);
         aprilTagCameraR = new PhotonCamera(Constants.Vision.cameraNameR);
-        updateAprilTagResults();
+        s_Swerve = CommandSwerveDrivetrain.getInstance();
     }
 
     public void updateAprilTagResults() {
@@ -94,7 +98,6 @@ public class Vision extends SubsystemBase {
 
     // TODO verify that by the end of auto we have lastValidTarget set
 
-    
     public PhotonTrackedTarget getBestTarget() {
         CameraResult valids = hasValidTarget();
         if (valids != null) {
@@ -123,6 +126,10 @@ public class Vision extends SubsystemBase {
         return targetDistance;
     }
 
+    public double getDistanceToPose(Pose2d pose){
+        return PhotonUtils.getDistanceToPose(s_Swerve.getPose(), pose);
+    }
+
     /**
      * calculates field-relative robot pose from vision reading, feed to pose estimator (Kalman filter)
      */
@@ -139,6 +146,9 @@ public class Vision extends SubsystemBase {
     @Override
     public void periodic() {
         updateAprilTagResults();
+        try {
+            calculatePoseFromVision();
+        } catch (Exception e){}
         //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
     }
 }
