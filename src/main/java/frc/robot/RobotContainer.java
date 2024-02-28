@@ -8,13 +8,19 @@ package frc.robot;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
@@ -27,12 +33,15 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
+import frc.robot.subsystems.Shooter.ShooterMotors;
+import frc.robot.subsystems.Shooter.ShooterStates;
 import frc.robot.subsystems.Indexer;
 import frc.robot.commands.Autos;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
+import frc.robot.commands.Shooter.SetShooter;
 import frc.robot.commands.Shooter.SetShooterVelocity;
 
 public class RobotContainer {
@@ -56,6 +65,8 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
     private Command runAuto = drivetrain.getAutoPath("StraightTestPath");
+    
+    private Field2d field;
 
     /* Driver Buttons */
     private final Trigger driverBack = driver.back();
@@ -130,9 +141,47 @@ public class RobotContainer {
     public RobotContainer() {
         power = 0.3;
         
+        //register named commands for pathplanner
+        NamedCommands.registerCommand("ShootNote", shootNote());
+        NamedCommands.registerCommand("IntakeNote", intakeNote());
+
+
         configureBindings();
     }
+    private void pathplannerLogging() {
+        field = new Field2d();
+        SmartDashboard.putData("Field", field);
+        // Logging callback for current robot pose
+        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            field.setRobotPose(pose);
+        });
 
+        // Logging callback for target robot pose
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            field.getObject("target pose").setPose(pose);
+        });
+
+        // Logging callback for the active path, this is sent as a list of poses
+        PathPlannerLogging.setLogActivePathCallback((poses) -> {
+            // Do whatever you want with the poses here
+            field.getObject("path").setPoses(poses);
+        });
+    }
+    public Command intakeNote() {
+        return new SequentialCommandGroup(
+            new SetIntake(IntakeStates.ON),
+            new WaitCommand(0.1),
+            new SetIntake(IntakeStates.OFF)
+        );
+    }
+    public Command shootNote() {
+        return new SequentialCommandGroup(
+            new SetShooter(ShooterStates.MAX, ShooterMotors.BOTH),
+            new SetShooter(ShooterStates.OFF, ShooterMotors.BOTH)
+        );
+    }
     public Command onIntake() {
         return new SetIntake(IntakeStates.ON);
     }

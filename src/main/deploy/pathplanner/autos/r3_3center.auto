@@ -51,12 +51,6 @@
                 "data": {
                   "pathName": "B_ROBOT3_CENTER_0s_3n.4"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetShooter"
-                }
               }
             ]
           }
