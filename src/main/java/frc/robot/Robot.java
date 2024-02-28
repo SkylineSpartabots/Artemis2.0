@@ -45,6 +45,7 @@ public class Robot extends LoggedRobot {
     Logger.disableDeterministicTimestamps(); // See "Deterministic Timestamps" in the "Understanding Data Flow" page
     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
     autoChooser.setDefaultOption("ThreeNoteFarSide", Autos.AutoPath.ThreeNoteFarSide);
+    autoChooser.addOption("FourNoteSubWoofer", Autos.AutoPath.FourNoteSubWoofer);
     /*autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
     autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);
