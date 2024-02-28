@@ -4,12 +4,14 @@
 
 package frc.robot.commands;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.choreo.lib.*;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -26,6 +28,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.auto.CommandUtil;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -37,16 +40,23 @@ public final class Autos {
 
 
   public static Command Robot1_3Note() {
+
+    // Use the PathPlannerAuto class to get a path group from an auto
+    List<PathPlannerPath> pathGroup = PathPlannerAuto.getPathGroupFromAutoFile("Example Auto");
+
+    // You can also get the starting pose from the auto. Only call this if the auto actually has a starting pose.
+    Pose2d startingPose = PathPlannerAuto.getStaringPoseFromAutoFile("Example Auto");
+
+    //use this to load choreo trajectory into a pathplannerpath
+    PathPlannerPath exampleChoreoTraj = PathPlannerPath.fromChoreoTrajectory("Example Choreo Traj");
+
+
+    //the line below WILL NOT WORK without configuring AutoBuilder: see https://pathplanner.dev/pplib-build-an-auto.html#load-an-auto
+    //I don't know how to integrate it right now bc it needs to be configured in a drive subsystem which extends SubsystemBase
+    //also it needs getPose(), resetPose(), getRobotRelativeSpeeds() or getCurrentSpeeds(), driveRobotRelative() or drive().
+
     return new PathPlannerAuto("r1_3note"); //according to api should work (allegedly)
 
-    PathPlannerTrajectory path = PathPlanner.loadPath //doesn't exist
-
-    //alternative 1:
-     //return NamedCommands.getCommand("r1_3note"); //https://pathplanner.dev/api/java/com/pathplanner/lib/auto/NamedCommands.html
-    //alternative 2: 
-     /* return CommandUtil.commandFromJson(null, true); */
-    //https://pathplanner.dev/api/java/com/pathplanner/lib/auto/CommandUtil.html
-    //for this somehow convert src/deploy/pathplanner/autos/[name].auto into a org.json.simple.JSONObject object
     
   }
   // Return auto selected in Shuffleboard
@@ -67,7 +77,7 @@ public final class Autos {
     ChoreoTrajectory traj = Choreo.getTrajectory(auto.name);
     thetaController.reset();
 
-    s_Swerve.setAutoStartPose(traj.getPoses()[0]);
+    //s_Swerve.setAutoStartPose(traj.getPoses()[0]); //this isn't working for some reason, maybe this code isn't up to date
     SmartDashboard.putString("auto path", auto.name);
     s_Swerve.resetOdo(traj.getInitialPose());
     Command swerveCommand = Choreo.choreoSwerveCommand(
