@@ -60,6 +60,36 @@ public final class Autos {
       return swerveCommand;
   }
 
+  public static Command FourNoteCloseSide(){
+    ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteCloseSide");
+    return new SequentialCommandGroup(
+    new SetPivot(PivotState.SUBWOOFER),
+    new SetShooterVelocity(2500),
+    Commands.waitSeconds(0.8),
+    new SetShooterVelocity(0),
+
+    FollowChoreoTrajectory(trajectory.get(0)),
+
+    new ParallelCommandGroup(
+      new SetIntake(IntakeStates.ON),
+      new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
+      FollowChoreoTrajectory(trajectory.get(1))
+    ),
+
+    new SetIntake(IntakeStates.OFF),
+    new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+    new SetShooterVelocity(2500),
+    Commands.waitSeconds(0.8),
+    new SetShooterVelocity(0),
+
+    FollowChoreoTrajectory(trajectory.get(2)),
+
+    new ParallelCommandGroup(
+    new 
+    )
+    );
+  }
+
   public static Command ThreeNoteFarSide(){
     ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("ThreeNoteFarSide");
     return new SequentialCommandGroup(
@@ -82,7 +112,7 @@ public final class Autos {
       FollowChoreoTrajectory(trajectory.get(2))
     ),
 
-    new SetShooterVelocity(2500),
+    new SetShooterVelocity(2500), //TODO: add setpivot command before this so that it actually aims at the speaker
     Commands.waitSeconds(0.8),
     new SetShooterVelocity(0),
 
@@ -118,7 +148,8 @@ public final class Autos {
     //when writing enums, if you want multiple mechCommands to run before the next path, put them in a sequential command group
     //if you want those mechCommands to run in parallel, put them in a parallelCommandGroup
     //if you want to run a mechCommand or mechCommandGroup in parallel with a path, create a boolean array with true values corresponding to the mechCommands you want to run in parallel.
-      ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide());
+      ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
+      FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide());
 
       String name;
       Command autoCommand;
