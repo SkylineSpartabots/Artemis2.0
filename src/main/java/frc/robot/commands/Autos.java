@@ -26,6 +26,7 @@ import frc.robot.subsystems.Indexer.IndexerMotors;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 
@@ -69,10 +70,57 @@ public final class Autos {
       new SetShooterVelocity(0),
 
       new ParallelCommandGroup(
-        FollowChoreoTrajectory(trajectory.get(0)),
-        
-      )
-    )
+      new SetIntake(IntakeStates.ON),
+      new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
+      FollowChoreoTrajectory(trajectory.get(0))
+      ),
+      
+      new ParallelCommandGroup(
+        new SetIntake(IntakeStates.OFF),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        FollowChoreoTrajectory(trajectory.get(1))
+      ),
+
+      new SetShooterVelocity(2500),
+      Commands.waitSeconds(0.8),
+      new SetShooterVelocity(0),
+
+      FollowChoreoTrajectory(trajectory.get(2)),
+
+      new ParallelCommandGroup(
+        new SetIntake(IntakeStates.ON),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
+        FollowChoreoTrajectory(trajectory.get(3))
+      ),
+
+      new ParallelCommandGroup(
+        new SetIntake(IntakeStates.OFF),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        FollowChoreoTrajectory(trajectory.get(4))
+      ),
+
+      new SetShooterVelocity(2500),
+      Commands.waitSeconds(0.8),
+      new SetShooterVelocity(0),
+
+      FollowChoreoTrajectory(trajectory.get(5)),
+
+      new ParallelCommandGroup(
+        new SetIntake(IntakeStates.ON),
+        new SetIndexer(IndexerStates.ON, IndexerMotors.BOTH),
+        FollowChoreoTrajectory(trajectory.get(6))
+      ),
+
+      new ParallelCommandGroup(
+        new SetIntake(IntakeStates.OFF),
+        new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
+        FollowChoreoTrajectory(trajectory.get(7))
+      ),
+      
+      new SetShooterVelocity(2500),
+      Commands.waitSeconds(0.8),
+      new SetShooterVelocity(0)
+    );
   }
 
   public static Command FourNoteCloseSide(){
