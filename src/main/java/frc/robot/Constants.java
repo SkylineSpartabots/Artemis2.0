@@ -127,7 +127,7 @@ public final class Constants {
     public static final int ampContinuousCurrentLimit = 30;
     public static final int ampPeakCurrentLimit = 70;
     public static final int shooterContinuousCurrentLimit = 30; //commented out because the shooters stop too fast t
-    public static final int shooterPeakCurrentLimit = 70;
+    public static final int shooterPeakCurrentLimit = 120;
     public static final int pivotContinuousCurrentLimit = 30;
     public static final int pivotPeakCurrentLimit = 60;
     public static final int climbContinuousCurrentLimit = 30; //arbitrary, fix later

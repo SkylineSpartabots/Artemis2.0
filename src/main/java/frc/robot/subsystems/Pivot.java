@@ -36,7 +36,10 @@ public class Pivot extends SubsystemBase {
         FARWING(Pivot.pivotDegreeToCANcoder(20)),
 
         MIDDLE(0.3),
-        AMP(Pivot.pivotDegreeToCANcoder(70));
+
+        AMP_BEFORE_SWING(Pivot.pivotDegreeToCANcoder(55)),
+
+        AMP(Pivot.pivotDegreeToCANcoder(80));
         //WING(position);
 
         private double pos;

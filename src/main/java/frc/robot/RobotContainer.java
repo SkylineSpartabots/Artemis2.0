@@ -5,7 +5,7 @@
 package frc.robot;
 
 
-import frc.robot.commands.SetLightz;
+// import frc.robot.commands.SetLightz;
 import frc.robot.subsystems.*;
 import org.opencv.core.Point;
 
@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
@@ -28,6 +30,9 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
+import frc.robot.commands.Shooter.SetShooterVelocity;
+import frc.robot.commands.Shooter.ShootIntoAmp;
+import frc.robot.commands.Shooter.Swing;
 import frc.robot.commands.AutoAlignDrive.PIDAlign;
 
 public class RobotContainer {
@@ -39,7 +44,7 @@ public class RobotContainer {
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Climb s_Climb = Climb.getInstance();
     private final Amp s_Amp = Amp.getInstance();
-    private final Lightz s_lightz = Lightz.getInstance();
+    // private final Lightz s_lightz = Lightz.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -73,7 +78,7 @@ public class RobotContainer {
 
 //        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
 //        driver.a().onTrue(offIntake());
-//        driver.x().onTrue(indexerOn() ? offIndexer() : onIndexer());
+    driver.x().onTrue(indexerOn() ? offIndexer() : onIndexer());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
 //
 //        //nothing is binded to intake, indexer, or shooter yet
@@ -83,15 +88,18 @@ public class RobotContainer {
 //        driver.b().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
 
 
-        driver.a().onTrue(setLEDs());
+        // driver.a().onTrue(setLEDs());
+        // driver.b().onTrue(new ShootIntoAmp());
+        driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
+        driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
 
+        driver.rightBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.ON)));
+        driver.leftBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.OFF)));
 
-        driver.rightTrigger().whileTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
-
-        driver.rightBumper().whileTrue(shooterOn() ? new InstantCommand(() -> Shooter.getInstance().setVoltage(0)) : new InstantCommand(() -> s_Shooter.setVelocity(3000)));
+        // driver.rightBumper().whileTrue(shooterOn() ? new InstantCommand(() -> Shooter.getInstance().setVoltage(0)) : new InstantCommand(() -> s_Shooter.setVelocity(3000)));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
-        driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
+        // driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
 
 
@@ -103,12 +111,12 @@ public class RobotContainer {
         driverDpadLeft.onTrue(new SetPivot(PivotState.SUBWOOFER));
         driverDpadRight.onTrue(new ZeroPivot());
 
-        drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
-                        // negative Y (forward)
-                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-                ));
+        // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
+        //                 // negative Y (forward)
+        //                 .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+        //                 .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+        //         ));
         
 
         // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -129,9 +137,9 @@ public class RobotContainer {
         configureBindings();
     }
 
-    public Command setLEDs(){
-        return new SetLightz(Lightz.ledModes.BLUE);
-    }
+    // public Command setLEDs(){
+    //     return new SetLightz(Lightz.ledModes.BLUE);
+    // }
 
     private boolean shooterOn() {
         return s_Shooter.getBotMotorVoltage() > 0 || s_Shooter.getTopMotorVoltage() > 0;

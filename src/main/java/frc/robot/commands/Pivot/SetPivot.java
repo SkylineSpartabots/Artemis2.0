@@ -54,7 +54,7 @@ public class SetPivot extends Command {
 
     @Override
 	public boolean isFinished() {
-		return Math.abs(s_Pivot.getSetPoint() - s_Pivot.getCANcoderAbsolutePosition()) < 0.05;
+		return Math.abs(s_Pivot.getSetPoint() - s_Pivot.getCANcoderAbsolutePosition()) < 0.005;
 	}
 		
 	@Override
