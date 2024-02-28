@@ -12,7 +12,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -32,25 +32,28 @@ public final class Autos {
    */
   public static Command getAutoCommand(AutoPath auto) {
     SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
-    var thetaController = new PIDController(1, 0, 0);
-    PIDController xController = new PIDController(1, 0, 0); //TODO: tune
-    PIDController yController = new PIDController(1, 0, 0);
+    PIDController thetaController = new PIDController(0.013, 0, 0); //TODO: tune
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
+    ChoreoTrajectory traj = Choreo.getTrajectory(auto.name);
+    thetaController.reset();
+
+    s_Swerve.setAutoStartPose(traj.getPoses()[0]);
+    SmartDashboard.putString("auto path", auto.name);
+    s_Swerve.resetOdo(traj.getInitialPose());
     Command swerveCommand = Choreo.choreoSwerveCommand(
-      Choreo.getTrajectory(auto.name),
-        s_Swerve::getPoseByOdometry,
-        xController,
-        yController,                                                           
+      traj,
+        s_Swerve::getPose,
+        new PIDController(0.57, 0.2, 0),
+        new PIDController(0.57, 0.2, 0),                                                           
         thetaController,
-        (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
+        (ChassisSpeeds speeds) -> s_Swerve.setControl(drive.withSpeeds(speeds)),
+        // (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
             () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
               return alliance.isPresent() && alliance.get() == Alliance.Red;},
               s_Swerve);
       
-      return Commands.sequence(
-        Commands.runOnce(() -> s_Swerve.resetOdo(Choreo.getTrajectory(auto.name).getInitialPose())),
-        swerveCommand);
+      return swerveCommand;
   }
 
   /*
@@ -66,7 +69,9 @@ public final class Autos {
       StraightPathTesting("StraightPathTesting", new Command[]{}),
       AngledDrivingTesting("AngledDrivingTesting", new Command[]{}),
       StraightAndTurn180Testing("StraightAndTurn180Testing", new Command[]{}),
-      TESTPATH("TestPath", new Command[]{new InstantCommand()});
+      TESTPATH("TestPath", new Command[]{new InstantCommand()}),
+      NOTHINGTEST("NothingTesting", new Command[]{}),
+      FENDER("FenderAuto", new Command[]{});
 
       String name;
       Command[] mechCommands;

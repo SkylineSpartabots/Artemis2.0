@@ -21,8 +21,10 @@ import com.ctre.phoenix.Logger;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
-    private static PhotonCamera aprilTagCamera;
-    private static PhotonPipelineResult aprilTagCamResult;
+    private static PhotonCamera backLeftCamera;
+    private static PhotonCamera backRightCamera;
+    private static PhotonPipelineResult backLeftCameraResult;
+    private static PhotonPipelineResult backRightCameraResult;
     private static PhotonTrackedTarget lastValidTarget;
     
     private double targetYaw;
@@ -43,25 +45,53 @@ public class Vision extends SubsystemBase {
     }
 
     private Vision() {
-        aprilTagCamera = new PhotonCamera(Constants.Vision.cameraName);
-        updateAprilTagResult();
+        backLeftCamera = new PhotonCamera(Constants.Vision.backLeftCameraName);
+        backRightCamera = new PhotonCamera(Constants.Vision.backRightCameraName);
+        updateAprilTagResults();
     }
 
-    public void updateAprilTagResult() {
-        aprilTagCamResult = aprilTagCamera.getLatestResult();
+    public void updateAprilTagResults() {
+        backLeftCameraResult = backLeftCamera.getLatestResult();
+        backRightCameraResult = backRightCamera.getLatestResult();
     }
 
-    public PhotonPipelineResult getLatestAprilTagResult() {
-        updateAprilTagResult();
-        return aprilTagCamResult;
+    public PhotonPipelineResult getLatestAprilTagResult(boolean isBackLeft) { //true is left false is right
+        updateAprilTagResults();
+        if (isBackLeft) {
+            return backLeftCameraResult;
+        } else {
+            return backRightCameraResult;
+        }
+        
     }
 
-    public List<PhotonTrackedTarget> getTargets() {
-        return aprilTagCamResult.getTargets();
+    public List<PhotonTrackedTarget> getTargets(boolean isBackLeft) {
+       if (isBackLeft) {
+            return backLeftCameraResult.getTargets();
+        } else {
+            return backRightCameraResult.getTargets();
+        }
     }
 
-    public boolean hasValidTarget() {
-        return aprilTagCamResult.hasTargets() && aprilTagCamResult.getBestTarget().getFiducialId() >= 1 && aprilTagCamResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+    public enum CameraResult { //enum rahh
+        BACK_LEFT,
+        BACK_RIGHT,
+        BOTH
+    }
+
+    public CameraResult hasValidTarget() {
+        Boolean backLeftHasTarget = backLeftCameraResult.hasTargets() && backLeftCameraResult.getBestTarget().getFiducialId() >= 1 && backLeftCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        Boolean backRightHasTarget = backRightCameraResult.hasTargets() && backRightCameraResult.getBestTarget().getFiducialId() >= 1 && backRightCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+
+         if (backLeftHasTarget && !backRightHasTarget) {
+            return CameraResult.BACK_LEFT;
+        } else if (!backLeftHasTarget && backRightHasTarget) {
+            return CameraResult.BACK_RIGHT;
+        } else if (backLeftHasTarget && backRightHasTarget) {
+            return CameraResult.BOTH;
+        } else {
+            return null; 
+        }
     }
 
     public boolean hasSpeakerTarget() {
@@ -84,14 +114,23 @@ public class Vision extends SubsystemBase {
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set
-    // theres like no way you dont see one at the start of auto maybe I think
+
+    
     public PhotonTrackedTarget getBestTarget() {
-        if (hasValidTarget()) {
-            PhotonTrackedTarget newTarget = aprilTagCamResult.getBestTarget();
-            lastValidTarget = newTarget;
-        }
+        CameraResult valids = hasValidTarget();
+        if (valids != null) {
+            if (valids == CameraResult.BACK_LEFT) { lastValidTarget = backLeftCameraResult.getBestTarget();}
+            else if (valids == CameraResult.BACK_RIGHT) { lastValidTarget = backRightCameraResult.getBestTarget();}
+            else if (valids == CameraResult.BOTH) {
+                if (backLeftCameraResult.getTimestampSeconds() >= backRightCameraResult.getTimestampSeconds()) { // If both cams have a target get the MOST recent one
+                    lastValidTarget = backRightCameraResult.getBestTarget();
+                } else {
+                    lastValidTarget = backLeftCameraResult.getBestTarget();
+                }
+            }
+        } 
         return lastValidTarget;
-    }
+    } 
 
     /**
      * @return the absolute distance in meters (there are different methods for horizontal or vertical)
@@ -120,11 +159,8 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // no cam rn lol
-        // updateAprilTagResult();
-        // SmartDashboard.putBoolean("Has Target", hasValidTarget());
-        // SmartDashboard.putBoolean("Has target", hasValidTarget());
-        // SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
+        updateAprilTagResults();
+        //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
     }
 }
 

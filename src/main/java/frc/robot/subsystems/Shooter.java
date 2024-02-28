@@ -8,9 +8,25 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.motorcontrol.ControlFrameEnhanced;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkBase.ControlType;
+
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+
+import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends SubsystemBase {
 
@@ -30,6 +46,16 @@ public class Shooter extends SubsystemBase {
     private double currentTopSpeed = 0;
     private double currentBottomSpeed = 0;
 
+    private double velocityCap = 3700;
+
+    // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+    private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+    // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+    private final MutableMeasure<Angle> m_angle = mutable(Rotations.of(0));
+    // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+    private final MutableMeasure<Velocity<Angle>> m_velocity = mutable(RotationsPerSecond.of(0));
+
+
     public Shooter() {
         currentPercentage = 0.0;
         shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
@@ -37,17 +63,35 @@ public class Shooter extends SubsystemBase {
         shooterTopM.setInverted(true);
         shooterBottomM.setInverted(true);
         configMotors();
+
+        shooterTopM.getEncoder().setPositionConversionFactor(2);
+
     }
     
     private void configMotors(){
         shooterTopM.setSmartCurrentLimit(Constants.shooterPeakCurrentLimit);
         shooterTopM.enableVoltageCompensation(12.0);
         shooterBottomM.enableVoltageCompensation(12.0);
+        // shooterTopM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
+        shooterTopM.getPIDController().setFF(0.000185);
+        shooterTopM.getPIDController().setP(0);
+        // shooterTopM.getPIDController().setP(0.005);
+        shooterBottomM.getPIDController().setFF(0.000175);
+        shooterBottomM.getPIDController().setP(0);
+        // shooterBottomM.getPIDController().setP(0.005);
+        // shooterBottomM.getPIDController().setFF((12 / (6784 / 60)) * (28/18));
+        // shooterTopM.getPIDController().setReference(0.34, ControlType.kVoltage);
+        // shooterBottomM.getPIDController().setReference(0.43, ControlType.kVoltage);
+    }
+
+    public void voltageDrive(Measure<Voltage> voltage){
+
     }
 
     public enum ShooterStates {
         MAX(1),
         OFF(0);
+
         private double speed;
 
         public double getValue() {
@@ -112,6 +156,10 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setVelocity(double velocity){
+        velocity = Math.min(velocity, velocityCap);
+
+        shooterTopM.getPIDController().setReference(velocity, ControlType.kVelocity);
+        shooterBottomM.getPIDController().setReference(velocity, ControlType.kVelocity);
     }
 
 
@@ -161,12 +209,36 @@ public class Shooter extends SubsystemBase {
         shooterBottomM.set(percent);
     }
 
+    public void setTopSetpoint(double velocity){
+        currentTopSpeed = velocity;
+    }
+
+    public void setBotSetpoint(double velocity){
+        currentBottomSpeed = velocity;
+    }
+
+    public void setToIdle(){
+        setVelocity(1000);
+    }
+
+    public double getTopMotorVoltage() {
+        return shooterTopM.getBusVoltage();
+    }
+
+    public double getBotMotorVoltage() {
+        return shooterBottomM.getBusVoltage();
+    }
+
+
     @Override
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", currentTopSpeed);
         Logger.recordOutput("Shooter/BottomSetpoints", currentBottomSpeed);
         Logger.recordOutput("Shooter/topMotorSpeed", shooterTopM.getEncoder().getVelocity());
         Logger.recordOutput("Shooter/bottomMotorSpeed", shooterBottomM.getEncoder().getVelocity());
+
+        SmartDashboard.putNumber("ShootT Vel", 3000 - shooterTopM.getEncoder().getVelocity());
+        SmartDashboard.putNumber("ShootB Vel", 3000 - shooterBottomM.getEncoder().getVelocity());
         
         // SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
         // SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));

@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -23,38 +24,66 @@ public class Climb extends SubsystemBase {
 
   private CANSparkFlex climbLeaderM;
   private CANSparkFlex climbFollowerM;
+  // Measured in motor rotations
+  private int maxHeight = 300;
+  private int setState;
 
   public Climb() {
     climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
-    configLeaderMotor(climbLeaderM);
+    configMotor(climbLeaderM, true);
 
     climbFollowerM = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
-    configFollowerMotor(climbFollowerM, climbLeaderM);
+    configMotor(climbFollowerM, false);
+    climbFollowerM.follow(climbLeaderM, true);
+    setState = 2;
+    resetMotorEncoders();
   }
 
 
-  private void configLeaderMotor(CANSparkFlex motor) {
+  private void configMotor(CANSparkFlex motor, boolean inverted) {
     motor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
     motor.setIdleMode(IdleMode.kBrake);
+    motor.setInverted(inverted);
     motor.enableVoltageCompensation(12);
-
   }
 
-  
-  private void configFollowerMotor(CANSparkFlex followerMotor, CANSparkFlex leaderMotor) {
-    followerMotor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
-    followerMotor.setIdleMode(IdleMode.kBrake);
-    followerMotor.enableVoltageCompensation(12);
-
-    followerMotor.follow(leaderMotor);
+  public void resetMotorEncoders() {
+    climbLeaderM.getEncoder().setPosition(2);
+    climbFollowerM.getEncoder().setPosition(2);
   }
 
   public void setClimbSpeed(double speed){
     climbLeaderM.set(speed); //speed should be -1.0 to 1.0
   }
+
+  public void setState(int state) {
+    setState = state;
+  }
+
+  public double getPosition() {
+    return climbLeaderM.getEncoder().getPosition();
+  }
+
+  /**
+   * Sets the desired voltage to the climb leader motor. 
+   * @param voltage The desired voltage. 
+   */
+  public void setVoltage(double voltage) {
+    climbLeaderM.setVoltage(voltage);
+  }
   
+  public double getSetPoint() {
+    return setState;
+  }
+
+  public double getMotorCurrent() {
+    return (climbLeaderM.getOutputCurrent() + climbFollowerM.getOutputCurrent()) / 2;
+  }
+
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("Climb Leader motor position", climbLeaderM.getEncoder().getPosition());
+    SmartDashboard.putNumber("Climb follower position", climbFollowerM.getEncoder().getPosition());
     // This method will be called once per scheduler run
   }
 }
