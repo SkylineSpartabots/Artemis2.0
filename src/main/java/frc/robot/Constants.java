@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 
+import org.opencv.core.Point;
+
 import com.revrobotics.CANSparkBase.IdleMode;
 
 
@@ -35,6 +37,25 @@ public final class Constants {
         public static final double cameraRollOffset = Units.degreesToRadians(0);
         public static final double cameraPitchOffset = Units.degreesToRadians(0);
         public static final double cameraYawOffset = Units.degreesToRadians(0);
+        public static final class AprilTags {
+            public static final int blueSourceRight = 1;
+            public static final int blueSourceLeft = 2;
+            public static final int redSpeakerOffset = 3;
+            public static final int redSpeakerCenter = 4;
+            public static final int redAmp = 5;
+            public static final int blueAmp = 6;
+            public static final int blueSpeakerCenter = 7;
+            public static final int blueSpeakerOffset = 8;
+            public static final int redSourceRight = 9;
+            public static final int redSourceLeft = 10;
+            public static final int redStageLeft = 11;
+            public static final int redStageRight = 12;
+            public static final int redStageCenter = 13;
+            public static final int blueStageCenter = 14;
+            public static final int blueStageLeft = 15;
+            public static final int blueStageRight = 16;
+
+        }
     }
 
 
@@ -73,6 +94,20 @@ public final class Constants {
 
         public static final int ampMotor = 62;
         
+    }
+
+    enum AlignmentTargets {
+            BLUE_SPEAKER(new Point(0,4)),
+            RED_SPEAKER(new Point(0, -1)),
+            BLUE_AMP(new Point(1, 0)),
+            RED_AMP(new Point(1, 0));
+            
+            private Point point;
+
+            public Point getValue(){return point;}
+
+            AlignmentTargets(Point point) {this.point = point;}
+
     }
 
     public static final class FieldConstants {
