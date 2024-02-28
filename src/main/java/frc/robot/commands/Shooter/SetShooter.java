@@ -27,15 +27,15 @@ public class SetShooter extends Command {
 
         if (motor == Shooter.ShooterMotors.BOTH) {
             // cause if they are diff vals then that difference must be preserved by the both increase
-            addedSpeeds[0] = s_Shooter.getBottomSpeed() + difference;
-            addedSpeeds[1] = s_Shooter.getTopSpeed() + difference;
+            addedSpeeds[0] = s_Shooter.getBottomSetpoint() + difference;
+            addedSpeeds[1] = s_Shooter.getTopSetpoint() + difference;
         } else { // -1 is for the indexes cause getMotor returns 1 for bottom and 2 for top motor but indexes...
             addedSpeeds[motor.getMotor() - 1] = s_Shooter.getBothSpeeds()[motor.getMotor() - 1] + difference;
         }
 
         // way less jank way - called a clamp statement or smth (java21 has it built in but i dunno if we run that?)
-        finalSpeeds[0] = Math.max(0.0,Math.min(addedSpeeds[0], 1.0));
-        finalSpeeds[1] = Math.max(0.0,Math.min(addedSpeeds[1], 1.0));
+        finalSpeeds[0] = Math.max(0.0, Math.min(addedSpeeds[0], 1.0));
+        finalSpeeds[1] = Math.max(0.0, Math.min(addedSpeeds[1], 1.0));
         // How it works: min gives which ever is lower - addedspeed or 1. then max gives whichever is bigger 0 or result of min
 
         addRequirements(s_Shooter);

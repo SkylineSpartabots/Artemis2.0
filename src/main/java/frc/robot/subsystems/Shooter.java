@@ -43,10 +43,10 @@ public class Shooter extends SubsystemBase {
     private CANSparkFlex shooterTopM;
     private CANSparkFlex shooterBottomM;
 
-    private double currentTopSpeed = 0;
-    private double currentBottomSpeed = 0;
-
     private double velocityCap = 3700;
+
+    private double topVelocitySetpoint = 0;
+    private double botVelocitySetpoint = 0;
 
     // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
     private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
@@ -127,15 +127,15 @@ public class Shooter extends SubsystemBase {
 
         if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
             shooterBottomM.set(speeds[0]);
-            currentBottomSpeed = speeds[0];
+            botVelocitySetpoint = speeds[0];
         } else if (MotorLocation == Shooter.ShooterMotors.TOP) {
             shooterTopM.set(speeds[1]);
-            currentTopSpeed = speeds[1];
+            topVelocitySetpoint = speeds[1];
         } else if (MotorLocation == Shooter.ShooterMotors.BOTH) {
             shooterTopM.set(speeds[0]);
-            currentTopSpeed = speeds[0];
+            topVelocitySetpoint = speeds[0];
             shooterBottomM.set(speeds[1]);
-            currentBottomSpeed = speeds[1];
+            botVelocitySetpoint = speeds[1];
         }
     }
 
@@ -146,8 +146,9 @@ public class Shooter extends SubsystemBase {
         }
         setSpeed(speeds, ShooterMotors.BOTH);
     } //what does do 🦅🦅🍔🍔🌭 ??
-    public double getTopSpeed() { //gets specific Speed (i hope)
-        return currentTopSpeed;
+    
+    public double getTopSetpoint() { //gets specific Speed (i hope)
+        return topVelocitySetpoint;
     }
 
     public void setVoltage(double volts){
@@ -157,6 +158,8 @@ public class Shooter extends SubsystemBase {
 
     public void setVelocity(double velocity){
         velocity = Math.min(velocity, velocityCap);
+        topVelocitySetpoint = velocity;
+        botVelocitySetpoint = velocity;
 
         shooterTopM.getPIDController().setReference(velocity, ControlType.kVelocity);
         shooterBottomM.getPIDController().setReference(velocity, ControlType.kVelocity);
@@ -177,7 +180,7 @@ public class Shooter extends SubsystemBase {
     public void incPercentOutput(){
         currentPercentage += 0.05;
         shooterTopM.set(currentPercentage);
-        shooterBottomM.set(currentBottomSpeed);
+        shooterBottomM.set(currentPercentage);
     }
 
     public void decPercentOutput(){
@@ -186,8 +189,8 @@ public class Shooter extends SubsystemBase {
         shooterBottomM.set(currentPercentage);
     }
 
-    public double getBottomSpeed() { //gets specific Speed (i hope)
-        return currentBottomSpeed;
+    public double getBottomSetpoint() { //gets specific Speed (i hope)
+        return botVelocitySetpoint;
     }
 
     public double[] getBothSpeeds() {
@@ -209,12 +212,14 @@ public class Shooter extends SubsystemBase {
         shooterBottomM.set(percent);
     }
 
-    public void setTopSetpoint(double velocity){
-        currentTopSpeed = velocity;
+    public void setTopVelocity(double velocity){
+        topVelocitySetpoint = velocity;
+        shooterTopM.getPIDController().setReference(topVelocitySetpoint, ControlType.kVelocity);
     }
 
-    public void setBotSetpoint(double velocity){
-        currentBottomSpeed = velocity;
+    public void setBotVelocity(double velocity){
+        botVelocitySetpoint = velocity;
+        shooterBottomM.getPIDController().setReference(botVelocitySetpoint, ControlType.kVelocity);
     }
 
     public void setToIdle(){
@@ -229,16 +234,22 @@ public class Shooter extends SubsystemBase {
         return shooterBottomM.getBusVoltage();
     }
 
+    public boolean velocitiesWithinError(double acceptableError){
+        double[] shooterSpeeds = getBothSpeeds();
+        double averageError = ((shooterSpeeds[0] - topVelocitySetpoint) + (shooterSpeeds[1] - botVelocitySetpoint))/2;
+        return Math.abs(averageError) < acceptableError;
+    }
+
 
     @Override
     public void periodic() {
-        Logger.recordOutput("Shooter/TopSetpoints", currentTopSpeed);
-        Logger.recordOutput("Shooter/BottomSetpoints", currentBottomSpeed);
+        Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
+        Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
         Logger.recordOutput("Shooter/topMotorSpeed", shooterTopM.getEncoder().getVelocity());
         Logger.recordOutput("Shooter/bottomMotorSpeed", shooterBottomM.getEncoder().getVelocity());
 
-        SmartDashboard.putNumber("ShootT Vel", 3000 - shooterTopM.getEncoder().getVelocity());
-        SmartDashboard.putNumber("ShootB Vel", 3000 - shooterBottomM.getEncoder().getVelocity());
+        SmartDashboard.putNumber("ShootT Err", 3000 - shooterTopM.getEncoder().getVelocity());
+        SmartDashboard.putNumber("ShootB Err", 3000 - shooterBottomM.getEncoder().getVelocity());
         
         // SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
         // SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));

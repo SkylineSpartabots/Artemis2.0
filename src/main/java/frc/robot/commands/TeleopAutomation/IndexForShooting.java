@@ -15,7 +15,6 @@ public class IndexForShooting extends Command {
     private final Indexer s_Indexer;
     private final Shooter s_Shooter;
     private final Pivot s_Pivot;
-    private final Intake s_Intake;
 
     private final Timer time;
     Intake.IntakeStates state;
@@ -25,11 +24,10 @@ public class IndexForShooting extends Command {
         s_Indexer = Indexer.getInstance();
         s_Shooter = Shooter.getInstance();
         s_Pivot = Pivot.getInstance();
-        s_Intake = Intake.getInstance();
 
         this.desiredTime = desiredTime;
         this.time = new Timer();
-        addRequirements(this.s_Indexer, s_Indexer, s_Pivot, s_Intake);
+        addRequirements(this.s_Indexer, s_Shooter, s_Pivot);
     }
 
     public IndexForShooting(){
@@ -39,7 +37,6 @@ public class IndexForShooting extends Command {
     @Override
     public void initialize() {
         s_Indexer.setState(IndexerStates.ON);
-        s_Intake.setSpeed(IntakeStates.INDEX);
         time.reset(); time.start();
     }
 
@@ -50,9 +47,8 @@ public class IndexForShooting extends Command {
     @Override
     public void end(boolean interrupted) {
         s_Indexer.setState(IndexerStates.OFF);
-        s_Pivot.setState(PivotState.GROUND);
-        s_Intake.setSpeed(IntakeStates.OFF);
-        s_Shooter.setToIdle();
+        s_Pivot.setState(PivotState.GROUND);        //s_Shooter.setToIdle();
+        s_Shooter.setVoltage(0);
     }
 
     @Override
