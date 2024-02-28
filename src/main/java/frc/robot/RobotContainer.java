@@ -5,6 +5,8 @@
 package frc.robot;
 
 
+import frc.robot.commands.SetLightz;
+import frc.robot.subsystems.*;
 import org.opencv.core.Point;
 
 import com.ctre.phoenix6.Utils;
@@ -19,17 +21,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Indexer.IndexerStates;
-import frc.robot.subsystems.Amp;
-import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
-import frc.robot.subsystems.Indexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
@@ -45,6 +39,7 @@ public class RobotContainer {
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Climb s_Climb = Climb.getInstance();
     private final Amp s_Amp = Amp.getInstance();
+    private final Lightz s_lightz = Lightz.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -76,16 +71,19 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
-        driver.a().onTrue(offIntake());
-        driver.x().onTrue(indexerOn() ? offIndexer() : onIndexer());
-        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
-        
-        //nothing is binded to intake, indexer, or shooter yet
-        driver.y().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_AMP.getValue()));
-        driver.a().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_AMP.getValue()));
-        driver.x().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_SPEAKER.getValue()));
-        driver.b().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
+//        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
+//        driver.a().onTrue(offIntake());
+//        driver.x().onTrue(indexerOn() ? offIndexer() : onIndexer());
+//        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
+//
+//        //nothing is binded to intake, indexer, or shooter yet
+//        driver.y().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_AMP.getValue()));
+//        driver.a().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_AMP.getValue()));
+//        driver.x().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_SPEAKER.getValue()));
+//        driver.b().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
+
+
+        driver.a().onTrue(setLEDs());
 
 
         driver.rightTrigger().whileTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
@@ -129,6 +127,10 @@ public class RobotContainer {
     public RobotContainer() {
 
         configureBindings();
+    }
+
+    public Command setLEDs(){
+        return new SetLightz(Lightz.ledModes.BLUE);
     }
 
     private boolean shooterOn() {
