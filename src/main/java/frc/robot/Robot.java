@@ -17,8 +17,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Autos.AutoPath;
+import frc.robot.commands.Pivot.SetPivot;
+import frc.robot.commands.Shooter.ShootIntoAmp;
+import frc.robot.subsystems.Pivot.PivotState;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
