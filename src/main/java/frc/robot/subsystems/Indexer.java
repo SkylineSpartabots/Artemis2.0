@@ -53,8 +53,8 @@ public class Indexer extends SubsystemBase {
         }
     }
 
-    public void setSpeed(double speed) {
-        indexerLeaderM.set(speed);
+    public void setSpeed(double percentageOutput) {
+        indexerLeaderM.set(percentageOutput);
     }
 
 

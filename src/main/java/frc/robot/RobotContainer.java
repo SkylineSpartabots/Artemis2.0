@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
@@ -30,6 +31,7 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
+import frc.robot.commands.Shooter.SetShooter;
 import frc.robot.commands.Shooter.ShootIntoAmp;
 import frc.robot.commands.Shooter.Swing;
 import frc.robot.commands.AutoAlignDrive.PIDAlign;
@@ -89,7 +91,8 @@ public class RobotContainer {
 
         // driver.a().onTrue(setLEDs());
         // driver.b().onTrue(new ShootIntoAmp());
-        driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
+        driver.b().onTrue(new SequentialCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP, true)));
+        // driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
         driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
 
         driver.rightBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.ON)));
@@ -157,13 +160,10 @@ public class RobotContainer {
     }
 
     public Command onIntake() {
-
         return new SetIntake(IntakeStates.ON);
-        
     }
 
     public Command offIntake() {
-
         return new SetIntake(IntakeStates.OFF);
     }
 
