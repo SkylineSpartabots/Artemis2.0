@@ -97,10 +97,10 @@ public final class Constants {
     }
 
     enum AlignmentTargets {
-            BLUE_SPEAKER(new Point(0,4)),
-            RED_SPEAKER(new Point(0, -1)),
-            BLUE_AMP(new Point(1, 0)),
-            RED_AMP(new Point(1, 0));
+            BLUE_SPEAKER(new Point(2,4)),
+            RED_SPEAKER(new Point(-3, 3)),
+            BLUE_AMP(new Point(6, 5)),
+            RED_AMP(new Point(1, 2));
             
             private Point point;
 
