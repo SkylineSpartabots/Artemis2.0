@@ -14,7 +14,7 @@ public class Swing extends Command {
     Shooter s_Shooter;
     Indexer s_Indexer;
 
-    double indexerTimeDelay = 0.5;
+    double indexerTimeDelay = 0.05;
     private Timer time = new Timer();
 
     public Swing() {

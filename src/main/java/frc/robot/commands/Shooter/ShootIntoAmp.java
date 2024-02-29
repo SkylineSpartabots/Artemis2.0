@@ -22,8 +22,8 @@ public class ShootIntoAmp extends Command {
     public void initialize() {
         // Command pivot;
         // pivot = new SetPivot()
-        s_Shooter.setBotVelocity(600);
-        s_Shooter.setTopVelocity(2000);
+        s_Shooter.setBotVelocity(700);
+        s_Shooter.setTopVelocity(1700);
         // Command pivotCommand = new SetPivot(PivotState.AMP_BEFORE_SWING);
         // pivotCommand.schedule();
     }

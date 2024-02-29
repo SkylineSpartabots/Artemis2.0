@@ -65,6 +65,8 @@ public class PIDAlign extends Command {
       currentYaw = pose.getRotation().getRadians(); //hopefully the poes is updated frequently since we should be facing an april tag
     } catch (Exception e) {}
 
+    System.out.println("Current yaw: " + currentYaw);
+
     
     desiredYaw = currentYaw - offsetYaw; // angle to the target in relation to ourselves
     double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);

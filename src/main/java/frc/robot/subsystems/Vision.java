@@ -114,6 +114,20 @@ public class Vision extends SubsystemBase {
         return lastValidTarget;
     } 
 
+    public double getYaw() {
+        if (getBestTarget() != null) {
+            return getBestTarget().getYaw();
+        }
+        return -1;
+    }
+
+    public double getPitch() {
+        if (getBestTarget() != null) {
+            return getBestTarget().getPitch();
+        }
+        return -1;
+    }
+
     /**
      * @return the absolute distance in meters (there are different methods for horizontal or vertical)
      */
@@ -149,6 +163,9 @@ public class Vision extends SubsystemBase {
         try {
             calculatePoseFromVision();
         } catch (Exception e){}
+        SmartDashboard.putBoolean("has target", hasValidTarget() != null);
+        SmartDashboard.putNumber("Target yaw", getYaw());
+        SmartDashboard.putNumber("Target pitch", getPitch());
         //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
     }
 }
