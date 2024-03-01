@@ -36,7 +36,7 @@ import frc.robot.commands.AutoAlignDrive.PIDAlign;
 
 public class RobotContainer {
 
-    private final Vision s_Vision = Vision.getInstance();
+    //private final Vision s_Vision = Vision.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
@@ -77,7 +77,8 @@ public class RobotContainer {
 
 //        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
 //        driver.a().onTrue(offIntake());
-    driver.x().onTrue(indexerOn() ? offIndexer() : onIndexer());
+        driver.x().onTrue(onIndexer());
+        driver.b().onTrue(offIndexer());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
 //
 //        //nothing is binded to intake, indexer, or shooter yet
@@ -89,7 +90,7 @@ public class RobotContainer {
 
         // driver.a().onTrue(setLEDs());
         // driver.b().onTrue(new ShootIntoAmp());
-        driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
+        //driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
         driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
 
         driver.rightBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.ON)));
@@ -102,7 +103,7 @@ public class RobotContainer {
 
 
 
-        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0.05)));
+        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(-0.05)));
         driver.leftTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0)));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));

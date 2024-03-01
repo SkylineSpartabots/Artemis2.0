@@ -8,7 +8,7 @@ import frc.robot.subsystems.Indexer.IndexerStates;
 public class SetIndexer extends Command {
     private final Indexer s_Indexer;
     IndexerStates state;
-    private final int colorSensorProximityThreshold = 50; // Test this value later
+    private final int colorSensorProximityThreshold = 700; // Test this value later
 
     public SetIndexer(IndexerStates state) {
         s_Indexer = Indexer.getInstance();
