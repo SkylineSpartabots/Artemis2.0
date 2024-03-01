@@ -31,7 +31,7 @@ public class SmartIntake extends Command {
   public void initialize() {
     new ParallelCommandGroup(
       new SetIntake(IntakeStates.ON),
-      new SetIndexer(IndexerStates.ON),
+      new SetIndexer(IndexerStates.ON, true),
       new SetPivot(PivotState.SUBWOOFER)
     ).schedule();
   }
@@ -44,7 +44,7 @@ public class SmartIntake extends Command {
   public void end(boolean interrupted) {
     new ParallelCommandGroup(
       new SetIntake(IntakeStates.OFF),
-      new SetIndexer(IndexerStates.OFF)
+      new SetIndexer(IndexerStates.OFF, false)
     ).schedule();
   }
 
