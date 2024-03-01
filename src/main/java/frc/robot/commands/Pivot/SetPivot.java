@@ -3,13 +3,18 @@ package frc.robot.commands.Pivot;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Pivot.PivotState;;
 
 public class SetPivot extends Command {
     Pivot s_Pivot;
+    Indexer s_Indexer;
+
     PivotState state;
     double desiredCANcoderAngle;
+
+    boolean isShootingIntoAmp;
 
     // Tune later
     PIDController CANController = new PIDController(50
@@ -20,6 +25,14 @@ public class SetPivot extends Command {
         s_Pivot = Pivot.getInstance();
         this.state = state;
         addRequirements(s_Pivot);
+    }
+
+    public SetPivot(PivotState state, boolean isShootingIntoAmp) {
+        s_Pivot = Pivot.getInstance();
+        s_Indexer = Indexer.getInstance();
+        this.isShootingIntoAmp = isShootingIntoAmp;
+        this.state = state;
+        addRequirements(s_Pivot, s_Indexer);
     }
 
     public SetPivot(double desiredAngle){
@@ -41,6 +54,11 @@ public class SetPivot extends Command {
         double voltage;
         if (s_Pivot.CANcoderWorking()) {
             voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(),  state == PivotState.NULL ? desiredCANcoderAngle : s_Pivot.getSetPoint());
+            if(isShootingIntoAmp && s_Pivot.getCANcoderAbsolutePosition() > Pivot.pivotDegreeToCANcoder(50)){
+                s_Indexer.setSpeed(0.8);
+            } else if(isShootingIntoAmp && s_Pivot.getCANcoderAbsolutePosition() < Pivot.pivotDegreeToCANcoder(75)){ //tune how long it is fast for
+                voltage = 4; //tune speed
+            }
         }
         else {
             voltage = 0;

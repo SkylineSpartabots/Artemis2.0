@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
@@ -27,12 +28,13 @@ import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
-import frc.robot.commands.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
+import frc.robot.commands.Shooter.SetShooter;
 import frc.robot.commands.Shooter.ShootIntoAmp;
 import frc.robot.commands.Shooter.Swing;
 import frc.robot.commands.AutoAlignDrive.PIDAlign;
+import frc.robot.commands.Intake.SetIntake;
 
 public class RobotContainer {
 
@@ -158,13 +160,10 @@ public class RobotContainer {
     }
 
     public Command onIntake() {
-
         return new SetIntake(IntakeStates.ON);
-        
     }
 
     public Command offIntake() {
-
         return new SetIntake(IntakeStates.OFF);
     }
 
