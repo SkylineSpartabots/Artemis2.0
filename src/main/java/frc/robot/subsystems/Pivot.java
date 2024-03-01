@@ -8,6 +8,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -55,16 +57,22 @@ public class Pivot extends SubsystemBase {
 
     private CANSparkFlex pivotLeaderM;
     private CANSparkFlex pivotFollowerM;
+    private RelativeEncoder leaderEncoder;
+    private RelativeEncoder followEncoder;
     private CANcoder pivotCANcoder;
     private PivotState currState = PivotState.GROUND;
     private static double pivotCANcoderAngleOffset = 57.89;
 
     public Pivot() {
         pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
+        pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotFollowerM, MotorType.kBrushless);
+        
+        leaderEncoder = pivotLeaderM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+        followEncoder = pivotFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+        
         configMotor(pivotLeaderM);
 
 
-        pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotFollowerM, MotorType.kBrushless);
         configMotor(pivotFollowerM);
         pivotFollowerM.follow(pivotLeaderM, true);
 
@@ -103,7 +111,7 @@ public class Pivot extends SubsystemBase {
      * @param relativePosition The position to set the encoders to. Measured in rotations. 
      */
     public void resetMotorEncoders(double relativePosition){
-        pivotLeaderM.getEncoder().setPosition(relativePosition);
+        leaderEncoder.setPosition(relativePosition);
     }
 
     /**
@@ -127,7 +135,7 @@ public class Pivot extends SubsystemBase {
      * @return leader motor's integrated encoder value
      */
     public double getMotorEncoderPosition(){
-        return pivotLeaderM.getEncoder().getPosition();
+        return leaderEncoder.getPosition();
     }
     
     /**
@@ -164,7 +172,7 @@ public class Pivot extends SubsystemBase {
     }
 
     public double getMotorPosition() {
-        return pivotLeaderM.getEncoder().getPosition();
+        return leaderEncoder.getPosition();
     }
 
     /**
@@ -174,7 +182,7 @@ public class Pivot extends SubsystemBase {
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
         motor.setIdleMode(IdleMode.kCoast);
-        motor.getEncoder().setPosition(0.2);
+        leaderEncoder.setPosition(0.2);
 
 
     }
