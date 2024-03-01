@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,6 +26,10 @@ public class Climb extends SubsystemBase {
 
   private CANSparkFlex climbLeaderM;
   private CANSparkFlex climbFollowerM;
+
+  private RelativeEncoder leaderEncoder;
+  private RelativeEncoder followEncoder;
+
   // Measured in motor rotations
   private int maxHeight = 300;
   private int setState;
@@ -36,6 +42,9 @@ public class Climb extends SubsystemBase {
     configMotor(climbFollowerM, false);
     climbFollowerM.follow(climbLeaderM, true);
     setState = 2;
+    leaderEncoder = climbLeaderM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+    followEncoder = climbFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+
     resetMotorEncoders();
   }
 
@@ -48,8 +57,8 @@ public class Climb extends SubsystemBase {
   }
 
   public void resetMotorEncoders() {
-    climbLeaderM.getEncoder().setPosition(2);
-    climbFollowerM.getEncoder().setPosition(2);
+    leaderEncoder.setPosition(2);
+    followEncoder.setPosition(2);
   }
 
   public void setClimbSpeed(double speed){
@@ -82,8 +91,8 @@ public class Climb extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climb Leader motor position", climbLeaderM.getEncoder().getPosition());
-    SmartDashboard.putNumber("Climb follower position", climbFollowerM.getEncoder().getPosition());
+    SmartDashboard.putNumber("Climb Leader motor position", leaderEncoder.getPosition());
+    SmartDashboard.putNumber("Climb follower position", followEncoder.getPosition());
     // This method will be called once per scheduler run
   }
 }
