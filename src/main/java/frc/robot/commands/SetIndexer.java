@@ -9,8 +9,10 @@ public class SetIndexer extends Command {
     private final Indexer s_Indexer;
     IndexerStates state;
     private final int colorSensorProximityThreshold = 700; // Test this value later
+    private final boolean intaking;
 
-    public SetIndexer(IndexerStates state) {
+    public SetIndexer(IndexerStates state, boolean intaking) {
+        this.intaking = intaking;
         s_Indexer = Indexer.getInstance();
         this.state = state;
 
@@ -25,11 +27,14 @@ public class SetIndexer extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        s_Indexer.setSpeed(0);
+        if (intaking) {
+            s_Indexer.setSpeed(0);
+
+        }
     }
 
     @Override
     public boolean isFinished() {
-        return s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold;
+        return intaking ? s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold : true;
     }
 }

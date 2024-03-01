@@ -170,11 +170,11 @@ public class RobotContainer {
     //shooter
     public Command onIndexer() {
         
-        return new SetIndexer(IndexerStates.ON);
+        return new SetIndexer(IndexerStates.ON, true);
     }
     
     public Command offIndexer() {
-        return new SetIndexer(IndexerStates.OFF);
+        return new SetIndexer(IndexerStates.OFF, false);
     }
 
 

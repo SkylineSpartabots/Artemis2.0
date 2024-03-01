@@ -14,7 +14,7 @@ public class TeleopFactory {
     
     public static Command IntelligentIntake(){
         return new ParallelCommandGroup(new SetPivot(PivotState.INTAKE),
-        new SequentialCommandGroup(new WaitCommand(0.3), new SetIntake(IntakeStates.ON), new SetIndexer(IndexerStates.ON)));
+        new SequentialCommandGroup(new WaitCommand(0.3), new SetIntake(IntakeStates.ON), new SetIndexer(IndexerStates.ON, true)));
     }
 
 }
