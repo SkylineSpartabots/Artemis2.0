@@ -27,6 +27,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
+import frc.robot.commands.ReverseIndexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.TeleopFactory;
 import frc.robot.commands.Pivot.SetPivot;
@@ -94,7 +95,7 @@ public class RobotContainer {
         // driver.a().onTrue(setLEDs());
         // driver.b().onTrue(new ShootIntoAmp());
         //driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
-        driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
+        // driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
 
         driver.rightBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.ON)));
         driver.leftBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.OFF)));
@@ -104,9 +105,7 @@ public class RobotContainer {
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         // driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
-
-
-        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(-0.05)));
+        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setVoltage(3)));
         driver.leftTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0)));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
@@ -168,10 +167,13 @@ public class RobotContainer {
         return new SetIntake(IntakeStates.OFF);
     }
 
+    public Command indexToShooter(){
+        return new SetIndexer(IndexerStates.ON, false);
+    }
+
     //shooter
     public Command onIndexer() {
-        
-        return new SetIndexer(IndexerStates.ON, true);
+        return new SequentialCommandGroup(new SetIndexer(IndexerStates.ON, true), new ReverseIndexer());
     }
     
     public Command offIndexer() {

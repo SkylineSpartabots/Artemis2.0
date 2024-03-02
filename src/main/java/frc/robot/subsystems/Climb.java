@@ -24,26 +24,24 @@ public class Climb extends SubsystemBase {
     return instance;
   }
 
-  private CANSparkFlex climbLeaderM;
-  private CANSparkFlex climbFollowerM;
+  private CANSparkFlex climbMotor;
 
-  private RelativeEncoder leaderEncoder;
-  private RelativeEncoder followEncoder;
+  private RelativeEncoder motorEncoder;
 
   // Measured in motor rotations
   private int maxHeight = 300;
   private int setState;
 
   public Climb() {
-    climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
-    configMotor(climbLeaderM, true);
+    // climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
+    // configMotor(climbLeaderM, true);
 
-    climbFollowerM = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
-    configMotor(climbFollowerM, false);
-    climbFollowerM.follow(climbLeaderM, true);
+    climbMotor = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
+    configMotor(climbMotor, false);
+    // climbMotor.follow(climbMotor, true);
     setState = 2;
-    leaderEncoder = climbLeaderM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
-    followEncoder = climbFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+    motorEncoder = climbMotor.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+    // followEncoder = climbFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
 
     resetMotorEncoders();
   }
@@ -57,12 +55,11 @@ public class Climb extends SubsystemBase {
   }
 
   public void resetMotorEncoders() {
-    leaderEncoder.setPosition(2);
-    followEncoder.setPosition(2);
+    motorEncoder.setPosition(2);
   }
 
   public void setClimbSpeed(double speed){
-    climbLeaderM.set(speed); //speed should be -1.0 to 1.0
+    climbMotor.set(speed); //speed should be -1.0 to 1.0
   }
 
   public void setState(int state) {
@@ -70,7 +67,7 @@ public class Climb extends SubsystemBase {
   }
 
   public double getPosition() {
-    return leaderEncoder.getPosition();
+    return motorEncoder.getPosition();
   }
 
   /**
@@ -78,7 +75,7 @@ public class Climb extends SubsystemBase {
    * @param voltage The desired voltage. 
    */
   public void setVoltage(double voltage) {
-    climbLeaderM.setVoltage(voltage);
+    climbMotor.setVoltage(voltage);
   }
   
   public double getSetPoint() {
@@ -86,13 +83,13 @@ public class Climb extends SubsystemBase {
   }
 
   public double getMotorCurrent() {
-    return (climbLeaderM.getOutputCurrent() + climbFollowerM.getOutputCurrent()) / 2;
+    return (climbMotor.getOutputCurrent() + climbMotor.getOutputCurrent()) / 2;
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climb Leader motor position", leaderEncoder.getPosition());
-    SmartDashboard.putNumber("Climb follower position", followEncoder.getPosition());
+    SmartDashboard.putNumber("Climb motor position", motorEncoder.getPosition());
+    // SmartDashboard.putNumber("Climb follower position", followEncoder.getPosition());
     // This method will be called once per scheduler run
   }
 }

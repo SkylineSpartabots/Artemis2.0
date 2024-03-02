@@ -23,6 +23,7 @@ public class SetPivot extends Command {
 
     public SetPivot(PivotState state) {
         s_Pivot = Pivot.getInstance();
+        isShootingIntoAmp = false;
         this.state = state;
         addRequirements(s_Pivot);
     }
