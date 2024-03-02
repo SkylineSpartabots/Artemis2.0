@@ -223,6 +223,41 @@ public final class Autos {
     );
   }
 
+  public static Command TwoNote() {
+    ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("TwoNote");
+
+    return new SequentialCommandGroup(new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER),
+      new InstantCommand(() -> s_Shooter.setVelocity(1800))),
+      Commands.waitSeconds(0.8),
+      new SetIndexer(IndexerStates.ON, false),
+      Commands.waitSeconds(0.8),
+
+      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false)),
+
+      //new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(0)), new SetIntake(IntakeStates.ON), new SetIndexer(IndexerStates.ON, true)),
+      new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(0)), new SetIndexer(IndexerStates.ON, false)),
+
+      //new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(1)), new SetIntake(IntakeStates.OFF), new SetIndexer(IndexerStates.OFF, false)),
+
+      new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(1)), new SetIndexer(IndexerStates.OFF, false)),
+
+      shootSequence()
+      );
+  }
+
+  private static Command shootSequence() {
+
+    return new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(1800)),
+      Commands.waitSeconds(0.8),
+      new SetIndexer(IndexerStates.ON, false),
+      Commands.waitSeconds(0.8),
+      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false))
+      );
+      
+  }
+
+
+
   /*
    * Enum for the different autos. Contains a name and a mechCommands array. The mechCommands array contains 
    * all the commands that the mechanisms will use (stuff that is unrelated to the drivetrain). These commands 
@@ -235,7 +270,8 @@ public final class Autos {
     //if you want to run a mechCommand or mechCommandGroup in parallel with a path, create a boolean array with true values corresponding to the mechCommands you want to run in parallel.
       ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
       FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
-      FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer());
+      FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
+      TwoNoteSubwoofer("TwoNoteSuboofer", TwoNote());
 
       String name;
       Command autoCommand;

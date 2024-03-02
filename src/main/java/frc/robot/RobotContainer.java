@@ -79,10 +79,9 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-//        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
-       driver.a().onTrue(offIntake());
         driver.y().onTrue(TeleopFactory.IntelligentIntake());
-        driver.x().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
+        driver.a().onTrue(offIntake());
+        driver.x().onTrue(onIndexer());
         driver.b().onTrue(offIndexer());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
 //
