@@ -2,7 +2,7 @@
 
 #define NUM_LEDS 300
 
-#define DATA_PIN 3
+#define DATA_PIN 4
 
 
 // Define the array of leds
@@ -99,9 +99,9 @@ void loop() {
       case '9'://redAnt - just demo really rn
         runAnt(PURPLE, 7, 3, 35);
         break;
-    }
-  }
+    } 
   digitalWrite(13, 0); // Debug
+  }
 
   if (antEnabled){runAnt(hueAnt, satAnt, valAnt, primarySize, secondarySize, antDelay);}
   else if (flashEnabled) {flashSolid(hueFlash, satFlash, valFlash, flashOnDelay, flashOffDelay);}

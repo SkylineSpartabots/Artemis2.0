@@ -78,7 +78,8 @@
              if (timer.get() >= 10) {
 
 //                 arduino.writeString(String.valueOf(selected));
-                 arduino.write(new byte[]{(byte)selected}, 1); // in theory this should work right?
+                 arduino.write(new byte[]{(byte)selected}, 1); // write byte array containing byte converted selected
+                 // in theory this should work right?
                  timer.reset();
                  System.out.println("Wrote to Arduino");
              }
