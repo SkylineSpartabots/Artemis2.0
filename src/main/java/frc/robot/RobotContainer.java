@@ -97,8 +97,8 @@ public class RobotContainer {
         //driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
         // driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
 
-        driver.rightBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.ON)));
-        driver.leftBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.OFF)));
+        driver.rightBumper().onTrue(new InstantCommand(() -> s_Shooter.setVelocity(2000)));
+        driver.leftBumper().onTrue(new InstantCommand(() -> s_Shooter.setVelocity(0)));
 
         // driver.rightBumper().whileTrue(shooterOn() ? new InstantCommand(() -> Shooter.getInstance().setVoltage(0)) : new InstantCommand(() -> s_Shooter.setVelocity(3000)));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));

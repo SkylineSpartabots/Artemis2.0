@@ -41,7 +41,7 @@ public class Pivot extends SubsystemBase {
 
         AMP_BEFORE_SWING(Pivot.pivotDegreeToCANcoder(60)),
 
-        INTAKE(Pivot.pivotDegreeToCANcoder(50)),
+        INTAKE(Pivot.pivotDegreeToCANcoder(70)),
 
         AMP(Pivot.pivotDegreeToCANcoder(90));
         //WING(position);

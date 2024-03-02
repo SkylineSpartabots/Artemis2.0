@@ -5,6 +5,7 @@
 package frc.robot.commands;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import com.choreo.lib.*;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
@@ -44,7 +45,8 @@ public final class Autos {
     ChoreoTrajectory traj = path;
     thetaController.reset();
 
-    s_Swerve.setAutoStartPose(traj.getPoses()[0]);
+    s_Swerve.setAutoStartPose(traj.getInitialPose());
+    SmartDashboard.putNumber("Start pose x", traj.getInitialPose().getX());
     s_Swerve.resetOdo(traj.getInitialPose());
     Command swerveCommand = Choreo.choreoSwerveCommand(
       traj,
@@ -53,9 +55,10 @@ public final class Autos {
         new PIDController(0.57, 0.2, 0),                                                           
         thetaController,
         (ChassisSpeeds speeds) -> s_Swerve.setControl(drive.withSpeeds(speeds)),
+        () -> {return false;},
         // (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
-            () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-              return alliance.isPresent() && alliance.get() == Alliance.Red;},
+            // () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            //   return alliance.isPresent() && alliance.get() == Alliance.Red;},
               s_Swerve);
       
       return swerveCommand;
