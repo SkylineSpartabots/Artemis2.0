@@ -38,9 +38,9 @@ public class Indexer extends SubsystemBase {
     }
 
     public enum IndexerStates {
-        ON(0.4),
+        ON(0.8),
         OFF(0),
-        REV(-0.3);
+        REV(-0.8);
         
         private double speed;
 

@@ -35,7 +35,7 @@ public class ZeroPivot extends Command {
 	public void end(boolean interrupted) {
         SmartDashboard.putBoolean("Running zero", false);
         s_Pivot.setPercentageOutput(0);
-        s_Pivot.resetMotorEncoders(0.2);
+        // s_Pivot.resetMotorEncoders(0.2);
         s_Pivot.resetCANcoder(0.2);
 	}
 }

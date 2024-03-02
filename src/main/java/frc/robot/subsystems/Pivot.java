@@ -57,8 +57,8 @@ public class Pivot extends SubsystemBase {
 
     private CANSparkFlex pivotLeaderM;
     private CANSparkFlex pivotFollowerM;
-    private RelativeEncoder leaderEncoder;
-    private RelativeEncoder followEncoder;
+    // private RelativeEncoder leaderEncoder;
+    // private RelativeEncoder followEncoder;
     private CANcoder pivotCANcoder;
     private PivotState currState = PivotState.GROUND;
     private static double pivotCANcoderAngleOffset = 57.89;
@@ -67,8 +67,8 @@ public class Pivot extends SubsystemBase {
         pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
         pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotFollowerM, MotorType.kBrushless);
         
-        leaderEncoder = pivotLeaderM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
-        followEncoder = pivotFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+        // leaderEncoder = pivotLeaderM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+        // followEncoder = pivotFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
         
         configMotor(pivotLeaderM);
 
@@ -110,9 +110,9 @@ public class Pivot extends SubsystemBase {
      * Sets the integrated encoder positions of to the specified position. 
      * @param relativePosition The position to set the encoders to. Measured in rotations. 
      */
-    public void resetMotorEncoders(double relativePosition){
-        leaderEncoder.setPosition(relativePosition);
-    }
+    // public void resetMotorEncoders(double relativePosition){
+    //     leaderEncoder.setPosition(relativePosition);
+    // }
 
     /**
      * Gets the current position measured by the CANcoder
@@ -134,9 +134,9 @@ public class Pivot extends SubsystemBase {
      * 
      * @return leader motor's integrated encoder value
      */
-    public double getMotorEncoderPosition(){
-        return leaderEncoder.getPosition();
-    }
+    // public double getMotorEncoderPosition(){
+    //     return leaderEncoder.getPosition();
+    // }
     
     /**
      * Gets the current set point of the pivot. 
@@ -171,9 +171,9 @@ public class Pivot extends SubsystemBase {
         return (pivotLeaderM.getOutputCurrent() + pivotFollowerM.getOutputCurrent())/2;
     }
 
-    public double getMotorPosition() {
-        return leaderEncoder.getPosition();
-    }
+    // public double getMotorPosition() {
+    //     return leaderEncoder.getPosition();
+    // }
 
     /**
      * Configures the specified motor with current limit and idle mode plus PID. 
@@ -182,7 +182,7 @@ public class Pivot extends SubsystemBase {
     private void configMotor(CANSparkFlex motor) {
         motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
         motor.setIdleMode(IdleMode.kCoast);
-        leaderEncoder.setPosition(0.2);
+        // leaderEncoder.setPosition(0.2);
 
 
     }
@@ -223,11 +223,11 @@ public class Pivot extends SubsystemBase {
     @Override
     public void periodic() {
         Logger.recordOutput("Pivot/CurrentCANcoderRotation", getCANcoderAbsolutePosition());
-        Logger.recordOutput("Pivot/CurrentMotorEncoderRotation", getMotorEncoderPosition());
+        // Logger.recordOutput("Pivot/CurrentMotorEncoderRotation", getMotorEncoderPosition());
         Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
         SmartDashboard.putNumber("Pivot measured angle", pivotAngle());
-        SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());
+        // SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());
         SmartDashboard.putBoolean("CANcoder working", CANcoderWorking());
     }
 }

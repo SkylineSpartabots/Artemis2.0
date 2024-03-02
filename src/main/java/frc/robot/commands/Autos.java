@@ -62,7 +62,7 @@ public final class Autos {
   }
 
   public static Command FourNoteSubwoofer(){
-    ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteSubwoofer");
+    ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourPieceSubwoofer");
     return new SequentialCommandGroup(
       new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER),
       new InstantCommand(() -> s_Shooter.setVelocity(2500))),

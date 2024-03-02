@@ -27,7 +27,9 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
+import frc.robot.commands.ReverseIndexer;
 import frc.robot.commands.SetIndexer;
+import frc.robot.commands.TeleopFactory;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooter;
@@ -78,8 +80,9 @@ public class RobotContainer {
     private void configureBindings() {
 
 //        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
-//        driver.a().onTrue(offIntake());
-        driver.x().onTrue(onIndexer());
+       driver.a().onTrue(offIntake());
+        driver.y().onTrue(TeleopFactory.IntelligentIntake());
+        driver.x().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
         driver.b().onTrue(offIndexer());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
 //
@@ -93,7 +96,7 @@ public class RobotContainer {
         // driver.a().onTrue(setLEDs());
         // driver.b().onTrue(new ShootIntoAmp());
         //driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
-        driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
+        // driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
 
         driver.rightBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.ON)));
         driver.leftBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.OFF)));
@@ -103,9 +106,7 @@ public class RobotContainer {
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         // driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
-
-
-        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(-0.05)));
+        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setVoltage(3)));
         driver.leftTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0)));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
@@ -113,12 +114,12 @@ public class RobotContainer {
         driverDpadLeft.onTrue(new SetPivot(PivotState.SUBWOOFER));
         driverDpadRight.onTrue(new ZeroPivot());
 
-        // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
-        //                 // negative Y (forward)
-        //                 .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-        //                 .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-        //         ));
+        drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
+                        // negative Y (forward)
+                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                ));
         
 
         // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -167,10 +168,13 @@ public class RobotContainer {
         return new SetIntake(IntakeStates.OFF);
     }
 
+    public Command indexToShooter(){
+        return new SetIndexer(IndexerStates.ON, false);
+    }
+
     //shooter
     public Command onIndexer() {
-        
-        return new SetIndexer(IndexerStates.ON, true);
+        return new SequentialCommandGroup(new SetIndexer(IndexerStates.ON, true), new ReverseIndexer());
     }
     
     public Command offIndexer() {
