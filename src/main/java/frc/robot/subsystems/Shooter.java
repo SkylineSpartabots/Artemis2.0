@@ -65,8 +65,10 @@ public class Shooter extends SubsystemBase {
         currentPercentage = 0.0;
         shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
         shooterBottomM = new CANSparkFlex(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
-        topEncoder = shooterTopM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
-        bottomEncoder = shooterBottomM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+        // topEncoder = shooterTopM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+        // bottomEncoder = shooterBottomM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+        topEncoder = shooterTopM.getEncoder();
+        bottomEncoder = shooterBottomM.getEncoder();
         shooterTopM.setInverted(true);
         shooterBottomM.setInverted(true);
         configMotors();

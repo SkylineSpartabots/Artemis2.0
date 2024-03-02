@@ -17,6 +17,8 @@ public class IndexForShooting extends Command {
     private final Pivot s_Pivot;
 
     private final Timer time;
+    private final double colorSensorThreshold = 150;
+
     Intake.IntakeStates state;
     private double desiredTime;
 
@@ -53,6 +55,7 @@ public class IndexForShooting extends Command {
 
     @Override
     public boolean isFinished() {//TODO: revise so this is based on distance sensor. Once no note in indexer, turn everything off after a 0.25 s delay.
-        return time.get() > desiredTime; //stop after a desired amount of time
+        // return s_Indexer.getColorSensorResult() < colorSensorThreshold; //stop after a desired amount of time
+        return time.get() > 3;
     }
 }

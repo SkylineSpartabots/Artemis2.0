@@ -33,8 +33,10 @@ import frc.robot.commands.TeleopFactory;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooter;
+import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Shooter.ShootIntoAmp;
 import frc.robot.commands.Shooter.Swing;
+import frc.robot.commands.TeleopAutomation.IndexForShooting;
 import frc.robot.commands.AutoAlignDrive.PIDAlign;
 import frc.robot.commands.Intake.SetIntake;
 
@@ -80,10 +82,11 @@ public class RobotContainer {
     private void configureBindings() {
 
 //        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
-       driver.a().onTrue(offIntake());
+       driver.a().onTrue(offEverything());
         driver.y().onTrue(TeleopFactory.IntelligentIntake());
         driver.x().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
-        driver.b().onTrue(offIndexer());
+        // driver.x().onTrue(setShooterVelocity(0));
+        driver.b().onTrue(shootAmp());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
 //
 //        //nothing is binded to intake, indexer, or shooter yet
@@ -155,7 +158,15 @@ public class RobotContainer {
     private boolean intakeOn() {
         return s_Intake.getMotorVoltage() > 0;
     }
- 
+
+    public Command setShooterVelocity(double velocity){
+        return new InstantCommand(() -> s_Shooter.setVelocity(velocity));
+    }
+
+    public Command offEverything(){
+        return new ParallelCommandGroup(setShooterVelocity(0), offIndexer(), offIntake());
+    }
+
     public Command aligntoCordinate(Point point) {
         return new PIDAlign(point);
     }
@@ -175,6 +186,14 @@ public class RobotContainer {
     //shooter
     public Command onIndexer() {
         return new SequentialCommandGroup(new SetIndexer(IndexerStates.ON, true), new ReverseIndexer());
+    }
+
+    public Command shootAmp(){
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new SetPivot(PivotState.AMP),
+                new SetShooterCommand(2000, 1200))
+        );
     }
     
     public Command offIndexer() {
