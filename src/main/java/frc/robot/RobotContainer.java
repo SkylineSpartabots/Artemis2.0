@@ -7,8 +7,12 @@ package frc.robot;
 
 // import frc.robot.commands.SetLightz;
 import frc.robot.subsystems.*;
+
+import java.time.Instant;
+
 import org.opencv.core.Point;
 
+import com.ctre.phoenix.music.Orchestra;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -47,6 +51,7 @@ public class RobotContainer {
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Climb s_Climb = Climb.getInstance();
     private final Amp s_Amp = Amp.getInstance();
+    private final Music s_Orchestra = Music.getInstance();
     // private final Lightz s_lightz = Lightz.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -80,7 +85,7 @@ public class RobotContainer {
     private void configureBindings() {
 
 //        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
-       driver.a().onTrue(offIntake());
+        driver.a().onTrue(offIntake());
         driver.y().onTrue(TeleopFactory.IntelligentIntake());
         driver.x().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
         driver.b().onTrue(offIndexer());
@@ -133,6 +138,10 @@ public class RobotContainer {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        driverBack.onTrue(new SequentialCommandGroup(
+            new InstantCommand(() -> s_Orchestra.loadMusic("jinglebells.chrp")),
+            new InstantCommand(() -> s_Orchestra.playMusic())));
     }
 
     public RobotContainer() {
@@ -180,6 +189,5 @@ public class RobotContainer {
     public Command offIndexer() {
         return new SetIndexer(IndexerStates.OFF, false);
     }
-
 
 }
