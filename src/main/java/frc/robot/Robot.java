@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -50,10 +51,11 @@ public class Robot extends LoggedRobot {
     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
     autoChooser.setDefaultOption("ThreeNoteFarSide", Autos.AutoPath.ThreeNoteFarSide);
     autoChooser.addOption("FourNoteSubWoofer", Autos.AutoPath.FourNoteSubwoofer);
+    autoChooser.addOption("Two note Subwoofer", Autos.AutoPath.TwoNoteSubwoofer);
     /*autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
-    autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);
-    SmartDashboard.putData("Auto choices", autoChooser);*/
+    autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
+    SmartDashboard.putData("Auto choices", autoChooser);
     m_robotContainer = new RobotContainer();
 
   }

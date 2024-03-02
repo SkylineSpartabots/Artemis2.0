@@ -84,9 +84,9 @@ public class RobotContainer {
 //        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
        driver.a().onTrue(offEverything());
         driver.y().onTrue(TeleopFactory.IntelligentIntake());
-        driver.x().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)));
-        // driver.x().onTrue(setShooterVelocity(0));
-        driver.b().onTrue(shootAmp());
+        driver.a().onTrue(offIntake());
+        driver.x().onTrue(onIndexer());
+        driver.b().onTrue(offIndexer());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
 //
 //        //nothing is binded to intake, indexer, or shooter yet
@@ -101,8 +101,8 @@ public class RobotContainer {
         //driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
         // driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
 
-        driver.rightBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.ON)));
-        driver.leftBumper().onTrue(new InstantCommand(() -> s_Indexer.setState(IndexerStates.OFF)));
+        driver.rightBumper().onTrue(new InstantCommand(() -> s_Shooter.setVelocity(2000)));
+        driver.leftBumper().onTrue(new InstantCommand(() -> s_Shooter.setVelocity(0)));
 
         // driver.rightBumper().whileTrue(shooterOn() ? new InstantCommand(() -> Shooter.getInstance().setVoltage(0)) : new InstantCommand(() -> s_Shooter.setVelocity(3000)));
         //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.sql.Driver;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
@@ -39,6 +40,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
     Vision m_Camera;
+
+    private Field2d m_field = new Field2d();
 
     public static CommandSwerveDrivetrain getInstance(){
         if(s_Swerve == null){
@@ -177,6 +180,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
 
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
+        m_field.setRobotPose(m_odometry.getEstimatedPosition());
+        SmartDashboard.putData("field", m_field);
 
         for(int i = 0; i < ModuleCount; i++){
             Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getMotorVoltage().getValueAsDouble());

@@ -78,7 +78,10 @@ public class Climb extends SubsystemBase {
   public void setVoltage(double voltage) {
     climbMotor.setVoltage(voltage);
   }
-  
+  public void setPercentOutput(double percent){
+    climbMotor.set(percent);
+  }
+
   public double getSetPoint() {
     return setState;
   }

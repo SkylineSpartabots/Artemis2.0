@@ -21,7 +21,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final double MaxSpeed = 5.75; //can be lowered during testing
+    public static final double MaxSpeed = 4.5; //can be lowered during testing
     public static final double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
     public static final int timeOutMs = 10;
@@ -97,7 +97,7 @@ public final class Constants {
     }
 
     enum AlignmentTargets {
-            BLUE_SPEAKER(new Point(2,4)),
+            BLUE_SPEAKER(new Point(7,6)),
             RED_SPEAKER(new Point(-3, 3)),
             BLUE_AMP(new Point(6, 5)),
             RED_AMP(new Point(1, 2));
