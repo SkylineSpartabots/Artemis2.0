@@ -70,7 +70,7 @@ public class Climb extends SubsystemBase {
   }
 
   public double getPosition() {
-    return climbLeaderM.getEncoder().getPosition();
+    return leaderEncoder.getPosition();
   }
 
   /**

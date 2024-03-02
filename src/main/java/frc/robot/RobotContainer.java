@@ -28,6 +28,7 @@ import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
+import frc.robot.commands.TeleopFactory;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooter;
@@ -77,8 +78,8 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-//        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
-//        driver.a().onTrue(offIntake());
+        driver.y().onTrue(TeleopFactory.IntelligentIntake());
+        driver.a().onTrue(offIntake());
         driver.x().onTrue(onIndexer());
         driver.b().onTrue(offIndexer());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
@@ -113,12 +114,12 @@ public class RobotContainer {
         driverDpadLeft.onTrue(new SetPivot(PivotState.SUBWOOFER));
         driverDpadRight.onTrue(new ZeroPivot());
 
-        // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        //         drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
-        //                 // negative Y (forward)
-        //                 .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-        //                 .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-        //         ));
+        drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
+                        // negative Y (forward)
+                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                ));
         
 
         // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
