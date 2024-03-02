@@ -5,9 +5,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerStates;
+import frc.robot.subsystems.Lightz;
 
 public class SetIndexer extends Command {
     private final Indexer s_Indexer;
+    private final Lightz s_Lightz;
     IndexerStates state;
     private final int colorSensorProximityThreshold = 110; // Test this value later
     private final boolean intaking;
@@ -17,6 +19,7 @@ public class SetIndexer extends Command {
     public SetIndexer(IndexerStates state, boolean intaking) {
         this.intaking = intaking;
         s_Indexer = Indexer.getInstance();
+        s_Lightz = Lightz.getInstance();
         this.state = state;
         timer = new Timer();
         addRequirements(s_Indexer);
@@ -49,5 +52,6 @@ public class SetIndexer extends Command {
     public boolean isFinished() {
         return intaking ? ((s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold) || timer.hasElapsed(time)): true;
         // return intaking ? s_Indexer.getLimitSwitchResult() : true;
+        s_Lightz.setLEDs(Lightz.ledModes.RED); // should this be right here?
     }
 }
