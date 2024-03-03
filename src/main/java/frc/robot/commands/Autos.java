@@ -274,6 +274,15 @@ public final class Autos {
       
   }
 
+  public static Command Horizontal() {
+     ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal");
+
+     return new SequentialCommandGroup(
+      FollowChoreoTrajectory(trajectory.get(0)),
+      FollowChoreoTrajectory(trajectory.get(1))
+     );
+  }
+
 
 
   /*
@@ -289,7 +298,8 @@ public final class Autos {
       ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
       FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
       FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
-      TwoNoteSubwoofer("TwoNoteSuboofer", TwoNote());
+      TwoNoteSubwoofer("TwoNoteSuboofer", TwoNote()),
+      Horizontal("Horizontal", Horizontal());
 
       String name;
       Command autoCommand;
