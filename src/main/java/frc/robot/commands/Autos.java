@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
+import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
@@ -68,56 +69,79 @@ public final class Autos {
   public static Command FourNoteSubwoofer(){
     ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourPieceSubwoofer");
     return new SequentialCommandGroup(
-      new InstantCommand(() -> {Pose2d initialPose;
+    new InstantCommand(() -> {Pose2d initialPose;
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
     initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
     s_Swerve.resetOdo(initialPose);
     System.out.println(initialPose.getX() + " " + initialPose.getY());}),
+    
+    new ParallelCommandGroup(
+      new SetPivot(PivotState.SUBWOOFER),
+      new SetShooterCommand(1800)
+    ),
 
-      new ParallelCommandGroup(
+    new SetIndexer(IndexerStates.ON, false),
+    Commands.waitSeconds(0.5),
+
+    new ParallelCommandGroup(
+        new SetShooterCommand(900),
         FollowChoreoTrajectory(trajectory.get(0)),
-        new SetPivot(PivotState.SUBWOOFER),
         new SetIndexer(IndexerStates.ON, true),
         new SetIntake(IntakeStates.ON)
       ),
       Commands.waitSeconds(0.3),
-      new SetPivot(0),
-      new SetIndexer(IndexerStates.REV, false),
+
+    new ParallelCommandGroup(
       new SetIntake(IntakeStates.OFF),
-      FollowChoreoTrajectory(trajectory.get(1)),
+      FollowChoreoTrajectory(trajectory.get(1))
+    ),
+    
+    new SetShooterCommand(1800),
+    new SetIndexer(IndexerStates.ON, false),
+    Commands.waitSeconds(0.5),
+
+    new ParallelCommandGroup(
+      FollowChoreoTrajectory(trajectory.get(2)),
+      new SetShooterCommand(900),
+      new SetIndexer(IndexerStates.ON, true),
+      new SetIntake(IntakeStates.ON)
+    ),
+
+    Commands.waitSeconds(0.3),
+       
+    new ParallelCommandGroup(
+        FollowChoreoTrajectory(trajectory.get(3)),
+        new SetIntake(IntakeStates.OFF)
+      ),
+    
+    new SetShooterCommand(1800),
+    new SetIndexer(IndexerStates.ON, false),
+    Commands.waitSeconds(0.5),
+       
+    new ParallelCommandGroup(
+        FollowChoreoTrajectory(trajectory.get(4)),
+        new SetShooterCommand(900),
+        new SetIndexer(IndexerStates.ON, true),
+        new SetIntake(IntakeStates.ON) 
+      ),
+      
+    Commands.waitSeconds(0.3),
+      
+    new ParallelCommandGroup(
+        FollowChoreoTrajectory(trajectory.get(5)),
+        new SetIntake(IntakeStates.OFF)
+      ),
+    
+    new SetShooterCommand(1800),
+    new SetIndexer(IndexerStates.ON, false),
+    Commands.waitSeconds(0.5),
+    new SetIndexer(IndexerStates.OFF, false),
+    new SetShooterCommand(0)
+
 
       
-      Commands.waitSeconds(0.3),
-      new SetIndexer(IndexerStates.OFF, false),
-      FollowChoreoTrajectory(trajectory.get(2)),
-      Commands.waitSeconds(0.3),
        
-      new ParallelCommandGroup(
-        new SetPivot(PivotState.SUBWOOFER),
-        FollowChoreoTrajectory(trajectory.get(3)),
-        new SetIndexer(IndexerStates.ON, true),
-        new SetIntake(IntakeStates.ON)
-      ),
       
-      Commands.waitSeconds(0.3),
-       
-      new ParallelCommandGroup(
-        FollowChoreoTrajectory(trajectory.get(4)),
-        new SetIndexer(IndexerStates.REV, false),
-        new SetIntake(IntakeStates.REV) 
-      ),
-      
-      Commands.waitSeconds(0.3),
-      new SetIndexer(IndexerStates.OFF, false),
-      new SetIntake(IntakeStates.OFF),
-       
-      FollowChoreoTrajectory(trajectory.get(5)),
-      Commands.waitSeconds(0.6),
-       
-      FollowChoreoTrajectory(trajectory.get(6)),
-      Commands.waitSeconds(0.6),
-       
-      FollowChoreoTrajectory(trajectory.get(7))
       /*new ParallelCommandGroup(
         new SetPivot(PivotState.SUBWOOFER),
         new InstantCommand(() -> s_Shooter.setVelocity(2500))),
