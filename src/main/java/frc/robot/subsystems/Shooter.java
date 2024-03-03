@@ -60,21 +60,17 @@ public class Shooter extends SubsystemBase {
     // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
     private final MutableMeasure<Velocity<Angle>> m_velocity = mutable(RotationsPerSecond.of(0));
 
-
     public Shooter() {
         currentPercentage = 0.0;
         shooterTopM = new CANSparkFlex(Constants.HardwarePorts.shooterTopM, MotorType.kBrushless);
         shooterBottomM = new CANSparkFlex(Constants.HardwarePorts.shooterBottomM, MotorType.kBrushless);
         // topEncoder = shooterTopM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
         // bottomEncoder = shooterBottomM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
-        topEncoder = shooterTopM.getEncoder();
-        bottomEncoder = shooterBottomM.getEncoder();
         shooterTopM.setInverted(true);
         shooterBottomM.setInverted(true);
         configMotors();
 
-        topEncoder.setPositionConversionFactor(2);
-
+        // topEncoder.setPositionConversionFactor(2);
     }
     
     private void configMotors(){
@@ -203,7 +199,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public double[] getBothSpeeds() {
-        return new double[]{topEncoder.getVelocity(), bottomEncoder.getVelocity()};
+        return new double[]{shooterTopM.getEncoder().getVelocity(), shooterBottomM.getEncoder().getVelocity()};
     }
     
     public void setTopVoltage(double voltage){
@@ -254,11 +250,11 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
         Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
-        Logger.recordOutput("Shooter/topMotorSpeed", topEncoder.getVelocity());
-        Logger.recordOutput("Shooter/bottomMotorSpeed", bottomEncoder.getVelocity());
+        // Logger.recordOutput("Shooter/topMotorSpeed", topEncoder.getVelocity());
+        // Logger.recordOutput("Shooter/bottomMotorSpeed", bottomEncoder.getVelocity());
 
-        SmartDashboard.putNumber("ShootT Err", 3000 - topEncoder.getVelocity());
-        SmartDashboard.putNumber("ShootB Err", 3000 - bottomEncoder.getVelocity());
+        // SmartDashboard.putNumber("ShootT Err", 3000 - topEncoder.getVelocity());
+        // SmartDashboard.putNumber("ShootB Err", 3000 - bottomEncoder.getVelocity());
         
         // SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
         // SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));

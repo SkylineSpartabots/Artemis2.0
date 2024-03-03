@@ -181,10 +181,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
         m_field.setRobotPose(m_odometry.getEstimatedPosition());
-        SmartDashboard.putData("field", m_field);
+        SmartDashboard.putData("field", m_field); 
 
         for(int i = 0; i < ModuleCount; i++){
-            Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getMotorVoltage().getValueAsDouble());
+            Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
         }
     }
 
