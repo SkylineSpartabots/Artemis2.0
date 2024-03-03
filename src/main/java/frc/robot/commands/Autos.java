@@ -304,6 +304,19 @@ public final class Autos {
      );
   }
 
+  public static Command Rotation() {
+    ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Rotation");
+    
+     return new SequentialCommandGroup(
+      new InstantCommand(() -> {Pose2d initialPose;
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+    s_Swerve.resetOdo(initialPose);
+    System.out.println(initialPose.getX() + " " + initialPose.getY());}),
+      FollowChoreoTrajectory(trajectory.get(0))
+     );
+  }
+
 
 
   /*
@@ -321,7 +334,8 @@ public final class Autos {
       FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
       TwoNoteSubwoofer("TwoNoteSuboofer", TwoNote()),
       Horizontal("Horizontal", Horizontal()),
-      Straight ("Straight", Straight());
+      Straight ("Straight", Straight()),
+      Rotation ("Rotation", Rotation());
     
 
       String name;
