@@ -36,8 +36,8 @@ public final class Autos {
   private static Shooter s_Shooter = Shooter.getInstance();
 
   private static final PIDController thetaController = new PIDController(0.013, 0, 0); //tune?
-  private static final PIDController xController = new PIDController(0.57, 0, 0);
-  private static final PIDController yController = new PIDController(0.57, 0, 0);
+  private static final PIDController xController = new PIDController(5, 1, 0);
+  private static final PIDController yController = new PIDController(5, 1, 0);
 
   public static Command getAutoCommand(AutoPath autoPath){
     return autoPath.autoCommand;
@@ -276,8 +276,27 @@ public final class Autos {
 
   public static Command Horizontal() {
      ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal");
-
+    
      return new SequentialCommandGroup(
+      new InstantCommand(() -> {Pose2d initialPose;
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+    s_Swerve.resetOdo(initialPose);
+    System.out.println(initialPose.getX() + " " + initialPose.getY());}),
+      FollowChoreoTrajectory(trajectory.get(0)),
+      FollowChoreoTrajectory(trajectory.get(1))
+     );
+  }
+
+  public static Command Straight() {
+    ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Straight");
+    
+     return new SequentialCommandGroup(
+      new InstantCommand(() -> {Pose2d initialPose;
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+    s_Swerve.resetOdo(initialPose);
+    System.out.println(initialPose.getX() + " " + initialPose.getY());}),
       FollowChoreoTrajectory(trajectory.get(0)),
       FollowChoreoTrajectory(trajectory.get(1))
      );
@@ -299,7 +318,9 @@ public final class Autos {
       FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
       FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
       TwoNoteSubwoofer("TwoNoteSuboofer", TwoNote()),
-      Horizontal("Horizontal", Horizontal());
+      Horizontal("Horizontal", Horizontal()),
+      Straight ("Straight", Straight());
+    
 
       String name;
       Command autoCommand;
