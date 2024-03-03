@@ -2,7 +2,7 @@
     "version": "v0.2.2",
     "robotConfiguration": {
         "mass": 71.124,
-        "rotationalInertia": 6,
+        "rotationalInertia": 6.5,
         "motorMaxTorque": 1.162295081967213,
         "motorMaxVelocity": 4800,
         "gearing": 5.25,
@@ -16,8 +16,8 @@
         "TwoNote": {
             "waypoints": [
                 {
-                    "x": 1.4107929468154907,
-                    "y": 5.410699367523193,
+                    "x": 1.594041109085083,
+                    "y": 5.401586532592773,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -25,8 +25,8 @@
                     "controlIntervalCount": 10
                 },
                 {
-                    "x": 2.8731346130371094,
-                    "y": 5.4886908531188965,
+                    "x": 3.1396429538726807,
+                    "y": 5.563625335693359,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -34,8 +34,8 @@
                     "controlIntervalCount": 10
                 },
                 {
-                    "x": 1.4302908182144165,
-                    "y": 5.449695110321045,
+                    "x": 1.556647539138794,
+                    "y": 5.451444625854492,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -239,19 +239,15 @@
                     "scope": [
                         "first"
                     ],
-                    "type": "StopPoint"
+                    "type": "StopPoint",
+                    "direction": 0
                 },
                 {
                     "scope": [
                         "last"
                     ],
-                    "type": "StopPoint"
-                },
-                {
-                    "scope": [
-                        1
-                    ],
-                    "type": "StopPoint"
+                    "type": "StopPoint",
+                    "direction": 0
                 }
             ],
             "usesControlIntervalGuessing": true,

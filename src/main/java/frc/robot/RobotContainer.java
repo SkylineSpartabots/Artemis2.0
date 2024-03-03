@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -81,7 +82,7 @@ public class RobotContainer {
 
         driver.y().onTrue(TeleopFactory.IntelligentIntake());
         driver.a().onTrue(offIntake());
-        driver.x().onTrue(onIndexer());
+        driver.x().onTrue(new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(2000)), Commands.waitSeconds(1.0), indexToShooter(), Commands.waitSeconds(0.8), offIndexer(), new InstantCommand(() -> s_Shooter.setVelocity(0))));
         driver.b().onTrue(offIndexer());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
 //

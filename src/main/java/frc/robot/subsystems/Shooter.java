@@ -71,7 +71,7 @@ public class Shooter extends SubsystemBase {
         shooterBottomM.setInverted(true);
         configMotors();
 
-        topEncoder.setPositionConversionFactor(2);
+        //topEncoder.setPositionConversionFactor(2);
 
     }
     

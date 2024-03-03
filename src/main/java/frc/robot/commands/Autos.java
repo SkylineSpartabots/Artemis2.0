@@ -47,7 +47,7 @@ public final class Autos {
 
     s_Swerve.setAutoStartPose(traj.getInitialPose());
     SmartDashboard.putNumber("Start pose x", traj.getInitialPose().getX());
-    s_Swerve.resetOdo(traj.getInitialPose());
+    // s_Swerve.resetOdo(traj.getInitialPose());
     Command swerveCommand = Choreo.choreoSwerveCommand(
       traj,
         s_Swerve::getPose,
@@ -55,10 +55,10 @@ public final class Autos {
         new PIDController(0.57, 0.2, 0),                                                           
         thetaController,
         (ChassisSpeeds speeds) -> s_Swerve.setControl(drive.withSpeeds(speeds)),
-        () -> {return false;},
+    
         // (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
-            // () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-            //   return alliance.isPresent() && alliance.get() == Alliance.Red;},
+            () -> { Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+              return alliance.isPresent() && alliance.get() == Alliance.Red;},
               s_Swerve);
       
       return swerveCommand;
@@ -77,13 +77,13 @@ public final class Autos {
 
       new ParallelCommandGroup(
       new SetIntake(IntakeStates.ON),
-      new SetIndexer(IndexerStates.ON, true),
+      new SetIndexer(IndexerStates.ON, false),
       FollowChoreoTrajectory(trajectory.get(0))
       ),
       
       new ParallelCommandGroup(
         new SetIntake(IntakeStates.OFF),
-        // new SetIndexer(IndexerStates.OFF, false), theoretically should not need this but we'll see
+        new SetIndexer(IndexerStates.OFF, false), //theoretically should not need this but we'll see
         FollowChoreoTrajectory(trajectory.get(1))
       ),
 
@@ -97,13 +97,13 @@ public final class Autos {
 
       new ParallelCommandGroup(
         new SetIntake(IntakeStates.ON),
-        new SetIndexer(IndexerStates.ON, true),
+        new SetIndexer(IndexerStates.ON, false),
         FollowChoreoTrajectory(trajectory.get(3))
       ),
 
       new ParallelCommandGroup(
         new SetIntake(IntakeStates.OFF),
-        //new SetIndexer(IndexerStates.OFF),
+        new SetIndexer(IndexerStates.OFF, false),
         FollowChoreoTrajectory(trajectory.get(4))
       ),
       new InstantCommand(() -> s_Shooter.setVelocity(2500)),
@@ -228,7 +228,7 @@ public final class Autos {
 
   public static Command TwoNote() {
     ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("TwoNote");
-
+    s_Swerve.resetOdo(trajectory.get(0).getInitialPose());
     return new SequentialCommandGroup(new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER),
       new InstantCommand(() -> s_Shooter.setVelocity(1800))),
       Commands.waitSeconds(0.8),
@@ -240,9 +240,9 @@ public final class Autos {
       //new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(0)), new SetIntake(IntakeStates.ON), new SetIndexer(IndexerStates.ON, true)),
       new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(0)), new SetIndexer(IndexerStates.ON, false)),
 
-      //new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(1)), new SetIntake(IntakeStates.OFF), new SetIndexer(IndexerStates.OFF, false)),
+      new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(1)), new SetIntake(IntakeStates.OFF), new SetIndexer(IndexerStates.OFF, false)),
 
-      new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(1)), new SetIndexer(IndexerStates.OFF, false)),
+      //new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(1)), new SetIndexer(IndexerStates.OFF, false)),
 
       shootSequence()
       );
