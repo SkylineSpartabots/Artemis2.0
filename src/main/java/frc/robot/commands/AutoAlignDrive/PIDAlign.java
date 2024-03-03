@@ -17,6 +17,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -25,12 +26,12 @@ public class PIDAlign extends Command {
 
   private final CommandSwerveDrivetrain s_Swerve;
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
-  PIDController alignPID = new PIDController(0.003, 0.07, 0); //TODO: tune this
+  PIDController alignPID = new PIDController(1.4, 0.95, 0.05); //TODO: tune this MORE
   
   private double currentYaw;
   private double desiredYaw;
 
-  private boolean isClockwise;
+  // private boolean isClockwise;
   Point desiredPoint;
   double offsetYaw;
 
@@ -45,12 +46,12 @@ public class PIDAlign extends Command {
   @Override
   public void initialize() {
     alignPID.reset();
+    updateDesiredYaw();
   }
     
 
   @Override
   public void execute() { //at some point, make it so we can call this while moving
-    updateDesiredYaw();
 
     Pose2d pose = s_Swerve.getPose();
 
@@ -60,50 +61,40 @@ public class PIDAlign extends Command {
     } catch (Exception e) {}
 // 
     SmartDashboard.putNumber("Current yaw", currentYaw);
-    SmartDashboard.putNumber("Desired Yaw", desiredYaw);
 
-    double necessaryRotationRadians = getDesiredRotationRadians();
+    double finalYaw = Normalize();
     // if (Math.abs(desiredYaw - (Math.PI*2)) < desiredYaw) { desiredYaw = desiredYaw - (Math.PI*2);};
     // desiredYaw = Math.min(desiredYaw, Math.PI*2 - desiredYaw);
 
   //disregards current and reference, direction is already accounted for so it is always optimal turning
-    double rotationSpeed = alignPID.calculate(0, necessaryRotationRadians);
-    // System.out.println("Current yaw: " + ro);
+    double rotationSpeed = alignPID.calculate(currentYaw, finalYaw);
 
     s_Swerve.setControl(drive.withRotationalRate(rotationSpeed));
+    SmartDashboard.putNumber("final yaw", finalYaw);
     SmartDashboard.putNumber("rotation speed", rotationSpeed);
   }
 
   public void updateDesiredYaw(){
     Pose2d pose = s_Swerve.getPose();
     Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
-    
     Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave Yoon gloobert
 
-    // desiredYaw = (Math.PI/2) - Math.atan2(translatedPoint.y,translatedPoint.x); // gets the non included angle in our current yaw 🦅🦅
-    desiredYaw = Math.atan2(translatedPoint.y,translatedPoint.x);
-
-    SmartDashboard.putNumber("Desired Yaw", desiredYaw);
+    desiredYaw = Math.atan2(translatedPoint.y,translatedPoint.x) + Math.PI;
   }
 
-  public double getDesiredRotationRadians(){ //counterclockwise is positive
-    if(currentYaw < 0 && desiredYaw < 0){
-      return currentYaw - desiredYaw;
-    } else if (currentYaw > 0 && desiredYaw > 0){
-      return desiredYaw - currentYaw;
-    } else if (currentYaw > 0 && desiredYaw < 0){
-      if(2*Math.PI - currentYaw - Math.abs(desiredYaw) < currentYaw + Math.abs(desiredYaw)){
-        return 2*Math.PI - currentYaw - Math.abs(desiredYaw);
-      } else {
-        return -(currentYaw + Math.abs(desiredYaw));
-      }
-    } else {
-      if(2*Math.PI - desiredYaw - Math.abs(currentYaw) < desiredYaw + Math.abs(currentYaw)){
-        return -(2*Math.PI - desiredYaw - Math.abs(currentYaw));
-      } else {
-        return desiredYaw + Math.abs(currentYaw);
-      }
+  public double Normalize(){ //counterclockwise is positive
+    double error = desiredYaw - currentYaw;
+
+    if (Math.abs(error) > Math.PI) { // flip desiredYaw to its corresponding angle on the opposite side if raw error takes the longer path
+      desiredYaw += (desiredYaw > currentYaw) ? -2 * Math.PI : 2 * Math.PI; //if true do first one if false do other
     }
+
+    //go back to -pi to pi
+    if (desiredYaw >= Math.PI) {
+      desiredYaw -= 2 * Math.PI;
+  }
+
+  return desiredYaw;
   }
 
   @Override // rah rah rahh
@@ -120,3 +111,23 @@ public class PIDAlign extends Command {
 
 // robot's forward is posotive x, right is negetive y, circle is 180 to -180, 3, -3
 // offset yaw, current yaw, desired yaw, rotation speed
+
+// if(currentYaw < 0 && desiredYaw < 0){
+    //   return currentYaw - desiredYaw;
+    // } else if (currentYaw > 0 && desiredYaw > 0){
+    //   return desiredYaw - currentYaw;
+    // } else if (currentYaw > 0 && desiredYaw < 0){
+    //   if(2*Math.PI - currentYaw - Math.abs(desiredYaw) < currentYaw + Math.abs(desiredYaw)){
+    //     return 2*Math.PI - currentYaw - Math.abs(desiredYaw);
+    //   } else {
+    //     return -(currentYaw + Math.abs(desiredYaw));
+    //   }
+    // } else {
+    //   if(2*Math.PI - desiredYaw - Math.abs(currentYaw) < desiredYaw + Math.abs(currentYaw)){
+    //     return -(2*Math.PI - desiredYaw - Math.abs(currentYaw));
+    //   } else {
+    //     return desiredYaw + Math.abs(currentYaw);
+    //   }
+    // }
+
+    
