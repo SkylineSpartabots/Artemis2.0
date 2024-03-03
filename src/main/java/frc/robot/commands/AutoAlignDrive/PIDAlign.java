@@ -83,10 +83,17 @@ public class PIDAlign extends Command {
   }
 
   public double Normalize(){ //counterclockwise is positive
+    double error = desiredYaw - currentYaw;
+
+    if (Math.abs(error) > Math.PI) { // flip desiredYaw to its corresponding angle on the opposite side if raw error takes the longer path
+      desiredYaw += (desiredYaw > currentYaw) ? -2 * Math.PI : 2 * Math.PI; //if true do first one if false do other
+    }
+
     //go back to -pi to pi
     if (desiredYaw >= Math.PI) {
       desiredYaw -= 2 * Math.PI;
   }
+
   return desiredYaw;
   }
 
