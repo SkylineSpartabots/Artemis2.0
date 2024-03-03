@@ -170,12 +170,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     @Override
     public void periodic() {
         updateOdometryByVision();
+        Pose2d currPose = getPose();
         
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        SmartDashboard.putNumber("ODO X", getPose().getX());
-        SmartDashboard.putNumber("ODO Y", getPose().getY());
-        SmartDashboard.putNumber("ODO ROT", getPose().getRotation().getRadians());
+        SmartDashboard.putNumber("ODO X", currPose.getX());
+        SmartDashboard.putNumber("ODO Y", currPose.getY());
+        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
         SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
 
