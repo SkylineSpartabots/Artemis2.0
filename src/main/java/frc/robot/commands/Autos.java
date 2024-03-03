@@ -275,7 +275,7 @@ public final class Autos {
   }
 
   public static Command Horizontal() {
-     ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal");
+     ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal Test");
     
      return new SequentialCommandGroup(
       new InstantCommand(() -> {Pose2d initialPose;
@@ -284,6 +284,7 @@ public final class Autos {
     s_Swerve.resetOdo(initialPose);
     System.out.println(initialPose.getX() + " " + initialPose.getY());}),
       FollowChoreoTrajectory(trajectory.get(0)),
+      Commands.waitSeconds(0.3),
       FollowChoreoTrajectory(trajectory.get(1))
      );
   }
@@ -298,6 +299,7 @@ public final class Autos {
     s_Swerve.resetOdo(initialPose);
     System.out.println(initialPose.getX() + " " + initialPose.getY());}),
       FollowChoreoTrajectory(trajectory.get(0)),
+      Commands.waitSeconds(0.3),
       FollowChoreoTrajectory(trajectory.get(1))
      );
   }
