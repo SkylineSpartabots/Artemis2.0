@@ -50,6 +50,7 @@ public class PIDAlign extends Command {
     Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave Yoon gloobert
 
     offsetYaw = (Math.PI/2) - Math.atan2(translatedPoint.y,translatedPoint.x); // gets the non included angle in our current yaw 🦅🦅
+  
     System.out.println("offset yaw: " + offsetYaw + " current location: " + currentLocation.x + "," + currentLocation.y);
     SmartDashboard.putNumber("desired point x", desiredPoint.x);
     SmartDashboard.putNumber("Desired point y", desiredPoint.y);
@@ -63,7 +64,7 @@ public class PIDAlign extends Command {
 
     try {
       // s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
-      currentYaw = pose.getRotation().getRadians(); //hopefully the poes is updated frequently since we should be facing an april tag
+      currentYaw = pose.getRotation().getRadians() + Math.PI; //hopefully the poes is updated frequently since we should be facing an april tag
     } catch (Exception e) {}
 
     System.out.println("Current yaw: " + currentYaw);
@@ -71,6 +72,7 @@ public class PIDAlign extends Command {
     
     
     desiredYaw = currentYaw - offsetYaw; // angle to the target in relation to ourselves
+    if (Math.abs(desiredYaw - (Math.PI*2)) < desiredYaw) { desiredYaw = desiredYaw - (Math.PI*2);};
     double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
     // System.out.println("Current yaw: " + ro);
 
@@ -88,3 +90,5 @@ public class PIDAlign extends Command {
   }
 
 }
+
+// robot's forward is posotive x, right is negetive y, circle is 180 to -180
