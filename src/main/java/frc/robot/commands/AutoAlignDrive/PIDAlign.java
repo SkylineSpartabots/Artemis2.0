@@ -45,7 +45,36 @@ public class PIDAlign extends Command {
   @Override
   public void initialize() {
     alignPID.reset();
+  }
+    
 
+  @Override
+  public void execute() { //at some point, make it so we can call this while moving
+    updateDesiredYaw();
+
+    Pose2d pose = s_Swerve.getPose();
+
+    try {
+      // s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
+      currentYaw = pose.getRotation().getRadians() + Math.PI; //hopefully the poes is updated frequently since we should be facing an april tag
+    } catch (Exception e) {}
+// 
+    SmartDashboard.putNumber("Current yaw", currentYaw);
+    SmartDashboard.putNumber("Desired Yaw", desiredYaw);
+
+    double necessaryRotationRadians = getDesiredRotationRadians();
+    // if (Math.abs(desiredYaw - (Math.PI*2)) < desiredYaw) { desiredYaw = desiredYaw - (Math.PI*2);};
+    // desiredYaw = Math.min(desiredYaw, Math.PI*2 - desiredYaw);
+
+  //disregards current and reference, direction is already accounted for so it is always optimal turning
+    double rotationSpeed = alignPID.calculate(0, necessaryRotationRadians);
+    // System.out.println("Current yaw: " + ro);
+
+    s_Swerve.setControl(drive.withRotationalRate(rotationSpeed));
+    SmartDashboard.putNumber("rotation speed", rotationSpeed);
+  }
+
+  public void updateDesiredYaw(){
     Pose2d pose = s_Swerve.getPose();
     Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
     
@@ -56,35 +85,26 @@ public class PIDAlign extends Command {
 
     SmartDashboard.putNumber("Desired Yaw", desiredYaw);
   }
-    
 
-  @Override
-  public void execute() {
-
-    Pose2d pose = s_Swerve.getPose();
-
-    try {
-      // s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
-      currentYaw = pose.getRotation().getRadians() + Math.PI; //hopefully the poes is updated frequently since we should be facing an april tag
-    } catch (Exception e) {}
-// 
-
-    SmartDashboard.putNumber("Current yaw", currentYaw);
-    SmartDashboard.putNumber("Desired Yaw", desiredYaw);
-
-    // if (Math.abs(desiredYaw - (Math.PI*2)) < desiredYaw) { desiredYaw = desiredYaw - (Math.PI*2);};
-    desiredYaw = Math.min(desiredYaw, Math.PI*2 - desiredYaw);
-
-    double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
-    // System.out.println("Current yaw: " + ro);
-
-    s_Swerve.setControl(drive.withRotationalRate(rotationSpeed));
-    SmartDashboard.putNumber("rotation speed", rotationSpeed);
+  public double getDesiredRotationRadians(){ //counterclockwise is positive
+    if(currentYaw < 0 && desiredYaw < 0){
+      return currentYaw - desiredYaw;
+    } else if (currentYaw > 0 && desiredYaw > 0){
+      return desiredYaw - currentYaw;
+    } else if (currentYaw > 0 && desiredYaw < 0){
+      if(2*Math.PI - currentYaw - Math.abs(desiredYaw) < currentYaw + Math.abs(desiredYaw)){
+        return 2*Math.PI - currentYaw - Math.abs(desiredYaw);
+      } else {
+        return -(currentYaw + Math.abs(desiredYaw));
+      }
+    } else {
+      if(2*Math.PI - desiredYaw - Math.abs(currentYaw) < desiredYaw + Math.abs(currentYaw)){
+        return -(2*Math.PI - desiredYaw - Math.abs(currentYaw));
+      } else {
+        return desiredYaw + Math.abs(currentYaw);
+      }
+    }
   }
-
-  // public double getDesiredRotation(){
-    
-  // }
 
   @Override // rah rah rahh
   public void end(boolean interrupted) {
@@ -93,7 +113,7 @@ public class PIDAlign extends Command {
 
   @Override
   public boolean isFinished() {
-    return Math.abs(desiredYaw - currentYaw) < (Math.PI/8); // error of three degrees for now, set later
+    return Math.abs(desiredYaw - currentYaw) < (Math.PI/(180/2)); // error of two degrees for now, set later
   }
 
 }
