@@ -40,7 +40,8 @@ public class Climb extends SubsystemBase {
     configMotor(climbMotor, false);
     // climbMotor.follow(climbMotor, true);
     setState = 2;
-    motorEncoder = climbMotor.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
+    motorEncoder = climbMotor.getEncoder();
+    // motorEncoder = climbMotor.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
     // followEncoder = climbFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
 
     resetMotorEncoders();

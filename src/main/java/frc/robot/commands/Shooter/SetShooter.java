@@ -1,4 +1,4 @@
-
+/* 
 package frc.robot.commands.Shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -59,4 +59,4 @@ public class SetShooter extends Command {
     public boolean isFinished() {
         return true;
     }
-}
+} */

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.sql.Driver;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
@@ -39,6 +40,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
     Vision m_Camera;
+
+    private Field2d m_field = new Field2d();
 
     public static CommandSwerveDrivetrain getInstance(){
         if(s_Swerve == null){
@@ -167,19 +170,22 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     @Override
     public void periodic() {
         updateOdometryByVision();
+        Pose2d currPose = getPose();
         
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        SmartDashboard.putNumber("ODO X", getPose().getX());
-        SmartDashboard.putNumber("ODO Y", getPose().getY());
-        SmartDashboard.putNumber("ODO ROT", getPose().getRotation().getRadians());
+        SmartDashboard.putNumber("ODO X", currPose.getX());
+        SmartDashboard.putNumber("ODO Y", currPose.getY());
+        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
         SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
 
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
+        m_field.setRobotPose(m_odometry.getEstimatedPosition());
+        SmartDashboard.putData("field", m_field); 
 
         for(int i = 0; i < ModuleCount; i++){
-            Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getMotorVoltage().getValueAsDouble());
+            Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
         }
     }
 

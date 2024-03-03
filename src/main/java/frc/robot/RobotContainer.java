@@ -33,9 +33,10 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.TeleopFactory;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
-import frc.robot.commands.Shooter.SetShooter;
+import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Shooter.ShootIntoAmp;
 import frc.robot.commands.Shooter.Swing;
+import frc.robot.commands.TeleopAutomation.IndexForShooting;
 import frc.robot.commands.AutoAlignDrive.PIDAlign;
 import frc.robot.commands.Intake.SetIntake;
 
@@ -55,7 +56,7 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // My drivetrain
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(Constants.MaxSpeed * 0.2).withRotationalDeadband(Constants.MaxAngularRate * 0.2) // Add a 20% deadband, tune to driver preference
+            .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 20% deadband, tune to driver preference
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
     // driving in open loop
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -80,6 +81,8 @@ public class RobotContainer {
 
     private void configureBindings() {
 
+//        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
+       // driver.a().onTrue(offEverything());
         driver.y().onTrue(TeleopFactory.IntelligentIntake());
         driver.a().onTrue(offIntake());
         driver.x().onTrue(new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(2000)), Commands.waitSeconds(1.0), indexToShooter(), Commands.waitSeconds(0.8), offIndexer(), new InstantCommand(() -> s_Shooter.setVelocity(0))));
@@ -90,7 +93,7 @@ public class RobotContainer {
 //        driver.y().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_AMP.getValue()));
 //        driver.a().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_AMP.getValue()));
 //        driver.x().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_SPEAKER.getValue()));
-//        driver.b().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
+       driver.rightTrigger().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
 
 
         // driver.a().onTrue(setLEDs());
@@ -106,8 +109,7 @@ public class RobotContainer {
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         // driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
-        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setVoltage(3)));
-        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0)));
+        // 
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.FARWING));
@@ -155,7 +157,17 @@ public class RobotContainer {
     private boolean intakeOn() {
         return s_Intake.getMotorVoltage() > 0;
     }
- 
+
+    public Command setShooterVelocity(double velocity){
+        return new InstantCommand(() -> s_Shooter.setVelocity(velocity));
+    }
+
+    public Command offEverything(){
+        return new ParallelCommandGroup(setShooterVelocity(0), offIndexer(), offIntake());
+    }
+
+
+
     public Command aligntoCordinate(Point point) {
         return new PIDAlign(point);
     }
@@ -175,6 +187,14 @@ public class RobotContainer {
     //shooter
     public Command onIndexer() {
         return new SequentialCommandGroup(new SetIndexer(IndexerStates.ON, true), new ReverseIndexer());
+    }
+
+    public Command shootAmp(){
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new SetPivot(PivotState.AMP),
+                new SetShooterCommand(2000, 1200))
+        );
     }
     
     public Command offIndexer() {

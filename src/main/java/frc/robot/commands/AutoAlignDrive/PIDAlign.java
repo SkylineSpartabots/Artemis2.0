@@ -17,6 +17,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -25,10 +26,12 @@ public class PIDAlign extends Command {
 
   private final CommandSwerveDrivetrain s_Swerve;
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
-  PIDController alignPID = new PIDController(0.001, 0.05, 0); //TODO: tune this
+  PIDController alignPID = new PIDController(1.4, 0.95, 0.05); //TODO: tune this MORE
   
   private double currentYaw;
   private double desiredYaw;
+
+  // private boolean isClockwise;
   Point desiredPoint;
   double offsetYaw;
 
@@ -43,48 +46,88 @@ public class PIDAlign extends Command {
   @Override
   public void initialize() {
     alignPID.reset();
-
-    Pose2d pose = s_Swerve.getPose();
-    Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
-    
-    Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave Yoon gloobert
-
-    offsetYaw = (Math.PI/2) - Math.atan2(translatedPoint.y,translatedPoint.x); // gets the non included angle in our current yaw 🦅🦅
-    System.out.println("offset yaw: " + offsetYaw + " current location: " + currentLocation.x + "," + currentLocation.y);
-    SmartDashboard.putNumber("desired point x", desiredPoint.x);
-    SmartDashboard.putNumber("Desired point y", desiredPoint.y);
+    updateDesiredYaw();
   }
     
 
   @Override
-  public void execute() {
+  public void execute() { //at some point, make it so we can call this while moving
 
     Pose2d pose = s_Swerve.getPose();
 
     try {
       // s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
-      currentYaw = pose.getRotation().getRadians(); //hopefully the poes is updated frequently since we should be facing an april tag
+      currentYaw = pose.getRotation().getRadians() + Math.PI; //hopefully the poes is updated frequently since we should be facing an april tag
     } catch (Exception e) {}
-
-    System.out.println("Current yaw: " + currentYaw);
+// 
     SmartDashboard.putNumber("Current yaw", currentYaw);
-    
-    
-    desiredYaw = currentYaw - offsetYaw; // angle to the target in relation to ourselves
-    double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
-    // System.out.println("Current yaw: " + ro);
+
+    double finalYaw = Normalize();
+    // if (Math.abs(desiredYaw - (Math.PI*2)) < desiredYaw) { desiredYaw = desiredYaw - (Math.PI*2);};
+    // desiredYaw = Math.min(desiredYaw, Math.PI*2 - desiredYaw);
+
+  //disregards current and reference, direction is already accounted for so it is always optimal turning
+    double rotationSpeed = alignPID.calculate(currentYaw, finalYaw);
 
     s_Swerve.setControl(drive.withRotationalRate(rotationSpeed));
+    SmartDashboard.putNumber("final yaw", finalYaw);
+    SmartDashboard.putNumber("rotation speed", rotationSpeed);
   }
 
-  @Override
+  public void updateDesiredYaw(){
+    Pose2d pose = s_Swerve.getPose();
+    Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
+    Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave Yoon gloobert
+
+    desiredYaw = Math.atan2(translatedPoint.y,translatedPoint.x) + Math.PI;
+  }
+
+  public double Normalize(){ //counterclockwise is positive
+    double error = desiredYaw - currentYaw;
+
+    if (Math.abs(error) > Math.PI) { // flip desiredYaw to its corresponding angle on the opposite side if raw error takes the longer path
+      desiredYaw += (desiredYaw > currentYaw) ? -2 * Math.PI : 2 * Math.PI; //if true do first one if false do other
+    }
+
+    //go back to -pi to pi
+    if (desiredYaw >= Math.PI) {
+      desiredYaw -= 2 * Math.PI;
+  }
+
+  return desiredYaw;
+  }
+
+  @Override // rah rah rahh
   public void end(boolean interrupted) {
     s_Swerve.setControl(drive.withRotationalRate(0));
   }
 
   @Override
   public boolean isFinished() {
-    return Math.abs(desiredYaw - currentYaw) < 3; // error of three degrees for now, set later
+    return Math.abs(desiredYaw - currentYaw) < (Math.PI/(180/2)); // error of two degrees for now, set later
   }
 
 }
+
+// robot's forward is posotive x, right is negetive y, circle is 180 to -180, 3, -3
+// offset yaw, current yaw, desired yaw, rotation speed
+
+// if(currentYaw < 0 && desiredYaw < 0){
+    //   return currentYaw - desiredYaw;
+    // } else if (currentYaw > 0 && desiredYaw > 0){
+    //   return desiredYaw - currentYaw;
+    // } else if (currentYaw > 0 && desiredYaw < 0){
+    //   if(2*Math.PI - currentYaw - Math.abs(desiredYaw) < currentYaw + Math.abs(desiredYaw)){
+    //     return 2*Math.PI - currentYaw - Math.abs(desiredYaw);
+    //   } else {
+    //     return -(currentYaw + Math.abs(desiredYaw));
+    //   }
+    // } else {
+    //   if(2*Math.PI - desiredYaw - Math.abs(currentYaw) < desiredYaw + Math.abs(currentYaw)){
+    //     return -(2*Math.PI - desiredYaw - Math.abs(currentYaw));
+    //   } else {
+    //     return desiredYaw + Math.abs(currentYaw);
+    //   }
+    // }
+
+    
