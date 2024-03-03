@@ -82,7 +82,7 @@ public class RobotContainer {
     private void configureBindings() {
 
 //        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
-       driver.a().onTrue(offEverything());
+       // driver.a().onTrue(offEverything());
         driver.y().onTrue(TeleopFactory.IntelligentIntake());
         driver.a().onTrue(offIntake());
         driver.x().onTrue(onIndexer());
@@ -93,7 +93,7 @@ public class RobotContainer {
 //        driver.y().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_AMP.getValue()));
 //        driver.a().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_AMP.getValue()));
 //        driver.x().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_SPEAKER.getValue()));
-//        driver.b().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
+       driver.rightTrigger().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
 
 
         // driver.a().onTrue(setLEDs());
@@ -109,8 +109,7 @@ public class RobotContainer {
         // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
         // driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
 
-        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Climb.setVoltage(3)));
-        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Climb.setClimbSpeed(0)));
+        // 
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.FARWING));
@@ -166,6 +165,8 @@ public class RobotContainer {
     public Command offEverything(){
         return new ParallelCommandGroup(setShooterVelocity(0), offIndexer(), offIntake());
     }
+
+
 
     public Command aligntoCordinate(Point point) {
         return new PIDAlign(point);
