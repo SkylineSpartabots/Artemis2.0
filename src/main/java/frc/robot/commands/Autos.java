@@ -250,56 +250,66 @@ public final class Autos {
   public static Command ThreeNoteFarSide(){
     ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("ThreeNoteFarSide");
     return new SequentialCommandGroup(
-    new SetPivot(PivotState.SUBWOOFER),
-      new InstantCommand(() -> s_Shooter.setVelocity(2500)),
-      Commands.waitSeconds(0.8),
-      new SetIndexer(IndexerStates.ON, false),
-      Commands.waitSeconds(0.8),
-      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false)),
-
-
-    FollowChoreoTrajectory(trajectory.get(0)),
-
+    new InstantCommand(() -> {Pose2d initialPose;
+      Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+      initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+      s_Swerve.resetOdo(initialPose);
+      System.out.println(initialPose.getX() + " " + initialPose.getY());}),
+     
     new ParallelCommandGroup(
-      new SetIntake(IntakeStates.ON),
-      new SetIndexer(IndexerStates.ON, true),
-      FollowChoreoTrajectory(trajectory.get(1))
+      new SetPivot(PivotState.SUBWOOFER),
+      new SetShooterCommand(1800)
     ),
-
-    new ParallelCommandGroup(
-      new SetIntake(IntakeStates.OFF),
-      //new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH), //might have to turn indexer off later if it takes too long to index
-      FollowChoreoTrajectory(trajectory.get(2))
-    ),
-
-    new InstantCommand(() -> s_Shooter.setVelocity(2500)),
-    Commands.waitSeconds(0.8),
+    
     new SetIndexer(IndexerStates.ON, false),
-    Commands.waitSeconds(0.8),
-    new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false)),
-
-
-    FollowChoreoTrajectory(trajectory.get(2)),
+    Commands.waitSeconds(0.5),
 
     new ParallelCommandGroup(
-      new SetIntake(IntakeStates.ON),
+      FollowChoreoTrajectory(trajectory.get(0)),
+      new SetShooterCommand(900),
       new SetIndexer(IndexerStates.ON, true),
-      FollowChoreoTrajectory(trajectory.get(3))
+      new SetIntake(IntakeStates.ON)
+    ),
+      
+    Commands.waitSeconds(0.3),
+
+    new ParallelCommandGroup(
+      FollowChoreoTrajectory(trajectory.get(1)),
+      new SetIntake(IntakeStates.OFF)
     ),
 
     new ParallelCommandGroup(
-      new SetIntake(IntakeStates.OFF),
-      //new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH), //might have to turn index off later if it takes too long to index
-      FollowChoreoTrajectory(trajectory.get(4))
+      new SetPivot(20), //this angle is gonna be totally arbitrary, we are going to need to test and find the right angle
+      new SetShooterCommand(1800)
     ),
 
-    FollowChoreoTrajectory(trajectory.get(5)),
+    new SetIndexer(IndexerStates.ON, false),
+    Commands.waitSeconds(0.5),
 
-      new InstantCommand(() -> s_Shooter.setVelocity(2500)),
-      Commands.waitSeconds(0.8),
-      new SetIndexer(IndexerStates.ON, false),
-      Commands.waitSeconds(0.8),
-      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false))
+    new ParallelCommandGroup(
+      FollowChoreoTrajectory(trajectory.get(2)),
+      new SetPivot(PivotState.SUBWOOFER),
+      new SetShooterCommand(900),
+      new SetIndexer(IndexerStates.ON, true),
+      new SetIntake(IntakeStates.ON)
+    ),
+    
+    Commands.waitSeconds(0.3),
+
+    new ParallelCommandGroup(
+      FollowChoreoTrajectory(trajectory.get(3)),
+      new SetIntake(IntakeStates.OFF)
+    ),
+
+    new ParallelCommandGroup(
+      new SetPivot(20), //also arbitrary, but should be same angle as the other non-subwoofer shot in this path
+      new SetShooterCommand(1800)
+    ),
+
+    new SetIndexer(IndexerStates.ON, false),
+    Commands.waitSeconds(0.5),
+    new SetIndexer(IndexerStates.OFF, false),
+    new SetShooterCommand(0)
     );
   }
 
