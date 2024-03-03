@@ -5,9 +5,9 @@
 package frc.robot.commands;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
-import com.choreo.lib.*;
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -21,15 +21,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
-import pabeles.concurrency.ConcurrencyOps.NewInstance;
-import frc.robot.commands.SetIndexer;
-import frc.robot.commands.Intake.SetIntake;
+import frc.robot.subsystems.Shooter;
 
 public final class Autos {  
   private static CommandSwerveDrivetrain s_Swerve = CommandSwerveDrivetrain.getInstance();
@@ -70,8 +68,59 @@ public final class Autos {
   public static Command FourNoteSubwoofer(){
     ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourPieceSubwoofer");
     return new SequentialCommandGroup(
-      new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER),
-      new InstantCommand(() -> s_Shooter.setVelocity(2500))),
+      new InstantCommand(() -> {Pose2d initialPose;
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+    s_Swerve.resetOdo(initialPose);
+    System.out.println(initialPose.getX() + " " + initialPose.getY());}),
+
+      new ParallelCommandGroup(
+        FollowChoreoTrajectory(trajectory.get(0)),
+        new SetPivot(PivotState.SUBWOOFER),
+        new SetIndexer(IndexerStates.ON, true),
+        new SetIntake(IntakeStates.ON)
+      ),
+      Commands.waitSeconds(0.3),
+      new SetPivot(0),
+      new SetIndexer(IndexerStates.REV, false),
+      new SetIntake(IntakeStates.OFF),
+      FollowChoreoTrajectory(trajectory.get(1)),
+
+      
+      Commands.waitSeconds(0.3),
+      new SetIndexer(IndexerStates.OFF, false),
+      FollowChoreoTrajectory(trajectory.get(2)),
+      Commands.waitSeconds(0.3),
+       
+      new ParallelCommandGroup(
+        new SetPivot(PivotState.SUBWOOFER),
+        FollowChoreoTrajectory(trajectory.get(3)),
+        new SetIndexer(IndexerStates.ON, true),
+        new SetIntake(IntakeStates.ON)
+      ),
+      
+      Commands.waitSeconds(0.3),
+       
+      new ParallelCommandGroup(
+        FollowChoreoTrajectory(trajectory.get(4)),
+        new SetIndexer(IndexerStates.REV, false),
+        new SetIntake(IntakeStates.REV) 
+      ),
+      
+      Commands.waitSeconds(0.3),
+      new SetIndexer(IndexerStates.OFF, false),
+      new SetIntake(IntakeStates.OFF),
+       
+      FollowChoreoTrajectory(trajectory.get(5)),
+      Commands.waitSeconds(0.6),
+       
+      FollowChoreoTrajectory(trajectory.get(6)),
+      Commands.waitSeconds(0.6),
+       
+      FollowChoreoTrajectory(trajectory.get(7))
+      /*new ParallelCommandGroup(
+        new SetPivot(PivotState.SUBWOOFER),
+        new InstantCommand(() -> s_Shooter.setVelocity(2500))),
       Commands.waitSeconds(0.8),
       new SetIndexer(IndexerStates.ON, false),
       Commands.waitSeconds(0.8),
@@ -133,8 +182,9 @@ public final class Autos {
       Commands.waitSeconds(0.8),
       new SetIndexer(IndexerStates.ON, false),
       Commands.waitSeconds(0.8),
-      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false))
+      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false))*/
     );
+    
   }
 
   public static Command FourNoteCloseSide(){
