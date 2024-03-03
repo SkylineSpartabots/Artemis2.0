@@ -32,7 +32,6 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.TeleopFactory;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
-import frc.robot.commands.Shooter.SetShooter;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Shooter.ShootIntoAmp;
 import frc.robot.commands.Shooter.Swing;

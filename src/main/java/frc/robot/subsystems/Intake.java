@@ -75,11 +75,12 @@ public class Intake extends SubsystemBase {
         TalonFXConfiguration config = new TalonFXConfiguration();
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
 
-        Slot0Configs slot0Configs = new Slot0Configs();
         currentLimitsConfigs.SupplyCurrentLimit = Constants.intakeContinuousCurrentLimit;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
         currentLimitsConfigs.SupplyCurrentThreshold = Constants.intakePeakCurrentLimit;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+        Slot0Configs slot0Configs = new Slot0Configs();
         // slot0Configs.kP = Constants.SwerveConstants.driveKP;
         // slot0Configs.kI = Constants.SwerveConstants.driveKI;
         // slot0Configs.kD = Constants.SwerveConstants.driveKD;
