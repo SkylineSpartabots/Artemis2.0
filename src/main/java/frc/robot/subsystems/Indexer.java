@@ -8,7 +8,21 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.ColorSensorV3;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -23,17 +37,20 @@ public class Indexer extends SubsystemBase {
         }
         return instance;
     }
-    private CANSparkFlex indexerLeaderM;
-    private CANSparkFlex indexerFollowerM;
+
+    private TalonFX indexerLeaderM;
+    private TalonFX indexerFollowerM;
+
+    private Follower follow = new Follower(Constants.HardwarePorts.indexerTopM, true );
+
     private ColorSensorV3 colorSensor;
     private static final I2C.Port onboardI2C = I2C.Port.kOnboard;
 
     public Indexer() {
-        indexerLeaderM = new CANSparkFlex(Constants.HardwarePorts.indexerTopM, MotorType.kBrushless);
-        indexerFollowerM = new CANSparkFlex(Constants.HardwarePorts.indexerBottomM, MotorType.kBrushless);
+        indexerLeaderM = new TalonFX(Constants.HardwarePorts.indexerTopM);
+        indexerFollowerM = new TalonFX(Constants.HardwarePorts.indexerBottomM);
         indexerLeaderM.setInverted(true);
-        indexerFollowerM.follow(indexerLeaderM, false);
-
+        indexerFollowerM.setControl(follow);
         colorSensor = new ColorSensorV3(onboardI2C);
     }
 
@@ -68,7 +85,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public double getMotorVoltage() {
-        return indexerLeaderM.getBusVoltage();
+        return indexerLeaderM.getMotorVoltage().getValueAsDouble();
     }
 
     @Override
