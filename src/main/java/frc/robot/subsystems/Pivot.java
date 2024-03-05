@@ -3,9 +3,18 @@ package frc.robot.subsystems;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
@@ -13,6 +22,7 @@ import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.Conversions;
@@ -54,18 +64,23 @@ public class Pivot extends SubsystemBase {
     }
 
 
+    private TalonFX pivotLeaderM;
+    private TalonFX pivotFollowerM;
 
-    private CANSparkFlex pivotLeaderM;
-    private CANSparkFlex pivotFollowerM;
     // private RelativeEncoder leaderEncoder;
     // private RelativeEncoder followEncoder;
     private CANcoder pivotCANcoder;
     private PivotState currState = PivotState.GROUND;
     private static double pivotCANcoderAngleOffset = 57.89;
+    private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
+    private final VoltageOut voltageRequest = new VoltageOut(0);
 
     public Pivot() {
-        pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
-        pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotFollowerM, MotorType.kBrushless);
+        // pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
+        // pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotFollowerM, MotorType.kBrushless);
+
+        pivotLeaderM = new TalonFX(Constants.HardwarePorts.pivotLeaderM);
+        pivotFollowerM = new TalonFX(Constants.HardwarePorts.pivotFollowerM);
         
         // leaderEncoder = pivotLeaderM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
         // followEncoder = pivotFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
@@ -74,7 +89,8 @@ public class Pivot extends SubsystemBase {
 
 
         configMotor(pivotFollowerM);
-        pivotFollowerM.follow(pivotLeaderM, true);
+        pivotFollowerM.setControl(new Follower(pivotLeaderM.getDeviceID(), false));
+        //pivotFollowerM.follow(pivotLeaderM, true);
 
 
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
@@ -103,7 +119,7 @@ public class Pivot extends SubsystemBase {
      * Sets the speed of the motor to 0, effectively stopping it. 
      */
     public void stopMotor(){
-        pivotLeaderM.set(0);
+        pivotLeaderM.setControl(dutyCycleRequest.withOutput(0));
     }
 
     /**
@@ -151,8 +167,7 @@ public class Pivot extends SubsystemBase {
      * @param voltage Desired voltage. 
      */
     public void setVoltage(double voltage) {
-        pivotLeaderM.setVoltage(voltage);
-        pivotCANcoder.getMagnetHealth();
+        pivotLeaderM.setControl(voltageRequest.withOutput(voltage));
     }
     
     public boolean CANcoderWorking() {
@@ -168,7 +183,7 @@ public class Pivot extends SubsystemBase {
     }
 
     public double getMotorCurrent(){
-        return (pivotLeaderM.getOutputCurrent() + pivotFollowerM.getOutputCurrent())/2;
+        return (pivotLeaderM.getMotorVoltage().getValueAsDouble() + pivotFollowerM.getMotorVoltage().getValueAsDouble())/2;
     }
 
     // public double getMotorPosition() {
@@ -179,9 +194,17 @@ public class Pivot extends SubsystemBase {
      * Configures the specified motor with current limit and idle mode plus PID. 
      * @param motor The motor to be configured. 
      */
-    private void configMotor(CANSparkFlex motor) {
-        motor.setSmartCurrentLimit(Constants.pivotPeakCurrentLimit);
-        motor.setIdleMode(IdleMode.kCoast);
+    private void configMotor(TalonFX motor) {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+
+
+        currentLimitsConfigs.SupplyCurrentLimit = Constants.shooterContinuousCurrentLimit;
+        currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+        currentLimitsConfigs.SupplyCurrentThreshold = Constants.shooterPeakCurrentLimit;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        config.CurrentLimits = currentLimitsConfigs;
+        motor.getConfigurator().apply(config);
         // leaderEncoder.setPosition(0.2);
 
 

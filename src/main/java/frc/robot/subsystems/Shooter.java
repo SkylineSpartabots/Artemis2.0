@@ -58,8 +58,6 @@ public class Shooter extends SubsystemBase {
     private TalonFX shooterTopM;
     private TalonFX shooterBottomM;
 
-    private TalonFXSensorCollection shooterTopSensor;
-    private TalonFXSensorCollection shooterBottomSensor;
 
     private RelativeEncoder topEncoder;
     private RelativeEncoder bottomEncoder;
@@ -237,7 +235,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public double[] getBothSpeeds() {
-        return new double[]{(shooterTopSensor.getIntegratedSensorVelocity()*600/2048), (shooterTopSensor.getIntegratedSensorVelocity()*600/2048)};
+        return new double[]{(shooterTopM.getVelocity().getValueAsDouble()*60), (shooterBottomM.getVelocity().getValueAsDouble()*60)};
     }
     
     public void setTopVoltage(double voltage){
@@ -290,8 +288,8 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
         Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
-        Logger.recordOutput("Shooter/topMotorSpeed", shooterTopSensor.getIntegratedSensorVelocity());
-        Logger.recordOutput("Shooter/bottomMotorSpeed", shooterBottomSensor.getIntegratedSensorVelocity());
+        // Logger.recordOutput("Shooter/topMotorSpeed", shooterTopSensor.getIntegratedSensorVelocity());
+        // Logger.recordOutput("Shooter/bottomMotorSpeed", shooterBottomSensor.getIntegratedSensorVelocity());
         // Logger.recordOutput("Shooter/topMotorSpeed", topEncoder.getVelocity());
         // Logger.recordOutput("Shooter/bottomMotorSpeed", bottomEncoder.getVelocity());
 
