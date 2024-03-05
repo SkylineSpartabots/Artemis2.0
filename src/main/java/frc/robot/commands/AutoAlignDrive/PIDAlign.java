@@ -57,20 +57,21 @@ public class PIDAlign extends Command {
 
     try {
       // s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
-      currentYaw = pose.getRotation().getRadians() + Math.PI; //hopefully the poes is updated frequently since we should be facing an april tag
+      currentYaw = pose.getRotation().getRadians(); // OMG I FOUND THE PROBLEM I THINK!!
+      currentYaw = (currentYaw > 0) ? currentYaw + Math.PI : Math.abs(currentYaw) + Math.PI;
     } catch (Exception e) {}
 // 
     SmartDashboard.putNumber("Current yaw", currentYaw);
 
-    double finalYaw = Normalize();
+    desiredYaw = Normalize();
     // if (Math.abs(desiredYaw - (Math.PI*2)) < desiredYaw) { desiredYaw = desiredYaw - (Math.PI*2);};
     // desiredYaw = Math.min(desiredYaw, Math.PI*2 - desiredYaw);
 
   //disregards current and reference, direction is already accounted for so it is always optimal turning
-    double rotationSpeed = alignPID.calculate(currentYaw, finalYaw);
+    double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
 
     s_Swerve.setControl(drive.withRotationalRate(rotationSpeed));
-    SmartDashboard.putNumber("final yaw", finalYaw);
+    SmartDashboard.putNumber("final yaw", desiredYaw);
     SmartDashboard.putNumber("rotation speed", rotationSpeed);
   }
 
@@ -84,7 +85,6 @@ public class PIDAlign extends Command {
 
   public double Normalize(){ //counterclockwise is positive
     double error = desiredYaw - currentYaw;
-
     if (Math.abs(error) > Math.PI) { // flip desiredYaw to its corresponding angle on the opposite side if raw error takes the longer path
       desiredYaw += (desiredYaw > currentYaw) ? -2 * Math.PI : 2 * Math.PI; //if true do first one if false do other
     }
@@ -104,7 +104,7 @@ public class PIDAlign extends Command {
 
   @Override
   public boolean isFinished() {
-    return Math.abs(desiredYaw - currentYaw) < (Math.PI/(180/2)); // error of two degrees for now, set later
+    return Math.abs(desiredYaw - currentYaw) < (Math.PI/(180/2));
   }
 
 }
