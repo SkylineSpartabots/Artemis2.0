@@ -26,7 +26,7 @@ public class PIDAlign extends Command {
 
   private final CommandSwerveDrivetrain s_Swerve;
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
-  PIDController alignPID = new PIDController(1.4, 0.95, 0.05); //TODO: tune this MORE
+  PIDController alignPID = new PIDController(1.7, 0.95, 0.05); //TODO: tune this MORE
   
   private double currentYaw;
   private double desiredYaw;
