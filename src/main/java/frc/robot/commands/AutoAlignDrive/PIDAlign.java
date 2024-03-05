@@ -58,7 +58,7 @@ public class PIDAlign extends Command {
     try {
       // s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
       currentYaw = pose.getRotation().getRadians(); // OMG I FOUND THE PROBLEM I THINK!!
-      currentYaw = (currentYaw > 0) ? currentYaw + Math.PI : Math.abs(currentYaw) + Math.PI;
+      if (currentYaw < 0) {  currentYaw = Math.PI + Math.abs(currentYaw); };
     } catch (Exception e) {}
 // 
     SmartDashboard.putNumber("Current yaw", currentYaw);
