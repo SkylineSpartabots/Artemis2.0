@@ -1589,6 +1589,13 @@
                         3
                     ],
                     "type": "StopPoint"
+                },
+                {
+                    "scope": [
+                        6,
+                        7
+                    ],
+                    "type": "ZeroAngularVelocity"
                 }
             ],
             "usesControlIntervalGuessing": true,
