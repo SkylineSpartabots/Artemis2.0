@@ -86,7 +86,7 @@ public class Pivot extends SubsystemBase {
         // followEncoder = pivotFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
         
         configMotor(pivotLeaderM);
-
+        pivotLeaderM.setInverted(true);
 
         configMotor(pivotFollowerM);
         pivotFollowerM.setControl(new Follower(pivotLeaderM.getDeviceID(), true));
@@ -183,7 +183,7 @@ public class Pivot extends SubsystemBase {
     }
 
     public double getMotorCurrent(){
-        return Math.abs(pivotLeaderM.getStatorCurrent().getValueAsDouble()) + Math.abs(pivotFollowerM.getStatorCurrent().getValueAsDouble());
+        return (Math.abs(pivotLeaderM.getStatorCurrent().getValueAsDouble()) + Math.abs(pivotFollowerM.getStatorCurrent().getValueAsDouble())) / 2;
     }
 
     // public double getMotorPosition() {
@@ -252,6 +252,7 @@ public class Pivot extends SubsystemBase {
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
         SmartDashboard.putNumber("Pivot measured angle", pivotAngle());
         // SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());
+        SmartDashboard.putNumber("Pivot Set Point", currState.pos);
         SmartDashboard.putBoolean("CANcoder working", CANcoderWorking());
         SmartDashboard.putNumber("Pivot Current", getMotorCurrent());
     }
