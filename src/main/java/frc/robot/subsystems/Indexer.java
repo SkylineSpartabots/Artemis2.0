@@ -68,7 +68,7 @@ public class Indexer extends SubsystemBase {
             return speed;
         }
 
-        IndexerStates(double speed) 
+        IndexerStates(double speed) {
             this.speed = speed;
         }
     }

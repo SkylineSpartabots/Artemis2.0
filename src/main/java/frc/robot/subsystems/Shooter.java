@@ -305,19 +305,11 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getTopMotorVelocity() {
-<<<<<<< HEAD
-        return ((shooterTopM.getVelocity().getValueAsDouble()*600)/2048);
-    }
-
-    public double getBottomMotorVelocity() {
-        return ((shooterBottomM.getVelocity().getValueAsDouble()*600)/2048);
-=======
-        return shooterTopM.getVelocity().getValueAsDouble();
+        return (shooterTopM.getVelocity().getValueAsDouble());
     }
 
     public double getBottomMotorVelocity() {
         return shooterBottomM.getVelocity().getValueAsDouble();
->>>>>>> 99ff44d089349316a2d63890e6e406d42e4d7f43
     }
 
     @Override
