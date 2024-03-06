@@ -246,9 +246,9 @@ public final class Autos {
           new ParallelCommandGroup(
             new SetShooterCommand(1800),
             new SetPivot(20) //TODO: tune this
-          ),
+          )
 
-          
+
 
           
            
