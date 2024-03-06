@@ -17,8 +17,7 @@ public class SetPivot extends Command {
     boolean isShootingIntoAmp;
 
     // Tune later
-    PIDController CANController = new PIDController(50
-    , 12, 0);
+    PIDController CANController = new PIDController(45, 7, 0);
     PIDController motorContorller = new PIDController(0, 0, 0);
 
     public SetPivot(PivotState state) {
@@ -54,12 +53,13 @@ public class SetPivot extends Command {
     public void execute() {
         double voltage;
         if (s_Pivot.CANcoderWorking()) {
-            voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(),  state == PivotState.NULL ? desiredCANcoderAngle : s_Pivot.getSetPoint());
+            voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(), s_Pivot.getSetPoint());
             if(isShootingIntoAmp && s_Pivot.getCANcoderAbsolutePosition() > Pivot.pivotDegreeToCANcoder(50)){
                 s_Indexer.setSpeed(0.8);
-            } else if(isShootingIntoAmp && s_Pivot.getCANcoderAbsolutePosition() < Pivot.pivotDegreeToCANcoder(75)){ //tune how long it is fast for
-                voltage = 4; //tune speed
             }
+            // } else if(isShootingIntoAmp && s_Pivot.getCANcoderAbsolutePosition() < Pivot.pivotDegreeToCANcoder(75)){ //tune how long it is fast for
+            //     voltage = 4; //tune speed
+            // }
         }
         else {
             voltage = 0;
