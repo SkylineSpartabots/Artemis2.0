@@ -19,11 +19,11 @@ public class ZeroPivot extends Command {
 
     @Override
     public void execute() {
-        s_Pivot.setPercentageOutput(0.1);
+        s_Pivot.setPercentageOutput(-0.1);
         SmartDashboard.putBoolean("Running zero", true);
     }
 
-    private double currentTreshold = 8;
+    private double currentTreshold =3;
 
     @Override
 	public boolean isFinished() {
