@@ -93,7 +93,8 @@ public class RobotContainer {
 
         driver.a().onTrue(offEverything());
         driver.x().onTrue(new SmartIntake());
-        driver.b().whileTrue(eject());
+        // driver.b().whileTrue(eject());
+        driver.b().onTrue(new ShootIntoAmp());
         driver.y().whileTrue(new ManualIndexForShooting());
 
         driver.rightTrigger().onTrue(shootSubwoofer());
@@ -103,7 +104,7 @@ public class RobotContainer {
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.FARWING));
-        driverDpadLeft.onTrue(new SetPivot(PivotState.SUBWOOFER));
+        driverDpadLeft.onTrue(new SetPivot(PivotState.AMP));
         driverDpadRight.onTrue(new ZeroPivot());
 
         /*
@@ -140,13 +141,14 @@ public class RobotContainer {
     // private boolean shooterOn() {
     //     return s_Shooter.getBotMotorVoltage() > 0 || s_Shooter.getTopMotorVoltage() > 0;
     // }
+
     private Command shooterOff() {
         return new SetShooterCommand(0);
     } 
+
     private Command shooterOn() {
         return new SetShooterCommand(2000);
     }
-
 
     private boolean indexerOn() {
         return s_Indexer.getMotorVoltage() > 0;
@@ -163,8 +165,6 @@ public class RobotContainer {
     public Command offEverything(){
         return new SequentialCommandGroup(new ParallelCommandGroup(setShooterVelocity(0), offIndexer(), offIntake()), new SetPivot(PivotState.GROUND));
     }
-
-
 
     public Command aligntoCordinate(Point point) {
         return new PIDAlign(point);
