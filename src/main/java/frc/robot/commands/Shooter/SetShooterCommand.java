@@ -29,6 +29,7 @@ public class SetShooterCommand extends Command {
 
     @Override
     public void initialize() {
+        System.out.println("SHOOT");
         s_Shooter.setTopVelocity(velTop);
         s_Shooter.setBotVelocity(velBot);
     }
