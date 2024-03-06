@@ -42,7 +42,7 @@ public class SetShooterCommand extends Command {
     @Override
 	public boolean isFinished() {
         double[] speeds = s_Shooter.getBothSpeeds();
-        return Math.abs(speeds[0] - velTop) < 100 && Math.abs(speeds[1] - velBot) < 100;
+        return Math.abs(speeds[0] - velTop) < 3 && Math.abs(speeds[1] - velBot) < 3;
 	}
 		
 	@Override

@@ -21,6 +21,8 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DigitalGlitchFilter;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,6 +46,7 @@ public class Indexer extends SubsystemBase {
     private Follower follow = new Follower(Constants.HardwarePorts.indexerTopM, false );
 
     private ColorSensorV3 colorSensor;
+    private DigitalInput limitSwitch = new DigitalInput(0);
     private static final I2C.Port onboardI2C = I2C.Port.kOnboard;
 
     public Indexer() {
@@ -55,7 +58,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public enum IndexerStates {
-        ON(0.35),
+        ON(0.32),
         OFF(0),
         REV(-0.8);
         
@@ -65,7 +68,7 @@ public class Indexer extends SubsystemBase {
             return speed;
         }
 
-        IndexerStates(double speed) {
+        IndexerStates(double speed) 
             this.speed = speed;
         }
     }
@@ -95,6 +98,7 @@ public class Indexer extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Color Sensor Proximity", getColorSensorResult());
+        // SmartDashboard.putBoolean("Limit Switch State", getLimitSwitchResult());
     }
 
     @Override

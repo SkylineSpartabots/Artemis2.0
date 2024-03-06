@@ -43,7 +43,7 @@ public class Pivot extends SubsystemBase {
 
         GROUND(0.2),
         // Current max is .38, can change later
-        SUBWOOFER(Pivot.pivotDegreeToCANcoder(57)),
+        SUBWOOFER(Pivot.pivotDegreeToCANcoder(60)),
 
         FARWING(Pivot.pivotDegreeToCANcoder(20)),
 

@@ -62,7 +62,7 @@ public class Shooter extends SubsystemBase {
     private RelativeEncoder topEncoder;
     private RelativeEncoder bottomEncoder;
 
-    private double velocityCap = 3000;
+    private double velocityCap = 65;
 
     private double topVelocitySetpoint = 0;
     private double botVelocitySetpoint = 0;
@@ -108,14 +108,14 @@ public class Shooter extends SubsystemBase {
 
         Slot0Configs shooterTopConfigs = new Slot0Configs();
         shooterTopConfigs.kS = 0.21; // voltage to overcome static friction
-        shooterTopConfigs.kV = 0.005;
+        shooterTopConfigs.kV = 0.122;
         shooterTopConfigs.kP = 0;
         shooterTopConfigs.kI = 0;
         shooterTopConfigs.kD = 0;
 
         Slot1Configs shooterBottomConfigs = new Slot1Configs();
         shooterBottomConfigs.kS = 0.362;
-        shooterBottomConfigs.kV = 0.005;
+        shooterBottomConfigs.kV = 0.1225;
         shooterBottomConfigs.kP = 0;
         shooterBottomConfigs.kI = 0;
         shooterBottomConfigs.kD = 0;
@@ -256,8 +256,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public double[] getBothSpeeds() {
-        return new double[] { (shooterTopM.getVelocity().getValueAsDouble() * 60),
-                (shooterBottomM.getVelocity().getValueAsDouble() * 60) };
+        return new double[] { (shooterTopM.getVelocity().getValueAsDouble()),
+                (shooterBottomM.getVelocity().getValueAsDouble()) };
     }
 
     public void setTopVoltage(double voltage) {
@@ -278,14 +278,12 @@ public class Shooter extends SubsystemBase {
 
     public void setTopVelocity(double velocity) {
         topVelocitySetpoint = velocity;
-        double rps = velocity / 60;
-        shooterTopM.setControl(topVelocityVoltage.withVelocity(rps));
+        shooterTopM.setControl(topVelocityVoltage.withVelocity(velocity));
     }
 
     public void setBotVelocity(double velocity) {
         botVelocitySetpoint = velocity;
-        double rps = velocity / 60;
-        shooterBottomM.setControl(topVelocityVoltage.withVelocity(rps));
+        shooterBottomM.setControl(bottomVelocityVoltage.withVelocity(velocity));
     }
 
     public void setToIdle() {
@@ -307,11 +305,19 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getTopMotorVelocity() {
+<<<<<<< HEAD
         return ((shooterTopM.getVelocity().getValueAsDouble()*600)/2048);
     }
 
     public double getBottomMotorVelocity() {
         return ((shooterBottomM.getVelocity().getValueAsDouble()*600)/2048);
+=======
+        return shooterTopM.getVelocity().getValueAsDouble();
+    }
+
+    public double getBottomMotorVelocity() {
+        return shooterBottomM.getVelocity().getValueAsDouble();
+>>>>>>> 99ff44d089349316a2d63890e6e406d42e4d7f43
     }
 
     @Override
