@@ -18,22 +18,18 @@ import frc.robot.subsystems.Pivot.PivotState;
 public class SmartIntake extends Command {
   private final Intake s_Intake;
   private final Indexer s_Indexer;
-  private final Pivot s_Pivot;
 
   public SmartIntake() {
     s_Intake = Intake.getInstance();
     s_Indexer = Indexer.getInstance();
-    s_Pivot = Pivot.getInstance();
-    addRequirements(s_Intake, s_Indexer, s_Pivot);
+    addRequirements(s_Intake, s_Indexer);
   }
 
   @Override
   public void initialize() {
-    new ParallelCommandGroup(
-      new SetIntake(IntakeStates.ON),
-      new SetIndexer(IndexerStates.ON, true),
-      new SetPivot(PivotState.SUBWOOFER)
-    ).schedule();
+    s_Indexer.setState(IndexerStates.ON);
+    s_Intake.setSpeed(IntakeStates.ON);
+    new SetPivot(PivotState.INTAKE).schedule();
   }
 
   @Override
@@ -42,10 +38,8 @@ public class SmartIntake extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    new ParallelCommandGroup(
-      new SetIntake(IntakeStates.OFF),
-      new SetIndexer(IndexerStates.OFF, false)
-    ).schedule();
+    s_Intake.setSpeed(IntakeStates.OFF);
+    s_Indexer.setState(IndexerStates.OFF);
   }
 
   // Returns true when the command should end.

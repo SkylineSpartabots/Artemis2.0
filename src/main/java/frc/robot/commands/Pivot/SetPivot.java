@@ -56,10 +56,9 @@ public class SetPivot extends Command {
             voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(), s_Pivot.getSetPoint());
             if(isShootingIntoAmp && s_Pivot.getCANcoderAbsolutePosition() > Pivot.pivotDegreeToCANcoder(50)){
                 s_Indexer.setSpeed(0.8);
+            } else if(isShootingIntoAmp && s_Pivot.getCANcoderAbsolutePosition() < Pivot.pivotDegreeToCANcoder(80)){ //tune how long it is fast for
+                voltage = 4; //tune speed
             }
-            // } else if(isShootingIntoAmp && s_Pivot.getCANcoderAbsolutePosition() < Pivot.pivotDegreeToCANcoder(75)){ //tune how long it is fast for
-            //     voltage = 4; //tune speed
-            // }
         }
         else {
             voltage = 0;

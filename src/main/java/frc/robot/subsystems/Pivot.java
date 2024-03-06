@@ -53,7 +53,7 @@ public class Pivot extends SubsystemBase {
 
         INTAKE(Pivot.pivotDegreeToCANcoder(70)),
 
-        AMP(Pivot.pivotDegreeToCANcoder(45)); //90 for shooting vertically
+        AMP(Pivot.pivotDegreeToCANcoder(95)); //90 for shooting vertically
         //WING(position);
 
         private double pos;
