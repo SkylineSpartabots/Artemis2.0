@@ -58,9 +58,6 @@ public class Shooter extends SubsystemBase {
 
     private TalonFX shooterTopM;
     private TalonFX shooterBottomM;
-    
-    private TalonFXSensorCollection shooterTopSensor;
-    private TalonFXSensorCollection shooterBottomSensor;
 
     private RelativeEncoder topEncoder;
     private RelativeEncoder bottomEncoder;
@@ -310,11 +307,11 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getTopMotorVelocity() {
-        return ((shooterTopSensor.getIntegratedSensorVelocity() * 600)/2048);
+        return ((shooterTopM.getVelocity().getValueAsDouble()*600)/2048);
     }
 
     public double getBottomMotorVelocity() {
-        return ((shooterBottomSensor.getIntegratedSensorVelocity() * 600)/2048);
+        return ((shooterBottomM.getVelocity().getValueAsDouble()*600)/2048);
     }
 
     @Override
