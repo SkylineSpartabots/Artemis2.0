@@ -84,6 +84,10 @@ public class Indexer extends SubsystemBase {
         return colorSensor.getProximity();
     }
 
+    // public boolean getLimitSwitchResult() {
+    //     return limitSwitch.get();
+    // }
+
     public double getMotorVoltage() {
         return indexerLeaderM.getMotorVoltage().getValueAsDouble();
     }
