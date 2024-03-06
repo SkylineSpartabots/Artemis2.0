@@ -22,10 +22,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
@@ -49,6 +52,8 @@ public final class Autos {
 
         ChoreoTrajectory traj = path;
         thetaController.reset();
+        xController.reset();
+        yController.reset();
 
         s_Swerve.setAutoStartPose(traj.getInitialPose());
         SmartDashboard.putNumber("Start pose x", traj.getInitialPose().getX());
@@ -83,32 +88,37 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(30)
+                        new SetShooterCommand(40)
                 ),
 
-                new SetIndexer(IndexerStates.ON, false),
+                new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
+                // new SetIndexer(IndexerStates.ON, false), 
+                Commands.waitSeconds(0.1),
+
+                new ParallelCommandGroup(
+                        new SetShooterCommand(0),
+                        new SetIndexer(IndexerStates.ON, true),
+                        new SetIntake(IntakeStates.ON),
+                        new SetPivot(PivotState.INTAKE),
+                        new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(0)))
+                ),
+
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
-                        new SetShooterCommand(15),
-                        FollowChoreoTrajectory(trajectory.get(0)),
-                        new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON)
-                ),
-                Commands.waitSeconds(0.3),
-
-                new ParallelCommandGroup(
                         new SetIntake(IntakeStates.OFF),
+                        new SetPivot(PivotState.SUBWOOFER),
                         FollowChoreoTrajectory(trajectory.get(1))
                 ),
 
-                new SetShooterCommand(30),
+                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
-                        new SetShooterCommand(15),
+                        new SetShooterCommand(0),
+                        new SetPivot(PivotState.SUBWOOFER),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),
@@ -117,16 +127,18 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(3)),
-                        new SetIntake(IntakeStates.OFF)
+                        new SetIntake(IntakeStates.OFF),
+                        new SetPivot(PivotState.SUBWOOFER)
                 ),
 
-                new SetShooterCommand(30),
+                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(4)),
-                        new SetShooterCommand(15),
+                        new SetShooterCommand(0),
+                        new SetPivot(PivotState.INTAKE),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),
@@ -135,18 +147,15 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(5)),
+                        new SetPivot(PivotState.SUBWOOFER),
                         new SetIntake(IntakeStates.OFF)
                 ),
 
-                new SetShooterCommand(30),
+                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
                 new SetIndexer(IndexerStates.OFF, false),
-                new SetShooterCommand(0)
-
-
-      
-       
+                new ParallelCommandGroup(new SetPivot(PivotState.GROUND), new SetShooterCommand(0)));
       
       /*new ParallelCommandGroup(
         new SetPivot(PivotState.SUBWOOFER),
@@ -213,7 +222,6 @@ public final class Autos {
       new SetIndexer(IndexerStates.ON, false),
       Commands.waitSeconds(0.8),
       new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false))*/
-        );
 
     }
 
@@ -268,7 +276,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(30)
+                        new SetShooterCommand(40)
                 ),
 
                 new SetIndexer(IndexerStates.ON, false),
@@ -299,7 +307,7 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
                         new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(15)),
+                        new SetShooterCommand(15),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),

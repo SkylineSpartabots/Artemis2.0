@@ -256,8 +256,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public double[] getBothSpeeds() {
-        return new double[] { (shooterTopM.getVelocity().getValueAsDouble() * 60),
-                (shooterBottomM.getVelocity().getValueAsDouble() * 60) };
+        return new double[] { (shooterTopM.getVelocity().getValueAsDouble()),
+                (shooterBottomM.getVelocity().getValueAsDouble()) };
     }
 
     public void setTopVoltage(double voltage) {

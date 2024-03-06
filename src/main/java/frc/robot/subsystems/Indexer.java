@@ -58,7 +58,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public enum IndexerStates {
-        ON(0.35),
+        ON(0.32),
         OFF(0),
         REV(-0.8);
         
@@ -68,7 +68,7 @@ public class Indexer extends SubsystemBase {
             return speed;
         }
 
-        IndexerStates(double speed) {
+        IndexerStates(double speed) 
             this.speed = speed;
         }
     }
