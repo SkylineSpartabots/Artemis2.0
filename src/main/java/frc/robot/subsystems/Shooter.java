@@ -62,7 +62,7 @@ public class Shooter extends SubsystemBase {
     private RelativeEncoder topEncoder;
     private RelativeEncoder bottomEncoder;
 
-    private double velocityCap = 3000;
+    private double velocityCap = 65;
 
     private double topVelocitySetpoint = 0;
     private double botVelocitySetpoint = 0;

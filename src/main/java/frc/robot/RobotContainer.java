@@ -96,9 +96,7 @@ public class RobotContainer {
         driver.b().whileTrue(eject());
         driver.y().whileTrue(new ManualIndexForShooting());
 
-        //driver.rightTrigger().onTrue(shootSubwoofer());
-        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Shooter.setTopVelocity(60)));
-        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Shooter.setBotVelocity(60)));
+        driver.rightTrigger().onTrue(shootSubwoofer());
 
         driver.rightBumper().whileTrue(new ManualClimb(true));
         driver.leftBumper().whileTrue(new ManualClimb(false));
@@ -199,7 +197,7 @@ public class RobotContainer {
 
     public Command shootSubwoofer(){
         if(shooterSysIDTuned){
-            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(2000));
+            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(33));
         } else {
             return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new InstantCommand(() -> s_Shooter.setVoltage(8)));
         }
