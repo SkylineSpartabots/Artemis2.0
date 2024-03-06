@@ -28,8 +28,11 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
+import frc.robot.commands.FixIndexer;
+import frc.robot.commands.ManualIndexForShooting;
 import frc.robot.commands.ReverseIndexer;
 import frc.robot.commands.SetIndexer;
+import frc.robot.commands.SmartIntake;
 import frc.robot.commands.TeleopFactory;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -38,9 +41,12 @@ import frc.robot.commands.Shooter.ShootIntoAmp;
 import frc.robot.commands.Shooter.Swing;
 import frc.robot.commands.TeleopAutomation.IndexForShooting;
 import frc.robot.commands.AutoAlignDrive.PIDAlign;
+import frc.robot.commands.Climb.ManualClimb;
 import frc.robot.commands.Intake.SetIntake;
 
 public class RobotContainer {
+    //robot testing states
+    private boolean shooterSysIDTuned = false;
 
     //private final Vision s_Vision = Vision.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
@@ -81,56 +87,41 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-//        driver.y().onTrue(intakeOn() ? offIntake() : onIntake());
-       // driver.a().onTrue(offEverything());
-        driver.y().onTrue(TeleopFactory.IntelligentIntake());
-        driver.a().onTrue(offIntake());
-        driver.x().onTrue(new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVoltage(8)), Commands.waitSeconds(1.5), indexToShooter(), Commands.waitSeconds(0.8), offIndexer(), new InstantCommand(() -> s_Shooter.setVoltage(8))));
-        driver.b().onTrue(offIndexer());
-//        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
-//
-//        //nothing is binded to intake, indexer, or shooter yet
-//        driver.y().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_AMP.getValue()));
-//        driver.a().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_AMP.getValue()));
-//        driver.x().onTrue(aligntoCordinate(Constants.AlignmentTargets.RED_SPEAKER.getValue()));
-       driver.rightTrigger().onTrue(aligntoCordinate(Constants.AlignmentTargets.BLUE_SPEAKER.getValue()));
+        /*
+         * Mechanism bindings
+         */
 
+        driver.a().onTrue(offEverything());
+        driver.x().onTrue(new SmartIntake());
+        driver.b().whileTrue(eject());
+        driver.y().whileTrue(new ManualIndexForShooting());
 
-        // driver.a().onTrue(setLEDs());
-        // driver.b().onTrue(new ShootIntoAmp());
-        //driver.b().onTrue(new SequentialCommandGroup(new ParallelCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP_BEFORE_SWING)), new Swing()));
-        // driver.a().onTrue((new InstantCommand(() -> s_Shooter.setVoltage(0))));
+        driver.rightTrigger().onTrue(shootSubwoofer());
 
-        driver.rightBumper().onTrue( new InstantCommand(() -> s_Shooter.setPercentOutput(.5)));
-        driver.leftBumper().onTrue(shooterOff());
-
-        // driver.rightBumper().whileTrue(shooterOn() ? new InstantCommand(() -> Shooter.getInstance().setVoltage(0)) : new InstantCommand(() -> s_Shooter.setVelocity(3000)));
-        //driver.rightBumper().onTrue(new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setTopPercent(0.4)), new InstantCommand(() -> s_Shooter.setBotPercent(0.1))));
-        // driver.rightBumper().whileTrue(new InstantCommand(() -> s_Shooter.setPercentOutput(0.5)));
-        // driver.leftBumper().onTrue(new InstantCommand(() -> Shooter.getInstance().setVoltage(0)));
-
-        // 
+        driver.rightBumper().whileTrue(new ManualClimb(true));
+        driver.leftBumper().whileTrue(new ManualClimb(false));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.FARWING));
         driverDpadLeft.onTrue(new SetPivot(PivotState.SUBWOOFER));
         driverDpadRight.onTrue(new ZeroPivot());
 
+        /*
+         * Drivetrain bindings
+         */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
                         // negative Y (forward)
                         .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
                 ));
-        
-
-        // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // driver.b().whileTrue(drivetrain
-        //         .applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
 
+        /*
+         * simulation bindings
+         */
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
@@ -170,7 +161,7 @@ public class RobotContainer {
     }
 
     public Command offEverything(){
-        return new ParallelCommandGroup(setShooterVelocity(0), offIndexer(), offIntake());
+        return new SequentialCommandGroup(new ParallelCommandGroup(setShooterVelocity(0), offIndexer(), offIntake()), new SetPivot(PivotState.GROUND));
     }
 
 
@@ -193,7 +184,7 @@ public class RobotContainer {
 
     //shooter
     public Command onIndexer() {
-        return new SequentialCommandGroup(new SetIndexer(IndexerStates.ON, true), new ReverseIndexer());
+        return new SequentialCommandGroup(new SetIndexer(IndexerStates.ON, true), new FixIndexer());
     }
 
     public Command shootAmp(){
@@ -202,6 +193,18 @@ public class RobotContainer {
                 new SetPivot(PivotState.AMP),
                 new SetShooterCommand(2000, 1200))
         );
+    }
+
+    public Command shootSubwoofer(){
+        if(shooterSysIDTuned){
+            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(2000));
+        } else {
+            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new InstantCommand(() -> s_Shooter.setVoltage(8)));
+        }
+    }
+
+    public Command eject(){
+        return new SequentialCommandGroup(new SetPivot(PivotState.GROUND), new WaitCommand(0.3), new ReverseIndexer());
     }
     
     public Command offIndexer() {
