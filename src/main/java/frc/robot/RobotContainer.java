@@ -96,7 +96,9 @@ public class RobotContainer {
         driver.b().whileTrue(eject());
         driver.y().whileTrue(new ManualIndexForShooting());
 
-        driver.rightTrigger().onTrue(shootSubwoofer());
+        //driver.rightTrigger().onTrue(shootSubwoofer());
+        driver.rightTrigger().onTrue(new InstantCommand(() -> s_Shooter.setTopVelocity(1600)));
+        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Shooter.setBotVelocity(1600)));
 
         driver.rightBumper().whileTrue(new ManualClimb(true));
         driver.leftBumper().whileTrue(new ManualClimb(false));
