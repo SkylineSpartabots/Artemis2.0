@@ -89,7 +89,7 @@ public class Pivot extends SubsystemBase {
 
 
         configMotor(pivotFollowerM);
-        pivotFollowerM.setControl(new Follower(pivotLeaderM.getDeviceID(), false));
+        pivotFollowerM.setControl(new Follower(pivotLeaderM.getDeviceID(), true));
         //pivotFollowerM.follow(pivotLeaderM, true);
 
 
@@ -179,11 +179,11 @@ public class Pivot extends SubsystemBase {
      * @param percentage The desired percentage to set the motor to. 
      */
     public void setPercentageOutput(double percentage){
-        pivotLeaderM.set(percentage);
+        pivotLeaderM.setControl(dutyCycleRequest.withOutput(percentage));
     }
 
     public double getMotorCurrent(){
-        return (pivotLeaderM.getMotorVoltage().getValueAsDouble() + pivotFollowerM.getMotorVoltage().getValueAsDouble())/2;
+        return Math.abs(pivotLeaderM.getStatorCurrent().getValueAsDouble()) + Math.abs(pivotFollowerM.getStatorCurrent().getValueAsDouble());
     }
 
     // public double getMotorPosition() {
@@ -199,9 +199,10 @@ public class Pivot extends SubsystemBase {
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
 
 
-        currentLimitsConfigs.SupplyCurrentLimit = Constants.shooterContinuousCurrentLimit;
+        currentLimitsConfigs.SupplyCurrentLimit = Constants.pivotContinuousCurrentLimit;
+        currentLimitsConfigs.StatorCurrentLimit = Constants.pivotContinuousCurrentLimit;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-        currentLimitsConfigs.SupplyCurrentThreshold = Constants.shooterPeakCurrentLimit;
+        currentLimitsConfigs.SupplyCurrentThreshold = Constants.pivotPeakCurrentLimit;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.CurrentLimits = currentLimitsConfigs;
         motor.getConfigurator().apply(config);
@@ -252,5 +253,6 @@ public class Pivot extends SubsystemBase {
         SmartDashboard.putNumber("Pivot measured angle", pivotAngle());
         // SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());
         SmartDashboard.putBoolean("CANcoder working", CANcoderWorking());
+        SmartDashboard.putNumber("Pivot Current", getMotorCurrent());
     }
 }
