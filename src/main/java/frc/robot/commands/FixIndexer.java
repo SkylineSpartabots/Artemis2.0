@@ -38,6 +38,7 @@ public class FixIndexer extends Command {
     @Override
     public boolean isFinished() {
         correctPosition = s_Indexer.getColorSensorResult() < colorSensorProximityThreshold;
+        // correctPosition = !(s_Indexer.getLimitSwitchResult());
         return correctPosition;
     }
 }

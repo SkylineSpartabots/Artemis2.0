@@ -26,7 +26,7 @@ public class SetIndexer extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) {
+    public void end(boolean interrupted) { 
         if (intaking) {
             s_Indexer.setSpeed(0);
 
@@ -36,5 +36,6 @@ public class SetIndexer extends Command {
     @Override
     public boolean isFinished() {
         return intaking ? s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold : true;
+        // return intaking ? s_Indexer.getLimitSwitchResult() : true;
     }
 }
