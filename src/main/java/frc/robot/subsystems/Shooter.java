@@ -107,14 +107,14 @@ public class Shooter extends SubsystemBase {
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
 
         Slot0Configs shooterTopConfigs = new Slot0Configs();
-        shooterTopConfigs.kS = 0.01; // voltage to overcome static friction
+        shooterTopConfigs.kS = 0.21; // voltage to overcome static friction
         shooterTopConfigs.kV = 0;
         shooterTopConfigs.kP = 0.1;
         shooterTopConfigs.kI = 0;
         shooterTopConfigs.kD = 0;
 
         Slot1Configs shooterBottomConfigs = new Slot1Configs();
-        shooterBottomConfigs.kS = 0.01;
+        shooterBottomConfigs.kS = 0.362;
         shooterBottomConfigs.kV = 0;
         shooterBottomConfigs.kP = 0.05;
         shooterBottomConfigs.kI = 0.01;
