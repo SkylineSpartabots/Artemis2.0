@@ -309,23 +309,27 @@ public class Shooter extends SubsystemBase {
         return Math.abs(averageError) < acceptableError;
     }
 
-    public double getTopMotorVelocity() {
-        return ((shooterTopSensor.getIntegratedSensorVelocity() * 600)/2048);
-    }
+    // public double getTopMotorVelocity() {
+        // return ((shooterTopSensor.getIntegratedSensorVelocity() * 600)/2048);
+    // }
 
-    public double getBottomMotorVelocity() {
-        return ((shooterBottomSensor.getIntegratedSensorVelocity() * 600)/2048);
-    }
+    // public double getBottomMotorVelocity() {
+        // return ((shooterBottomSensor.getIntegratedSensorVelocity() * 600)/2048);
+    // }
 
     @Override
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
         Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
-        Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
-        Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
 
-        SmartDashboard.putNumber("Shooter top motor velocity", getTopMotorVelocity());
-        SmartDashboard.putNumber("Shooter bot motor velocity", getBottomMotorVelocity());
+        
+        // Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
+        // Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
+
+        // SmartDashboard.putNumber("Shooter top motor velocity", getTopMotorVelocity());
+        // SmartDashboard.putNumber("Shooter bot motor velocity", getBottomMotorVelocity());
+
+
         // Logger.recordOutput("Shooter/topMotorSpeed", topEncoder.getVelocity());
         // Logger.recordOutput("Shooter/bottomMotorSpeed", bottomEncoder.getVelocity());
 
