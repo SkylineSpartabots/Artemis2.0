@@ -24,7 +24,7 @@ public class Music extends SubsystemBase {
   //TODO: IM NOT GONNA LIE THIS MIGHT BE SILLY
 
 
-  private String song;
+  private String song = "no song in queue :)";
 
   private TalonFX intakeLeaderM;
   private TalonFX intakeFollowerM;
