@@ -58,6 +58,9 @@ public class Shooter extends SubsystemBase {
 
     private TalonFX shooterTopM;
     private TalonFX shooterBottomM;
+    
+    private TalonFXSensorCollection shooterTopSensor;
+    private TalonFXSensorCollection shooterBottomSensor;
 
     private RelativeEncoder topEncoder;
     private RelativeEncoder bottomEncoder;
@@ -108,16 +111,16 @@ public class Shooter extends SubsystemBase {
 
         Slot0Configs shooterTopConfigs = new Slot0Configs();
         shooterTopConfigs.kS = 0.21; // voltage to overcome static friction
-        shooterTopConfigs.kV = 0;
-        shooterTopConfigs.kP = 0.1;
+        shooterTopConfigs.kV = 0.005;
+        shooterTopConfigs.kP = 0;
         shooterTopConfigs.kI = 0;
         shooterTopConfigs.kD = 0;
 
         Slot1Configs shooterBottomConfigs = new Slot1Configs();
         shooterBottomConfigs.kS = 0.362;
-        shooterBottomConfigs.kV = 0;
-        shooterBottomConfigs.kP = 0.05;
-        shooterBottomConfigs.kI = 0.01;
+        shooterBottomConfigs.kV = 0.005;
+        shooterBottomConfigs.kP = 0;
+        shooterBottomConfigs.kI = 0;
         shooterBottomConfigs.kD = 0;
 
         currentLimitsConfigs.SupplyCurrentLimit = Constants.shooterContinuousCurrentLimit;
@@ -306,14 +309,23 @@ public class Shooter extends SubsystemBase {
         return Math.abs(averageError) < acceptableError;
     }
 
+    public double getTopMotorVelocity() {
+        return ((shooterTopSensor.getIntegratedSensorVelocity() * 600)/2048);
+    }
+
+    public double getBottomMotorVelocity() {
+        return ((shooterBottomSensor.getIntegratedSensorVelocity() * 600)/2048);
+    }
+
     @Override
     public void periodic() {
         Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
         Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
-        // Logger.recordOutput("Shooter/topMotorSpeed",
-        // shooterTopSensor.getIntegratedSensorVelocity());
-        // Logger.recordOutput("Shooter/bottomMotorSpeed",
-        // shooterBottomSensor.getIntegratedSensorVelocity());
+        Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
+        Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
+
+        SmartDashboard.putNumber("Shooter top motor velocity", getTopMotorVelocity());
+        SmartDashboard.putNumber("Shooter bot motor velocity", getBottomMotorVelocity());
         // Logger.recordOutput("Shooter/topMotorSpeed", topEncoder.getVelocity());
         // Logger.recordOutput("Shooter/bottomMotorSpeed", bottomEncoder.getVelocity());
 
