@@ -85,7 +85,7 @@ public class RobotContainer {
        // driver.a().onTrue(offEverything());
         driver.y().onTrue(TeleopFactory.IntelligentIntake());
         driver.a().onTrue(offIntake());
-        driver.x().onTrue(new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(2000)), Commands.waitSeconds(1.0), indexToShooter(), Commands.waitSeconds(0.8), offIndexer(), new InstantCommand(() -> s_Shooter.setVelocity(0))));
+        driver.x().onTrue(new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVoltage(8)), Commands.waitSeconds(1.5), indexToShooter(), Commands.waitSeconds(0.8), offIndexer(), new InstantCommand(() -> s_Shooter.setVoltage(8))));
         driver.b().onTrue(offIndexer());
 //        driver.b().onTrue(new InstantCommand(() -> s_Amp.setPercentPower(0.1)));
 //

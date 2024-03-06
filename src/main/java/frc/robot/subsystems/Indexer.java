@@ -41,7 +41,7 @@ public class Indexer extends SubsystemBase {
     private TalonFX indexerLeaderM;
     private TalonFX indexerFollowerM;
 
-    private Follower follow = new Follower(Constants.HardwarePorts.indexerTopM, true );
+    private Follower follow = new Follower(Constants.HardwarePorts.indexerTopM, false );
 
     private ColorSensorV3 colorSensor;
     private static final I2C.Port onboardI2C = I2C.Port.kOnboard;
@@ -55,7 +55,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public enum IndexerStates {
-        ON(0.8),
+        ON(0.35),
         OFF(0),
         REV(-0.8);
         
