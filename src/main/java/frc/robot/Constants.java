@@ -177,7 +177,8 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap PivotAngleMap = new InterpolatingDoubleTreeMap();
 
         public static final double[][] velocitiesMatrix = { //TODO: populate these with real measured values
-            {Units.inchesToMeters(265), 3000}, //example
+            {Units.inchesToMeters(265), 50}, //ADD .1 M AFTER MOUNT IS CENTERED
+            {2.67, 45}
         };
 
         public static final double[][] anglesMatrix = {

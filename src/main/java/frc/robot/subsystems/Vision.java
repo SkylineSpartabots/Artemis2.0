@@ -153,13 +153,13 @@ public class Vision extends SubsystemBase {
     /**
      * @return the absolute distance in meters (there are different methods for horizontal or vertical)
      */
-    public double getHypotenuseDistance(){
+    public double getFloorDistance(){
         PhotonTrackedTarget target = getBestTarget();
         if (target != null) {
             targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
             Units.inchesToMeters(9.1), 
             aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
-            Units.degreesToRadians(120), 
+            Units.degreesToRadians(30), 
             Units.degreesToRadians(target.getPitch()));
             return targetDistance;
         }
@@ -195,14 +195,14 @@ public class Vision extends SubsystemBase {
         Logger.recordOutput("has target", hasValidTarget() != null);
         Logger.recordOutput("Vision/TargetYaw", getYaw());
         Logger.recordOutput("Vision/TargetPitch", getPitch());
-        Logger.recordOutput("Vision/HypotenuseDistance", getHypotenuseDistance());
+        Logger.recordOutput("Vision/FloorDistance", getFloorDistance());
         Logger.recordOutput("Vision/BestTargetID", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
         Logger.recordOutput("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
 
         SmartDashboard.putBoolean("has target", hasValidTarget() != null);
         SmartDashboard.putNumber("Target yaw", getYaw());
         SmartDashboard.putNumber("Target pitch", getPitch());
-        SmartDashboard.putNumber("Target hypoteneuse distance", getHypotenuseDistance());
+        SmartDashboard.putNumber("Target floor distance", getFloorDistance());
         SmartDashboard.putNumber("target id", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
         SmartDashboard.putNumber("Pose ambiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
         //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());

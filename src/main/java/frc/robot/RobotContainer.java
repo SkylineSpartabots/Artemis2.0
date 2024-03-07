@@ -40,6 +40,7 @@ import frc.robot.commands.Shooter.ShootIntoAmp;
 import frc.robot.commands.Shooter.Swing;
 import frc.robot.commands.TeleopAutomation.IndexForShooting;
 import frc.robot.commands.AutoAlignDrive.PIDAlign;
+import frc.robot.commands.AutoAlignDrive.VisionAlign;
 import frc.robot.commands.Climb.ManualClimb;
 import frc.robot.commands.Intake.SetIntake;
 
@@ -112,8 +113,10 @@ public class RobotContainer {
 
         driver.rightTrigger().onTrue(shootSubwoofer());
 
-        driver.rightBumper().onTrue(ampSequence());
-        driver.leftBumper().onTrue(new ShootIntoAmp());
+        // driver.rightBumper().onTrue(ampSequence());
+        driver.rightBumper().whileTrue(new VisionAlign());
+        driver.leftBumper().onTrue(new SetShooterCommand(45));
+        // driver.leftBumper().onTrue(new ShootIntoAmp());
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.SUBWOOFER));

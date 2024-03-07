@@ -17,7 +17,8 @@ public class SetPivot extends Command {
     boolean isShootingIntoAmp;
 
     // Tune later
-    PIDController CANController = new PIDController(45, 10, 0);
+    PIDController CANController = new PIDController(38, 10, 0);
+    // PIDController CANController = new PIDController(45, 10, 0); shit be too fast bro
     PIDController motorContorller = new PIDController(0, 0, 0);
 
     public SetPivot(PivotState state) {
@@ -72,7 +73,7 @@ public class SetPivot extends Command {
 
     @Override
 	public boolean isFinished() {
-		return Math.abs(s_Pivot.getSetPoint() - s_Pivot.getCANcoderAbsolutePosition()) < 0.005 || s_Pivot.getMotorCurrent() > 3;
+		return Math.abs(s_Pivot.getSetPoint() - s_Pivot.getCANcoderAbsolutePosition()) < 0.005 || s_Pivot.getMotorCurrent() > 18;
 	}
 		
 	@Override
