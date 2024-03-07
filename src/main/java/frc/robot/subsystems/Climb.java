@@ -42,8 +42,6 @@ public class Climb extends SubsystemBase {
     climbMotor = new TalonFX(Constants.HardwarePorts.climbFollowerMotor);
     configMotor(climbMotor, false);
     setState = 2;
-
-    resetMotorEncoders();
   }
 
 
@@ -60,11 +58,7 @@ public class Climb extends SubsystemBase {
 
     climbMotor.getConfigurator().apply(motorConfig);
   }
-
-  public void resetMotorEncoders() {
-    motorEncoder.setPosition(2);
-  }
-
+  
   public void setClimbSpeed(double speed){
     climbMotor.set(speed); //speed should be -1.0 to 1.0
   }
@@ -98,7 +92,6 @@ public class Climb extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Climb motor position", motorEncoder.getPosition());
     // SmartDashboard.putNumber("Climb follower position", followEncoder.getPosition());
     // This method will be called once per scheduler run
   }
