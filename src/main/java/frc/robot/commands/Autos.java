@@ -228,7 +228,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(1)),
-                        new SetPivot(20)
+                        new SetPivot(35)
                 ),
 
                 new SetShooterCommand(30),
@@ -248,7 +248,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                   FollowChoreoTrajectory(trajectory.get(3)),
-                  new SetPivot(20)
+                  new SetPivot(35)
                 ),
 
                 new SetShooterCommand(30),
