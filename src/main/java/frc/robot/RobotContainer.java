@@ -116,7 +116,7 @@ public class RobotContainer {
         driver.leftBumper().onTrue(new ShootIntoAmp());
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
-        driverDpadUp.onTrue(new SetPivot(PivotState.FARWING));
+        driverDpadUp.onTrue(new SetPivot(PivotState.SUBWOOFER));
         driverDpadLeft.onTrue(new SetPivot(PivotState.AMP));
         driverDpadRight.onTrue(new ZeroPivot());
 

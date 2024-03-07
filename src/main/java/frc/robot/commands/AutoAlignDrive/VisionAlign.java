@@ -44,7 +44,7 @@ public class VisionAlign extends Command {
         hasSpeaker = false;
         List<PhotonTrackedTarget> targets = s_Vision.getTargets();
         for(PhotonTrackedTarget a : targets){
-            if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
+            if(a.getFiducialId() == 4 || a.getFiducialId() == 7){
                 hasSpeaker = true;
                 target = a;
             }
