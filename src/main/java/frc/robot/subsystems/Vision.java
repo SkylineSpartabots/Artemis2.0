@@ -157,9 +157,9 @@ public class Vision extends SubsystemBase {
         PhotonTrackedTarget target = getBestTarget();
         if (target != null) {
             targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
-            Units.inchesToMeters(5.67162), 
+            Units.inchesToMeters(9.1), 
             aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
-            Units.degreesToRadians(50), 
+            Units.degreesToRadians(30), 
             target.getPitch());
             return targetDistance;
         }
