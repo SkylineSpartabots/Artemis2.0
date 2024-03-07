@@ -1,6 +1,7 @@
 
 package frc.robot.commands.Intake;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
@@ -11,6 +12,8 @@ public class SetIntake extends Command {
     Intake.IntakeStates state;
 
     private final Indexer s_Indexer;
+
+    private Timer timer;
 
     private boolean intaking;
     private final int colorSensorProximityThreshold = 110;
@@ -24,11 +27,15 @@ public class SetIntake extends Command {
         addRequirements(s_Intake);
 
         s_Indexer = Indexer.getInstance();
+
+        timer = new Timer();
     }
 
     @Override
     public void initialize() {
         s_Intake.setSpeed(state);
+        timer.start();
+
     }
 
     @Override
@@ -44,6 +51,6 @@ public class SetIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        return intaking ?  s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold : true;
+        return intaking ?  (s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold || timer.hasElapsed(0.5)) : true;
     }
 }
