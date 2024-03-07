@@ -41,11 +41,11 @@ public class Pivot extends SubsystemBase {
     public enum PivotState {
         NULL(0.3),
 
-        GROUND(0.2),
+        GROUND(0.22),
         // Current max is .38, can change later
         SUBWOOFER(Pivot.pivotDegreeToCANcoder(48)),
 
-        FARWING(Pivot.pivotDegreeToCANcoder(20)),
+        FARWING(Pivot.pivotDegreeToCANcoder(23)),
 
         MIDDLE(0.3),
 
@@ -246,6 +246,9 @@ public class Pivot extends SubsystemBase {
         Logger.recordOutput("Pivot/CurrentCANcoderRotation", getCANcoderAbsolutePosition());
         // Logger.recordOutput("Pivot/CurrentMotorEncoderRotation", getMotorEncoderPosition());
         Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
+        Logger.recordOutput("Pivot/PivotCurrent", getMotorCurrent());
+        Logger.recordOutput("Pivot/RotInDegrees", pivotAngle());
+        Logger.recordOutput("Pivot/CANCoderStatus", CANcoderWorking());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
         SmartDashboard.putNumber("Pivot measured angle", pivotAngle());
         // SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());

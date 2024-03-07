@@ -22,7 +22,7 @@ import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.ctre.phoenix.Logger;
+import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
@@ -191,6 +191,14 @@ public class Vision extends SubsystemBase {
         try {
             // calculatePoseFromVision();
         } catch (Exception e){}
+
+        Logger.recordOutput("has target", hasValidTarget() != null);
+        Logger.recordOutput("Vision/TargetYaw", getYaw());
+        Logger.recordOutput("Vision/TargetPitch", getPitch());
+        Logger.recordOutput("Vision/HypotenuseDistance", getHypotenuseDistance());
+        Logger.recordOutput("Vision/BestTargetID", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
+        Logger.recordOutput("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
+
         SmartDashboard.putBoolean("has target", hasValidTarget() != null);
         SmartDashboard.putNumber("Target yaw", getYaw());
         SmartDashboard.putNumber("Target pitch", getPitch());
