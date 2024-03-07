@@ -439,8 +439,9 @@ public final class Autos {
         );
     }
 
-    public static Command FourNoteStraight() {
-        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteMinTranslationMiddle");
+    //FIXME: IF THE AUTO MOVEMENTS ARE ONE MOVEMENT EARLY, THEN JUST INCREASE TRAJECTORY #s BY ONE OR CHANGE IN CHOREO
+    public static Command FourNoteStraightBot() {
+        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteMinTranslationBot");
         return new SequentialCommandGroup(
                 // new InstantCommand(() -> {
                 //     Pose2d initialPose;
@@ -459,39 +460,54 @@ public final class Autos {
                 // Commands.waitSeconds(0.1),
 
                 // new ParallelCommandGroup(
-                //         new SetShooterCommand(0), // standby velocity later???
+                //         new SetShooterCommand(0), // standby elocity later???
                 //         new SetIndexer(IndexerStates.ON, true),
-                //         new SetIntake(IntakeStates.ON),
+                //         new SetIntake(IntakeStates.ON, 1),
                 //         new SetPivot(PivotState.INTAKE),
-                //         new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(0)))
+                //         new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(2)))
                 // ),
-
-                // Commands.waitSeconds(0.5),
-
-                // //TODO: make sure pivot position is right and tune velocitiesf
-                // new ParallelCommandGroup(new SetPivot(PivotState.MIDDLE), new SetShooterCommand(50)),
-                // new SetIndexer(IndexerStates.ON, false),
-                // Commands.waitSeconds(0.5),
-
-                // new ParallelCommandGroup(
-                //         FollowChoreoTrajectory(trajectory.get(1)),
-                //         new SetShooterCommand(0),
-                //         new SetPivot(PivotState.INTAKE),
-                //         new SetIndexer(IndexerStates.ON, true)
-                // )
+                
 
                 // Commands.waitSeconds(0.3),
 
                 // new ParallelCommandGroup(
-                //         FollowChoreoTrajectory
+                //         FollowChoreoTrajectory(trajectory.get(1)),
+                //         //TODO: make sure pivot position is right and tune velocitiesf
+                //         new SetPivot(PivotState.MIDDLE), //whatever the correct pivot is
+                //         new SetShooterCommand(50) //whatever the correct velocity is
+                // ),
+
+                // new SetIndexer(IndexerStates.ON, false),
+                // Commands.waitSeconds(0.5),
+
+                // new ParallelCommandGroup(
+                //         new SetShooterCommand(0),
+                //         new SetPivot(PivotState.INTAKE),
+                //         new SetIndexer(IndexerStates.ON, true),
+                //         new SetIntake(IntakeStates.ON, 1)
+                //         new SequentialCommandGroup(new WaitCommand(0))
+                // ),
+
+                // Commands.waitSeconds(0.3),
+
+                // new ParallelCommandGroup(new SetShooterCommand(50), new SetPivot(PivotState.MIDDLE)),
+                // new SetIndexer(IndexerStates.ON, false),
+                // Commands.waitSeconds(0.5),
+
+                // new ParallelCommandGroup(
+                //         FollowChoreoTrajectory(trajectory.get(3)),
+
+                // ),
+                
+
+
+
+
+                // new ParallelCommandGroup(
+                //         FollowChoreoTrajectory(trajectory.get(2))
+
+                
                 // )
-                
-
-
-
-
-
-                
         );
     }
 
@@ -513,7 +529,7 @@ public final class Autos {
         Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
-        FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraight()),
+        FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
         FourNoteFromTop("FourNoteFromTop,", FourNoteFromTop());
 
 
