@@ -6148,13 +6148,13 @@
                     "controlIntervalCount": 13
                 },
                 {
-                    "x": 6.793073654174805,
-                    "y": 2.695868730545044,
-                    "heading": -0.42404074743259557,
+                    "x": 7.087069988250732,
+                    "y": 3.5157032012939453,
+                    "heading": -0.41071694213740323,
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 14
+                    "controlIntervalCount": 15
                 },
                 {
                     "x": 7.6,
@@ -7422,9 +7422,31 @@
                 },
                 {
                     "scope": [
-                        7
+                        4,
+                        5
                     ],
-                    "type": "StopPoint"
+                    "type": "ZeroAngularVelocity"
+                },
+                {
+                    "scope": [
+                        4,
+                        5
+                    ],
+                    "type": "StraightLine"
+                },
+                {
+                    "scope": [
+                        8,
+                        9
+                    ],
+                    "type": "StraightLine"
+                },
+                {
+                    "scope": [
+                        8,
+                        9
+                    ],
+                    "type": "ZeroAngularVelocity"
                 }
             ],
             "usesControlIntervalGuessing": true,
