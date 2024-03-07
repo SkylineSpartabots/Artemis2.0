@@ -25,7 +25,7 @@ public class ZeroClimb extends Command {
     @Override
     public void end(boolean interrupted) {
         s_Climb.setClimbSpeed(0);
-        s_Climb.resetMotorEncoders();      
+        // s_Climb.resetMotorEncoders();      
 
     }
 }

@@ -62,6 +62,7 @@ public class RobotContainer {
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
+    private final Vision s_Vision = Vision.getInstance();
     private final Climb s_Climb = Climb.getInstance();
     private final Amp s_Amp = Amp.getInstance();
     // private final Lightz s_lightz = Lightz.getInstance();
