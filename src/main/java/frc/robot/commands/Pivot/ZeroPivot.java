@@ -27,7 +27,6 @@ public class ZeroPivot extends Command {
 
     @Override
 	public boolean isFinished() {
-        
         return s_Pivot.getMotorCurrent() > currentThreshold;
 	}
 		
