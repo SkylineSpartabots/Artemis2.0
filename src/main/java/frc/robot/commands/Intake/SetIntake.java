@@ -34,6 +34,7 @@ public class SetIntake extends Command {
     @Override
     public void initialize() {
         s_Intake.setSpeed(state);
+        timer.reset();
         timer.start();
 
     }
@@ -51,6 +52,6 @@ public class SetIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        return intaking ?  (s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold || timer.hasElapsed(0.5)) : true;
+        return intaking ?  (s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold || timer.hasElapsed(2)) : true;
     }
 }

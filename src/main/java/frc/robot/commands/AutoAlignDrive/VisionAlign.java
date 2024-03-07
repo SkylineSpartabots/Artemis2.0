@@ -1,6 +1,8 @@
 
 package frc.robot.commands.AutoAlignDrive;
 
+import java.util.List;
+
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
@@ -13,6 +15,7 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerStates;
+import frc.robot.subsystems.Vision.CameraResult;
 
 public class VisionAlign extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
@@ -22,6 +25,7 @@ public class VisionAlign extends Command {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
 
     private PhotonTrackedTarget target;
+    private boolean hasSpeaker;
 
     public VisionAlign() {
         s_Swerve = CommandSwerveDrivetrain.getInstance();
@@ -37,13 +41,21 @@ public class VisionAlign extends Command {
     
     @Override
     public void execute(){
-        if(s_Vision.hasValidTarget()!=null){
-            target = s_Vision.getBestTarget();
+        hasSpeaker = false;
+        List<PhotonTrackedTarget> targets = s_Vision.getTargets();
+        for(PhotonTrackedTarget a : targets){
+            if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
+                hasSpeaker = true;
+                target = a;
+            }
         }
-        double rotSpeed = rotController.calculate(target.getYaw(), 0);
-        s_Swerve.setControl(drive.withRotationalRate(rotSpeed)
-        .withVelocityX(-RobotContainer.getInstance().getDriverController().getLeftY() * Constants.MaxSpeed)
-        .withVelocityY(-RobotContainer.getInstance().getDriverController().getLeftX() * Constants.MaxSpeed));
+        if(hasSpeaker){
+            double rotSpeed = rotController.calculate(target.getYaw(), 0);
+            s_Swerve.setControl(drive.withRotationalRate(rotSpeed));
+            // .withVelocityX(-RobotContainer.getInstance().getDriverController().getLeftY() * Constants.MaxSpeed)
+            // .withVelocityY(-RobotContainer.getInstance().getDriverController().getLeftX() * Constants.MaxSpeed));
+        }
+        
     }
 
     @Override
@@ -53,6 +65,6 @@ public class VisionAlign extends Command {
 
     @Override
     public boolean isFinished() {
-        return s_Vision.hasValidTarget() == null || !(s_Vision.getBestTarget().getFiducialId() == 4 || s_Vision.getBestTarget().getFiducialId() == 8);
+        return !hasSpeaker;
     }
 }

@@ -43,7 +43,7 @@ public class Pivot extends SubsystemBase {
 
         GROUND(0.2),
         // Current max is .38, can change later
-        SUBWOOFER(Pivot.pivotDegreeToCANcoder(60)),
+        SUBWOOFER(Pivot.pivotDegreeToCANcoder(48)),
 
         FARWING(Pivot.pivotDegreeToCANcoder(20)),
 
@@ -230,9 +230,9 @@ public class Pivot extends SubsystemBase {
          
         magnetSensorConfigs.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         
-        CANcoderConfiguration swerveCanCoderConfig = new CANcoderConfiguration();
-        swerveCanCoderConfig.MagnetSensor = magnetSensorConfigs;  
-        pivotCANcoder.getConfigurator().apply(swerveCanCoderConfig);
+        CANcoderConfiguration CanCoderConfig = new CANcoderConfiguration();
+        CanCoderConfig.MagnetSensor = magnetSensorConfigs;  
+        pivotCANcoder.getConfigurator().apply(CanCoderConfig);
         resetCANcoder(0.2);
     }
 

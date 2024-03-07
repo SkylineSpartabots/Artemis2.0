@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.RobotContainer;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
@@ -97,7 +98,7 @@ public final class Autos {
 
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
                 // new SetIndexer(IndexerStates.ON, false), 
-                Commands.waitSeconds(0.1),
+                Commands.waitSeconds(0.3),
 
                 new ParallelCommandGroup(
                         new SetShooterCommand(0),
@@ -111,10 +112,11 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
+                        RobotContainer.getInstance().eject(),
                         FollowChoreoTrajectory(trajectory.get(1))
                 ),
 
-                new SetShooterCommand(30),
+                new SetShooterCommand(40),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
 
@@ -130,10 +132,11 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(3)),
+                        RobotContainer.getInstance().eject(),
                         new SetPivot(PivotState.SUBWOOFER)
                 ),
 
-                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
+                new ParallelCommandGroup(new SetShooterCommand(40), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
 
@@ -149,10 +152,11 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(5)),
+                        RobotContainer.getInstance().eject(),
                         new SetPivot(PivotState.SUBWOOFER)
                 ),
 
-                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
+                new ParallelCommandGroup(new SetShooterCommand(40), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
                 new SetIndexer(IndexerStates.OFF, false),

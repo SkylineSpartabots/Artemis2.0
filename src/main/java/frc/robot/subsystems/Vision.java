@@ -154,40 +154,49 @@ public class Vision extends SubsystemBase {
      * @return the absolute distance in meters (there are different methods for horizontal or vertical)
      */
     public double getHypotenuseDistance(){
-        targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
-            Constants.Vision.cameraHeight, 
-            Constants.Vision.aprilTagHeight, 
-            Constants.Vision.cameraPitchOffset, 
-            Units.degreesToRadians(getBestTarget().getPitch()));
-        return targetDistance;
+        PhotonTrackedTarget target = getBestTarget();
+        if (target != null) {
+            targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
+            Units.inchesToMeters(5.67162), 
+            aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
+            Units.degreesToRadians(50), 
+            target.getPitch());
+            return targetDistance;
+        }
+        return -1;
+
     }
 
     public double getDistanceToPose(Pose2d pose){
         return PhotonUtils.getDistanceToPose(s_Swerve.getPose(), pose);
     }
 
+
     /**
      * calculates field-relative robot pose from vision reading, feed to pose estimator (Kalman filter)
      */
-    public Pose3d calculatePoseFromVision() throws Exception{ //TODO: integrate multicamera resetting
-        PhotonTrackedTarget bestTarget = getBestTarget();
-        if(bestTarget == null){
-            throw new Exception("No vision target");
-        } else {
-            Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
-            return PhotonUtils.estimateFieldToRobotAprilTag(bestTarget.getBestCameraToTarget(), targetPose, cameraToRobotTransform);
-        }
-    }
+    // public Pose3d calculatePoseFromVision() throws Exception{ //TODO: integrate multicamera resetting
+        // PhotonTrackedTarget bestTarget = getBestTarget();
+        // if(bestTarget == null){
+        //     throw new Exception("No vision target");
+        // } else {
+        //     Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
+            // return PhotonUtils.estimateFieldToRobotAprilTag(aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()));
+    //     }
+    // }
 
     @Override
     public void periodic() {
         updateAprilTagResults();
         try {
-            calculatePoseFromVision();
+            // calculatePoseFromVision();
         } catch (Exception e){}
         SmartDashboard.putBoolean("has target", hasValidTarget() != null);
         SmartDashboard.putNumber("Target yaw", getYaw());
         SmartDashboard.putNumber("Target pitch", getPitch());
+        SmartDashboard.putNumber("Target hypoteneuse distance", getHypotenuseDistance());
+        SmartDashboard.putNumber("target id", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
+        SmartDashboard.putNumber("Pose ambiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
         //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
     }
 }

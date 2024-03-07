@@ -151,7 +151,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void updateOdometryByVision(){
         Pose3d poseFromVision = null;
         try {
-            poseFromVision = m_Camera.calculatePoseFromVision();
+            // poseFromVision = m_Camera.calculatePoseFromVision();
         } catch (Exception e) {
         }
         if(poseFromVision != null){
@@ -169,7 +169,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
-        updateOdometryByVision();
+        // updateOdometryByVision();
         Pose2d currPose = getPose();
         
         //allows driver to see if resetting worked
