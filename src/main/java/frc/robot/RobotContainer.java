@@ -28,7 +28,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
-import frc.robot.commands.FixIndexer;
 import frc.robot.commands.ManualIndexForShooting;
 import frc.robot.commands.ReverseIndexer;
 import frc.robot.commands.SetIndexer;
@@ -45,6 +44,16 @@ import frc.robot.commands.Climb.ManualClimb;
 import frc.robot.commands.Intake.SetIntake;
 
 public class RobotContainer {
+
+    private static RobotContainer container;
+
+    public static RobotContainer getInstance(){//so i can grab controller values lol
+        if(container == null){
+            container = new RobotContainer();
+        }
+        return container;
+    }
+
     //robot testing states
     private boolean shooterSysIDTuned = false;
 
@@ -85,6 +94,10 @@ public class RobotContainer {
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
 
+    public CommandXboxController getDriverController(){
+        return driver;
+    }
+
     private void configureBindings() {
 
         /*
@@ -98,22 +111,22 @@ public class RobotContainer {
 
         driver.rightTrigger().onTrue(shootSubwoofer());
 
-        driver.rightBumper().whileTrue(new ManualClimb(true));
-        driver.leftBumper().whileTrue(new ManualClimb(false));
+        driver.rightBumper().onTrue(ampSequence());
+        driver.leftBumper().onTrue(new ShootIntoAmp());
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.FARWING));
-        driverDpadLeft.onTrue(new SetPivot(PivotState.SUBWOOFER));
+        driverDpadLeft.onTrue(new SetPivot(PivotState.AMP));
         driverDpadRight.onTrue(new ZeroPivot());
 
         /*
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
+                drivetrain.applyRequest(() -> drive.withVelocityX(Math.copySign(Math.pow(driver.getLeftY(), 2),-driver.getLeftY()) * Constants.MaxSpeed) // Drive forward with
                         // negative Y (forward)
-                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                        .withVelocityY(Math.copySign(Math.pow(driver.getLeftX(), 2), -driver.getLeftX()) * Constants.MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(Math.copySign(Math.pow(driver.getRightX(), 2), -driver.getRightX()) * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
                 ));
 
         // reset the field-centric heading. AKA reset odometry
@@ -140,13 +153,14 @@ public class RobotContainer {
     // private boolean shooterOn() {
     //     return s_Shooter.getBotMotorVoltage() > 0 || s_Shooter.getTopMotorVoltage() > 0;
     // }
+
     private Command shooterOff() {
         return new SetShooterCommand(0);
     } 
+
     private Command shooterOn() {
         return new SetShooterCommand(2000);
     }
-
 
     private boolean indexerOn() {
         return s_Indexer.getMotorVoltage() > 0;
@@ -164,8 +178,6 @@ public class RobotContainer {
         return new SequentialCommandGroup(new ParallelCommandGroup(setShooterVelocity(0), offIndexer(), offIntake()), new SetPivot(PivotState.GROUND));
     }
 
-
-
     public Command aligntoCordinate(Point point) {
         return new PIDAlign(point);
     }
@@ -182,11 +194,6 @@ public class RobotContainer {
         return new SetIndexer(IndexerStates.ON, false);
     }
 
-    //shooter
-    public Command onIndexer() {
-        return new SequentialCommandGroup(new SetIndexer(IndexerStates.ON, true), new FixIndexer());
-    }
-
     public Command shootAmp(){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
@@ -197,19 +204,24 @@ public class RobotContainer {
 
     public Command shootSubwoofer(){
         if(shooterSysIDTuned){
-            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(2000));
+            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(33));
         } else {
             return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new InstantCommand(() -> s_Shooter.setVoltage(8)));
         }
     }
 
     public Command eject(){
-        return new SequentialCommandGroup(new SetPivot(PivotState.GROUND), new WaitCommand(0.3), new ReverseIndexer());
+        return new SequentialCommandGroup(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)), new WaitCommand(0.05),
+        new InstantCommand(() -> s_Indexer.setState(IndexerStates.OFF)));
+        // return new SequentialCommandGroup(new SetPivot(PivotState.GROUND), new WaitCommand(0.3), new ReverseIndexer());
     }
     
     public Command offIndexer() {
         return new SetIndexer(IndexerStates.OFF, false);
     }
 
+    public Command ampSequence(){
+        return new SequentialCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP, true));
+    }
 
 }

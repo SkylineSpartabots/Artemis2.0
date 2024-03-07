@@ -21,7 +21,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final double MaxSpeed = 4.5; //can be lowered during testing
+    public static final double MaxSpeed = 6; //can be lowered during testing
     public static final double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
     public static final int timeOutMs = 10;
@@ -30,7 +30,7 @@ public final class Constants {
 
     public static final class Vision {
         public static final int aprilTagMax = 16;
-        public static final String backRightCameraName = "Camera1";
+        public static final String centerCameraName = "Camera1";
         public static final String backLeftCameraName = "";
         public static final double cameraHeight = 0; //fix
         public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet | unnecessary, we have photonvision's field layout import

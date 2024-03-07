@@ -5,11 +5,17 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,7 +30,7 @@ public class Climb extends SubsystemBase {
     return instance;
   }
 
-  private CANSparkFlex climbMotor;
+  private TalonFX climbMotor;
 
   private RelativeEncoder motorEncoder;
 
@@ -33,26 +39,26 @@ public class Climb extends SubsystemBase {
   private int setState;
 
   public Climb() {
-    // climbLeaderM = new CANSparkFlex(Constants.HardwarePorts.climbLeaderMotor, MotorType.kBrushless);
-    // configMotor(climbLeaderM, true);
-
-    climbMotor = new CANSparkFlex(Constants.HardwarePorts.climbFollowerMotor, MotorType.kBrushless);
+    climbMotor = new TalonFX(Constants.HardwarePorts.climbFollowerMotor);
     configMotor(climbMotor, false);
-    // climbMotor.follow(climbMotor, true);
     setState = 2;
-    motorEncoder = climbMotor.getEncoder();
-    // motorEncoder = climbMotor.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
-    // followEncoder = climbFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
 
     resetMotorEncoders();
   }
 
 
-  private void configMotor(CANSparkFlex motor, boolean inverted) {
-    motor.setSmartCurrentLimit(Constants.climbPeakCurrentLimit);
-    motor.setIdleMode(IdleMode.kBrake);
-    motor.setInverted(inverted);
-    motor.enableVoltageCompensation(12);
+  private void configMotor(TalonFX motor, boolean inverted) {
+    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.climbContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    currentLimitsConfigs.SupplyCurrentThreshold = Constants.climbPeakCurrentLimit;
+    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfig.CurrentLimits = currentLimitsConfigs;
+
+    climbMotor.getConfigurator().apply(motorConfig);
   }
 
   public void resetMotorEncoders() {
@@ -87,7 +93,7 @@ public class Climb extends SubsystemBase {
   }
 
   public double getMotorCurrent() {
-    return (climbMotor.getOutputCurrent() + climbMotor.getOutputCurrent()) / 2;
+    return climbMotor.getStatorCurrent().getValueAsDouble();
   }
 
   @Override

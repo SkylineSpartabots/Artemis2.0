@@ -9,9 +9,13 @@ import java.util.List;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.UnitBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
@@ -22,9 +26,9 @@ import com.ctre.phoenix.Logger;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
-    private static PhotonCamera backLeftCamera;
-    private static PhotonCamera backRightCamera;
-    private static PhotonPipelineResult backLeftCameraResult;
+    private static PhotonCamera centerCamera;
+    // private static PhotonCamera backRightCamera;
+    private static PhotonPipelineResult centerCameraResult;
     private static PhotonPipelineResult backRightCameraResult;
     private static PhotonTrackedTarget lastValidTarget;
 
@@ -34,7 +38,9 @@ public class Vision extends SubsystemBase {
     private double targetDistance;
     private int targetID;
 
-    private Transform3d cameraToRobotTransform = new Transform3d(); //TODO: edit this
+    private Transform3d cameraToRobotTransform = new Transform3d(
+        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-5.67162), Units.inchesToMeters(-10.172538)),
+        new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0))); //center cam
 
     private AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 //    private static PhotonCamera visionCamera;
@@ -47,53 +53,68 @@ public class Vision extends SubsystemBase {
     }
 
     private Vision() {
-        backLeftCamera = new PhotonCamera(Constants.Vision.backLeftCameraName);
-        backRightCamera = new PhotonCamera(Constants.Vision.backRightCameraName);
+        centerCamera = new PhotonCamera(Constants.Vision.centerCameraName);
+        // backRightCamera = new PhotonCamera(Constants.Vision.backRightCameraName);
         updateAprilTagResults();
     }
 
     public void updateAprilTagResults() {
-        backLeftCameraResult = backLeftCamera.getLatestResult();
-        backRightCameraResult = backRightCamera.getLatestResult();
+        centerCameraResult = centerCamera.getLatestResult();
+        // backRightCameraResult = backRightCamera.getLatestResult();
     }
 
-    public PhotonPipelineResult getLatestAprilTagResult(boolean isBackLeft) { //true is left false is right
-        updateAprilTagResults();
-        if (isBackLeft) {
-            return backLeftCameraResult;
-        } else {
-            return backRightCameraResult;
-        }
+    // public PhotonPipelineResult getLatestAprilTagResult(boolean isBackLeft) { //true is left false is right
+    //     updateAprilTagResults();
+    //     if (isBackLeft) {
+    //         return centerCameraResult;
+    //     } else {
+    //         return backRightCameraResult;
+    //     }
         
+    // }
+
+    public PhotonPipelineResult getLatestAprilTagResult(){
+        updateAprilTagResults();
+        return centerCameraResult;
     }
 
-    public List<PhotonTrackedTarget> getTargets(boolean isBackLeft) {
-       if (isBackLeft) {
-            return backLeftCameraResult.getTargets();
-        } else {
-            return backRightCameraResult.getTargets();
-        }
+    // public List<PhotonTrackedTarget> getTargets(boolean isBackLeft) {
+    //    if (isBackLeft) {
+    //         return backLeftCameraResult.getTargets();
+    //     } else {
+    //         return backRightCameraResult.getTargets();
+    //     }
+    // }
+    public List<PhotonTrackedTarget> getTargets(){
+        return centerCameraResult.getTargets();
     }
 
     public enum CameraResult { //enum rahh
+        CENTER,
         BACK_LEFT,
         BACK_RIGHT,
         BOTH
     }
 
     public CameraResult hasValidTarget() {
-        Boolean backLeftHasTarget = backLeftCameraResult.hasTargets() && backLeftCameraResult.getBestTarget().getFiducialId() >= 1 && backLeftCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
-        Boolean backRightHasTarget = backRightCameraResult.hasTargets() && backRightCameraResult.getBestTarget().getFiducialId() >= 1 && backRightCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        PhotonTrackedTarget target = centerCameraResult.getBestTarget();
+        Boolean centerHasTarget = centerCameraResult.hasTargets() && target.getFiducialId() >= 1 && target.getFiducialId() <= Constants.Vision.aprilTagMax && target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
+        // Boolean backRightHasTarget = backRightCameraResult.hasTargets() && backRightCameraResult.getBestTarget().getFiducialId() >= 1 && backRightCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
 
-         if (backLeftHasTarget && !backRightHasTarget) {
-            return CameraResult.BACK_LEFT;
-        } else if (!backLeftHasTarget && backRightHasTarget) {
-            return CameraResult.BACK_RIGHT;
-        } else if (backLeftHasTarget && backRightHasTarget) {
-            return CameraResult.BOTH;
+        if(centerHasTarget){
+            return CameraResult.CENTER;
         } else {
-            return null; 
+            return null;
         }
+        //  if (backLeftHasTarget && !backRightHasTarget) {
+        //     return CameraResult.BACK_LEFT;
+        // } else if (!backLeftHasTarget && backRightHasTarget) {
+        //     return CameraResult.BACK_RIGHT;
+        // } else if (backLeftHasTarget && backRightHasTarget) {
+        //     return CameraResult.BOTH;
+        // } else {
+        //     return null; 
+        // }
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set
@@ -101,15 +122,16 @@ public class Vision extends SubsystemBase {
     public PhotonTrackedTarget getBestTarget() {
         CameraResult valids = hasValidTarget();
         if (valids != null) {
-            if (valids == CameraResult.BACK_LEFT) { lastValidTarget = backLeftCameraResult.getBestTarget();}
-            else if (valids == CameraResult.BACK_RIGHT) { lastValidTarget = backRightCameraResult.getBestTarget();}
-            else if (valids == CameraResult.BOTH) {
-                if (backLeftCameraResult.getTimestampSeconds() >= backRightCameraResult.getTimestampSeconds()) { // If both cams have a target get the MOST recent one
-                    lastValidTarget = backRightCameraResult.getBestTarget();
-                } else {
-                    lastValidTarget = backLeftCameraResult.getBestTarget();
-                }
-            }
+            lastValidTarget = centerCameraResult.getBestTarget();
+            // if (valids == CameraResult.BACK_LEFT) { lastValidTarget = backLeftCameraResult.getBestTarget();}
+            // else if (valids == CameraResult.BACK_RIGHT) { lastValidTarget = backRightCameraResult.getBestTarget();}
+            // else if (valids == CameraResult.BOTH) {
+            //     if (backLeftCameraResult.getTimestampSeconds() >= backRightCameraResult.getTimestampSeconds()) { // If both cams have a target get the MOST recent one
+            //         lastValidTarget = backRightCameraResult.getBestTarget();
+            //     } else {
+            //         lastValidTarget = backLeftCameraResult.getBestTarget();
+            //     }
+            // }
         } 
         return lastValidTarget;
     } 

@@ -22,10 +22,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
@@ -34,6 +38,9 @@ import frc.robot.subsystems.Shooter;
 public final class Autos {
     private static CommandSwerveDrivetrain s_Swerve = CommandSwerveDrivetrain.getInstance();
     private static Shooter s_Shooter = Shooter.getInstance();
+    private static Intake s_Intake = Intake.getInstance();
+    private static Indexer s_Indexer = Indexer.getInstance();
+
 
     private static final PIDController thetaController = new PIDController(3, 1.4, 0); //tune?
     private static final PIDController xController = new PIDController(5, 1, 0);
@@ -49,6 +56,8 @@ public final class Autos {
 
         ChoreoTrajectory traj = path;
         thetaController.reset();
+        xController.reset();
+        yController.reset();
 
         s_Swerve.setAutoStartPose(traj.getInitialPose());
         SmartDashboard.putNumber("Start pose x", traj.getInitialPose().getX());
@@ -83,32 +92,37 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(1800)
+                        new SetShooterCommand(40)
                 ),
 
-                new SetIndexer(IndexerStates.ON, false),
+                new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
+                // new SetIndexer(IndexerStates.ON, false), 
+                Commands.waitSeconds(0.1),
+
+                new ParallelCommandGroup(
+                        new SetShooterCommand(0),
+                        new SetIndexer(IndexerStates.ON, true),
+                        new SetIntake(IntakeStates.ON),
+                        new SetPivot(PivotState.INTAKE),
+                        new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(0)))
+                ),
+
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
-                        new SetShooterCommand(900),
-                        FollowChoreoTrajectory(trajectory.get(0)),
-                        new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON)
-                ),
-                Commands.waitSeconds(0.3),
-
-                new ParallelCommandGroup(
                         new SetIntake(IntakeStates.OFF),
+                        new SetPivot(PivotState.SUBWOOFER),
                         FollowChoreoTrajectory(trajectory.get(1))
                 ),
 
-                new SetShooterCommand(1800),
+                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
-                        new SetShooterCommand(900),
+                        new SetShooterCommand(0),
+                        new SetPivot(PivotState.SUBWOOFER),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),
@@ -117,16 +131,18 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(3)),
-                        new SetIntake(IntakeStates.OFF)
+                        new SetIntake(IntakeStates.OFF),
+                        new SetPivot(PivotState.SUBWOOFER)
                 ),
 
-                new SetShooterCommand(1800),
+                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(4)),
-                        new SetShooterCommand(900),
+                        new SetShooterCommand(0),
+                        new SetPivot(PivotState.INTAKE),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),
@@ -135,18 +151,15 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(5)),
+                        new SetPivot(PivotState.SUBWOOFER),
                         new SetIntake(IntakeStates.OFF)
                 ),
 
-                new SetShooterCommand(1800),
+                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
                 new SetIndexer(IndexerStates.OFF, false),
-                new SetShooterCommand(0)
-
-
-      
-       
+                new ParallelCommandGroup(new SetPivot(PivotState.GROUND), new SetShooterCommand(0)));
       
       /*new ParallelCommandGroup(
         new SetPivot(PivotState.SUBWOOFER),
@@ -213,43 +226,44 @@ public final class Autos {
       new SetIndexer(IndexerStates.ON, false),
       Commands.waitSeconds(0.8),
       new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false))*/
-        );
 
     }
 
     public static Command FourNoteCloseSide() {
         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteCloseSide");
         return new SequentialCommandGroup(
-                new SetPivot(PivotState.SUBWOOFER),
-                new InstantCommand(() -> s_Shooter.setVelocity(2500)),
-                Commands.waitSeconds(0.8),
-                new SetIndexer(IndexerStates.ON, false),
-                Commands.waitSeconds(0.8),
-                new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false)),
+          new InstantCommand(() -> {
+            Pose2d initialPose;
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+            s_Swerve.resetOdo(initialPose);
+            System.out.println(initialPose.getX() + " " + initialPose.getY());
+        }),
 
-                FollowChoreoTrajectory(trajectory.get(0)),
+          new ParallelCommandGroup(
+            new SetPivot(PivotState.SUBWOOFER),
+            new SetShooterCommand(30)
+          ),
 
-                new ParallelCommandGroup(
-                        new SetIntake(IntakeStates.ON),
-                        new SetIndexer(IndexerStates.ON, true),
-                        FollowChoreoTrajectory(trajectory.get(1))
-                ),
+          new SetIndexer(IndexerStates.ON, false),
+          Commands.waitSeconds(0.5),
 
-                new SetIntake(IntakeStates.OFF),
-                //new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
-                // new SetShooterVelocity(2500),
-                // Commands.waitSeconds(0.8),
-                // new SetShooterVelocity(0),
-                new InstantCommand(() -> s_Shooter.setVelocity(2500)),
-                Commands.waitSeconds(0.8),
-                new SetIndexer(IndexerStates.ON, false),
-                Commands.waitSeconds(0.8),
-                new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false)),
-                FollowChoreoTrajectory(trajectory.get(2))
+          new ParallelCommandGroup(
+            new SetShooterCommand(15),
+            FollowChoreoTrajectory(trajectory.get(0)),
+            new SetIndexer(IndexerStates.ON, true),
+            new SetIntake(IntakeStates.ON)
+          ),
 
-                // new ParallelCommandGroup(
-                // new
-                // )
+          new ParallelCommandGroup(
+            new SetShooterCommand(30),
+            new SetPivot(20) //TODO: tune this
+          )
+
+
+
+          
+           
         );
     }
 
@@ -266,7 +280,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(1800)
+                        new SetShooterCommand(40)
                 ),
 
                 new SetIndexer(IndexerStates.ON, false),
@@ -274,7 +288,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
-                        new SetShooterCommand(900),
+                        new SetShooterCommand(15),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),
@@ -288,7 +302,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(20), //this angle is gonna be totally arbitrary, we are going to need to test and find the right angle
-                        new SetShooterCommand(1800)
+                        new SetShooterCommand(30)
                 ),
 
                 new SetIndexer(IndexerStates.ON, false),
@@ -297,7 +311,7 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
                         new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(900),
+                        new SetShooterCommand(15),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),
@@ -311,7 +325,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(20), //also arbitrary, but should be same angle as the other non-subwoofer shot in this path
-                        new SetShooterCommand(1800)
+                        new SetShooterCommand(30)
                 ),
 
                 new SetIndexer(IndexerStates.ON, false),
@@ -339,7 +353,7 @@ public final class Autos {
                     System.out.println(initialPose.getX() + " " + initialPose.getY());
                 }),
                 new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER),
-                        new InstantCommand(() -> s_Shooter.setVelocity(1800))),
+                        new InstantCommand(() -> s_Shooter.setVelocity(30))),
                 Commands.waitSeconds(0.8),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.8),
@@ -359,7 +373,7 @@ public final class Autos {
 
     private static Command shootSequence() {
 
-        return new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(1800)),
+        return new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(30)),
                 Commands.waitSeconds(0.8),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.8),
@@ -417,6 +431,62 @@ public final class Autos {
         );
     }
 
+    public static Command FourNoteStraight() {
+        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteMinTranslationMiddle");
+        return new SequentialCommandGroup(
+                // new InstantCommand(() -> {
+                //     Pose2d initialPose;
+                //     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+                //     initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+                //     s_Swerve.resetOdo(initialPose);
+                //     System.out.println(initialPose.getX() + " " + initialPose.getY());
+                // }),
+
+                // new ParallelCommandGroup(
+                //         new SetPivot(PivotState.SUBWOOFER),
+                //         new SetShooterCommand(40)
+                // ),
+
+                // new InstantCommand(() -> s_Indexer.setSpeed(0.8)),
+                // Commands.waitSeconds(0.1),
+
+                // new ParallelCommandGroup(
+                //         new SetShooterCommand(0), // standby velocity later???
+                //         new SetIndexer(IndexerStates.ON, true),
+                //         new SetIntake(IntakeStates.ON),
+                //         new SetPivot(PivotState.INTAKE),
+                //         new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(0)))
+                // ),
+
+                // Commands.waitSeconds(0.5),
+
+                // //TODO: make sure pivot position is right and tune velocitiesf
+                // new ParallelCommandGroup(new SetPivot(PivotState.MIDDLE), new SetShooterCommand(50)),
+                // new SetIndexer(IndexerStates.ON, false),
+                // Commands.waitSeconds(0.5),
+
+                // new ParallelCommandGroup(
+                //         FollowChoreoTrajectory(trajectory.get(1)),
+                //         new SetShooterCommand(0),
+                //         new SetPivot(PivotState.INTAKE),
+                //         new SetIndexer(IndexerStates.ON, true)
+                // )
+
+                // Commands.waitSeconds(0.3),
+
+                // new ParallelCommandGroup(
+                //         FollowChoreoTrajectory
+                // )
+                
+
+
+
+
+
+                
+        );
+    }
+
 
     /*
      * Enum for the different autos. Contains a name and a mechCommands array. The mechCommands array contains
@@ -434,7 +504,8 @@ public final class Autos {
         TwoNoteSubwoofer("TwoNoteSuboofer", TwoNote()),
         Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
-        Rotation("Rotation", Rotation());
+        Rotation("Rotation", Rotation()),
+        FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraight());
 
 
         String name;
