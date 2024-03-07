@@ -23,12 +23,12 @@ public class ZeroPivot extends Command {
         SmartDashboard.putBoolean("Running zero", true);
     }
 
-    private double currentTreshold =3;
+    private double currentThreshold =3;
 
     @Override
 	public boolean isFinished() {
         
-        return s_Pivot.getMotorCurrent() > currentTreshold;
+        return s_Pivot.getMotorCurrent() > currentThreshold;
 	}
 		
 	@Override
