@@ -207,8 +207,6 @@ public class Pivot extends SubsystemBase {
         config.CurrentLimits = currentLimitsConfigs;
         motor.getConfigurator().apply(config);
         // leaderEncoder.setPosition(0.2);
-
-
     }
 
     /**
@@ -223,7 +221,6 @@ public class Pivot extends SubsystemBase {
      * Configures the pivot CANcoder with sensor direction and absolute range. 
      */
     private void configCANcoder(){  
-        // CANcoder is always initialized to absolute position on boot in Phoenix 6 - https://www.chiefdelphi.com/t/what-kind-of-encoders-are-built-into-the-kraken-motors/447253/7
 
         MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
         magnetSensorConfigs.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
@@ -233,7 +230,7 @@ public class Pivot extends SubsystemBase {
         CANcoderConfiguration CanCoderConfig = new CANcoderConfiguration();
         CanCoderConfig.MagnetSensor = magnetSensorConfigs;  
         pivotCANcoder.getConfigurator().apply(CanCoderConfig);
-        resetCANcoder(0.2);
+        // resetCANcoder(0.2);
     }
 
     /**
