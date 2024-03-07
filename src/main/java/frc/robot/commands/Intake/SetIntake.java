@@ -12,11 +12,15 @@ public class SetIntake extends Command {
 
     private final Indexer s_Indexer;
 
+    private boolean intaking;
     private final int colorSensorProximityThreshold = 110;
 
     public SetIntake(Intake.IntakeStates state) {
         s_Intake = Intake.getInstance();
         this.state = state;
+        if(state == IntakeStates.ON){
+            intaking = true;
+        }
         addRequirements(s_Intake);
 
         s_Indexer = Indexer.getInstance();
@@ -25,7 +29,6 @@ public class SetIntake extends Command {
     @Override
     public void initialize() {
         s_Intake.setSpeed(state);
-
     }
 
     @Override
@@ -34,12 +37,13 @@ public class SetIntake extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        state = IntakeStates.OFF;
-        s_Intake.setSpeed(state);
+        if(intaking){
+            s_Intake.setSpeed(IntakeStates.OFF);
+        }
     }
 
     @Override
     public boolean isFinished() {
-        return s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold;
+        return intaking ?  s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold : true;
     }
 }
