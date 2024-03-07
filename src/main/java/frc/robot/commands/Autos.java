@@ -509,7 +509,8 @@ public final class Autos {
         Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
-        FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraight());
+        FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraight()),
+        FourNoteFromTop("FourNoteFromTop,", FourNoteFromTop());
 
 
         String name;
