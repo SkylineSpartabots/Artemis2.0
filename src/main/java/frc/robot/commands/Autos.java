@@ -110,7 +110,6 @@ public final class Autos {
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
-                        new SetIntake(IntakeStates.OFF),
                         new SetPivot(PivotState.SUBWOOFER),
                         FollowChoreoTrajectory(trajectory.get(1))
                 ),
@@ -131,7 +130,6 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(3)),
-                        new SetIntake(IntakeStates.OFF),
                         new SetPivot(PivotState.SUBWOOFER)
                 ),
 
@@ -151,8 +149,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(5)),
-                        new SetPivot(PivotState.SUBWOOFER),
-                        new SetIntake(IntakeStates.OFF)
+                        new SetPivot(PivotState.SUBWOOFER)
                 ),
 
                 new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
@@ -160,73 +157,6 @@ public final class Autos {
                 Commands.waitSeconds(0.5),
                 new SetIndexer(IndexerStates.OFF, false),
                 new ParallelCommandGroup(new SetPivot(PivotState.GROUND), new SetShooterCommand(0)));
-      
-      /*new ParallelCommandGroup(
-        new SetPivot(PivotState.SUBWOOFER),
-        new InstantCommand(() -> s_Shooter.setVelocity(2500))),
-      Commands.waitSeconds(0.8),
-      new SetIndexer(IndexerStates.ON, false),
-      Commands.waitSeconds(0.8),
-      new InstantCommand(() -> s_Shooter.setVelocity(0)),
-      new SetIndexer(IndexerStates.OFF, false),
-
-      new ParallelCommandGroup(
-      new SetIntake(IntakeStates.ON),
-      new SetIndexer(IndexerStates.ON, false),
-      FollowChoreoTrajectory(trajectory.get(0))
-      ),
-      
-      new ParallelCommandGroup(
-        new SetIntake(IntakeStates.OFF),
-        new SetIndexer(IndexerStates.OFF, false), //theoretically should not need this but we'll see
-        FollowChoreoTrajectory(trajectory.get(1))
-      ),
-
-      new InstantCommand(() -> s_Shooter.setVelocity(2500)),
-      Commands.waitSeconds(0.8),
-      new SetIndexer(IndexerStates.ON, false),
-      Commands.waitSeconds(0.8),
-      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false)),
-
-      FollowChoreoTrajectory(trajectory.get(2)),
-
-      new ParallelCommandGroup(
-        new SetIntake(IntakeStates.ON),
-        new SetIndexer(IndexerStates.ON, false),
-        FollowChoreoTrajectory(trajectory.get(3))
-      ),
-
-      new ParallelCommandGroup(
-        new SetIntake(IntakeStates.OFF),
-        new SetIndexer(IndexerStates.OFF, false),
-        FollowChoreoTrajectory(trajectory.get(4))
-      ),
-      new InstantCommand(() -> s_Shooter.setVelocity(2500)),
-      Commands.waitSeconds(0.8),
-      new SetIndexer(IndexerStates.ON, false),
-      Commands.waitSeconds(0.8),
-      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false)),
-
-      FollowChoreoTrajectory(trajectory.get(5)),
-
-      new ParallelCommandGroup(
-        new SetIntake(IntakeStates.ON),
-        new SetIndexer(IndexerStates.ON, true),
-        FollowChoreoTrajectory(trajectory.get(6))
-      ),
-
-      new ParallelCommandGroup(
-        new SetIntake(IntakeStates.OFF),
-        //new SetIndexer(IndexerStates.OFF, IndexerMotors.BOTH),
-        FollowChoreoTrajectory(trajectory.get(7))
-      ),
-      
-      new InstantCommand(() -> s_Shooter.setVelocity(2500)),
-      Commands.waitSeconds(0.8),
-      new SetIndexer(IndexerStates.ON, false),
-      Commands.waitSeconds(0.8),
-      new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false))*/
-
     }
 
     public static Command FourNoteCloseSide() {
