@@ -9,9 +9,13 @@ import java.util.List;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.UnitBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
@@ -34,7 +38,9 @@ public class Vision extends SubsystemBase {
     private double targetDistance;
     private int targetID;
 
-    private Transform3d cameraToRobotTransform = new Transform3d(); //TODO: edit this
+    private Transform3d cameraToRobotTransform = new Transform3d(
+        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-5.67162), Units.inchesToMeters(-10.172538)),
+        new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0))); //center cam
 
     private AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 //    private static PhotonCamera visionCamera;

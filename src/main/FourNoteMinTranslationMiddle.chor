@@ -1598,6 +1598,6 @@
             "circleObstacles": []
         }
     },
-    "splitTrajectoriesAtStopPoints": false,
+    "splitTrajectoriesAtStopPoints": true,
     "usesObstacles": false
 }

@@ -21,7 +21,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final double MaxSpeed = 4.5; //can be lowered during testing
+    public static final double MaxSpeed = 6; //can be lowered during testing
     public static final double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
     public static final int timeOutMs = 10;

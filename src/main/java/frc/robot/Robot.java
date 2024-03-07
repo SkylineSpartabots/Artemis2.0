@@ -60,7 +60,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
     autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
     SmartDashboard.putData("Auto choices", autoChooser);
-    m_robotContainer = new RobotContainer();
+    m_robotContainer = RobotContainer.getInstance();
 
   }
 

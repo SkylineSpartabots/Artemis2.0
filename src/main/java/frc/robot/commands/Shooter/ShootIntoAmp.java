@@ -24,8 +24,8 @@ public class ShootIntoAmp extends Command {
         // pivot = new SetPivot()
         // s_Shooter.setBotVelocity(1000);
         // s_Shooter.setTopVelocity(1000);
-        s_Shooter.setTopVelocity(30);
-        s_Shooter.setBotVelocity(7);
+        s_Shooter.setTopVelocity(24);//60
+        s_Shooter.setBotVelocity(11);//10
         // Command pivotCommand = new SetPivot(PivotState.AMP_BEFORE_SWING);
         // pivotCommand.schedule();
     }
@@ -44,6 +44,6 @@ public class ShootIntoAmp extends Command {
 
     @Override
     public boolean isFinished() {
-        return s_Shooter.velocitiesWithinError(30);
+        return s_Shooter.velocitiesWithinError(5);
     }
 }
