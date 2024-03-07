@@ -114,14 +114,14 @@ public final class Autos {
                         FollowChoreoTrajectory(trajectory.get(1))
                 ),
 
-                new ParallelCommandGroup(new SetShooterCommand(30), new SetPivot(PivotState.SUBWOOFER)),
+                new SetShooterCommand(30),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
                         new SetShooterCommand(0),
-                        new SetPivot(PivotState.SUBWOOFER),
+                        new SetPivot(PivotState.INTAKE),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),
@@ -213,35 +213,33 @@ public final class Autos {
                         new SetShooterCommand(40)
                 ),
 
-                new SetIndexer(IndexerStates.ON, false),
-                Commands.waitSeconds(0.5),
+                new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
+                Commands.waitSeconds(0.1),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
-                        new SetShooterCommand(15),
+                        new SetShooterCommand(0),
                         new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON)
+                        new SetIntake(IntakeStates.ON),
+                        new SetPivot(PivotState.INTAKE)
                 ),
 
-                Commands.waitSeconds(0.3),
+                Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(1)),
-                        new SetIntake(IntakeStates.OFF)
+                        new SetPivot(20)
                 ),
 
-                new ParallelCommandGroup(
-                        new SetPivot(20), //this angle is gonna be totally arbitrary, we are going to need to test and find the right angle
-                        new SetShooterCommand(30)
-                ),
+                new SetShooterCommand(30),
 
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
-                        new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(15),
+                        new SetPivot(PivotState.INTAKE),
+                        new SetShooterCommand(0),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
                 ),
@@ -249,15 +247,11 @@ public final class Autos {
                 Commands.waitSeconds(0.3),
 
                 new ParallelCommandGroup(
-                        FollowChoreoTrajectory(trajectory.get(3)),
-                        new SetIntake(IntakeStates.OFF)
+                  FollowChoreoTrajectory(trajectory.get(3)),
+                  new SetPivot(20)
                 ),
 
-                new ParallelCommandGroup(
-                        new SetPivot(20), //also arbitrary, but should be same angle as the other non-subwoofer shot in this path
-                        new SetShooterCommand(30)
-                ),
-
+                new SetShooterCommand(30),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
                 new SetIndexer(IndexerStates.OFF, false),
