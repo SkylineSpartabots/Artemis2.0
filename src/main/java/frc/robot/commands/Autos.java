@@ -518,7 +518,7 @@ public final class Autos {
         );
     }
 
-    public static Command FourNoteFarSide() {
+    /*public static Command FourNoteFarSide() {
       ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteFarSide");
         return new SequentialCommandGroup(
           new InstantCommand(() -> {
@@ -589,7 +589,7 @@ public final class Autos {
           new SetShooterCommand(0),
           new SetIndexer(IndexerStates.OFF, false)
         );
-    }
+    }*/
     /*
      * Enum for the different autos. Contains a name and a mechCommands array. The mechCommands array contains
      * all the commands that the mechanisms will use (stuff that is unrelated to the drivetrain). These commands
@@ -608,8 +608,8 @@ public final class Autos {
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
         FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
-        FourNoteFromTop("FourNoteFromTop,", FourNoteFromTop()),
-        FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
+        FourNoteFromTop("FourNoteFromTop,", FourNoteFromTop());
+        //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
 
 
         String name;
