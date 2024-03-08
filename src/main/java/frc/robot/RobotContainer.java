@@ -111,6 +111,10 @@ public class RobotContainer {
         driver.b().whileTrue(eject());
         driver.y().whileTrue(new ManualIndexForShooting());
 
+        // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
+        // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
+        
+
         driver.rightTrigger().onTrue(shootSubwoofer());
         //driver.rightTrigger().onTrue(new InstantCommand(() -> s_Shooter.setTopVelocity(40)));
         //
@@ -118,6 +122,7 @@ public class RobotContainer {
 
         // driver.rightBumper().onTrue(ampSequence());
         driver.rightBumper().whileTrue(new VisionAlign());
+        // driver.rightBumper().onTrue(new SetShooterCommand(0));
         driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(new ShootIntoAmp());
 

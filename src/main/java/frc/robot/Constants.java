@@ -41,7 +41,7 @@ public final class Constants {
         public static final double backRightCameraPitch = Units.degreesToRadians(30);
 
         public static final double centerCameraHeight = Units.inchesToMeters(10.15);
-        public static final double centerCameraPitch = Units.degreesToRadians(20);
+        public static final double centerCameraPitch = Units.degreesToRadians(15);
 
         public static final class AprilTags {
             public static final int blueSourceRight = 1;
@@ -185,10 +185,19 @@ public final class Constants {
         public static final double[][] velocitiesMatrix = { //TODO: populate these with real measured values
             {Units.inchesToMeters(265), 50}, //ADD .1 M AFTER MOUNT IS CENTERED
             {2.67, 45}
+
         };
 
         public static final double[][] anglesMatrix = {
             {Units.feetToMeters(265), 20},
+            {2.379, 36.768}, //actual distance: 2.5908
+            {2.715, 32.50}, //actual distance: 2.921
+            {3.35, 29.208}, //actual distance: 3.4544
+            {4.423, 25.19}, //actual distance: 4.3942
+            {5.07, 25.08}, //actual distance: 4.99
+            {5.73, 24.24}, //actual distance: 5.6388
+            
+
         };
 
         static {
