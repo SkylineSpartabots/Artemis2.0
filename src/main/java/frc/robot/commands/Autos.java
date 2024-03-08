@@ -260,7 +260,7 @@ public final class Autos {
 
           new ParallelCommandGroup(
             new SetPivot(PivotState.SUBWOOFER),
-            new SetShooterCommand(30)
+            new SetShooterCommand(40)
           ),
 
           new SetIndexer(IndexerStates.ON, false),
@@ -294,11 +294,13 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
+                        RobotContainer.getInstance().eject(),
+
                         new SetShooterCommand(40)
                 ),
-
+                
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
-                Commands.waitSeconds(0.1),
+                Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
@@ -312,10 +314,12 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(1)),
-                        new SetPivot(35)
+                        new SetPivot(35),
+                        new SetShooterCommand(40)
+
+
                 ),
 
-                new SetShooterCommand(30),
 
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
@@ -328,14 +332,17 @@ public final class Autos {
                         new SetIntake(IntakeStates.ON)
                 ),
 
-                Commands.waitSeconds(0.3),
+                Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                   FollowChoreoTrajectory(trajectory.get(3)),
-                  new SetPivot(35)
+                  new SetPivot(35),
+                  new SetShooterCommand(30),
+                  RobotContainer.getInstance().eject()
+
+
                 ),
 
-                new SetShooterCommand(30),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
                 new SetIndexer(IndexerStates.OFF, false),
