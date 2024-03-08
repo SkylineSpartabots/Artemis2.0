@@ -304,7 +304,7 @@ public final class Autos {
                         FollowChoreoTrajectory(trajectory.get(0)),
                         new SetShooterCommand(0),
                         new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON),
+                        new SetIntake(IntakeStates.ON, 4),
                         new SetPivot(PivotState.INTAKE)
                 ),
 
@@ -318,14 +318,14 @@ public final class Autos {
                 new SetShooterCommand(30),
 
                 new SetIndexer(IndexerStates.ON, false),
-                Commands.waitSeconds(0.5),
+                Commands.waitSeconds(0.2),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
                         new SetPivot(PivotState.INTAKE),
                         new SetShooterCommand(0),
                         new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON)
+                        new SetIntake(IntakeStates.ON, 4)
                 ),
 
                 Commands.waitSeconds(0.3),
