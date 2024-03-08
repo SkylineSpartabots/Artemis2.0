@@ -558,7 +558,7 @@ public final class Autos {
             new SetShooterCommand(0),
             new SetIndexer(IndexerStates.ON, true),
             new SequentialCommandGroup(
-              new SetIntake(IntakeStates.ON),
+              new SetIntake(IntakeStates.ON, 3.5),
               new SetPivot(30),
               RobotContainer.getInstance().eject()
             ),
@@ -574,7 +574,7 @@ public final class Autos {
             new SetShooterCommand(0),
             new SetIndexer(IndexerStates.ON, true),
             new SequentialCommandGroup(
-              new SetIntake(IntakeStates.ON),
+              new SetIntake(IntakeStates.ON, 4),
               new SetPivot(30),
               RobotContainer.getInstance().eject()
             ),
