@@ -17,7 +17,7 @@ public class SetPivot extends Command {
     boolean isShootingIntoAmp;
 
     // Tune later
-    PIDController CANController = new PIDController(38, 10, 0);
+    PIDController CANController = new PIDController(45, 12, 0);
     // PIDController CANController = new PIDController(45, 10, 0); shit be too fast bro
     PIDController motorContorller = new PIDController(0, 0, 0);
 
