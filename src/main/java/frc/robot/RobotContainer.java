@@ -106,13 +106,13 @@ public class RobotContainer {
          * Mechanism bindings
          */
 
-        driver.a().onTrue(offEverything());
-        driver.x().onTrue(new SmartIntake());
-        driver.b().whileTrue(eject());
-        driver.y().whileTrue(new ManualIndexForShooting());
+        // driver.a().onTrue(offEverything());
+        // driver.x().onTrue(new SmartIntake());
+        // driver.b().whileTrue(eject());
+        // driver.y().whileTrue(new ManualIndexForShooting());
 
-        // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
-        // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
+        driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
+        driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
         
 
         driver.rightTrigger().onTrue(shootSubwoofer());
@@ -121,14 +121,15 @@ public class RobotContainer {
         driver.leftTrigger().onTrue(new InstantCommand(() -> s_Shooter.setBotVelocity(40)));
 
         // driver.rightBumper().onTrue(ampSequence());
-        driver.rightBumper().whileTrue(new VisionAlign());
-        // driver.rightBumper().onTrue(new SetShooterCommand(0));
+        //driver.rightBumper().whileTrue(new VisionAlign());
+        driver.rightBumper().onTrue(new SetShooterCommand(0));
         driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(new ShootIntoAmp());
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.SUBWOOFER));
-        driverDpadLeft.onTrue(new SetPivot(PivotState.AMP));
+        driverDpadLeft.onTrue(new SetPivot(Constants.getAngleForDistance(s_Vision.getFloorDistance())));
+        //driverDpadLeft.onTrue(new SetPivot(PivotState.AMP));
         driverDpadRight.onTrue(new ZeroPivot());
 
         /*
