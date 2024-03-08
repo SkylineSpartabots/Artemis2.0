@@ -38,6 +38,8 @@ public class Vision extends SubsystemBase {
     private double targetDistance;
     private int targetID;
 
+    public double floorDistance;
+
     private Transform3d cameraToRobotTransform = new Transform3d(
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-5.67162), Units.inchesToMeters(-10.172538)),
         new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0))); //center cam
@@ -168,6 +170,7 @@ public class Vision extends SubsystemBase {
                 Constants.Vision.centerCameraPitch, 
                 Units.degreesToRadians(target.getPitch())
             );
+            floorDistance = targetDistance;
             return targetDistance;
         }
         return -1;

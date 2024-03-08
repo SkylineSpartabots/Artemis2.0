@@ -203,7 +203,7 @@ public class Pivot extends SubsystemBase {
         currentLimitsConfigs.StatorCurrentLimit = Constants.pivotContinuousCurrentLimit;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
         currentLimitsConfigs.SupplyCurrentThreshold = Constants.pivotPeakCurrentLimit;
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.CurrentLimits = currentLimitsConfigs;
         motor.getConfigurator().apply(config);
         // leaderEncoder.setPosition(0.2);

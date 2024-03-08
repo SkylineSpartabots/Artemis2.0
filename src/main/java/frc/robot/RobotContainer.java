@@ -33,6 +33,7 @@ import frc.robot.commands.ReverseIndexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.TeleopFactory;
+import frc.robot.commands.Pivot.PivotAlign;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
@@ -70,6 +71,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final CommandXboxController driver = new CommandXboxController(0); // My joystick
+    private final CommandXboxController operator = new CommandXboxController(1);
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // My drivetrain
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -96,6 +98,23 @@ public class RobotContainer {
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
 
+    /* Operator Buttons */
+    private final Trigger operatorBack = operator.back();
+    private final Trigger operatorStart = operator.start();
+    private final Trigger operatorA = operator.a();
+    private final Trigger operatorB = operator.b();
+    private final Trigger operatorX = operator.x();
+    private final Trigger operatorY = operator.y();
+    private final Trigger operatorRightBumper = operator.rightBumper();
+    private final Trigger operatorLeftBumper = operator.rightBumper();
+    private final Trigger operatorLeftTrigger = operator.leftTrigger();
+    private final Trigger operatorRightTrigger = operator.rightTrigger();
+    private final Trigger operatorDpadUp = operator.povUp();
+    private final Trigger operatorDpadDown = operator.povDown();
+    private final Trigger operatorDpadLeft = operator.povLeft();
+    private final Trigger operatorDpadRight = operator.povRight();
+
+
     public CommandXboxController getDriverController(){
         return driver;
     }
@@ -106,13 +125,13 @@ public class RobotContainer {
          * Mechanism bindings
          */
 
-        // driver.a().onTrue(offEverything());
-        // driver.x().onTrue(new SmartIntake());
-        // driver.b().whileTrue(eject());
-        // driver.y().whileTrue(new ManualIndexForShooting());
+        driver.a().onTrue(offEverything());
+        driver.x().onTrue(new SmartIntake());
+        driver.b().whileTrue(eject());
+        driver.y().whileTrue(new ManualIndexForShooting());
 
-        driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
-        driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
+        // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
+        // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
         
 
         driver.rightTrigger().onTrue(shootSubwoofer());
@@ -121,16 +140,19 @@ public class RobotContainer {
         driver.leftTrigger().onTrue(new InstantCommand(() -> s_Shooter.setBotVelocity(40)));
 
         // driver.rightBumper().onTrue(ampSequence());
-        //driver.rightBumper().whileTrue(new VisionAlign());
-        driver.rightBumper().onTrue(new SetShooterCommand(0));
-        driver.leftBumper().onTrue(new SetShooterCommand(45));
+        driver.rightBumper().whileTrue(new VisionAlign());
+        //driver.rightBumper().onTrue(new SetShooterCommand(0));
+        driver.leftBumper().onTrue(new InstantCommand(() -> s_Shooter.setVoltage(7)));
         // driver.leftBumper().onTrue(new ShootIntoAmp());
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
         driverDpadUp.onTrue(new SetPivot(PivotState.SUBWOOFER));
-        driverDpadLeft.onTrue(new SetPivot(Constants.getAngleForDistance(s_Vision.getFloorDistance())));
+        driverDpadLeft.onTrue(new PivotAlign());
         //driverDpadLeft.onTrue(new SetPivot(PivotState.AMP));
         driverDpadRight.onTrue(new ZeroPivot());
+
+        operatorDpadUp.whileTrue(new ManualClimb(true));
+        operatorDpadDown.whileTrue(new ManualClimb(false));
 
         /*
          * Drivetrain bindings
@@ -219,7 +241,7 @@ public class RobotContainer {
         if(shooterSysIDTuned){
             return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(33));
         } else {
-            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new InstantCommand(() -> s_Shooter.setVoltage(8)));
+            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new InstantCommand(() -> s_Shooter.setVoltage(7)));
         }
     }
 

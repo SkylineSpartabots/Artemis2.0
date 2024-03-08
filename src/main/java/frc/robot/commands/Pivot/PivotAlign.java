@@ -3,29 +3,30 @@ package frc.robot.commands.Pivot;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Pivot;
-import frc.robot.subsystems.Pivot.PivotState;
+import frc.robot.subsystems.Vision;
 
-public class SetPivotDegree extends Command {
+public class PivotAlign extends Command {
     Pivot s_Pivot;
-    Indexer s_Indexer;
+    Vision s_Vision;
 
     double desiredCANcoderAngle;
 
     // Tune later
-    PIDController CANController = new PIDController(45, 12, 0);
+    PIDController CANController = new PIDController(50, 15, 0);
     // PIDController CANController = new PIDController(45, 10, 0); shit be too fast bro
 
-    public SetPivotDegree(double desiredAngle){
+    public PivotAlign(){
         s_Pivot = Pivot.getInstance();
-        addRequirements(s_Pivot);
-
-        desiredCANcoderAngle = Pivot.pivotDegreeToCANcoder(desiredAngle);
+        s_Vision = Vision.getInstance();
+        addRequirements(s_Pivot, s_Vision);
     }
 
     @Override
     public void initialize() {
+        desiredCANcoderAngle = Pivot.pivotDegreeToCANcoder(Constants.getAngleForDistance(s_Vision.getFloorDistance()));
         CANController.reset();
     }
 
@@ -47,7 +48,7 @@ public class SetPivotDegree extends Command {
 
     @Override
 	public boolean isFinished() {
-		return Math.abs(desiredCANcoderAngle - s_Pivot.getCANcoderAbsolutePosition()) < 0.005 || s_Pivot.getMotorCurrent() > 18;
+		return Math.abs(desiredCANcoderAngle - s_Pivot.getCANcoderAbsolutePosition()) < 0.0005 || s_Pivot.getMotorCurrent() > 18;
 	}
 		
 	@Override
