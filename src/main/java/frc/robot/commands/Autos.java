@@ -93,7 +93,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(40)
+                        new SetShooterCommand(40), new WaitCommand(0.2)
                 ),
 
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
@@ -305,8 +305,8 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
                         new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON, 4),
+                        //new SetIndexer(IndexerStates.ON, true),
+                        //new SetIntake(IntakeStates.ON),
                         new SetPivot(PivotState.INTAKE)
                 ),
 
@@ -327,9 +327,9 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
                         new SetPivot(PivotState.INTAKE),
-                        new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON, 4)
+                        new SetShooterCommand(0)
+                        //new SetIndexer(IndexerStates.ON, true),
+                        //new SetIntake(IntakeStates.ON)
                 ),
 
                 Commands.waitSeconds(0.5),

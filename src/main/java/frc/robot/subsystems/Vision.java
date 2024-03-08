@@ -156,11 +156,18 @@ public class Vision extends SubsystemBase {
     public double getFloorDistance(){
         PhotonTrackedTarget target = getBestTarget();
         if (target != null) {
+            // code for back right corner camera
+            // targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
+            // Units.inchesToMeters(9.1), 
+            // aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
+            // Units.degreesToRadians(30), 
+            // Units.degreesToRadians(target.getPitch()));
             targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
-            Units.inchesToMeters(9.1), 
-            aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
-            Units.degreesToRadians(30), 
-            Units.degreesToRadians(target.getPitch()));
+                Constants.Vision.centerCameraHeight, 
+                aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
+                Constants.Vision.centerCameraPitch, 
+                Units.degreesToRadians(target.getPitch())
+            );
             return targetDistance;
         }
         return -1;
