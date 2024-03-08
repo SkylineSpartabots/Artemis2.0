@@ -37,6 +37,12 @@ public final class Constants {
         public static final double cameraRollOffset = Units.degreesToRadians(0);
         public static final double cameraPitchOffset = Units.degreesToRadians(0);
         public static final double cameraYawOffset = Units.degreesToRadians(0);
+        public static final double backRightCameraHeight = Units.inchesToMeters(9.1);
+        public static final double backRightCameraPitch = Units.degreesToRadians(30);
+
+        public static final double centerCameraHeight = Units.inchesToMeters(10.15);
+        public static final double centerCameraPitch = Units.degreesToRadians(20);
+
         public static final class AprilTags {
             public static final int blueSourceRight = 1;
             public static final int blueSourceLeft = 2;
