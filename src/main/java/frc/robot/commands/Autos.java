@@ -672,7 +672,7 @@ public final class Autos {
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
         FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
-        FourNoteFromTop("FourNoteFromTop", FourNoteFromTop()),
+        FourNoteFromTop("FourNoteFromTop", FourNoteFromTop());
         //TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
         //ThreeNoteSubwoofer("ThreeNoteSubwoofer", ThreeNoteSubwoofer());
         //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
