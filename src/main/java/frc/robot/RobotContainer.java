@@ -122,7 +122,7 @@ public class RobotContainer {
         driver.leftTrigger().onTrue(onTheFlyShooting()); //automatic shooting, includes alignment
 
         driver.rightBumper().onTrue(new SetShooterCommand(0));
-        driver.leftBumper().onTrue(new SetShooterCommand(45));
+        driver.leftBumper().onTrue(new SetShooterCommand(50));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new SetPivot(PivotState.SUBWOOFER)); //FINAL
@@ -146,12 +146,14 @@ public class RobotContainer {
          * Operator bindings
          */
         operator.a().onTrue(offEverything());
-        driver.x().onTrue(offIntake()); //FINAL
-        driver.b().whileTrue(eject()); //FINAL
-        driver.y().whileTrue(offIndexer());
+        operator.x().onTrue(offIntake()); //FINAL
+        operator.b().whileTrue(eject()); //FINAL
+        operator.y().whileTrue(offIndexer());
 
-        driver.rightTrigger().whileTrue(new ManualClimb(true));
-        driver.leftTrigger().whileTrue(new ManualClimb(false));
+        operator.rightTrigger().whileTrue(new ManualClimb(true));
+        operator.leftTrigger().whileTrue(new ManualClimb(false));
+
+        operator.rightBumper().onTrue(TeleopFactory.Diagnostic());
 
         /*
          * simulation bindings
