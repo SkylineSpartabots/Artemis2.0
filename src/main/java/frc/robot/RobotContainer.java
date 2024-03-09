@@ -137,7 +137,7 @@ public class RobotContainer {
         driver.rightTrigger().onTrue(shootSubwoofer());
         //driver.rightTrigger().onTrue(new InstantCommand(() -> s_Shooter.setTopVelocity(40)));
         //
-        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Shooter.setBotVelocity(40)));
+        driver.leftTrigger().onTrue(new SetShooterCommand(40));
 
         // driver.rightBumper().onTrue(ampSequence());
         driver.rightBumper().whileTrue(new VisionAlign());
