@@ -57,7 +57,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Rotation", Autos.AutoPath.Rotation);
     autoChooser.addOption("FourNoteFromTop", Autos.AutoPath.FourNoteFromTop);
     autoChooser.addOption("TwoNoteSubwoofer", Autos.AutoPath.TwoNoteSubwoofer);
-    autoChooser.addOption("ThreeNoteSubwoofer", Autos.AutoPath.ThreeNoteSubwoofer);
+    autoChooser.addOption("ThreeNoteSubwooferMidTop", Autos.AutoPath.ThreeNoteSubwooferMidTop);
     /*autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
     autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/

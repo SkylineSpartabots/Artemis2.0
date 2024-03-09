@@ -163,7 +163,7 @@ public final class Autos {
                 new ParallelCommandGroup(new SetPivot(PivotState.GROUND), new SetShooterCommand(0)));
     }
 
-    public static Command ThreeNoteSubwoofer(){
+    public static Command ThreeNoteSubwooferMidTop(){
       ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourPieceSubwoofer");
         return new SequentialCommandGroup(
                 new InstantCommand(() -> {
@@ -711,14 +711,13 @@ public final class Autos {
         ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
         FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
         FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
-        TwoNote("TwoNote", TwoNote()),
         Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
         FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
-        FourNoteFromTop("FourNoteFromTop", FourNoteFromTop());
-        //TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
-        //ThreeNoteSubwoofer("ThreeNoteSubwoofer", ThreeNoteSubwoofer());
+        FourNoteFromTop("FourNoteFromTop", FourNoteFromTop()),
+        TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
+        ThreeNoteSubwooferMidTop("ThreeNoteSubwoofer", ThreeNoteSubwooferMidTop());
         //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
 
 
