@@ -51,12 +51,13 @@ public class Robot extends LoggedRobot {
     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
     autoChooser.setDefaultOption("ThreeNoteFarSide", Autos.AutoPath.ThreeNoteFarSide);
     autoChooser.addOption("FourNoteSubWoofer", Autos.AutoPath.FourNoteSubwoofer);
-    autoChooser.addOption("Two note Subwoofer", Autos.AutoPath.TwoNoteSubwoofer);
     autoChooser.addOption("FourNoteCloseSide", Autos.AutoPath.FourNoteCloseSide);
     autoChooser.addOption("Horizontal", Autos.AutoPath.Horizontal);
     autoChooser.addOption("Straight", Autos.AutoPath.Straight);
     autoChooser.addOption("Rotation", Autos.AutoPath.Rotation);
     autoChooser.addOption("FourNoteFromTop", Autos.AutoPath.FourNoteFromTop);
+    autoChooser.addOption("TwoNoteSubwoofer", Autos.AutoPath.TwoNoteSubwoofer);
+    autoChooser.addOption("ThreeNoteSubwoofer", Autos.AutoPath.ThreeNoteSubwoofer);
     /*autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
     autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
