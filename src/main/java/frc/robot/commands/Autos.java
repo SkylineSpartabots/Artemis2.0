@@ -496,7 +496,7 @@ public final class Autos {
     }
 
     private static Command ThreeNoteSubwooferMidBot() {
-      ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("ThreePieceSubwoofer");
+      ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("ThreeNoteSubwooferMidBot");
         return new SequentialCommandGroup(
                 new InstantCommand(() -> {
                     Pose2d initialPose;
@@ -782,7 +782,7 @@ public final class Autos {
         FourNoteFromTop("FourNoteFromTop", FourNoteFromTop()),
         TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
         ThreeNoteSubwooferMidTop("ThreeNoteSubwooferMidTop", ThreeNoteSubwooferMidTop()),
-        ThreeNoteSubwooferMidBot("ThreeNoteSubwoofer", ThreeNoteSubwooferMidBot());
+        ThreeNoteSubwooferMidBot("ThreeNoteSubwooferMidBot", ThreeNoteSubwooferMidBot());
         //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
 
 
