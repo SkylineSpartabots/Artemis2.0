@@ -206,7 +206,7 @@ public class Pivot extends SubsystemBase {
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.CurrentLimits = currentLimitsConfigs;
         motor.getConfigurator().apply(config);
-        // leaderEncoder.setPosition(0.2);
+        pivotCANcoder.setPosition(0.2);
     }
 
     /**

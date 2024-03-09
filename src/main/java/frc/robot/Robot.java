@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -56,13 +57,14 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Straight", Autos.AutoPath.Straight);
     autoChooser.addOption("Rotation", Autos.AutoPath.Rotation);
     autoChooser.addOption("FourNoteFromTop", Autos.AutoPath.FourNoteFromTop);
-    autoChooser.addOption("TwoNoteSubwoofer", Autos.AutoPath.TwoNoteSubwoofer);
-    autoChooser.addOption("ThreeNoteSubwoofer", Autos.AutoPath.ThreeNoteSubwoofer);
+    // autoChooser.addOption("TwoNoteSubwoofer", Autos.AutoPath.TwoNoteSubwoofer);
+    // autoChooser.addOption("ThreeNoteSubwoofer", Autos.AutoPath.ThreeNoteSubwoofer);
     /*autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
     autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
     SmartDashboard.putData("Auto choices", autoChooser);
     m_robotContainer = RobotContainer.getInstance();
+    //PortForwarder.add(5800, "photonvision.local", 5800);
 
   }
 

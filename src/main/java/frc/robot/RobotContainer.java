@@ -120,6 +120,8 @@ public class RobotContainer {
 
         driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         driver.leftTrigger().onTrue(onTheFlyShooting()); //automatic shooting, includes alignment
+        // driver.leftTrigger().onTrue(new VisionAlign());
+
 
         driver.rightBumper().onTrue(new SetShooterCommand(0));
         driver.leftBumper().onTrue(new SetShooterCommand(50));
@@ -129,6 +131,7 @@ public class RobotContainer {
         driverDpadLeft.onTrue(shootAmp()); //shoot into amp
         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
+        
         /*
          * Drivetrain bindings
          */

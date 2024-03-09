@@ -28,7 +28,9 @@ public class VisionAlign extends Command {
     private boolean hasSpeaker;
     private double lastYaw;
 
-    public VisionAlign() {
+    public 
+    
+    VisionAlign() {
         s_Swerve = CommandSwerveDrivetrain.getInstance();
         s_Vision = Vision.getInstance();
 
