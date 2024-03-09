@@ -23,7 +23,7 @@ public class ZeroPivot extends Command {
         SmartDashboard.putBoolean("Running zero", true);
     }
 
-    private double currentThreshold =3;
+    private double currentThreshold = 7;
 
     @Override
 	public boolean isFinished() {

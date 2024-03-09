@@ -27,12 +27,14 @@ public class SetIndexer extends Command {
 
     @Override
     public void end(boolean interrupted) { 
-        s_Indexer.setSpeed(0);
+        if(intaking){
+            s_Indexer.setSpeed(0);
+        }
     }
 
     @Override
     public boolean isFinished() {
-        return intaking ? s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold : s_Indexer.getColorSensorResult() < colorSensorProximityThreshold;
+        return intaking ? s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold : true;
         // return intaking ? s_Indexer.getLimitSwitchResult() : true;
     }
 }

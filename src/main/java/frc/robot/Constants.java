@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.opencv.core.Point;
 
@@ -37,6 +38,12 @@ public final class Constants {
         public static final double cameraRollOffset = Units.degreesToRadians(0);
         public static final double cameraPitchOffset = Units.degreesToRadians(0);
         public static final double cameraYawOffset = Units.degreesToRadians(0);
+        public static final double backRightCameraHeight = Units.inchesToMeters(9.1);
+        public static final double backRightCameraPitch = Units.degreesToRadians(30);
+
+        public static final double centerCameraHeight = Units.inchesToMeters(10.15);
+        public static final double centerCameraPitch = Units.degreesToRadians(15);
+
         public static final class AprilTags {
             public static final int blueSourceRight = 1;
             public static final int blueSourceLeft = 2;
@@ -168,21 +175,36 @@ public final class Constants {
      */
     public static double getAngleForDistance(double distance){
         //TODO: add a case for a distance that is past furthest or too close
+        SmartDashboard.putNumber("angle from table", ShootingLookupTable.PivotAngleMap.get(distance));
         return ShootingLookupTable.PivotAngleMap.get(distance);
     }
 
     public static final class ShootingLookupTable {
-        public static final InterpolatingDoubleTreeMap FlywheelVelocitiesMap = new InterpolatingDoubleTreeMap();
+        public static InterpolatingDoubleTreeMap FlywheelVelocitiesMap = new InterpolatingDoubleTreeMap();
 
-        public static final InterpolatingDoubleTreeMap PivotAngleMap = new InterpolatingDoubleTreeMap();
+        public static InterpolatingDoubleTreeMap PivotAngleMap = new InterpolatingDoubleTreeMap();
 
         public static final double[][] velocitiesMatrix = { //TODO: populate these with real measured values
             {Units.inchesToMeters(265), 50}, //ADD .1 M AFTER MOUNT IS CENTERED
             {2.67, 45}
+
         };
 
         public static final double[][] anglesMatrix = {
-            {Units.feetToMeters(265), 20},
+            //{Units.feetToMeters(265), 20},
+            {2.379, 36.768}, //actual distance: 2.5908
+            {2.53, 35.53},
+            {2.715, 32.50}, //actual distance: 2.921
+            {3.067, 32.285},
+
+            {3.34, 30.79}, //actual distance: 3.4544
+            {3.625,31.4},
+            {4.423, 25.19}, //actual distance: 4.3942
+            {5.07, 25.08}, //actual distance: 4.99
+            {5.73, 24.24}, //actual distance: 5.6388
+            
+            
+
         };
 
         static {

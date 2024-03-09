@@ -39,6 +39,7 @@ import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Shooter.ShootIntoAmp;
 import frc.robot.commands.Shooter.Swing;
 import frc.robot.commands.TeleopAutomation.IndexForShooting;
+import frc.robot.commands.TeleopAutomation.ShootByDistance;
 import frc.robot.commands.AutoAlignDrive.PIDAlign;
 import frc.robot.commands.AutoAlignDrive.VisionAlign;
 import frc.robot.commands.Climb.ManualClimb;
@@ -69,8 +70,10 @@ public class RobotContainer {
     // private final Lightz s_lightz = Lightz.getInstance();
 
     /* Setting up bindings for necessary control of the swerve drive platform */
-    private final CommandXboxController driver = new CommandXboxController(0); // My joystick
-    private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // My drivetrain
+    private final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
+    private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
+
+    private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 20% deadband, tune to driver preference
@@ -106,22 +109,25 @@ public class RobotContainer {
          * Mechanism bindings
          */
 
-        driver.a().onTrue(offEverything());
-        driver.x().onTrue(new SmartIntake());
-        driver.b().whileTrue(eject());
-        driver.y().whileTrue(new ManualIndexForShooting());
+        driver.a().onTrue(offEverything()); //FINAL
+        driver.x().onTrue(new SmartIntake()); //FINAL
+        driver.b().whileTrue(eject()); //FINAL
+        driver.y().whileTrue(new ManualIndexForShooting()); //FINAL
 
-        driver.rightTrigger().onTrue(shootSubwoofer());
+        // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
+        // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
+        
 
-        // driver.rightBumper().onTrue(ampSequence());
-        driver.rightBumper().whileTrue(new VisionAlign());
-        driver.leftBumper().onTrue(new SetShooterCommand(45));
-        // driver.leftBumper().onTrue(new ShootIntoAmp());
+        driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
+        driver.leftTrigger().onTrue(onTheFlyShooting()); //automatic shooting, includes alignment
 
-        driverDpadDown.onTrue(new SetPivot(PivotState.GROUND));
-        driverDpadUp.onTrue(new SetPivot(PivotState.SUBWOOFER));
-        driverDpadLeft.onTrue(new SetPivot(PivotState.AMP));
-        driverDpadRight.onTrue(new ZeroPivot());
+        driver.rightBumper().onTrue(new SetShooterCommand(0));
+        driver.leftBumper().onTrue(new SetShooterCommand(50));
+
+        driverDpadDown.onTrue(new SetPivot(PivotState.GROUND)); //FINAL
+        driverDpadUp.onTrue(new SetPivot(PivotState.SUBWOOFER)); //FINAL
+        driverDpadLeft.onTrue(shootAmp()); //shoot into amp
+        driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
         /*
          * Drivetrain bindings
@@ -137,11 +143,25 @@ public class RobotContainer {
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
 
         /*
+         * Operator bindings
+         */
+        operator.a().onTrue(offEverything());
+        operator.x().onTrue(offIntake()); //FINAL
+        operator.b().whileTrue(eject()); //FINAL
+        operator.y().whileTrue(offIndexer());
+
+        operator.rightTrigger().whileTrue(new ManualClimb(true));
+        operator.leftTrigger().whileTrue(new ManualClimb(false));
+
+        operator.rightBumper().onTrue(TeleopFactory.Diagnostic());
+
+        /*
          * simulation bindings
          */
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
+        
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
@@ -199,10 +219,9 @@ public class RobotContainer {
     }
 
     public Command shootAmp(){
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                new SetPivot(PivotState.AMP),
-                new SetShooterCommand(2000, 1200))
+        return new ParallelCommandGroup(
+                new SetPivot(PivotState.AMP, true),
+                new SetShooterCommand(2000, 1200)
         );
     }
 
@@ -226,6 +245,10 @@ public class RobotContainer {
 
     public Command ampSequence(){
         return new SequentialCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP, true));
+    }
+
+    public Command onTheFlyShooting(){
+        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(35), new VisionAlign()), new ShootByDistance(s_Vision.getFloorDistance()), new WaitCommand(0.4), indexToShooter());
     }
 
 }

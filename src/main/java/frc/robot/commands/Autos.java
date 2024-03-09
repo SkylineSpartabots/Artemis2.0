@@ -93,7 +93,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(40)
+                        new SetShooterCommand(40), new WaitCommand(0.2)
                 ),
 
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
@@ -260,7 +260,7 @@ public final class Autos {
 
           new ParallelCommandGroup(
             new SetPivot(PivotState.SUBWOOFER),
-            new SetShooterCommand(30)
+            new SetShooterCommand(40)
           ),
 
           new SetIndexer(IndexerStates.ON, false),
@@ -294,17 +294,19 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
+                        RobotContainer.getInstance().eject(),
+
                         new SetShooterCommand(40)
                 ),
-
+                
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
-                Commands.waitSeconds(0.1),
+                Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
                         new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON),
+                        //new SetIndexer(IndexerStates.ON, true),
+                        //new SetIntake(IntakeStates.ON),
                         new SetPivot(PivotState.INTAKE)
                 ),
 
@@ -312,30 +314,35 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(1)),
-                        new SetPivot(35)
+                        new SetPivot(35),
+                        new SetShooterCommand(40)
+
+
                 ),
 
-                new SetShooterCommand(30),
 
                 new SetIndexer(IndexerStates.ON, false),
-                Commands.waitSeconds(0.5),
+                Commands.waitSeconds(0.2),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
                         new SetPivot(PivotState.INTAKE),
-                        new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true),
-                        new SetIntake(IntakeStates.ON)
+                        new SetShooterCommand(0)
+                        //new SetIndexer(IndexerStates.ON, true),
+                        //new SetIntake(IntakeStates.ON)
                 ),
 
-                Commands.waitSeconds(0.3),
+                Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
                   FollowChoreoTrajectory(trajectory.get(3)),
-                  new SetPivot(35)
+                  new SetPivot(35),
+                  new SetShooterCommand(30),
+                  RobotContainer.getInstance().eject()
+
+
                 ),
 
-                new SetShooterCommand(30),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
                 new SetIndexer(IndexerStates.OFF, false),
@@ -511,7 +518,78 @@ public final class Autos {
         );
     }
 
+    /*public static Command FourNoteFarSide() {
+      ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteFarSide");
+        return new SequentialCommandGroup(
+          new InstantCommand(() -> {
+              Pose2d initialPose;
+              Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+              initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+              s_Swerve.resetOdo(initialPose);
+              System.out.println(initialPose.getX() + " " + initialPose.getY());
+          }),
 
+          new ParallelCommandGroup(
+                  new SetPivot(PivotState.SUBWOOFER),
+                  new SetShooterCommand(40)
+          ),
+
+          new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
+          // new SetIndexer(IndexerStates.ON, false), 
+          Commands.waitSeconds(0.3),
+
+          new ParallelCommandGroup(
+            new SetShooterCommand(0),
+            new SetIndexer(IndexerStates.ON, true),
+            new SequentialCommandGroup(
+              new SetIntake(IntakeStates.ON),
+              new SetPivot(30),
+              RobotContainer.getInstance().eject()
+            ),
+            new SetPivot(PivotState.INTAKE),
+            new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(0)))
+          ),
+
+          new SetShooterCommand(45),
+          new SetIndexer(IndexerStates.ON, false),
+          Commands.waitSeconds(0.3),
+
+          new ParallelCommandGroup(
+            new SetShooterCommand(0),
+            new SetIndexer(IndexerStates.ON, true),
+            new SequentialCommandGroup(
+              new SetIntake(IntakeStates.ON, 3.5),
+              new SetPivot(30),
+              RobotContainer.getInstance().eject()
+            ),
+            new SetPivot(PivotState.INTAKE),
+            FollowChoreoTrajectory(trajectory.get(1))
+          ),
+
+          new SetShooterCommand(45),
+          new SetIndexer(IndexerStates.ON, false),
+          Commands.waitSeconds(0.3),
+
+          new ParallelCommandGroup(
+            new SetShooterCommand(0),
+            new SetIndexer(IndexerStates.ON, true),
+            new SequentialCommandGroup(
+              new SetIntake(IntakeStates.ON, 4),
+              new SetPivot(30),
+              RobotContainer.getInstance().eject()
+            ),
+            new SetPivot(PivotState.INTAKE),
+            FollowChoreoTrajectory(trajectory.get(2))
+          ),
+
+          new SetShooterCommand(45),
+          new SetIndexer(IndexerStates.ON, false),
+          Commands.waitSeconds(0.3),
+
+          new SetShooterCommand(0),
+          new SetIndexer(IndexerStates.OFF, false)
+        );
+    }*/
     /*
      * Enum for the different autos. Contains a name and a mechCommands array. The mechCommands array contains
      * all the commands that the mechanisms will use (stuff that is unrelated to the drivetrain). These commands
@@ -530,6 +608,7 @@ public final class Autos {
         Rotation("Rotation", Rotation()),
         FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
         FourNoteFromTop("FourNoteFromTop,", FourNoteFromTop());
+        //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
 
 
         String name;

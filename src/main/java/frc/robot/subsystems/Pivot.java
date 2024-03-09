@@ -43,7 +43,7 @@ public class Pivot extends SubsystemBase {
 
         GROUND(0.22),
         // Current max is .38, can change later
-        SUBWOOFER(Pivot.pivotDegreeToCANcoder(48)),
+        SUBWOOFER(Pivot.pivotDegreeToCANcoder(57)),
 
         FARWING(Pivot.pivotDegreeToCANcoder(23)),
 
@@ -53,7 +53,7 @@ public class Pivot extends SubsystemBase {
 
         INTAKE(Pivot.pivotDegreeToCANcoder(70)),
 
-        AMP(Pivot.pivotDegreeToCANcoder(90)); //90 for shooting vertically
+        AMP(Pivot.pivotDegreeToCANcoder(88)); //90 for shooting vertically
         //WING(position);
 
         private double pos;
@@ -203,7 +203,7 @@ public class Pivot extends SubsystemBase {
         currentLimitsConfigs.StatorCurrentLimit = Constants.pivotContinuousCurrentLimit;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
         currentLimitsConfigs.SupplyCurrentThreshold = Constants.pivotPeakCurrentLimit;
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.CurrentLimits = currentLimitsConfigs;
         motor.getConfigurator().apply(config);
         // leaderEncoder.setPosition(0.2);

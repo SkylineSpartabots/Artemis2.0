@@ -21,11 +21,12 @@ public class VisionAlign extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
     private final Vision s_Vision;
 
-    PIDController rotController = new PIDController(0.35, 0, 0);//need to tune
+    PIDController rotController = new PIDController(0.175, 0, 0);//need to tune
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
 
     private PhotonTrackedTarget target;
     private boolean hasSpeaker;
+    private double lastYaw;
 
     public VisionAlign() {
         s_Swerve = CommandSwerveDrivetrain.getInstance();
@@ -37,6 +38,7 @@ public class VisionAlign extends Command {
 
     @Override
     public void initialize() {
+        lastYaw = 0;
     }
     
     @Override
@@ -44,18 +46,18 @@ public class VisionAlign extends Command {
         hasSpeaker = false;
         List<PhotonTrackedTarget> targets = s_Vision.getTargets();
         for(PhotonTrackedTarget a : targets){
-            if(a.getFiducialId() == 4 || a.getFiducialId() == 7){
+            if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
                 hasSpeaker = true;
                 target = a;
             }
         }
         if(hasSpeaker){
-            double rotSpeed = rotController.calculate(target.getYaw(), 0);
+            lastYaw = target.getYaw();
+            double rotSpeed = rotController.calculate(lastYaw, 0);
             s_Swerve.setControl(drive.withRotationalRate(rotSpeed));
             // .withVelocityX(-RobotContainer.getInstance().getDriverController().getLeftY() * Constants.MaxSpeed)
             // .withVelocityY(-RobotContainer.getInstance().getDriverController().getLeftX() * Constants.MaxSpeed));
         }
-        
     }
 
     @Override
@@ -65,7 +67,6 @@ public class VisionAlign extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
-        // return !hasSpeaker;
+        return lastYaw < 3; // < arctan(0.5/4) (0.5 is half of width of speaker, 4 is average distance you want to shoot from)
     }
 }
