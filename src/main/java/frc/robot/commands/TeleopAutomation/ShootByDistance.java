@@ -39,7 +39,8 @@ public class ShootByDistance extends Command { //hit this whenever you get near 
     @Override
     public void initialize() {
         desiredAngle = frc.robot.Constants.ShootingLookupTable.PivotAngleMap.get(distance);
-        desiredVelocity = frc.robot.Constants.ShootingLookupTable.FlywheelVelocitiesMap.get(distance);
+        // desiredVelocity = frc.robot.Constants.ShootingLookupTable.FlywheelVelocitiesMap.get(distance);
+        desiredVelocity = 50;
 
         s_Shooter.setVelocity(desiredVelocity);
         pivotCommand = new SetPivot(desiredAngle);
@@ -52,12 +53,12 @@ public class ShootByDistance extends Command { //hit this whenever you get near 
 
     @Override
     public void end(boolean interrupted) {
-        Command indexerCommand = new IndexForShooting(2);
-        indexerCommand.schedule();
+        // Command indexerCommand = new IndexForShooting(2);
+        // indexerCommand.schedule();
     }
 
     @Override
     public boolean isFinished() {
-        return pivotCommand.isFinished() && s_Shooter.velocitiesWithinError(75) && s_Swerve.robotAbsoluteVelocity() < 1; //tunable: desired encoder velocity error, swerve velocity 
+        return pivotCommand.isFinished() && s_Shooter.velocitiesWithinError(75) && s_Swerve.robotAbsoluteVelocity() < 0.75; //tunable: desired encoder velocity error, swerve velocity 
     }
 }
