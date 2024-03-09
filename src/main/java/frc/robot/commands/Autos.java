@@ -667,7 +667,7 @@ public final class Autos {
         ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
         FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
         FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
-        TwoNoteSubwoofer("TwoNoteSuboofer", TwoNote()),
+        TwoNote("TwoNote", TwoNote()),
         Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
