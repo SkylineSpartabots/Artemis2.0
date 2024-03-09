@@ -163,7 +163,7 @@ public final class Autos {
                 new ParallelCommandGroup(new SetPivot(PivotState.GROUND), new SetShooterCommand(0)));
     }
 
-    public static Command ThreeNoteSubwoofer(){
+    public static Command ThreeNoteSubwooferMidTop(){
       ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourPieceSubwoofer");
         return new SequentialCommandGroup(
                 new InstantCommand(() -> {
@@ -495,6 +495,70 @@ public final class Autos {
         );
     }
 
+    private static Command ThreeNoteSubwooferMidBot() {
+      ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("ThreeNoteSubwooferMidBot");
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    Pose2d initialPose;
+                    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+                    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+                    s_Swerve.resetOdo(initialPose);
+                    System.out.println(initialPose.getX() + " " + initialPose.getY());
+                }),
+
+                new ParallelCommandGroup(
+                        new SetPivot(PivotState.SUBWOOFER),
+                        new SetShooterCommand(40), new WaitCommand(0.2)
+                ),
+
+                new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
+                // new SetIndexer(IndexerStates.ON, false), 
+                Commands.waitSeconds(0.3),
+
+                new ParallelCommandGroup(
+                        new SetShooterCommand(0),
+                        new SetIndexer(IndexerStates.ON, true),
+                        new SetIntake(IntakeStates.ON),
+                        new SetPivot(PivotState.INTAKE),
+                        new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(0)))
+                ),
+
+                Commands.waitSeconds(0.5),
+
+                new ParallelCommandGroup(
+                        new SetPivot(PivotState.SUBWOOFER),
+                        RobotContainer.getInstance().eject(),
+                        FollowChoreoTrajectory(trajectory.get(1))
+                ),
+
+                new SetShooterCommand(40),
+                new SetIndexer(IndexerStates.ON, false),
+                Commands.waitSeconds(0.5),
+
+                new ParallelCommandGroup(
+                        FollowChoreoTrajectory(trajectory.get(2)),
+                        new SetShooterCommand(0),
+                        new SetPivot(PivotState.INTAKE),
+                        new SetIndexer(IndexerStates.ON, true),
+                        new SetIntake(IntakeStates.ON)
+                ),
+
+                Commands.waitSeconds(0.3),
+
+                new ParallelCommandGroup(
+                        FollowChoreoTrajectory(trajectory.get(3)),
+                        RobotContainer.getInstance().eject(),
+                        new SetPivot(PivotState.SUBWOOFER)
+                ),
+
+                new ParallelCommandGroup(new SetShooterCommand(40), new SetPivot(PivotState.SUBWOOFER)),
+                new SetIndexer(IndexerStates.ON, false),
+                Commands.waitSeconds(0.5),
+
+                new SetIndexer(IndexerStates.OFF, false),
+                new ParallelCommandGroup(new SetPivot(PivotState.GROUND), new SetShooterCommand(0)));
+    }
+
     private static Command shootSequence() {
 
         return new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(30)),
@@ -711,14 +775,14 @@ public final class Autos {
         ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
         FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
         FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
-        TwoNote("TwoNote", TwoNote()),
         Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
         FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
-        FourNoteFromTop("FourNoteFromTop", FourNoteFromTop());
-        //TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
-        //ThreeNoteSubwoofer("ThreeNoteSubwoofer", ThreeNoteSubwoofer());
+        FourNoteFromTop("FourNoteFromTop", FourNoteFromTop()),
+        TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
+        ThreeNoteSubwooferMidTop("ThreeNoteSubwooferMidTop", ThreeNoteSubwooferMidTop()),
+        ThreeNoteSubwooferMidBot("ThreeNoteSubwooferMidBot", ThreeNoteSubwooferMidBot());
         //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
 
 
