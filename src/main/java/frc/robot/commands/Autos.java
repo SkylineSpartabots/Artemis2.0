@@ -436,7 +436,7 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
                         new SetPivot(PivotState.INTAKE),
-                        new SetShooterCommand(0)
+                        new SetShooterCommand(0),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON, 3.5)
                 ),
