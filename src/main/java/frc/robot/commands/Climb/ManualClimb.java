@@ -16,9 +16,9 @@ public class ManualClimb extends Command {
     @Override
     public void initialize() { 
         if(goingUp){
-            s_Climb.setClimbSpeed(-0.15);
+            s_Climb.setClimbSpeed(-0.3);
         } else{
-            s_Climb.setClimbSpeed(0.15);
+            s_Climb.setClimbSpeed(0.3);
         }
     }
 
