@@ -228,6 +228,50 @@ public final class Autos {
                 );
     }
 
+    public static Command TwoNoteSubwoofer() {
+      ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourPieceSubwoofer");
+      return new SequentialCommandGroup(
+              new InstantCommand(() -> {
+                  Pose2d initialPose;
+                  Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+                  initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+                  s_Swerve.resetOdo(initialPose);
+                  System.out.println(initialPose.getX() + " " + initialPose.getY());
+              }),
+
+              new ParallelCommandGroup(
+                      new SetPivot(PivotState.SUBWOOFER),
+                      new SetShooterCommand(40), new WaitCommand(0.2)
+              ),
+
+              new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
+              // new SetIndexer(IndexerStates.ON, false), 
+              Commands.waitSeconds(0.3),
+
+              new ParallelCommandGroup(
+                      new SetShooterCommand(0),
+                      new SetIndexer(IndexerStates.ON, true),
+                      new SetIntake(IntakeStates.ON),
+                      new SetPivot(PivotState.INTAKE),
+                      new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(0)))
+              ),
+
+              Commands.waitSeconds(0.5),
+
+              new ParallelCommandGroup(
+                      new SetPivot(PivotState.SUBWOOFER),
+                      RobotContainer.getInstance().eject(),
+                      FollowChoreoTrajectory(trajectory.get(1))
+              ),
+
+              new SetShooterCommand(40),
+              new SetIndexer(IndexerStates.ON, false),
+              Commands.waitSeconds(0.5),
+
+              new SetIndexer(IndexerStates.OFF, false),
+              new ParallelCommandGroup(new SetPivot(PivotState.GROUND), new SetShooterCommand(0)));
+  }
+
     public static Command FourNoteFromTop() {
       ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteMinTranslationTop");
       return new SequentialCommandGroup(
@@ -667,7 +711,7 @@ public final class Autos {
         ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
         FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
         FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
-        TwoNoteSubwoofer("TwoNoteSuboofer", TwoNote()),
+        TwoNote("TwoNote", TwoNote()),
         Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
