@@ -11,6 +11,7 @@ import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
@@ -405,10 +407,10 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
-                        RobotContainer.getInstance().eject(),
-
+                        // RobotContainer.getInstance().eject(),
                         new SetShooterCommand(40)
                 ),
+                
                 
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
                 Commands.waitSeconds(0.5),
@@ -416,19 +418,18 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
                         new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true),
+                        new SetIndexer(IndexerStates.ON, true, 4.25),
                         new SetIntake(IntakeStates.ON, 4),
                         new SetPivot(PivotState.INTAKE)
                 ),
 
                 Commands.waitSeconds(0.5),
+                RobotContainer.getInstance().eject(),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(1)),
-                        new SetPivot(35),
+                        new SetPivot(Constants.getAngleForDistance(3.9)),
                         new SetShooterCommand(40)
-
-
                 ),
 
 
@@ -439,11 +440,12 @@ public final class Autos {
                         FollowChoreoTrajectory(trajectory.get(2)),
                         new SetPivot(PivotState.INTAKE),
                         new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true),
+                        new SetIndexer(IndexerStates.ON, true, 3.75),
                         new SetIntake(IntakeStates.ON, 3.5)
                 ),
 
                 Commands.waitSeconds(0.5),
+                RobotContainer.getInstance().eject(),
 
                 new ParallelCommandGroup(
                   FollowChoreoTrajectory(trajectory.get(3)),

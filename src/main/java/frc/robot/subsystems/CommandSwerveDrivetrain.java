@@ -189,9 +189,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         for(int i = 0; i < ModuleCount; i++){
             Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
             Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
+            //Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
             SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
+            //SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
             SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
             SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
         }
@@ -199,19 +199,19 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     }
 
-    private double getOffset(int id) {
-    if (id == 1) {
-        return TunerConstants.kFrontLeftEncoderOffset;
-    }
-    else if (id == 2) {
-        return TunerConstants.kFrontRightEncoderOffset;
-    }
-    else if (id == 3) {
-        return TunerConstants.kBackLeftEncoderOffset;
-    }
-    else {
-        return TunerConstants.kBackRightEncoderOffset;
-    }
-}
+    // private double getOffset(int id) {
+    // if (id == 1) {
+    //     return TunerConstants.kFrontLeftEncoderOffset;
+    // }
+    // else if (id == 2) {
+    //     return TunerConstants.kFrontRightEncoderOffset;
+    // }
+    // else if (id == 3) {
+    //     return TunerConstants.kBackLeftEncoderOffset;
+    // }
+    // else {
+    //     return TunerConstants.kBackRightEncoderOffset;
+    // }
+//}
 
 }

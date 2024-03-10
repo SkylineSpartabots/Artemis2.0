@@ -36,6 +36,7 @@ import frc.robot.commands.ReverseIndexer;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.TeleopFactory;
+import frc.robot.commands.Pivot.PivotAlign;
 import frc.robot.commands.Pivot.SetPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
@@ -67,7 +68,7 @@ public class RobotContainer {
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
-    //private final Vision s_Vision = Vision.getInstance();
+    private final Vision s_Vision = Vision.getInstance();
     private final Climb s_Climb = Climb.getInstance();
     private final Amp s_Amp = Amp.getInstance();
     // private final Lightz s_lightz = Lightz.getInstance();
@@ -114,7 +115,7 @@ public class RobotContainer {
 
         driver.a().onTrue(offEverything()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
-        driver.b().whileTrue(eject()); //FINAL
+        driver.b().onTrue(eject()); //FINAL
         driver.y().whileTrue(new ManualIndexForShooting()); //FINAL
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
@@ -131,7 +132,7 @@ public class RobotContainer {
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new SetPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadLeft.onTrue(shootAmp()); //shoot into amp
+        driverDpadLeft.onTrue(new PivotAlign()); //shoot into amp
         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
         
@@ -151,9 +152,9 @@ public class RobotContainer {
         /*
          * Operator bindings
          */
-        operator.a().onTrue(offEverything());
+        operator.b().onTrue(offEverything());
         operator.x().onTrue(offIntake()); //FINAL
-        operator.b().whileTrue(eject()); //FINAL
+        operator.a().whileTrue(eject()); //FINAL
         operator.y().whileTrue(offIndexer());
 
         operator.rightTrigger().whileTrue(new ManualClimb(true));
@@ -205,7 +206,7 @@ public class RobotContainer {
     }
 
     public Command offEverything(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(0), offIndexer(), offIntake()), new SetPivot(PivotState.GROUND));
+        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(-5), offIndexer(), offIntake(), new SetPivot(PivotState.GROUND)), new SetShooterCommand(0));
     }
 
     public Command aligntoCordinate(Point point) {

@@ -81,7 +81,7 @@ public class Indexer extends SubsystemBase {
 
     public void setState(IndexerStates state){
         indexerLeaderM.set(state.speed);
-
+        indexerFollowerM.setControl(follow);
     }
 
     public int getColorSensorResult() {

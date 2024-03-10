@@ -34,8 +34,8 @@
                     "controlIntervalCount": 16
                 },
                 {
-                    "x": 7.711696624755859,
-                    "y": 0.7360103726387024,
+                    "x": 6.750589847564697,
+                    "y": 0.7528521418571472,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -43,17 +43,17 @@
                     "controlIntervalCount": 6
                 },
                 {
-                    "x": 8.279390335083008,
-                    "y": 0.7360103726387024,
+                    "x": 7.803094863891602,
+                    "y": 0.7723429799079895,
                     "heading": 0,
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 21
+                    "controlIntervalCount": 20
                 },
                 {
-                    "x": 3.884608745574951,
-                    "y": 1.5708775520324707,
+                    "x": 3.4956207275390625,
+                    "y": 2.00026535987854,
                     "heading": -0.7597619358276899,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -61,8 +61,8 @@
                     "controlIntervalCount": 8
                 },
                 {
-                    "x": 3.184335470199585,
-                    "y": 2.2971696853637695,
+                    "x": 2.813441514968872,
+                    "y": 2.701935291290283,
                     "heading": -0.8,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -76,11 +76,11 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 10
+                    "controlIntervalCount": 8
                 },
                 {
-                    "x": 7.7041544914245605,
-                    "y": 2.031507968902588,
+                    "x": 7.296333312988281,
+                    "y": 1.8053570985794067,
                     "heading": 0.574304896232326,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -88,13 +88,13 @@
                     "controlIntervalCount": 7
                 },
                 {
-                    "x": 8.279287338256836,
-                    "y": 2.418842315673828,
+                    "x": 7.939530372619629,
+                    "y": 2.273137092590332,
                     "heading": 0.58,
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 19
+                    "controlIntervalCount": 18
                 },
                 {
                     "x": 5.614895820617676,
@@ -1493,8 +1493,7 @@
                     "scope": [
                         3
                     ],
-                    "type": "StopPoint",
-                    "direction": 0
+                    "type": "StopPoint"
                 },
                 {
                     "scope": [
@@ -1506,8 +1505,7 @@
                     "scope": [
                         8
                     ],
-                    "type": "StopPoint",
-                    "direction": 0
+                    "type": "StopPoint"
                 },
                 {
                     "scope": [
