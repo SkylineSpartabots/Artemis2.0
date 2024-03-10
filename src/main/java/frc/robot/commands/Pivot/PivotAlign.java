@@ -15,7 +15,7 @@ public class PivotAlign extends Command {
     double desiredCANcoderAngle;
 
     // Tune later
-    PIDController CANController = new PIDController(50, 15, 0);
+    PIDController CANController = new PIDController(50, 15, 0); //TODO: make this into a constant
     // PIDController CANController = new PIDController(45, 10, 0); shit be too fast bro
 
     public PivotAlign(){
@@ -48,7 +48,7 @@ public class PivotAlign extends Command {
 
     @Override
 	public boolean isFinished() {
-		return Math.abs(desiredCANcoderAngle - s_Pivot.getCANcoderAbsolutePosition()) < 0.0005 || s_Pivot.getMotorCurrent() > 18;
+		return Math.abs(desiredCANcoderAngle - s_Pivot.getCANcoderAbsolutePosition()) < 0.001;
 	}
 		
 	@Override

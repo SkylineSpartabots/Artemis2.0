@@ -123,9 +123,8 @@ public class RobotContainer {
         
 
         driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
-        //driver.leftTrigger().onTrue(onTheFlyShooting()); //automatic shooting, includes alignment
+        driver.leftTrigger().onTrue(onTheFlyShooting()); //automatic shooting, includes alignment
         // driver.leftTrigger().onTrue(new VisionAlign());
-
 
         driver.rightBumper().onTrue(new SetShooterCommand(0));
         driver.leftBumper().onTrue(new SetShooterCommand(50));
@@ -152,10 +151,13 @@ public class RobotContainer {
         /*
          * Operator bindings
          */
-        operator.b().onTrue(offEverything());
+        // operator.b().onTrue(offEverything());
+        operator.a().onTrue(new InstantCommand(() -> s_Pivot.setVoltage(0)));
         operator.x().onTrue(offIntake()); //FINAL
-        operator.a().whileTrue(eject()); //FINAL
+        operator.b().onTrue(eject()); //FINAL
         operator.y().whileTrue(offIndexer());
+
+        operator.povLeft().onTrue(new ZeroPivot());
 
         operator.rightTrigger().whileTrue(new ManualClimb(true));
         operator.leftTrigger().whileTrue(new ManualClimb(false));
@@ -256,8 +258,8 @@ public class RobotContainer {
         return new SequentialCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP, true));
     }
 
-    // public Command onTheFlyShooting(){
-    //     return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(35), new VisionAlign()), new ShootByDistance(s_Vision.getFloorDistance()), new WaitCommand(0.4), indexToShooter());
-    // }
+    public Command onTheFlyShooting(){
+        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(50), new VisionAlign()), new PivotAlign(), indexToShooter());
+    }
 
 }

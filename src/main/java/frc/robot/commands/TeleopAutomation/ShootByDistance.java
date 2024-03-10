@@ -59,6 +59,6 @@ public class ShootByDistance extends Command { //hit this whenever you get near 
 
     @Override
     public boolean isFinished() {
-        return pivotCommand.isFinished() && s_Shooter.velocitiesWithinError(75) && s_Swerve.robotAbsoluteVelocity() < 0.75; //tunable: desired encoder velocity error, swerve velocity 
+        return pivotCommand.isFinished() && s_Shooter.velocitiesWithinError(5); //&& s_Swerve.robotAbsoluteVelocity() < 0.75; //tunable: desired encoder velocity error, swerve velocity 
     }
 }

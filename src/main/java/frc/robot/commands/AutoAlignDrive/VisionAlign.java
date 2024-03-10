@@ -21,16 +21,14 @@ public class VisionAlign extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
     private final Vision s_Vision;
 
-    PIDController rotController = new PIDController(0.175, 0, 0);//need to tune
+    PIDController rotController = new PIDController(0.2, 0, 0);//need to tune
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
 
     private PhotonTrackedTarget target;
     private boolean hasSpeaker;
     private double lastYaw;
 
-    public 
-    
-    VisionAlign() {
+    public VisionAlign() {
         s_Swerve = CommandSwerveDrivetrain.getInstance();
         s_Vision = Vision.getInstance();
 
