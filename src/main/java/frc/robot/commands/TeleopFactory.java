@@ -24,8 +24,12 @@ public class TeleopFactory {
         return new SequentialCommandGroup(new ZeroPivot(), new SetPivot(PivotState.SUBWOOFER), new SetPivot(PivotState.GROUND), new SetShooterCommand(35), Commands.waitSeconds(1.0), new SetShooterCommand(0), new SetIntake(IntakeStates.ON, 1), new SetIndexer(IndexerStates.ON, false), Commands.waitSeconds(1.0), new SetIndexer(IndexerStates.OFF, false));
     }
 
-    public static Command ShootSequence() {
-        return new SequentialCommandGroup(null);
+    public static Command SubwooferShootSequence() {
+        return new SequentialCommandGroup(new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(40)), new SetIndexer(IndexerStates.ON, false), offEverything());
+    }
+
+    public static Command offEverything(){
+        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(-5), new SetIntake(IntakeStates.OFF), new SetIntake(IntakeStates.OFF), new SetPivot(PivotState.GROUND)), new SetShooterCommand(0));
     }
 
 }
