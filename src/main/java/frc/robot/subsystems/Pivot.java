@@ -95,6 +95,8 @@ public class Pivot extends SubsystemBase {
 
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
         configCANcoder();
+                pivotCANcoder.setPosition(0.2);
+
 
     } 
 
@@ -206,7 +208,6 @@ public class Pivot extends SubsystemBase {
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.CurrentLimits = currentLimitsConfigs;
         motor.getConfigurator().apply(config);
-        pivotCANcoder.setPosition(0.2);
     }
 
     /**

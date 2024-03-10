@@ -7,6 +7,9 @@ package frc.robot;
 
 // import frc.robot.commands.SetLightz;
 import frc.robot.subsystems.*;
+
+import java.time.Instant;
+
 import org.opencv.core.Point;
 
 import com.ctre.phoenix6.Utils;
@@ -57,14 +60,14 @@ public class RobotContainer {
     }
 
     //robot testing states
-    private boolean shooterSysIDTuned = false;
+    private boolean shooterSysIDTuned = true;
 
     //private final Vision s_Vision = Vision.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
-    private final Vision s_Vision = Vision.getInstance();
+    //private final Vision s_Vision = Vision.getInstance();
     private final Climb s_Climb = Climb.getInstance();
     private final Amp s_Amp = Amp.getInstance();
     // private final Lightz s_lightz = Lightz.getInstance();
@@ -119,7 +122,7 @@ public class RobotContainer {
         
 
         driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
-        driver.leftTrigger().onTrue(onTheFlyShooting()); //automatic shooting, includes alignment
+        //driver.leftTrigger().onTrue(onTheFlyShooting()); //automatic shooting, includes alignment
         // driver.leftTrigger().onTrue(new VisionAlign());
 
 
@@ -136,10 +139,10 @@ public class RobotContainer {
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(Math.copySign(Math.pow(driver.getLeftY(), 2),-driver.getLeftY()) * Constants.MaxSpeed) // Drive forward with
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
                         // negative Y (forward)
-                        .withVelocityY(Math.copySign(Math.pow(driver.getLeftX(), 2), -driver.getLeftX()) * Constants.MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(Math.copySign(Math.pow(driver.getRightX(), 2), -driver.getRightX()) * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
                 ));
 
         // reset the field-centric heading. AKA reset odometry
@@ -202,7 +205,7 @@ public class RobotContainer {
     }
 
     public Command offEverything(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(setShooterVelocity(0), offIndexer(), offIntake()), new SetPivot(PivotState.GROUND));
+        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(0), offIndexer(), offIntake()), new SetPivot(PivotState.GROUND));
     }
 
     public Command aligntoCordinate(Point point) {
@@ -230,15 +233,17 @@ public class RobotContainer {
 
     public Command shootSubwoofer(){
         if(shooterSysIDTuned){
-            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(33));
+            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(45));
         } else {
             return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new InstantCommand(() -> s_Shooter.setVoltage(8)));
         }
     }
 
     public Command eject(){
-        return new SequentialCommandGroup(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)), new WaitCommand(0.05),
-        new InstantCommand(() -> s_Indexer.setState(IndexerStates.OFF)));
+
+        return new SequentialCommandGroup(new ParallelCommandGroup(new InstantCommand(() -> s_Indexer.setState(IndexerStates.REV)), new InstantCommand(() -> s_Intake.setSpeed(IntakeStates.REV))), 
+        new WaitCommand(0.065),
+        new ParallelCommandGroup(new InstantCommand(() -> s_Indexer.setState(IndexerStates.OFF)), new InstantCommand(() -> s_Intake.setSpeed(IntakeStates.OFF))));
         // return new SequentialCommandGroup(new SetPivot(PivotState.GROUND), new WaitCommand(0.3), new ReverseIndexer());
     }
     
@@ -250,8 +255,8 @@ public class RobotContainer {
         return new SequentialCommandGroup(new ShootIntoAmp(), new SetPivot(PivotState.AMP, true));
     }
 
-    public Command onTheFlyShooting(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(35), new VisionAlign()), new ShootByDistance(s_Vision.getFloorDistance()), new WaitCommand(0.4), indexToShooter());
-    }
+    // public Command onTheFlyShooting(){
+    //     return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(35), new VisionAlign()), new ShootByDistance(s_Vision.getFloorDistance()), new WaitCommand(0.4), indexToShooter());
+    // }
 
 }

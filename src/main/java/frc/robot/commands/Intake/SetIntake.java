@@ -64,6 +64,6 @@ public class SetIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        return intaking ?  (s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold || timer.hasElapsed(2)) : true;
+        return intaking ?  (s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold || timer.hasElapsed(1.7)) : true;
     }
 }

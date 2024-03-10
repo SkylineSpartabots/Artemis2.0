@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.SetPivot;
+import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
@@ -48,7 +49,7 @@ public final class Autos {
     private static final PIDController yController = new PIDController(5, 1, 0);
 
     public static Command getAutoCommand(AutoPath autoPath) {
-        return autoPath.autoCommand;
+        return new SequentialCommandGroup(new ZeroPivot(), autoPath.autoCommand);
     }
 
     public static Command FollowChoreoTrajectory(ChoreoTrajectory path) {
@@ -111,11 +112,11 @@ public final class Autos {
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
-                        new SetPivot(PivotState.SUBWOOFER),
+                        // new SetPivot(PivotState.SUBWOOFER), after pivot stops moving it drops a bit
                         RobotContainer.getInstance().eject(),
                         FollowChoreoTrajectory(trajectory.get(1))
                 ),
-
+                new SetPivot(PivotState.SUBWOOFER),
                 new SetShooterCommand(40),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
@@ -132,10 +133,11 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(3)),
-                        RobotContainer.getInstance().eject(),
-                        new SetPivot(PivotState.SUBWOOFER)
+                        RobotContainer.getInstance().eject()
+                        // new SetPivot(PivotState.SUBWOOFER)
                 ),
 
+                new SetPivot(PivotState.SUBWOOFER),
                 new ParallelCommandGroup(new SetShooterCommand(40), new SetPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.5),
