@@ -49,6 +49,7 @@ import frc.robot.commands.AutoAlignDrive.VisionAlign;
 import frc.robot.commands.Climb.ManualClimb;
 import frc.robot.commands.Intake.SetIntake;
 
+
 public class RobotContainer {
 
     private static RobotContainer container;
@@ -113,7 +114,7 @@ public class RobotContainer {
          * Mechanism bindings
          */
 
-        driver.a().onTrue(offEverything()); //FINAL
+        driver.a().onTrue(TeleopFactory.offEverything()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(eject()); //FINAL
         driver.y().whileTrue(new ManualIndexForShooting()); //FINAL
@@ -126,7 +127,8 @@ public class RobotContainer {
         driver.leftTrigger().onTrue(onTheFlyShooting()); //automatic shooting, includes alignment
         // driver.leftTrigger().onTrue(new VisionAlign());
 
-        driver.rightBumper().onTrue(new SetShooterCommand(0));
+        //driver.rightBumper().onTrue(new SetShooterCommand(0));
+        driver.rightBumper().onTrue(TeleopFactory.SubwooferShootSequence());
         driver.leftBumper().onTrue(new SetShooterCommand(50));
 
         driverDpadDown.onTrue(new SetPivot(PivotState.GROUND)); //FINAL
@@ -205,10 +207,6 @@ public class RobotContainer {
 
     public Command setShooterVelocity(double velocity){
         return new InstantCommand(() -> s_Shooter.setVelocity(velocity));
-    }
-
-    public Command offEverything(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(-5), offIndexer(), offIntake(), new SetPivot(PivotState.GROUND)), new SetShooterCommand(0));
     }
 
     public Command aligntoCordinate(Point point) {
