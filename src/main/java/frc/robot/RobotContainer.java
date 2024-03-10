@@ -259,7 +259,12 @@ public class RobotContainer {
     }
 
     public Command onTheFlyShooting(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(50), new VisionAlign()), new PivotAlign(), indexToShooter());
+        if(s_Vision.hasSpeakerTag()){
+            return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(50), new VisionAlign()), new PivotAlign(), indexToShooter());
+            // return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(50), new VisionAlign()), new PivotAlign(), indexToShooter());
+        } else {
+            return new InstantCommand();
+        }
     }
 
 }

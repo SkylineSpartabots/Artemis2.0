@@ -177,6 +177,16 @@ public class Vision extends SubsystemBase {
 
     }
 
+    public boolean hasSpeakerTag(){
+        List<PhotonTrackedTarget> targets = centerCamera.getLatestResult().getTargets();
+        for(PhotonTrackedTarget a : targets){
+            if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public double getDistanceToPose(Pose2d pose){
         return PhotonUtils.getDistanceToPose(s_Swerve.getPose(), pose);
     }

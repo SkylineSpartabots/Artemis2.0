@@ -25,7 +25,7 @@ public class TeleopFactory {
     }
 
     public static Command ShootSequence() {
-        return new SequentialCommandGroup(null)
+        return new SequentialCommandGroup(null);
     }
 
 }

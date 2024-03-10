@@ -1,43 +1,31 @@
-
 package frc.robot.commands.AutoAlignDrive;
 
 import java.util.List;
-import edu.wpi.first.wpilibj.Timer;
-
-import javax.print.DocFlavor.INPUT_STREAM;
 
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Vision;
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Indexer.IndexerStates;
-import frc.robot.subsystems.Vision.CameraResult;
+import frc.robot.subsystems.Vision;
 
-public class VisionAlign extends Command {
+public class PureAlignment extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
     private final Vision s_Vision;
 
-    PIDController rotController = new PIDController(0.2, 0, 0);//need to tune
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
 
     private PhotonTrackedTarget target;
     private boolean hasSpeaker;
     private double lastYaw;
-
     private Timer time;
 
-    public VisionAlign() {
+    public PureAlignment() {
         s_Swerve = CommandSwerveDrivetrain.getInstance();
         s_Vision = Vision.getInstance();
-        time = new Timer();
 
         addRequirements(s_Swerve, s_Vision);
     }
@@ -61,10 +49,7 @@ public class VisionAlign extends Command {
         }
         if(hasSpeaker){
             lastYaw = target.getYaw();
-            double rotSpeed = rotController.calculate(lastYaw, 0);
-            s_Swerve.setControl(drive.withRotationalRate(rotSpeed));
-            // .withVelocityX(-RobotContainer.getInstance().getDriverController().getLeftY() * Constants.MaxSpeed)
-            // .withVelocityY(-RobotContainer.getInstance().getDriverController().getLeftX() * Constants.MaxSpeed));
+            s_Swerve.setControl(drive.withRotationalRate(Math.copySign(0.2, -lastYaw))); //0.2 is a constant, rad/s
         }
     }
 
@@ -75,6 +60,6 @@ public class VisionAlign extends Command {
 
     @Override
     public boolean isFinished() {
-        return (hasSpeaker && lastYaw < 3) || time.get() > 1.5; // < arctan(0.5/4) (0.5 is half of width of speaker, 4 is average distance you want to shoot from)
+        return (hasSpeaker && lastYaw < 3) || time.get() < 1; // < arctan(0.5/4) (0.5 is half of width of speaker, 4 is average distance you want to shoot from)
     }
 }
