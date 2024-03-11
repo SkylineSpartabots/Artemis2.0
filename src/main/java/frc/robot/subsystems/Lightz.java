@@ -75,7 +75,8 @@
      @Override
      public void periodic() {
          if (arduino != null){
-             if (timer.get() >= 10) {
+             if (timer.get() >= 0.5) {
+                 // Two things to try 1: write as string, read as char or string (prolly string) or 2: write as byte[] with (byte)selected conversion and put hexadecimal in arduino code like vid
 
 //                 arduino.writeString(String.valueOf(selected));
                  arduino.write(new byte[]{(byte)selected}, 1); // write byte array containing byte converted selected
@@ -83,7 +84,6 @@
                  timer.reset();
                  System.out.println("Wrote to Arduino");
              }
-             // Two things to try 1: write as string, read as char or string (prolly string) or 2: write as byte[] with (byte)selected conversion and put hexadecimal in arduino code like vid
              if (arduino.getBytesReceived() > 0) {
                  System.out.println(arduino.readString());
              }
