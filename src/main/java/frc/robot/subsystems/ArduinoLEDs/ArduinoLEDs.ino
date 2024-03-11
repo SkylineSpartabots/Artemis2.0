@@ -22,7 +22,7 @@ int valAnt; // Value/Brightness input into an ant method call
 int antDelay; // Delay input into an ant method call
 boolean antEnabled = false;
 
-
+      // MAKE ALL THESE TRIPPLE VARIABLES INTO TUPLES
 // --Flash Variables--
 int hueFlash; // Hue input into a flash method call
 int satFlash; // Saturation input into a flash method call
@@ -30,6 +30,10 @@ int valFlash; // Value/Brightness input into a flash method call
 
 int flashOnDelay; // On delay input into a flash method call
 int flashOffDelay; // Off delay input into a flash method call
+
+int flashCountLimit; // Number of times to flash on/off
+int currentFlashCount = 1; // Current amount flashed. Incremented each time flashSolid is called
+
 boolean flashEnabled = false;
 
 
@@ -38,7 +42,7 @@ byte inData = 0;
 int selected;
 
 
-// --Color Tuples--
+// --Color Tuples HSV--
 int  OFF[] = {0, 0, 0};
 int  RED[] = {0, 255, 255};
 int  ORANGE[] = {15, 255, 255};
@@ -125,7 +129,7 @@ void loop() {
         setSolid(192, 255, 255);
         break;
       case '7'://PINK
-        flashSolid(224, 255, 255, 200, 200);
+        flashSolid(224, 255, 255, 200, 200, 2);
         // setSolid(224, 255, 255);
         break;
       case '8'://WHITE
@@ -139,7 +143,9 @@ void loop() {
   }
 
   if (antEnabled){runAnt(hueAnt, satAnt, valAnt, primarySize, secondarySize, antDelay);}
-  else if (flashEnabled) {flashSolid(hueFlash, satFlash, valFlash, flashOnDelay, flashOffDelay);}
+  else if (flashEnabled && currentFlashCount <= flashCountLimit) {
+    flashSolid(hueFlash, satFlash, valFlash, flashOnDelay, flashOffDelay, flashCountLimit);
+    }
   
   delay(0);
 }
@@ -179,13 +185,14 @@ void setSolid(int color[]){
   }
   FastLED.show();
 }
-void flashSolid(int color[], int onMS, int offMS){
+void flashSolid(int color[], int onMS, int offMS, int counts){
   // Set the variables so they can be used every loop cycle
   hueFlash = color[0];
   satFlash = color[1];
   valFlash = color[2];
   flashOnDelay = onMS;
   flashOffDelay = offMS;
+  flashCountLimit = counts;
   antEnabled = false;
   flashEnabled = true;
 
@@ -200,8 +207,11 @@ void flashSolid(int color[], int onMS, int offMS){
   }
   FastLED.show();
   delay(offMS);
+  currentFlashCount++;
 
 }
+
+
 // --Overloading--
 void runAnt(int H, int S, int V, int g, int b, int delayMS){
   // Set the variables so they can be used every loop cycle
@@ -237,13 +247,14 @@ void setSolid(int H, int S, int V){
   }
   FastLED.show();
 }
-void flashSolid(int H, int S, int V, int onMS, int offMS){
+void flashSolid(int H, int S, int V, int onMS, int offMS, int counts){
   // Set the variables so they can be used every loop cycle
   hueFlash = H;
   satFlash = S;
   valFlash = V;
   flashOnDelay = onMS;
   flashOffDelay = offMS;
+  flashCountLimit = counts;
   antEnabled = false;
   flashEnabled = true;
 
@@ -260,6 +271,8 @@ void flashSolid(int H, int S, int V, int onMS, int offMS){
   delay(offMS);
 
 }
+
+
 // --Extra Modes--
 void cautionAnt(int g, int b, int delayMS){
   
