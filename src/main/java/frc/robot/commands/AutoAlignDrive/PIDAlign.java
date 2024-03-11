@@ -4,7 +4,6 @@
 
 package frc.robot.commands.AutoAlignDrive;
 
-import java.beans.Visibility;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;

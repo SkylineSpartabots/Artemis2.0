@@ -25,24 +25,18 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
-import frc.robot.subsystems.Shooter;
 
 public final class Autos {
     private static CommandSwerveDrivetrain s_Swerve = CommandSwerveDrivetrain.getInstance();
-    private static Shooter s_Shooter = Shooter.getInstance();
-    private static Intake s_Intake = Intake.getInstance();
-    private static Indexer s_Indexer = Indexer.getInstance();
 
 
     private static final PIDController thetaController = new PIDController(3, 1.4, 0); //tune?
@@ -481,12 +475,12 @@ public final class Autos {
                     System.out.println(initialPose.getX() + " " + initialPose.getY());
                 }),
                 new ParallelCommandGroup(new AlignPivot(PivotState.SUBWOOFER),
-                        new InstantCommand(() -> s_Shooter.setVelocity(30))),
+                        new SetShooterCommand(40)),
                 Commands.waitSeconds(0.8),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.8),
 
-                new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false)),
+                new ParallelCommandGroup(new SetShooterCommand(40), new SetIndexer(IndexerStates.OFF, false)),
 
                 //new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(0)), new SetIntake(IntakeStates.ON), new SetIndexer(IndexerStates.ON, true)),
                 new ParallelCommandGroup(FollowChoreoTrajectory(trajectory.get(0)), new SetIndexer(IndexerStates.ON, false)),
@@ -563,17 +557,6 @@ public final class Autos {
                 new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new SetShooterCommand(0)));
     }
 
-    private static Command shootSequence() {
-
-        return new SequentialCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(30)),
-                Commands.waitSeconds(0.8),
-                new SetIndexer(IndexerStates.ON, false),
-                Commands.waitSeconds(0.8),
-                new ParallelCommandGroup(new InstantCommand(() -> s_Shooter.setVelocity(0)), new SetIndexer(IndexerStates.OFF, false))
-        );
-
-    }
-
     public static Command Horizontal() {
         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal Test");
 
@@ -624,9 +607,9 @@ public final class Autos {
     }
 
     //FIXME: IF THE AUTO MOVEMENTS ARE ONE MOVEMENT EARLY, THEN JUST INCREASE TRAJECTORY #s BY ONE OR CHANGE IN CHOREO
-    public static Command FourNoteStraightBot() {
-        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteMinTranslationBot");
-        return new SequentialCommandGroup(
+    //public static Command FourNoteStraightBot() {
+        // ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteMinTranslationBot");
+        // return new SequentialCommandGroup(
                 // new InstantCommand(() -> {
                 //     Pose2d initialPose;
                 //     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
@@ -692,8 +675,8 @@ public final class Autos {
 
                 
                 // )
-        );
-    }
+//         );
+      //}
 
     /*public static Command FourNoteFarSide() {
       ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteFarSide");
@@ -782,7 +765,7 @@ public final class Autos {
         Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
-        FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
+        //FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
         FourNoteFromTop("FourNoteFromTop", FourNoteFromTop()),
         TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
         ThreeNoteSubwooferMidTop("ThreeNoteSubwooferMidTop", ThreeNoteSubwooferMidTop()),
