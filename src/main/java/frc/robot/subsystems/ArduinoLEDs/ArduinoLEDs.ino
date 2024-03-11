@@ -15,18 +15,14 @@ int k = 0; // Turns every nth LED off -- global; is flipped/reset when increment
 int primarySize; // Size of colored (primary) section
 int secondarySize; // Size of black (secondary) sections - eats into g size; set b = 0 to have g = g; otherwise g will appear as g - b; adjust g accordingly (desired g of 7 and b of 2 means g should be 9)
 
-int hueAnt; // Hue input into an ant method call
-int satAnt; // Saturation input into an ant method call
-int valAnt; // Value/Brightness input into an ant method call
+int antHSV[] = {0, 0, 0}; // Hue, Saturation, Value/Brightness input into an ant method call. Default {0, 0, 0}
 
 int antDelay; // Delay input into an ant method call
 boolean antEnabled = false;
 
-      // MAKE ALL THESE TRIPPLE VARIABLES INTO TUPLES
+
 // --Flash Variables--
-int hueFlash; // Hue input into a flash method call
-int satFlash; // Saturation input into a flash method call
-int valFlash; // Value/Brightness input into a flash method call
+int flashHSV[] = {0, 0, 0}; // Hue, Saturation, Value/Brightness input into a flash method call. Default {0, 0, 0}
 
 int flashOnDelay; // On delay input into a flash method call
 int flashOffDelay; // Off delay input into a flash method call
@@ -142,20 +138,20 @@ void loop() {
   digitalWrite(13, 0); // Debug
   }
 
-  if (antEnabled){runAnt(hueAnt, satAnt, valAnt, primarySize, secondarySize, antDelay);}
+  if (antEnabled){runAnt(antHSV[0], antHSV[1], antHSV[2], primarySize, secondarySize, antDelay);}
   else if (flashEnabled && currentFlashCount <= flashCountLimit) {
-    flashSolid(hueFlash, satFlash, valFlash, flashOnDelay, flashOffDelay, flashCountLimit);
+    flashSolid(flashHSV[0], flashHSV[1], flashHSV[2], flashOnDelay, flashOffDelay, flashCountLimit);
     }
   
   delay(0);
 }
 
-// --Color Mode Methods--
+// --Color Mode Methods Tuple--
 void runAnt(int color[], int g, int b, int delayMS){// Add differing color functionality
   // Set the variables so they can be used every loop cycle
-  hueAnt = color[0];
-  satAnt = color[1];
-  valAnt = color[2];
+  antHSV[0] = color[0];
+  antHSV[1] = color[1];
+  antHSV[2] = color[2];
   primarySize = g;
   secondarySize = b;
   antDelay = delayMS;
@@ -187,9 +183,9 @@ void setSolid(int color[]){
 }
 void flashSolid(int color[], int onMS, int offMS, int counts){
   // Set the variables so they can be used every loop cycle
-  hueFlash = color[0];
-  satFlash = color[1];
-  valFlash = color[2];
+  flashHSV[0] = color[0];
+  flashHSV[1] = color[1];
+  flashHSV[2] = color[2];
   flashOnDelay = onMS;
   flashOffDelay = offMS;
   flashCountLimit = counts;
@@ -212,12 +208,12 @@ void flashSolid(int color[], int onMS, int offMS, int counts){
 }
 
 
-// --Overloading--
+// --Color Mode Methods Integers--
 void runAnt(int H, int S, int V, int g, int b, int delayMS){
   // Set the variables so they can be used every loop cycle
-  hueAnt = H;
-  satAnt = S;
-  valAnt = V;
+  antHSV[0] = H;
+  antHSV[1] = S;
+  antHSV[2] = V;
   primarySize = g;
   secondarySize = b;
   antDelay = delayMS;
@@ -249,9 +245,9 @@ void setSolid(int H, int S, int V){
 }
 void flashSolid(int H, int S, int V, int onMS, int offMS, int counts){
   // Set the variables so they can be used every loop cycle
-  hueFlash = H;
-  satFlash = S;
-  valFlash = V;
+  flashHSV[0] = H;
+  flashHSV[1] = S;
+  flashHSV[2] = V;
   flashOnDelay = onMS;
   flashOffDelay = offMS;
   flashCountLimit = counts;
