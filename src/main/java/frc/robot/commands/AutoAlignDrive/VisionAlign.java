@@ -3,6 +3,7 @@ package frc.robot.commands.AutoAlignDrive;
 
 import java.util.List;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import javax.print.DocFlavor.INPUT_STREAM;
 
@@ -25,7 +26,7 @@ public class VisionAlign extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
     private final Vision s_Vision;
 
-    PIDController rotController = new PIDController(0.2, 0, 0);//need to tune
+    PIDController rotController = new PIDController(0.1, 0, 0);//need to tune
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
 
     private PhotonTrackedTarget target;
@@ -51,6 +52,7 @@ public class VisionAlign extends Command {
     
     @Override
     public void execute(){
+        SmartDashboard.putBoolean("Align Running", true);
         hasSpeaker = false;
         List<PhotonTrackedTarget> targets = s_Vision.getTargets();
         for(PhotonTrackedTarget a : targets){
@@ -70,6 +72,8 @@ public class VisionAlign extends Command {
 
     @Override
     public void end(boolean interrupted) { 
+                SmartDashboard.putBoolean("Align Running", false);
+
         s_Swerve.setControl(drive.withRotationalRate(0));
     }
 

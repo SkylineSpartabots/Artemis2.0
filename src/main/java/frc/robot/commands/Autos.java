@@ -405,6 +405,8 @@ public final class Autos {
                     System.out.println(initialPose.getX() + " " + initialPose.getY());
                 }),
 
+                new WaitCommand(1.0),
+
                 new ParallelCommandGroup(
                         new SetPivot(PivotState.SUBWOOFER),
                         // RobotContainer.getInstance().eject(),

@@ -8,9 +8,12 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
+import frc.robot.RobotContainer;
 
 public class PureAlignment extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
@@ -26,6 +29,7 @@ public class PureAlignment extends Command {
     public PureAlignment() {
         s_Swerve = CommandSwerveDrivetrain.getInstance();
         s_Vision = Vision.getInstance();
+        time = new Timer();
 
         addRequirements(s_Swerve, s_Vision);
     }
@@ -39,6 +43,7 @@ public class PureAlignment extends Command {
     
     @Override
     public void execute(){
+        SmartDashboard.putBoolean("PureAlign", true);
         hasSpeaker = false;
         List<PhotonTrackedTarget> targets = s_Vision.getTargets();
         for(PhotonTrackedTarget a : targets){
@@ -49,17 +54,18 @@ public class PureAlignment extends Command {
         }
         if(hasSpeaker){
             lastYaw = target.getYaw();
-            s_Swerve.setControl(drive.withRotationalRate(Math.copySign(0.2, -lastYaw))); //0.2 is a constant, rad/s
+            s_Swerve.setControl(drive.withRotationalRate(Math.copySign(1.12, -lastYaw))); //0.2 is a constant, rad/s
         }
     }
 
     @Override
     public void end(boolean interrupted) { 
+        SmartDashboard.putBoolean("PureAlign", false);
         s_Swerve.setControl(drive.withRotationalRate(0));
     }
 
     @Override
     public boolean isFinished() {
-        return (hasSpeaker && lastYaw < 3) || time.get() < 1; // < arctan(0.5/4) (0.5 is half of width of speaker, 4 is average distance you want to shoot from)
+        return Math.abs(lastYaw) < 3 || time.get() > 1 || RobotContainer.getInstance().driver.getLeftX() > 0.2 || RobotContainer.getInstance().driver.getLeftY() > 0.2 || RobotContainer.getInstance().driver.getRightX() > 0.2; // < arctan(0.5/4) (0.5 is half of width of speaker, 4 is average distance you want to shoot from)
     }
 }

@@ -198,7 +198,9 @@ public final class Constants {
             {3.067, 32.285},
 
             {3.34, 30.79}, //actual distance: 3.4544
-            {3.625,31.4},
+            // {3.625,31.4},
+            {3.76, 29.0},
+            // {4.01, 27.1},
             {4.423, 25.19}, //actual distance: 4.3942
             {5.07, 25.08}, //actual distance: 4.99
             {5.73, 24.24}, //actual distance: 5.6388

@@ -29,7 +29,7 @@ public class TeleopFactory {
     }
 
     public static Command offEverything(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(-5), new SetIntake(IntakeStates.OFF), new SetIntake(IntakeStates.OFF), new SetPivot(PivotState.GROUND)), new SetShooterCommand(0));
+        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(-5), new SetIntake(IntakeStates.OFF), Commands.waitSeconds(0.5), new SetIndexer(IndexerStates.OFF, false), new SetPivot(PivotState.GROUND)), new SetShooterCommand(0));
     }
 
 }

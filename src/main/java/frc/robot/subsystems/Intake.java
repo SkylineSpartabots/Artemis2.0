@@ -79,7 +79,7 @@ public class Intake extends SubsystemBase {
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
         currentLimitsConfigs.SupplyCurrentThreshold = Constants.intakePeakCurrentLimit;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        config.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.7;
+        config.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.5;
         // config.OpenLoopRamps.
 
         Slot0Configs slot0Configs = new Slot0Configs();
@@ -101,7 +101,7 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeStates {
-        ON(0.3, 0.8),
+        ON(0.3, 0.75),
         INDEX(0.5, 0.5),
         OFF(0, 0),
         REV(-0.4, -0.8);
