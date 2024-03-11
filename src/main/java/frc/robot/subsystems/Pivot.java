@@ -31,21 +31,18 @@ public class Pivot extends SubsystemBase {
     }
 
     public enum PivotState {
-        NULL(0.3),
-
-        GROUND(0.22),
+        // positions are now in degrees, conversion is in AlignPivot()
+        GROUND(16),
         // Current max is .38, can change later
-        SUBWOOFER(Pivot.pivotDegreeToCANcoder(56)),
+        SUBWOOFER(56),
 
-        FARWING(Pivot.pivotDegreeToCANcoder(23)),
+        FARWING(23),
 
-        MIDDLE(0.3),
+        AMP_BEFORE_SWING(60),
 
-        AMP_BEFORE_SWING(Pivot.pivotDegreeToCANcoder(60)),
+        INTAKE(70),
 
-        INTAKE(Pivot.pivotDegreeToCANcoder(70)),
-
-        AMP(Pivot.pivotDegreeToCANcoder(88)); //90 for shooting vertically
+        AMP(88); //90 for shooting vertically
         //WING(position);
 
         private double pos;
