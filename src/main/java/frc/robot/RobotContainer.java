@@ -104,7 +104,7 @@ public class RobotContainer {
         driver.a().onTrue(CommandFactory.offEverything()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(CommandFactory.eject()); //FINAL
-        driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING, false)); //FINAL
+        driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
@@ -146,7 +146,7 @@ public class RobotContainer {
         operator.a().onTrue(new InstantCommand(() -> s_Pivot.setVoltage(0)));
         operator.x().onTrue(new SetIntake(IntakeStates.OFF)); //FINAL
         operator.b().onTrue(CommandFactory.eject()); //FINAL
-        operator.y().whileTrue(new SetIndexer(IndexerStates.OFF, false));
+        operator.y().whileTrue(new SetIndexer(IndexerStates.OFF));
 
         operator.povLeft().onTrue(new ZeroPivot());
 
@@ -169,13 +169,4 @@ public class RobotContainer {
 
         configureBindings();
     }
-
-    // public Command setLEDs(){
-    //     return new SetLightz(Lightz.ledModes.BLUE);
-    // }
-
-    public Command aligntoCordinate(Point point) {
-        return new PIDAlign(point);
-    }
-
 }

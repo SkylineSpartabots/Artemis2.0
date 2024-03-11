@@ -113,7 +113,7 @@ public final class Autos {
                 ),
                 new AlignPivot(PivotState.SUBWOOFER),
                 new SetShooterCommand(40),
-                new SetIndexer(IndexerStates.ON, false),
+                new SetIndexer(IndexerStates.ON),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
@@ -133,7 +133,7 @@ public final class Autos {
                 ),
 
                 new ParallelCommandGroup(new SetShooterCommand(40), new AlignPivot(PivotState.SUBWOOFER)),
-                new SetIndexer(IndexerStates.ON, false),
+                new SetIndexer(IndexerStates.ON),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
@@ -153,9 +153,9 @@ public final class Autos {
                 ),
 
                 new ParallelCommandGroup(new SetShooterCommand(40), new AlignPivot(PivotState.SUBWOOFER)),
-                new SetIndexer(IndexerStates.ON, false),
+                new SetIndexer(IndexerStates.ON),
                 Commands.waitSeconds(0.5),
-                new SetIndexer(IndexerStates.OFF, false),
+                new SetIndexer(IndexerStates.OFF),
                 new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new SetShooterCommand(0)));
     }
 
@@ -196,7 +196,7 @@ public final class Autos {
                 ),
 
                 new SetShooterCommand(40),
-                new SetIndexer(IndexerStates.ON, false),
+                new SetIndexer(IndexerStates.ON),
                 Commands.waitSeconds(0.5),
 
                 new ParallelCommandGroup(
@@ -216,10 +216,10 @@ public final class Autos {
                 ),
 
                 new ParallelCommandGroup(new SetShooterCommand(40), new AlignPivot(PivotState.SUBWOOFER)),
-                new SetIndexer(IndexerStates.ON, false),
+                new SetIndexer(IndexerStates.ON),
                 Commands.waitSeconds(0.5),
 
-                new SetIndexer(IndexerStates.OFF, false),
+                new SetIndexer(IndexerStates.OFF),
                 new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new SetShooterCommand(0))
                 );
     }
@@ -261,10 +261,10 @@ public final class Autos {
               ),
 
               new SetShooterCommand(40),
-              new SetIndexer(IndexerStates.ON, false),
+              new SetIndexer(IndexerStates.ON),
               Commands.waitSeconds(0.5),
 
-              new SetIndexer(IndexerStates.OFF, false),
+              new SetIndexer(IndexerStates.OFF),
               new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new SetShooterCommand(0)));
   }
 
@@ -303,7 +303,7 @@ public final class Autos {
           new SetShooterCommand(40)
         ),
 
-        new SetIndexer(IndexerStates.ON, false),
+        new SetIndexer(IndexerStates.ON),
         Commands.waitSeconds(0.1),
 
         new ParallelCommandGroup(
@@ -322,7 +322,7 @@ public final class Autos {
           new SetShooterCommand(40)
         ),
 
-        new SetIndexer(IndexerStates.ON, false),
+        new SetIndexer(IndexerStates.ON),
         Commands.waitSeconds(0.1),
 
         new ParallelCommandGroup(
@@ -341,12 +341,12 @@ public final class Autos {
           new SetShooterCommand(40)
         ),
 
-        new SetIndexer(IndexerStates.ON, false),
+        new SetIndexer(IndexerStates.ON),
         Commands.waitSeconds(0.5),
 
         new ParallelCommandGroup(
           new SetShooterCommand(0),
-          new SetIndexer(IndexerStates.OFF, false),
+          new SetIndexer(IndexerStates.OFF),
           new AlignPivot(PivotState.GROUND)
         )
       );

@@ -9,11 +9,11 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Pivot.PivotState;
 
 public class AlignPivot extends Command {
-    Pivot s_Pivot = Pivot.getInstance();
-    Vision s_Vision = Vision.getInstance();
+    Pivot s_Pivot;
+    Vision s_Vision;
 
     double desiredCANcoderValue;
-    double desiredAngle = -1;
+    double desiredAngle;
     // Tune later
     PIDController CANController = new PIDController(50, 15, 0); //TODO: make this into a constant
 

@@ -27,6 +27,10 @@ public class SetIndexer extends Command {
         this(state, intaking, 2.5);
     }
 
+    public SetIndexer(IndexerStates state) {
+        this(state, false, 0);
+    }
+
     @Override
     public void initialize() {
         s_Indexer.setSpeed(state.getValue());
