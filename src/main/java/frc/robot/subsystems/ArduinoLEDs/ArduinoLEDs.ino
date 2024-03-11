@@ -100,7 +100,7 @@ void loop() {
 //         runAnt(PURPLE, 7, 3, 35);
 //         break;
 //     }
-    switch (inData) { //  trying what the video did and using byte and hexadecimal codes
+    switch (inData) { //                     trying what the video did and using byte and hexadecimal codes
     //https://www.aqua-calc.com/convert/number/hexadecimal-to-decimal
 //    ****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
       case 0x0: //OFF
@@ -172,15 +172,6 @@ void runAnt(int color[], int g, int b, int delayMS){// Add differing color funct
   delay(delayMS);
   kReset(g);
 }
-void setSolid(int color[]){
-  antEnabled = false;
-  flashEnabled = false;
-
-  for (int i =0 ; i < NUM_LEDS; i++){
-    leds[i].setHSV(color[0], color[1], color[2]);
-  }
-  FastLED.show();
-}
 void flashSolid(int color[], int onMS, int offMS, int counts){
   // Set the variables so they can be used every loop cycle
   flashHSV[0] = color[0];
@@ -205,6 +196,15 @@ void flashSolid(int color[], int onMS, int offMS, int counts){
   delay(offMS);
   currentFlashCount++;
 
+}
+void setSolid(int color[]){
+  antEnabled = false;
+  flashEnabled = false;
+
+  for (int i =0 ; i < NUM_LEDS; i++){
+    leds[i].setHSV(color[0], color[1], color[2]);
+  }
+  FastLED.show();
 }
 
 
@@ -234,15 +234,6 @@ void runAnt(int H, int S, int V, int g, int b, int delayMS){
   delay(delayMS);
   kReset(g);
 }
-void setSolid(int H, int S, int V){
-  antEnabled = false;
-  flashEnabled = false;
-
-  for (int i =0 ; i < NUM_LEDS; i++){
-    leds[i].setHSV(H, S, V);
-  }
-  FastLED.show();
-}
 void flashSolid(int H, int S, int V, int onMS, int offMS, int counts){
   // Set the variables so they can be used every loop cycle
   flashHSV[0] = H;
@@ -266,6 +257,15 @@ void flashSolid(int H, int S, int V, int onMS, int offMS, int counts){
   FastLED.show();
   delay(offMS);
 
+}
+void setSolid(int H, int S, int V){
+  antEnabled = false;
+  flashEnabled = false;
+
+  for (int i =0 ; i < NUM_LEDS; i++){
+    leds[i].setHSV(H, S, V);
+  }
+  FastLED.show();
 }
 
 
