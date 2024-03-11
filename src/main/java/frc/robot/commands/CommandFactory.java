@@ -18,33 +18,85 @@ import frc.robot.subsystems.Pivot.PivotState;
 public class CommandFactory {
 
     public static Command Diagnostic() {
-        return new SequentialCommandGroup(new ZeroPivot(), new AlignPivot(PivotState.SUBWOOFER), new AlignPivot(PivotState.GROUND), new SetShooterCommand(35), Commands.waitSeconds(1.0), new SetShooterCommand(0), new SetIntake(IntakeStates.ON, 1), new SetIndexer(IndexerStates.ON, false), Commands.waitSeconds(1.0), new SetIndexer(IndexerStates.OFF, false));
+        return new SequentialCommandGroup(
+            new ZeroPivot(), 
+            new AlignPivot(PivotState.SUBWOOFER),  
+            new AlignPivot(PivotState.GROUND), 
+            new SetShooterCommand(35),  
+            Commands.waitSeconds(1.0), 
+            new SetShooterCommand(0), 
+            new SetIntake(IntakeStates.ON, 1), 
+            new SetIndexer(IndexerStates.ON, false), 
+            Commands.waitSeconds(1.0), 
+            new SetIndexer(IndexerStates.OFF, false)
+        );
     }
 
     public static Command SubwooferShootSequence() {
-        return new SequentialCommandGroup(new ParallelCommandGroup(new AlignPivot(PivotState.SUBWOOFER), new SetShooterCommand(35)),Commands.waitSeconds(0.7), new SetIndexer(IndexerStates.ON, false), offEverything());
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new AlignPivot(PivotState.SUBWOOFER), 
+                new SetShooterCommand(35)
+            ),
+            Commands.waitSeconds(0.7), 
+            new SetIndexer(IndexerStates.ON, false), 
+            offEverything()
+        );
     }
 
     public static Command offEverything(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(-5), new SetIntake(IntakeStates.OFF), Commands.waitSeconds(0.5), new SetIndexer(IndexerStates.OFF, false), new AlignPivot(PivotState.GROUND)), new SetShooterCommand(0));
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new SetShooterCommand(-5), 
+                new SetIntake(IntakeStates.OFF), 
+                Commands.waitSeconds(0.5), 
+                new SetIndexer(IndexerStates.OFF, false), 
+                new AlignPivot(PivotState.GROUND)
+            ), 
+            new SetShooterCommand(0)
+        );
     }
 
     public static Command autoShootSequence(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetShooterCommand(60), new PureAlignment()), new AlignPivot(), new SetIndexer(IndexerStates.ON, false));
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new SetShooterCommand(60), 
+                new PureAlignment()
+            ), 
+            new AlignPivot(), 
+            new SetIndexer(IndexerStates.ON, false)
+        );
     }
 
     public static Command eject(){
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetIndexer(IndexerStates.REV, false), new SetIntake(IntakeStates.REV)), 
-        new WaitCommand(0.065),
-        new ParallelCommandGroup(new SetIndexer(IndexerStates.OFF, false), new SetIntake(IntakeStates.OFF)));
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new SetIndexer(IndexerStates.REV, false), 
+                new SetIntake(IntakeStates.REV)
+            ), 
+            new WaitCommand(0.065),
+            new ParallelCommandGroup(
+                new SetIndexer(IndexerStates.OFF, false), 
+                new SetIntake(IntakeStates.OFF)
+            )
+        );
     }
 
     public static Command shootSubwooferPrep(){
-        return new ParallelCommandGroup(new AlignPivot(PivotState.SUBWOOFER), new SetShooterCommand(35));
+        return new ParallelCommandGroup(
+            new AlignPivot(PivotState.SUBWOOFER), 
+            new SetShooterCommand(35)
+        );
     }
 
     public static Command ampShootSequence() {
-        return new SequentialCommandGroup(new SetShooterCommand(24, 12), new ParallelCommandGroup(new AlignPivot(PivotState.AMP), new SetIndexer(IndexerStates.AMP, false)));
+        return new SequentialCommandGroup(
+            new SetShooterCommand(24, 12), 
+            new ParallelCommandGroup(
+                new AlignPivot(PivotState.AMP), 
+                new SetIndexer(IndexerStates.AMP, false)
+            )
+        );
     }
 
 }
