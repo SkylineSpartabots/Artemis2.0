@@ -34,7 +34,7 @@ boolean flashEnabled = false;
 
 
 // --Serial and Mode--
-int inData = 0;
+byte inData = 0;
 int selected;
 
 
@@ -65,25 +65,60 @@ void loop() {
     inData = Serial.read();
     Serial.println(inData);
     
-    //TODO Decide on mode meanings and what patterns they should be
-    switch (inData) {
+//     //TODO Decide on mode meanings and what patterns they should be
+//     switch (inData) {
+// //    ****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
+//       case '0': //OFF
+//         setSolid(0, 0, 0);
+//         break;
+//       case '1'://RED
+//         setSolid(0, 255, 255);
+//         break;
+//       case '2'://ORANGE
+//        setSolid(15, 255, 255);
+//         break;
+//       case '3'://YELLOW
+//         setSolid(55, 255, 255);
+//         break;
+//       case '4'://GREEN
+//         setSolid(96, 255, 255);
+//         break;
+//       case '5'://BLUE
+//         setSolid(160, 255, 255);
+//         break;
+//       case '6'://PURPLE
+//         setSolid(192, 255, 255);
+//         break;
+//       case '7'://PINK
+//         flashSolid(224, 255, 255, 200, 200);
+//         // setSolid(224, 255, 255);
+//         break;
+//       case '8'://WHITE
+//         setSolid(0, 0, 127); // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
+//         break;
+//       case '9'://redAnt - just demo really rn
+//         runAnt(PURPLE, 7, 3, 35);
+//         break;
+//     }
+    switch (inData) { //  trying what the video did and using byte and hexadecimal codes
+    //https://www.aqua-calc.com/convert/number/hexadecimal-to-decimal
 //    ****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
-      case '0': //OFF
+      case 0x0: //OFF
         setSolid(0, 0, 0);
         break;
-      case '1'://RED
+      case 0x1://RED
         setSolid(0, 255, 255);
         break;
-      case '2'://ORANGE
+      case 0x2://ORANGE
        setSolid(15, 255, 255);
         break;
-      case '3'://YELLOW
+      case 0x3://YELLOW
         setSolid(55, 255, 255);
         break;
-      case '4'://GREEN
+      case 0x4://GREEN
         setSolid(96, 255, 255);
         break;
-      case '5'://BLUE
+      case 5://BLUE
         setSolid(160, 255, 255);
         break;
       case '6'://PURPLE

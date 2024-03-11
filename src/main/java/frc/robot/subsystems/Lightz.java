@@ -83,6 +83,7 @@
                  timer.reset();
                  System.out.println("Wrote to Arduino");
              }
+             // Two things to try 1: write as string, read as char or string (prolly string) or 2: write as byte[] with (byte)selected conversion and put hexadecimal in arduino code like vid
              if (arduino.getBytesReceived() > 0) {
                  System.out.println(arduino.readString());
              }
