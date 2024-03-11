@@ -11,16 +11,8 @@ public class SetIndexer extends Command {
     IndexerStates state;
     private final int colorSensorProximityThreshold = 110; // Test this value later
     private final boolean intaking;
-    private double time = 2.5;
+    private double time;
     private Timer timer;
-
-    public SetIndexer(IndexerStates state, boolean intaking) {
-        this.intaking = intaking;
-        s_Indexer = Indexer.getInstance();
-        this.state = state;
-        timer = new Timer();
-        addRequirements(s_Indexer);
-    }
 
     public SetIndexer(IndexerStates state, boolean intaking, double time) {
         this.intaking = intaking;
@@ -29,6 +21,10 @@ public class SetIndexer extends Command {
         timer = new Timer();
         addRequirements(s_Indexer);
         this.time = time;
+    }
+
+    public SetIndexer(IndexerStates state, boolean intaking) {
+        this(state, intaking, 2.5);
     }
 
     @Override

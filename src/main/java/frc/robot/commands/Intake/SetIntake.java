@@ -14,22 +14,9 @@ public class SetIntake extends Command {
     private final Indexer s_Indexer;
 
     private Timer timer;
-    private double time = 2;
+    private double time;
     private boolean intaking;
     private final int colorSensorProximityThreshold = 110;
-
-    public SetIntake(Intake.IntakeStates state) {
-        s_Intake = Intake.getInstance();
-        this.state = state;
-        if(state == IntakeStates.ON){
-            intaking = true;
-        }
-        addRequirements(s_Intake);
-
-        s_Indexer = Indexer.getInstance();
-
-        timer = new Timer();
-    }
 
     public SetIntake(Intake.IntakeStates state, double time){
         s_Intake = Intake.getInstance();
@@ -43,6 +30,12 @@ public class SetIntake extends Command {
 
         s_Indexer = Indexer.getInstance();
     }
+
+
+    public SetIntake(Intake.IntakeStates state) {
+        this(state, 2);
+    }
+
 
     @Override
     public void initialize() {

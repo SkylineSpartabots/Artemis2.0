@@ -9,46 +9,34 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Pivot.PivotState;
 
 public class AlignPivot extends Command {
-    Pivot s_Pivot;
-    Vision s_Vision;
+    Pivot s_Pivot = Pivot.getInstance();
+    Vision s_Vision = Vision.getInstance();
 
     double desiredCANcoderValue;
-    double forcedAngle = -1;
-    boolean force;
+    double desiredAngle = -1;
     // Tune later
     PIDController CANController = new PIDController(50, 15, 0); //TODO: make this into a constant
 
-    public AlignPivot(){
-        s_Pivot = Pivot.getInstance();
-        s_Vision = Vision.getInstance();
-        force = false;
-        addRequirements(s_Pivot, s_Vision);
+    public AlignPivot(double desiredAngle) {
+        Pivot s_Pivot = Pivot.getInstance();
+        this.desiredAngle = desiredAngle;
+        addRequirements(s_Pivot);
     }
 
-    public AlignPivot(double forcedAngle) {
-        s_Pivot = Pivot.getInstance();
-        s_Vision = Vision.getInstance();
-        force = true;
-        this.forcedAngle = forcedAngle;
-        addRequirements(s_Pivot, s_Vision);
+    public AlignPivot() {
+        Pivot s_Pivot = Pivot.getInstance();
+        Vision s_Vision = Vision.getInstance();
+        desiredAngle = Constants.getAngleForDistance(s_Vision.getFloorDistance());
+        addRequirements(s_Pivot);
     }
 
     public AlignPivot(PivotState state) {
-        s_Pivot = Pivot.getInstance();
-        s_Vision = Vision.getInstance();
-        force = true;
-        this.forcedAngle = state.getPos();
-        addRequirements(s_Pivot, s_Vision);
+        this(state.getPos());
     }
 
     @Override
     public void initialize() {
-        if (force) {
-            desiredCANcoderValue = Pivot.pivotDegreeToCANcoder(forcedAngle);
-        }
-        else {
-            desiredCANcoderValue = Pivot.pivotDegreeToCANcoder(Constants.getAngleForDistance(s_Vision.getFloorDistance()));
-        }
+        desiredCANcoderValue = Pivot.pivotDegreeToCANcoder(desiredAngle);
         CANController.reset();
     }
 
