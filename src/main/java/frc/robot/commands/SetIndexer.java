@@ -48,6 +48,5 @@ public class SetIndexer extends Command {
     @Override
     public boolean isFinished() {
         return intaking ? ((s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold) || timer.hasElapsed(time)): true;
-        // return intaking ? s_Indexer.getLimitSwitchResult() : true;
     }
 }

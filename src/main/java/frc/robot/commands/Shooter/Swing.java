@@ -2,7 +2,7 @@ package frc.robot.commands.Shooter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.Pivot.SetPivot;
+import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Pivot;
@@ -28,7 +28,7 @@ public class Swing extends Command {
 
     @Override
     public void initialize() {
-        new SetPivot(PivotState.AMP).schedule();
+        new AlignPivot(PivotState.AMP).schedule();
         time.reset(); time.start();
 
     }

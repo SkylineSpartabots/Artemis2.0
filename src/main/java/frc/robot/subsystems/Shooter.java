@@ -4,46 +4,23 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkBase.IdleMode;
-
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-
-import static edu.wpi.first.units.MutableMeasure.mutable;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends SubsystemBase {
 
@@ -59,9 +36,6 @@ public class Shooter extends SubsystemBase {
     private TalonFX shooterTopM;
     private TalonFX shooterBottomM;
 
-    private RelativeEncoder topEncoder;
-    private RelativeEncoder bottomEncoder;
-
     private double velocityCap = 65;
 
     private double topVelocitySetpoint = 0;
@@ -70,32 +44,17 @@ public class Shooter extends SubsystemBase {
     final VelocityVoltage topVelocityVoltage = new VelocityVoltage(0);
     final VelocityVoltage bottomVelocityVoltage = new VelocityVoltage(0);
 
-    // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
-    private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
-    // Mutable holder for unit-safe linear distance values, persisted to avoid
-    // reallocation.
-    private final MutableMeasure<Angle> m_angle = mutable(Rotations.of(0));
-    // Mutable holder for unit-safe linear velocity values, persisted to avoid
-    // reallocation.
-    private final MutableMeasure<Velocity<Angle>> m_velocity = mutable(RotationsPerSecond.of(0));
-
     public Shooter() {
         currentPercentage = 0.0;
         shooterTopM = new TalonFX(Constants.HardwarePorts.shooterTopM);
         shooterBottomM = new TalonFX(Constants.HardwarePorts.shooterBottomM);
 
-        // topEncoder = shooterTopM.getEncoder(SparkRelativeEncoder.Type.kQuadrature,
-        // 7168);
-        // bottomEncoder =
-        // shooterBottomM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
-        invertMotors(shooterTopM);
+        invertMotor(shooterTopM);
         configMotors();
-
-        // topEncoder.setPositionConversionFactor(2);
 
     }
 
-    private void invertMotors(TalonFX motor) {
+    private void invertMotor(TalonFX motor) {
         System.out.println("INVERT F");
         motor.setInverted(true);
     }
@@ -136,42 +95,6 @@ public class Shooter extends SubsystemBase {
 
         topVelocityVoltage.Slot = 0;
         bottomVelocityVoltage.Slot = 1;
-    }
-
-    public void voltageDrive(Measure<Voltage> voltage) {
-
-    }
-
-    public enum ShooterStates {
-        MAX(1),
-        OFF(0);
-
-        private double speed;
-
-        public double getValue() {
-            return speed;
-        }
-
-        ShooterStates(double speed) {
-            this.speed = speed;
-        }
-
-    }
-
-    public enum ShooterMotors {
-        BOTTOM(1),
-        TOP(2),
-        BOTH(0);
-
-        private int motor;
-
-        public int getMotor() {
-            return motor;
-        }
-
-        ShooterMotors(int motor) {
-            this.motor = motor;
-        }
     }
 
     /**

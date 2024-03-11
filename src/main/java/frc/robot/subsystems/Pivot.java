@@ -5,8 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
@@ -16,13 +14,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkRelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.Conversions;
@@ -61,52 +53,39 @@ public class Pivot extends SubsystemBase {
         private PivotState(double position) {
             pos = position;
         }
+
+        public double getPos() {
+            return pos;
+        }
     }
 
 
     private TalonFX pivotLeaderM;
     private TalonFX pivotFollowerM;
 
-    // private RelativeEncoder leaderEncoder;
-    // private RelativeEncoder followEncoder;
     private CANcoder pivotCANcoder;
-    private PivotState currState = PivotState.GROUND;
     private static double pivotCANcoderAngleOffset = 57.89;
     private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
     public Pivot() {
-        // pivotLeaderM = new CANSparkFlex(Constants.HardwarePorts.pivotLeaderM, MotorType.kBrushless);
-        // pivotFollowerM = new CANSparkFlex(Constants.HardwarePorts.pivotFollowerM, MotorType.kBrushless);
 
         pivotLeaderM = new TalonFX(Constants.HardwarePorts.pivotLeaderM);
         pivotFollowerM = new TalonFX(Constants.HardwarePorts.pivotFollowerM);
-        
-        // leaderEncoder = pivotLeaderM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
-        // followEncoder = pivotFollowerM.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 7168);
         
         configMotor(pivotLeaderM);
         pivotLeaderM.setInverted(true);
 
         configMotor(pivotFollowerM);
         pivotFollowerM.setControl(new Follower(pivotLeaderM.getDeviceID(), true));
-        //pivotFollowerM.follow(pivotLeaderM, true);
 
 
         pivotCANcoder = new CANcoder(Constants.HardwarePorts.pivotCANcoderID);
         configCANcoder();
-                pivotCANcoder.setPosition(0.2);
+        pivotCANcoder.setPosition(0.2);
 
 
     } 
-
-    /**
-     * Sets the desired state for the pivot
-     * @param state Desired state
-     */
-    public void setState(PivotState state) {
-        currState = state;
-    }
 
     /**
      * Converts a desired pivot angle in degrees to CANcoder units. 
@@ -123,15 +102,6 @@ public class Pivot extends SubsystemBase {
     public void stopMotor(){
         pivotLeaderM.setControl(dutyCycleRequest.withOutput(0));
     }
-
-    /**
-     * Sets the integrated encoder positions of to the specified position. 
-     * @param relativePosition The position to set the encoders to. Measured in rotations. 
-     */
-    // public void resetMotorEncoders(double relativePosition){
-    //     leaderEncoder.setPosition(relativePosition);
-    // }
-
     /**
      * Gets the current position measured by the CANcoder
      * @return Current position measured by CANcoder. Measured in rotations. 
@@ -146,22 +116,6 @@ public class Pivot extends SubsystemBase {
      */
     public double getCANcoderAbsolutePosition() {
         return pivotCANcoder.getAbsolutePosition().getValueAsDouble();
-    }
-
-    /**
-     * 
-     * @return leader motor's integrated encoder value
-     */
-    // public double getMotorEncoderPosition(){
-    //     return leaderEncoder.getPosition();
-    // }
-    
-    /**
-     * Gets the current set point of the pivot. 
-     * @return Current set point in CANcoder values. 
-     */
-    public double getSetPoint() {
-        return currState.pos;
     }
 
     /**
@@ -187,10 +141,6 @@ public class Pivot extends SubsystemBase {
     public double getMotorCurrent(){
         return (Math.abs(pivotLeaderM.getStatorCurrent().getValueAsDouble()) + Math.abs(pivotFollowerM.getStatorCurrent().getValueAsDouble())) / 2;
     }
-
-    // public double getMotorPosition() {
-    //     return leaderEncoder.getPosition();
-    // }
 
     /**
      * Configures the specified motor with current limit and idle mode plus PID. 
@@ -246,14 +196,12 @@ public class Pivot extends SubsystemBase {
     public void periodic() {
         Logger.recordOutput("Pivot/CurrentCANcoderRotation", getCANcoderAbsolutePosition());
         // Logger.recordOutput("Pivot/CurrentMotorEncoderRotation", getMotorEncoderPosition());
-        Logger.recordOutput("Pivot/AngleSetpoint", getSetPoint());
         Logger.recordOutput("Pivot/PivotCurrent", getMotorCurrent());
         Logger.recordOutput("Pivot/RotInDegrees", pivotAngle());
         Logger.recordOutput("Pivot/CANCoderStatus", CANcoderWorking());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
         SmartDashboard.putNumber("Pivot measured angle", pivotAngle());
         // SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());
-        SmartDashboard.putNumber("Pivot Set Point", currState.pos);
         SmartDashboard.putBoolean("CANcoder working", CANcoderWorking());
         SmartDashboard.putNumber("Pivot Current", getMotorCurrent());
     }

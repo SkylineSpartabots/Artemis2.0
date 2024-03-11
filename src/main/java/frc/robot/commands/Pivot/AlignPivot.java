@@ -7,26 +7,49 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Pivot.PivotState;
 
-public class PivotAlign extends Command {
+public class AlignPivot extends Command {
     Pivot s_Pivot;
     Vision s_Vision;
 
-    double desiredCANcoderAngle;
-
+    double desiredCANcoderValue;
+    double forcedAngle = -1;
+    boolean force;
     // Tune later
     PIDController CANController = new PIDController(50, 15, 0); //TODO: make this into a constant
-    // PIDController CANController = new PIDController(45, 10, 0); shit be too fast bro
 
-    public PivotAlign(){
+    public AlignPivot(){
         s_Pivot = Pivot.getInstance();
         s_Vision = Vision.getInstance();
+        force = false;
+        addRequirements(s_Pivot, s_Vision);
+    }
+
+    public AlignPivot(double forcedAngle) {
+        s_Pivot = Pivot.getInstance();
+        s_Vision = Vision.getInstance();
+        force = true;
+        this.forcedAngle = forcedAngle;
+        addRequirements(s_Pivot, s_Vision);
+    }
+
+    public AlignPivot(PivotState state) {
+        s_Pivot = Pivot.getInstance();
+        s_Vision = Vision.getInstance();
+        force = true;
+        this.forcedAngle = state.getPos();
         addRequirements(s_Pivot, s_Vision);
     }
 
     @Override
     public void initialize() {
-        desiredCANcoderAngle = Pivot.pivotDegreeToCANcoder(Constants.getAngleForDistance(s_Vision.getFloorDistance()));
+        if (force) {
+            desiredCANcoderValue = Pivot.pivotDegreeToCANcoder(forcedAngle);
+        }
+        else {
+            desiredCANcoderValue = Pivot.pivotDegreeToCANcoder(Constants.getAngleForDistance(s_Vision.getFloorDistance()));
+        }
         CANController.reset();
     }
 
@@ -34,21 +57,18 @@ public class PivotAlign extends Command {
     public void execute() {
         double voltage;
         if (s_Pivot.CANcoderWorking()) {
-            voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(), desiredCANcoderAngle);
+            voltage = CANController.calculate(s_Pivot.getCANcoderAbsolutePosition(), desiredCANcoderValue);
         }
         else {
             voltage = 0;
         }
-        // if (Math.abs(s_Pivot.getCANcoderPosition() - s_Pivot.getSetPoint()) < 15) {
-		// 	voltage = 0.7;
-		// }
         s_Pivot.setVoltage(voltage);
         SmartDashboard.putBoolean("Running", true);
     }
 
     @Override
 	public boolean isFinished() {
-		return Math.abs(desiredCANcoderAngle - s_Pivot.getCANcoderAbsolutePosition()) < 0.001;
+		return Math.abs(desiredCANcoderValue - s_Pivot.getCANcoderAbsolutePosition()) < 0.001;
 	}
 		
 	@Override
