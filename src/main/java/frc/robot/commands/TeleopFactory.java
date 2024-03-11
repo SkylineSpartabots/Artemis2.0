@@ -25,7 +25,7 @@ public class TeleopFactory {
     }
 
     public static Command SubwooferShootSequence() {
-        return new SequentialCommandGroup(new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(40)), new SetIndexer(IndexerStates.ON, false), offEverything());
+        return new SequentialCommandGroup(new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(35)),Commands.waitSeconds(0.7), new SetIndexer(IndexerStates.ON, false), offEverything());
     }
 
     public static Command offEverything(){

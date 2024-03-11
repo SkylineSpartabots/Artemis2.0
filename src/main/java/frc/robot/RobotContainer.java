@@ -237,7 +237,7 @@ public class RobotContainer {
 
     public Command shootSubwoofer(){
         if(shooterSysIDTuned){
-            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(45));
+            return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new SetShooterCommand(35));
         } else {
             return new ParallelCommandGroup(new SetPivot(PivotState.SUBWOOFER), new InstantCommand(() -> s_Shooter.setVoltage(8)));
         }
