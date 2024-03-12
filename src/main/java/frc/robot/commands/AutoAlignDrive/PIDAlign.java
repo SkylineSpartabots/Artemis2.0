@@ -55,18 +55,15 @@ public class PIDAlign extends Command {
     Pose2d pose = s_Swerve.getPose();
 
     try {
-      // s_Swerve.updateOdometryByVision(); //since you're supposed to have vision target, reset odometry using kalman first
-      currentYaw = pose.getRotation().getRadians(); // OMG I FOUND THE PROBLEM I THINK!!
+      // s_Swerve.updateOdometryByVision(); can someon fix vison please thanks
+      currentYaw = pose.getRotation().getRadians();
       if (currentYaw < 0) {  currentYaw = Math.PI + Math.abs(currentYaw); };
     } catch (Exception e) {}
-// 
+
     SmartDashboard.putNumber("Current yaw", currentYaw);
 
     desiredYaw = Normalize();
-    // if (Math.abs(desiredYaw - (Math.PI*2)) < desiredYaw) { desiredYaw = desiredYaw - (Math.PI*2);};
-    // desiredYaw = Math.min(desiredYaw, Math.PI*2 - desiredYaw);
 
-  //disregards current and reference, direction is already accounted for so it is always optimal turning
     double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
 
     s_Swerve.setControl(drive.withRotationalRate(rotationSpeed));
@@ -77,26 +74,25 @@ public class PIDAlign extends Command {
   public void updateDesiredYaw(){
     Pose2d pose = s_Swerve.getPose();
     Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
-    Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y); // thanks Dave Yoon gloobert
+    Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y);
 
-    desiredYaw = Math.atan2(translatedPoint.y,translatedPoint.x) + Math.PI;
+    desiredYaw = Math.atan2(translatedPoint.y,translatedPoint.x);
+    if (desiredYaw < 0) {  desiredYaw = Math.PI + Math.abs(desiredYaw); }
   }
 
-  public double Normalize(){ //counterclockwise is positive
+  public double Normalize() {
     double error = desiredYaw - currentYaw;
-    if (Math.abs(error) > Math.PI) { // flip desiredYaw to its corresponding angle on the opposite side if raw error takes the longer path
-      desiredYaw += (desiredYaw > currentYaw) ? -2 * Math.PI : 2 * Math.PI; //if true do first one if false do other
+    if (Math.abs(error) > Math.PI) {
+      desiredYaw += (desiredYaw > currentYaw) ? -2 * Math.PI : 2 * Math.PI;
     }
 
-    //go back to -pi to pi
     if (desiredYaw >= Math.PI) {
       desiredYaw -= 2 * Math.PI;
   }
 
   return desiredYaw;
   }
-
-  @Override // rah rah rahh
+  @Override
   public void end(boolean interrupted) {
     s_Swerve.setControl(drive.withRotationalRate(0));
   }
@@ -107,26 +103,3 @@ public class PIDAlign extends Command {
   }
 
 }
-
-// robot's forward is posotive x, right is negetive y, circle is 180 to -180, 3, -3
-// offset yaw, current yaw, desired yaw, rotation speed
-
-// if(currentYaw < 0 && desiredYaw < 0){
-    //   return currentYaw - desiredYaw;
-    // } else if (currentYaw > 0 && desiredYaw > 0){
-    //   return desiredYaw - currentYaw;
-    // } else if (currentYaw > 0 && desiredYaw < 0){
-    //   if(2*Math.PI - currentYaw - Math.abs(desiredYaw) < currentYaw + Math.abs(desiredYaw)){
-    //     return 2*Math.PI - currentYaw - Math.abs(desiredYaw);
-    //   } else {
-    //     return -(currentYaw + Math.abs(desiredYaw));
-    //   }
-    // } else {
-    //   if(2*Math.PI - desiredYaw - Math.abs(currentYaw) < desiredYaw + Math.abs(currentYaw)){
-    //     return -(2*Math.PI - desiredYaw - Math.abs(currentYaw));
-    //   } else {
-    //     return desiredYaw + Math.abs(currentYaw);
-    //   }
-    // }
-
-    

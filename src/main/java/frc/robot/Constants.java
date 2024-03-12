@@ -4,9 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.apriltag.AprilTagPoseEstimate;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.Vision.AprilTags;
 
 import org.opencv.core.Point;
 
@@ -44,6 +49,8 @@ public final class Constants {
         public static final double centerCameraHeight = Units.inchesToMeters(10.15);
         public static final double centerCameraPitch = Units.degreesToRadians(15);
 
+        
+
         public static final class AprilTags {
             public static final int blueSourceRight = 1;
             public static final int blueSourceLeft = 2;
@@ -61,7 +68,6 @@ public final class Constants {
             public static final int blueStageCenter = 14;
             public static final int blueStageLeft = 15;
             public static final int blueStageRight = 16;
-
         }
     }
 
@@ -103,11 +109,14 @@ public final class Constants {
         
     }
 
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     enum AlignmentTargets {
-            BLUE_SPEAKER(new Point(3,-3)),
-            RED_SPEAKER(new Point(-3, 3)),
-            BLUE_AMP(new Point(6, 5)),
-            RED_AMP(new Point(1, 2));
+
+
+            // BLUE_SPEAKER(new Point(Vision.getApriltagPose(2).get().getX(),5.55)),
+            RED_SPEAKER(new Point(16.06, 5.55)),
+            BLUE_AMP(new Point(1.815, 8.3)),
+            RED_AMP(new Point(14.715, 8.3));
             
             private Point point;
 

@@ -45,8 +45,6 @@ public class Intake extends SubsystemBase {
     // private CANSparkFlex intakeFollowerM;
     private TalonFX serialM; // Someone told me this will control both
 
-    //TODO configure motor methods for motors, pid??? // DONE?
-
     public Intake() {
         // Rollers
         intakeLeaderM = new TalonFX(Constants.HardwarePorts.intakeLeaderM);
