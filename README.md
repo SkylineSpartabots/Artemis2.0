@@ -1,6 +1,6 @@
-# Team 2976 [Artemis] (CRESENDO)
-Spartabots Team 2976's Presents Artemis <br/>
-Built using Java with Command-Based structure
+# FRC 2024 CRESCENDO
+Team 2976 The Spartabots Present Artemis. <br/>
+Artemis is an FRC command based robot written in Java.
 # Information
 ## Vendor Libraries
 AdvantageKit: ```https://github.com/Mechanical-Advantage/AdvantageKit/releases/latest/download/AdvantageKit.json```<br/>
@@ -19,9 +19,10 @@ REVLib: ```https://software-metadata.revrobotics.com/REVLib-2024.json```<br/>
 | /non/existant      | Coming Soon |  Coming Soon |
 
 ## Naming Conventions
-Example: ```e_filename``` 
+Subsystems: ```s_subsystemName``` <br/>
+Motors: ```motorLocationM```<br/>
 ## Constants
-Constant1: ```Purpose```
+Constants: ```descriptiveName```
 ## Contributors
 
 <a href="https://github.com/VincentShao32" target="_blank" title="VincentShao32"><img src="https://github.com/VincentShao32.png?size=40" height="40" width="40" alt="VincentShao32"/></a>
