@@ -46,21 +46,12 @@ public class RobotContainer {
         }
         return container;
     }
-
-    private final Shooter s_Shooter = Shooter.getInstance();
-    private final Indexer s_Indexer = Indexer.getInstance();
-    private final Intake s_Intake = Intake.getInstance();
-    private final Pivot s_Pivot = Pivot.getInstance();
-    private final Vision s_Vision = Vision.getInstance();
-    private final Climb s_Climb = Climb.getInstance();
-    private final Amp s_Amp = Amp.getInstance();
-    // private final Lightz s_lightz = Lightz.getInstance();
-
     /* Setting up bindings for necessary control of the swerve drive platform */
     public final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
     private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
 
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
+    private final Pivot s_Pivot = Pivot.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1) // Add a 20% deadband, tune to driver preference
@@ -133,12 +124,13 @@ public class RobotContainer {
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
+        
 
         /*
          * Operator bindings
          */
         // operator.b().onTrue(offEverything());
-        operator.a().onTrue(new InstantCommand(() -> s_Pivot.setVoltage(0)));
+        operator.a().onTrue(CommandFactory.offEverything());
         operator.x().onTrue(new SetIntake(IntakeStates.OFF)); //FINAL
         operator.b().onTrue(CommandFactory.eject()); //FINAL
         operator.y().whileTrue(new SetIndexer(IndexerStates.OFF));
