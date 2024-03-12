@@ -80,7 +80,7 @@ public class PIDAlign extends Command {
   double rawError = desiredYaw - currentYaw;
   if(Math.abs(rawError) > Math.PI) { desiredYaw -= Math.signum(desiredYaw) * Math.PI * 2; }
   // 🍔 im going insane :(
-  return rawError;
+  return desiredYaw;
   }
   
   @Override
