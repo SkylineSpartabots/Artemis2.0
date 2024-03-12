@@ -38,7 +38,8 @@ public class CommandFactory {
                 new SetShooterCommand(35)
             ),
             Commands.waitSeconds(0.7), 
-            new SetIndexer(IndexerStates.ON, false), 
+            new SetIndexer(IndexerStates.ON), 
+            Commands.waitSeconds(0.5),
             offEverything()
         );
     }
@@ -49,7 +50,7 @@ public class CommandFactory {
                 new SetShooterCommand(-5), 
                 new SetIntake(IntakeStates.OFF), 
                 Commands.waitSeconds(0.5), 
-                new SetIndexer(IndexerStates.OFF, false), 
+                new SetIndexer(IndexerStates.OFF), 
                 new AlignPivot(PivotState.GROUND)
             ), 
             new SetShooterCommand(0)
@@ -63,19 +64,21 @@ public class CommandFactory {
                 new PureAlignment()
             ), 
             new AlignPivot(), 
-            new SetIndexer(IndexerStates.ON, false)
+            new SetIndexer(IndexerStates.ON),
+            Commands.waitSeconds(0.5),
+            new SetIndexer(IndexerStates.OFF)
         );
     }
 
     public static Command eject(){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new SetIndexer(IndexerStates.REV, false), 
+                new SetIndexer(IndexerStates.REV), 
                 new SetIntake(IntakeStates.REV)
             ), 
             new WaitCommand(0.065),
             new ParallelCommandGroup(
-                new SetIndexer(IndexerStates.OFF, false), 
+                new SetIndexer(IndexerStates.OFF), 
                 new SetIntake(IntakeStates.OFF)
             )
         );
@@ -93,7 +96,7 @@ public class CommandFactory {
             new SetShooterCommand(24, 12), 
             new ParallelCommandGroup(
                 new AlignPivot(PivotState.AMP), 
-                new SetIndexer(IndexerStates.AMP, false)
+                new SetIndexer(IndexerStates.AMP)
             )
         );
     }

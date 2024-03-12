@@ -17,6 +17,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -49,9 +50,9 @@ public class Shooter extends SubsystemBase {
         shooterTopM = new TalonFX(Constants.HardwarePorts.shooterTopM);
         shooterBottomM = new TalonFX(Constants.HardwarePorts.shooterBottomM);
 
-        invertMotor(shooterTopM);
-        configMotors();
-
+        //invertMotor(shooterTopM);
+        configMotor(shooterTopM, 0.21, 0.122);
+        configMotor(shooterBottomM, 0.362, 0.1225);
     }
 
     private void invertMotor(TalonFX motor) {
@@ -59,42 +60,24 @@ public class Shooter extends SubsystemBase {
         motor.setInverted(true);
     }
 
-    private void configMotors() {
+    private void configMotor(TalonFX motor, double kS, double kV) {
 
-        TalonFXConfiguration topConfig = new TalonFXConfiguration();
-        TalonFXConfiguration botConfig = new TalonFXConfiguration();
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
-
-        Slot0Configs shooterTopConfigs = new Slot0Configs();
-        shooterTopConfigs.kS = 0.21; // voltage to overcome static friction
-        shooterTopConfigs.kV = 0.122;
-        shooterTopConfigs.kP = 0;
-        shooterTopConfigs.kI = 0;
-        shooterTopConfigs.kD = 0;
-
-        Slot1Configs shooterBottomConfigs = new Slot1Configs();
-        shooterBottomConfigs.kS = 0.362;
-        shooterBottomConfigs.kV = 0.1225;
-        shooterBottomConfigs.kP = 0;
-        shooterBottomConfigs.kI = 0;
-        shooterBottomConfigs.kD = 0;
-
         currentLimitsConfigs.SupplyCurrentLimit = Constants.shooterContinuousCurrentLimit;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
         currentLimitsConfigs.SupplyCurrentThreshold = Constants.shooterPeakCurrentLimit;
-        topConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        topConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        topConfig.CurrentLimits = currentLimitsConfigs;
-        botConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        botConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        botConfig.CurrentLimits = currentLimitsConfigs;
-        shooterTopM.getConfigurator().apply(topConfig);
-        shooterBottomM.getConfigurator().apply(botConfig);
-        shooterTopM.getConfigurator().apply(shooterTopConfigs);
-        shooterBottomM.getConfigurator().apply(shooterBottomConfigs);
 
-        topVelocityVoltage.Slot = 0;
-        bottomVelocityVoltage.Slot = 1;
+        Slot0Configs slot0Configs = new Slot0Configs();
+        slot0Configs.kS = kS;
+        slot0Configs.kV = kV;
+
+        config.CurrentLimits = currentLimitsConfigs;
+        motor.getConfigurator().apply(config);
+        motor.getConfigurator().apply(slot0Configs);
     }
 
     /**
