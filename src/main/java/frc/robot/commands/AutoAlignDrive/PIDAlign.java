@@ -29,77 +29,69 @@ public class PIDAlign extends Command {
   
   private double currentYaw;
   private double desiredYaw;
-
+  
   // private boolean isClockwise;
   Point desiredPoint;
   double offsetYaw;
-
+  
   public PIDAlign(Point desiredPoint) {
-    s_Swerve = CommandSwerveDrivetrain.getInstance();
-
-    this.desiredPoint = desiredPoint;
-
-    addRequirements(s_Swerve);
+  s_Swerve = CommandSwerveDrivetrain.getInstance();
+  
+  this.desiredPoint = desiredPoint;
+  
+  addRequirements(s_Swerve);
   }
   
   @Override
   public void initialize() {
-    alignPID.reset();
-    updateDesiredYaw();
+  alignPID.reset();
+  updateDesiredYaw();
   }
-    
-
+  
+  
   @Override
   public void execute() { //at some point, make it so we can call this while moving
-
-    Pose2d pose = s_Swerve.getPose();
-
-    try {
-      // s_Swerve.updateOdometryByVision(); can someon fix vison please thanks
-      currentYaw = pose.getRotation().getRadians();
-      if (currentYaw < 0) {  currentYaw = Math.PI + Math.abs(currentYaw); };
-    } catch (Exception e) {}
-
-    SmartDashboard.putNumber("Current yaw", currentYaw);
-
-    desiredYaw = Normalize();
-
-    double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
-
-    s_Swerve.setControl(drive.withRotationalRate(rotationSpeed));
-    SmartDashboard.putNumber("final yaw", desiredYaw);
-    SmartDashboard.putNumber("rotation speed", rotationSpeed);
+  
+  Pose2d pose = s_Swerve.getPose();
+  
+  try {
+  // s_Swerve.updateOdometryByVision(); can someon fix vison please thanks
+  currentYaw = pose.getRotation().getRadians();
+  } catch (Exception e) {}
+  
+  desiredYaw = checkRoute();
+  
+  double rotationSpeed = alignPID.calculate(currentYaw, desiredYaw);
+  
+  s_Swerve.setControl(drive.withRotationalRate(rotationSpeed));
+  
+  SmartDashboard.putBoolean("Align Running", true);
+  SmartDashboard.putNumber("desired yaw", desiredYaw);
   }
-
+  
   public void updateDesiredYaw(){
-    Pose2d pose = s_Swerve.getPose();
-    Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
-    Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y);
-
-    desiredYaw = Math.atan2(translatedPoint.y,translatedPoint.x);
-    if (desiredYaw < 0) {  desiredYaw = Math.PI + Math.abs(desiredYaw); }
+  Pose2d pose = s_Swerve.getPose();
+  Point currentLocation = new Point(pose.getTranslation().getX() , pose.getTranslation().getY());
+  Point translatedPoint = new Point(desiredPoint.x - currentLocation.x , desiredPoint.y - currentLocation.y);
+  desiredYaw = Math.atan2(translatedPoint.y,translatedPoint.x);
   }
-
-  public double Normalize() {
-    double error = desiredYaw - currentYaw;
-    if (Math.abs(error) > Math.PI) {
-      desiredYaw += (desiredYaw > currentYaw) ? -2 * Math.PI : 2 * Math.PI;
-    }
-
-    if (desiredYaw >= Math.PI) {
-      desiredYaw -= 2 * Math.PI;
+  
+  public double checkRoute() {
+  double rawError = desiredYaw - currentYaw;
+  if(Math.abs(rawError) > Math.PI) { desiredYaw -= Math.signum(desiredYaw) * Math.PI * 2; }
+  // 🍔 im going insane :(
+  return rawError;
   }
-
-  return desiredYaw;
-  }
+  
   @Override
   public void end(boolean interrupted) {
-    s_Swerve.setControl(drive.withRotationalRate(0));
+  s_Swerve.setControl(drive.withRotationalRate(0));
+  SmartDashboard.putBoolean("Align Running", false);
   }
-
+  
   @Override
   public boolean isFinished() {
-    return Math.abs(desiredYaw - currentYaw) < (Math.PI/(180/2));
+  return Math.abs(desiredYaw - currentYaw) < (Math.PI/(180/2));
   }
-
-}
+  
+  }
