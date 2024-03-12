@@ -33,11 +33,6 @@ import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
-import frc.robot.commands.Shooter.Swing;
-import frc.robot.commands.AutoAlignDrive.PIDAlign;
-import frc.robot.commands.AutoAlignDrive.PureAlignment;
-import frc.robot.commands.AutoAlignDrive.VisionAlign;
-import frc.robot.commands.Climb.ManualClimb;
 import frc.robot.commands.Intake.SetIntake;
 
 
