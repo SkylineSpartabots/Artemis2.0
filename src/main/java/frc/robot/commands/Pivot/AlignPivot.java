@@ -15,7 +15,7 @@ public class AlignPivot extends Command {
     double desiredCANcoderValue;
     double desiredAngle;
     // Tune later
-    PIDController CANController = new PIDController(50, 15, 0); //TODO: make this into a constant
+    PIDController CANController = new PIDController(50, 15, 0);
 
     public AlignPivot(double desiredAngle) {
         Pivot s_Pivot = Pivot.getInstance();
