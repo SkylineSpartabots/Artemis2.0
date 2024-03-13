@@ -18,14 +18,14 @@ public class AlignPivot extends Command {
     PIDController CANController = new PIDController(50, 15, 0);
 
     public AlignPivot(double desiredAngle) {
-        Pivot s_Pivot = Pivot.getInstance();
+        s_Pivot = Pivot.getInstance();
         this.desiredAngle = desiredAngle;
         addRequirements(s_Pivot);
     }
 
     public AlignPivot() {
-        Pivot s_Pivot = Pivot.getInstance();
-        Vision s_Vision = Vision.getInstance();
+        s_Pivot = Pivot.getInstance();
+        s_Vision = Vision.getInstance();
         desiredAngle = Constants.getAngleForDistance(s_Vision.getFloorDistance());
         addRequirements(s_Pivot);
     }
