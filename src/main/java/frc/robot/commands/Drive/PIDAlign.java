@@ -42,6 +42,9 @@ public class PIDAlign extends Command {
   // private double currentYaw;
   private Rotation2d desiredYaw;
 
+  private double lastXVel;
+  private double lastYVel;
+
   // private boolean isClockwise;
   Point desiredPoint;
 
@@ -56,7 +59,8 @@ public class PIDAlign extends Command {
   @Override
   public void initialize() {
     alignPID.reset();
-    updateDesiredYaw();
+    lastXVel = 0.0;
+    lastYVel = 0.0;
   }
 
   @Override
@@ -73,12 +77,14 @@ public class PIDAlign extends Command {
       Pose2d predictedPose = pose;
       Transform2d predictionTransform = new Transform2d();
       double refreshLoopPeriod = 0.02; //seconds
-      if(Math.abs(xVel) + Math.abs(yVel) < 6){
-        if(xVel > RobotContainer.translationDeadband * Constants.MaxSpeed){
-          predictionTransform.plus(new Transform2d(xVel*refreshLoopPeriod, 0.0, new Rotation2d()));
+      double realXVel = 0.5 * (lastXVel + xVel); //an attempt to account for acceleration by accounting for last vel vs. current desired vel
+      double realYVel = 0.5 * (lastYVel + yVel); 
+      if(Math.sqrt(Math.pow(realXVel, 2) + Math.pow(realYVel, 2)) < 6){
+        if(realXVel > RobotContainer.translationDeadband * Constants.MaxSpeed){
+          predictionTransform.plus(new Transform2d(realXVel*refreshLoopPeriod, 0.0, new Rotation2d()));
         }
-        if(yVel > RobotContainer.translationDeadband * Constants.MaxSpeed){
-          predictionTransform.plus(new Transform2d(0.0, yVel*refreshLoopPeriod, new Rotation2d()));
+        if(realYVel > RobotContainer.translationDeadband * Constants.MaxSpeed){
+          predictionTransform.plus(new Transform2d(0.0, realYVel*refreshLoopPeriod, new Rotation2d()));
         }
         predictedPose.transformBy(predictionTransform);
       }
@@ -86,6 +92,9 @@ public class PIDAlign extends Command {
       desiredYaw = PhotonUtils.getYawToPose(predictedPose, Vision.aprilTagFieldLayout.getTagPose(alliance.isPresent() && alliance.get() != Alliance.Red ? 7 : 4).get().toPose2d());
       double rotationSpeed = alignPID.calculate(desiredYaw.getRotations(), 0);
       s_Swerve.setControl(drive.withRotationalRate(rotationSpeed).withVelocityX(xVel).withVelocityY(yVel));
+
+      lastXVel = xVel;
+      lastYVel = yVel;
 
       SmartDashboard.putNumber("desired rot", desiredYaw.getRotations());
       SmartDashboard.putBoolean("Align Running", true);
@@ -121,6 +130,7 @@ public class PIDAlign extends Command {
 
   @Override
   public boolean isFinished() {
-    return Math.abs(desiredYaw.getRotations() - s_Swerve.getPose().getRotation().getRotations()) < (minimumToleranceAngle/360) * 100;
+    return false;
+    // return Math.abs(desiredYaw.getRotations() - s_Swerve.getPose().getRotation().getRotations()) < (minimumToleranceAngle/360) * 100;
   }
 }
