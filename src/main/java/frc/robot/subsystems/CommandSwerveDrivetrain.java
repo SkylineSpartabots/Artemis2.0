@@ -46,7 +46,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public static CommandSwerveDrivetrain getInstance(){
         if(s_Swerve == null){
             s_Swerve = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
-            TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
+            TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
         }
         return s_Swerve;
         

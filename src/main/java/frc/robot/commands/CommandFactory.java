@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.AutoAlignDrive.PureAlignment;
+import frc.robot.commands.Drive.PureAlignment;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -35,9 +35,9 @@ public class CommandFactory {
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
                 new AlignPivot(PivotState.SUBWOOFER), 
-                new SetShooterCommand(35)
+                new SetShooterCommand(45)
             ),
-            Commands.waitSeconds(0.7), 
+            Commands.waitSeconds(0.2), 
             new SetIndexer(IndexerStates.ON), 
             Commands.waitSeconds(0.5),
             offEverything()
@@ -87,7 +87,7 @@ public class CommandFactory {
     public static Command shootSubwooferPrep(){
         return new ParallelCommandGroup(
             new AlignPivot(PivotState.SUBWOOFER), 
-            new SetShooterCommand(35)
+            new SetShooterCommand(45)
         );
     }
 

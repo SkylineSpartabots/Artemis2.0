@@ -1,5 +1,7 @@
 package frc.robot.commands.Pivot;
 
+import org.photonvision.simulation.VisionSystemSim;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,24 +16,36 @@ public class AlignPivot extends Command {
 
     double desiredCANcoderValue;
     double desiredAngle;
+
+    boolean shootingFromDistance;
+    double distance;
+
     // Tune later
-    PIDController CANController = new PIDController(50, 15, 0);
+    PIDController CANController = new PIDController(50, 17, 0);
 
     public AlignPivot(double desiredAngle) {
-        Pivot s_Pivot = Pivot.getInstance();
+        s_Pivot = Pivot.getInstance();
+        s_Vision = Vision.getInstance();
+        shootingFromDistance = false;
         this.desiredAngle = desiredAngle;
         addRequirements(s_Pivot);
     }
 
     public AlignPivot() {
-        Pivot s_Pivot = Pivot.getInstance();
-        Vision s_Vision = Vision.getInstance();
-        desiredAngle = Constants.getAngleForDistance(s_Vision.getFloorDistance());
+        s_Pivot = Pivot.getInstance();
+        s_Vision = Vision.getInstance();
+        distance = s_Vision.getFloorDistance();
+        desiredAngle = Constants.getAngleForDistance(distance);
+        shootingFromDistance = true;
         addRequirements(s_Pivot);
     }
 
     public AlignPivot(PivotState state) {
-        this(state.getPos());
+        s_Pivot = Pivot.getInstance();
+        s_Vision = Vision.getInstance();
+        this.desiredAngle = state.getPos();
+        shootingFromDistance = false;
+        addRequirements(s_Pivot);
     }
 
     @Override
@@ -55,7 +69,7 @@ public class AlignPivot extends Command {
 
     @Override
 	public boolean isFinished() {
-		return Math.abs(desiredCANcoderValue - s_Pivot.getCANcoderAbsolutePosition()) < 0.001;
+		return shootingFromDistance ? Math.abs(desiredCANcoderValue - s_Pivot.getCANcoderAbsolutePosition()) < 1/(125*distance) : Math.abs(desiredCANcoderValue - s_Pivot.getCANcoderAbsolutePosition()) < 0.005;
 	}
 		
 	@Override

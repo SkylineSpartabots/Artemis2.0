@@ -52,7 +52,7 @@ public class Indexer extends SubsystemBase {
         AMP(0.8),
         ONAUTO(0.32),
         OFF(0),
-        REV(-0.6);
+        REV(-0.8);
         
         private double speed;
 

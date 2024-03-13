@@ -34,7 +34,7 @@ public class Pivot extends SubsystemBase {
         // positions are now in degrees, conversion is in AlignPivot()
         GROUND(16),
         // Current max is .38, can change later
-        SUBWOOFER(56),
+        SUBWOOFER(53),
 
         FARWING(23),
 
