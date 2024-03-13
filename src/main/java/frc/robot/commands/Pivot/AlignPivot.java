@@ -41,11 +41,7 @@ public class AlignPivot extends Command {
     }
 
     public AlignPivot(PivotState state) {
-        s_Pivot = Pivot.getInstance();
-        s_Vision = Vision.getInstance();
-        this.desiredAngle = state.getPos();
-        shootingFromDistance = false;
-        addRequirements(s_Pivot);
+        this(state.getPos());
     }
 
     @Override
