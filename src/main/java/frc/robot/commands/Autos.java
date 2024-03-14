@@ -782,4 +782,67 @@ public final class Autos {
             this.autoCommand = autoCommand;
         }
     }
+
+    public static Command FollowIntakePath(Command ChoreoDriveCommand, double pathTimeLength, double intakeRevTime) {
+        return new ParallelCommandGroup(
+                new SetShooterCommand(0),
+                new SetIndexer(IndexerStates.ON, true, pathTimeLength + 0.5),
+                new SetIntake(IntakeStates.ON, pathTimeLength),
+                new AlignPivot(PivotState.INTAKE),
+                new SequentialCommandGroup(new WaitCommand(intakeRevTime), ChoreoDriveCommand) //intakeRevTime = 0 for longer paths, max of around 0.3 seconds for really short paths
+        );
 }
+
+    public static Command FollowShootPath(Command ChoreoDriveCommand, double shootAngle, double shooterSpeed){
+        return new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        ChoreoDriveCommand,
+                        CommandFactory.eject()     
+                ),
+
+                new ParallelCommandGroup(
+                        new AlignPivot(shootAngle),
+                        new SetShooterCommand(shooterSpeed)
+                ),
+
+                new SetIndexer(IndexerStates.ON, false),
+                Commands.waitSeconds(0.2),
+
+                new ParallelCommandGroup(
+                        new SetShooterCommand(0),
+                        new SetIndexer(IndexerStates.OFF, false)
+                )
+        );
+    }
+    
+
+    //for getting rid of stop points at intake so we dont have to waste time with wait commands
+    public static Command FollowAutoCycle(Command ChoreoDriveCommand, double intakeTimeLength, double intakeRevTime, double shootAngle, double shooterSpeed){
+        return new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        new SetShooterCommand(0),
+                        new SetIndexer(IndexerStates.ON, true, intakeTimeLength + 0.5),
+                        new SetIntake(IntakeStates.ON, intakeTimeLength),
+                        new AlignPivot(PivotState.INTAKE),
+                        new SequentialCommandGroup(new WaitCommand(intakeRevTime), ChoreoDriveCommand, CommandFactory.eject())
+                ),
+
+                new ParallelCommandGroup(
+                        new AlignPivot(shootAngle),
+                        new SetShooterCommand(shooterSpeed)
+                ),
+
+                new SetIndexer(IndexerStates.ON, false),
+                Commands.waitSeconds(0.2),
+                
+                new ParallelCommandGroup(
+                        new SetShooterCommand(0),
+                        new SetIndexer(IndexerStates.OFF, false)
+                )
+        );
+    }
+
+
+
+}
+
