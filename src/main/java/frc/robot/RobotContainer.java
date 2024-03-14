@@ -29,6 +29,7 @@ import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
+import frc.robot.commands.Drive.PIDAlign;
 import frc.robot.commands.Drive.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
@@ -122,11 +123,11 @@ public class RobotContainer {
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
-                        // negative Y (forward)
-                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-                ));
+        drivetrain.applyRequest(() -> drive.withVelocityX(scaledDeadBand(-driver.getLeftY()) * Constants.MaxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(scaledDeadBand(-driver.getLeftX()) * Constants.MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(scaledDeadBand(-driver.getRightX()) * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                )
+                );
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
@@ -156,6 +157,12 @@ public class RobotContainer {
         }
         
         drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    public double scaledDeadBand(double input) { // values from -1 to 1 
+    double deadbandFactor = 0.65; // closer to 0 is more linear
+     return (Math.abs(input) > 0.01) ? (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input : 0;
+      //false is for if our joystick doesint center perfectly (idk if we will ever use but its here) 
     }
 
     public RobotContainer() {

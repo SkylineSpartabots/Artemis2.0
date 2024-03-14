@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
@@ -18,13 +19,18 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
+import frc.robot.Constants;
+
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -38,6 +44,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private double lastTimeReset = -1;
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
+    private CommandXboxController driver = RobotContainer.getInstance().getDriverController();
 
     Vision m_Camera;
 
@@ -49,7 +56,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
         }
         return s_Swerve;
-        
     }
 
     private void limit() {
@@ -142,7 +148,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public void setVoltage(double voltage){
-        
         for(int i = 0; i < ModuleCount; i++){
         }
         // s_Swerve.Modules[0].apply(null, null);
@@ -154,12 +159,31 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             // poseFromVision = m_Camera.calculatePoseFromVision();
         } catch (Exception e) {
         }
-        if(poseFromVision != null){
-            s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-            //TODO: add our own timer
-            
-        }
+        //if(poseFromVision != null){
+            // s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
+            //TODO add our own timer
+        //}
     }
+
+    public void tractionControl() { //being run from periodic for now
+        double slipFactor = 0.995; // 0.5% 
+        double slipThreshold = 1.05; //a little bit of slip is good but needs to be tuned
+
+        double Y = -driver.getLeftY() * Constants.MaxSpeed; //should be in m/s
+        double X = -driver.getLeftX() * Constants.MaxSpeed;
+        double desiredSpeed = Math.sqrt(Math.pow(X, 2) + Math.pow(Y, 2)); //m/s
+
+        for(int i = 0; i < ModuleCount; i++){
+        TalonFX module =  Modules[i].getDriveMotor();
+        double slipRatio = Math.abs(module.getRotorVelocity().getValue() * 60) * ((2 * Math.PI)/60) * (TunerConstants.getWheelRadius() * 0.0254)
+        / desiredSpeed; 
+        if(slipRatio > slipThreshold) {}
+            module.set(module.get() * slipFactor);
+        }
+        SmartDashboard.putNumber("desired speed", desiredSpeed);
+    }
+
+    
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
@@ -169,10 +193,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
+        tractionControl();
         // updateOdometryByVision();
         Pose2d currPose = getPose();
-
-        
         
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);

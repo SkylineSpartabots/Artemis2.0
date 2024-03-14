@@ -113,9 +113,9 @@ public final class Constants {
     enum AlignmentTargets {
 
 
-            // BLUE_SPEAKER(new Point(Vision.getApriltagPose(2).get().getX(),5.55)),
+            BLUE_SPEAKER(new Point(0.47,5.55)),
             RED_SPEAKER(new Point(16.06, 5.55)),
-            BLUE_AMP(new Point(1.815, 8.3)),
+            BLUE_AMP(new Point(1.815, 8.3)), // on choreo it doesint give good amp cords ill find elsewhere
             RED_AMP(new Point(14.715, 8.3));
             
             private Point point;
