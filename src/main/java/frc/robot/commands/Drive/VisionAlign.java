@@ -34,7 +34,7 @@ public class VisionAlign extends Command {
 
     @Override
     public void initialize() {
-        s_Swerve.enableTractionControl();
+            s_Swerve.enableTractionControl();
     }
     
     @Override

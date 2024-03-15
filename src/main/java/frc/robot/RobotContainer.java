@@ -156,15 +156,13 @@ public class RobotContainer {
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
-        
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public double scaledDeadBand(double input) { // values from -1 to 1 
     double deadbandFactor = 0.65; // closer to 0 is more linear
      return (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input;
-      //false is for if our joystick doesint center perfectly (idk if we will ever use but its here) 
-    }
+     }
 
     public RobotContainer() {
         configureBindings();
