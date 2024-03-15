@@ -31,6 +31,7 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.Drive.PIDAlign;
 import frc.robot.commands.Drive.SlowDrive;
+import frc.robot.commands.Drive.VisionAlign;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -93,7 +94,7 @@ public class RobotContainer {
          * Mechanism bindings
          */
 
-        driver.a().onTrue(CommandFactory.offEverything()); //FINAL
+        driver.a().onTrue(new VisionAlign()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(CommandFactory.eject()); //FINAL
         driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
@@ -161,12 +162,11 @@ public class RobotContainer {
 
     public double scaledDeadBand(double input) { // values from -1 to 1 
     double deadbandFactor = 0.65; // closer to 0 is more linear
-     return (Math.abs(input) > 0.01) ? (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input : 0;
+     return (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input;
       //false is for if our joystick doesint center perfectly (idk if we will ever use but its here) 
     }
 
     public RobotContainer() {
-
         configureBindings();
     }
 }

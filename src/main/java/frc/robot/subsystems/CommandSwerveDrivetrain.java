@@ -42,6 +42,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private double m_lastSimTime;
 
     private double lastTimeReset = -1;
+    private boolean tractionGO = false;
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
     private CommandXboxController driver = RobotContainer.getInstance().getDriverController();
@@ -177,14 +178,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         TalonFX module =  Modules[i].getDriveMotor();
         double slipRatio = Math.abs(module.getRotorVelocity().getValue() * 60) * ((2 * Math.PI)/60) * (TunerConstants.getWheelRadius() * 0.0254)
         / desiredSpeed; 
-        if(slipRatio > slipThreshold) {}
+        if(slipRatio > slipThreshold) {
             module.set(module.get() * slipFactor);
+            }   
         }
         SmartDashboard.putNumber("desired speed", desiredSpeed);
     }
 
-    
-
+    public void enableTractionControl() { //for testing
+        tractionGO = true;
+    }
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
     public void setAutoStartPose(Pose2d pose){
@@ -193,7 +196,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
+        if(tractionGO = true) {
         tractionControl();
+        }
         // updateOdometryByVision();
         Pose2d currPose = getPose();
         
