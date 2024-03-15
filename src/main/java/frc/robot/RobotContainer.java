@@ -56,7 +56,6 @@ public class RobotContainer {
     private final Pivot s_Pivot = Pivot.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
 
     public static final double translationDeadband = 0.1;
