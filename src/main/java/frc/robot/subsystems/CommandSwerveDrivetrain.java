@@ -177,9 +177,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         TalonFX module =  Modules[i].getDriveMotor();
         double slipRatio = Math.abs(module.getRotorVelocity().getValue() * 60) * ((2 * Math.PI)/60) * (TunerConstants.getWheelRadius() * 0.0254)
         / desiredSpeed; 
-        if(slipRatio > slipThreshold) {
+        if(slipRatio > slipThreshold) {}
             module.set(module.get() * slipFactor);
-            }
         }
         SmartDashboard.putNumber("desired speed", desiredSpeed);
     }
