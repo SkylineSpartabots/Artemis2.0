@@ -6,11 +6,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Lightz extends SubsystemBase {
     private static Lightz instance;
     private int selected = 0;
-    private String binaryString;
-    private final DigitalOutput pin0;
-    private final DigitalOutput pin1;
-    private final DigitalOutput pin2;
-    private final DigitalOutput pin3;
+    private DigitalOutput[] pins; // Its like swerve
+    private final int pinCount = 4;
 
     public static Lightz getInstance() {
         if (instance == null) {
@@ -42,10 +39,9 @@ public class Lightz extends SubsystemBase {
     }
 
     public Lightz() {
-        pin0 = new DigitalOutput(0);
-        pin1 = new DigitalOutput(1);
-        pin2 = new DigitalOutput(2);
-        pin3 = new DigitalOutput(3);
+        for (int i = 0; i < pinCount; i++) {
+            pins[i] = new DigitalOutput(i); // Might wanna be in a try catch? Yo no sé
+        }
     }
 
     public void setLEDs(ledModes mode) {
@@ -54,7 +50,7 @@ public class Lightz extends SubsystemBase {
         System.out.println("Selected LED Mode: " + selected);
 
         // Convert to binary
-        binaryString = Integer.toBinaryString(selected);
+        String binaryString = Integer.toBinaryString(selected);
         while (binaryString.length() < 4) { // Make sure that the string is 4 bits
             binaryString = '0' + binaryString;
         }
@@ -66,16 +62,10 @@ public class Lightz extends SubsystemBase {
     }
 
     private void setDigitalOutPins(String binStr) {
-        pin0.set(Character.getNumericValue(binaryString.charAt(0)) > 0);
-        pin1.set(Character.getNumericValue(binaryString.charAt(1)) > 0);
-        pin2.set(Character.getNumericValue(binaryString.charAt(2)) > 0);
-        pin3.set(Character.getNumericValue(binaryString.charAt(3)) > 0);
-
-        // Debug
-        System.out.println(pin0.get());
-        System.out.println(pin1.get());
-        System.out.println(pin2.get());
-        System.out.println(pin3.get());
+        for (int i = 0; i < pins.length; i++) {
+            pins[i].set(Character.getNumericValue(binStr.charAt(i)) > 0);
+            System.out.println(pins[i].get());
+        }
     }
 
     @Override
