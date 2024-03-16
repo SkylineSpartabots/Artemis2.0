@@ -30,7 +30,9 @@ public class SetIndexer extends Command {
         s_Indexer = Indexer.getInstance();
         this.state = state;
         timer = new Timer();
+        s_Lightz = Lightz.getInstance();
         addRequirements(s_Indexer);
+        addRequirements(s_Lightz);
         this.time = time;
     }
 

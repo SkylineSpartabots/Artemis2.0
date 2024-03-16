@@ -4,6 +4,10 @@
 
 #define DATA_PIN 4
 
+const int dataPin0 = 8;
+const int dataPin1 = 9;
+const int dataPin2 = 10;
+const int dataPin3 = 11;
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
@@ -55,88 +59,63 @@ void setup() {
 
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
   FastLED.clearData();
+
+  pinMode(dataPin0, INPUT);
+  pinMode(dataPin1, INPUT);
+  pinMode(dataPin2, INPUT);
+  pinMode(dataPin3, INPUT);
 }
 
 void loop() {
-  if (Serial.available() > 0){
-    
+  int input0 = digitalRead(dataPin0);
+  int input1 = digitalRead(dataPin1);
+  int input2 = digitalRead(dataPin2); 
+  int input3 = digitalRead(dataPin3);
+
+  int inputAsNumber = input0 + (2*input1) + (4*input2) + (8*input3);
+
     digitalWrite(13, 1); // Debug
 
     inData = Serial.read();
     Serial.println(inData);
     
-//     //TODO Decide on mode meanings and what patterns they should be
-//     switch (inData) {
-// //    ****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
-//       case '0': //OFF
-//         setSolid(0, 0, 0);
-//         break;
-//       case '1'://RED
-//         setSolid(0, 255, 255);
-//         break;
-//       case '2'://ORANGE
-//        setSolid(15, 255, 255);
-//         break;
-//       case '3'://YELLOW
-//         setSolid(55, 255, 255);
-//         break;
-//       case '4'://GREEN
-//         setSolid(96, 255, 255);
-//         break;
-//       case '5'://BLUE
-//         setSolid(160, 255, 255);
-//         break;
-//       case '6'://PURPLE
-//         setSolid(192, 255, 255);
-//         break;
-//       case '7'://PINK
-//         flashSolid(224, 255, 255, 200, 200);
-//         // setSolid(224, 255, 255);
-//         break;
-//       case '8'://WHITE
-//         setSolid(0, 0, 127); // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
-//         break;
-//       case '9'://redAnt - just demo really rn
-//         runAnt(PURPLE, 7, 3, 35);
-//         break;
-//     }
-    switch (inData) { //                     trying what the video did and using byte and hexadecimal codes
-    //https://www.aqua-calc.com/convert/number/hexadecimal-to-decimal
-//    ****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
-      case 0x0: //OFF
+    //TODO Decide on mode meanings and what patterns they should be
+    switch (inputAsNumber) {
+      //****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
+      case 0: //OFF
         setSolid(0, 0, 0);
         break;
-      case 0x1://RED
+      case 1://RED
         setSolid(0, 255, 255);
         break;
-      case 0x2://ORANGE
+      case 2://ORANGE
        setSolid(15, 255, 255);
         break;
-      case 0x3://YELLOW
+      case 3://YELLOW
         setSolid(55, 255, 255);
         break;
-      case 0x4://GREEN
+      case 4://GREEN
         setSolid(96, 255, 255);
         break;
       case 5://BLUE
         setSolid(160, 255, 255);
         break;
-      case '6'://PURPLE
+      case 6://PURPLE
         setSolid(192, 255, 255);
         break;
-      case '7'://PINK
+      case 7://PINK
         flashSolid(224, 255, 255, 200, 200, 2);
         // setSolid(224, 255, 255);
         break;
-      case '8'://WHITE
+      case 8://WHITE
         setSolid(0, 0, 127); // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
         break;
-      case '9'://redAnt - just demo really rn
+      case 9://redAnt - just demo really rn
         runAnt(PURPLE, 7, 3, 35);
         break;
-    } 
-  digitalWrite(13, 0); // Debug
-  }
+    }
+    digitalWrite(13, 0); // Debug
+  
 
   if (antEnabled){runAnt(antHSV[0], antHSV[1], antHSV[2], primarySize, secondarySize, antDelay);}
   else if (flashEnabled && currentFlashCount <= flashCountLimit) {
