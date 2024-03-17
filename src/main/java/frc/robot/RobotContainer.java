@@ -27,6 +27,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.Drive.PIDAlign;
@@ -63,6 +64,10 @@ public class RobotContainer {
     public static final double translationDeadband = 0.1;
     public static final double rotDeadband = 0.1;
 
+    private double lastScaled;
+    private double deadbandFactor = 0.5; // closer to 0 is more linear controls
+    private double maximumStep = 0.1; //needs to be tuned but caps maximum acceleration in a single step to maintain control and stability (theoretically) should be pretty high... ALL EXPERIMENTAL!!! IM BORED!!
+    
     // driving in open loop
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -159,10 +164,18 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    public double scaledDeadBand(double input) { // values from -1 to 1 
-    double deadbandFactor = 0.65; // closer to 0 is more linear
-     return (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input;
-     }
+    public double scaledDeadBand(double input) { // values from -1 to 1... I HOPE!!!
+    double newScaled = (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input;
+
+    // IDK!
+    // if((Math.abs(newScaled) - Math.abs(lastScaled)) >= maximumStep) {
+    //     newScaled = lastScaled + maximumStep;
+    // }
+    
+    // lastScaled = newScaled;
+
+    return newScaled;
+    }
 
     public RobotContainer() {
         configureBindings();

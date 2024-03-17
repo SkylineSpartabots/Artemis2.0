@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -46,6 +47,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
     private CommandXboxController driver = RobotContainer.getInstance().getDriverController();
+    Pigeon2 pigeon = new Pigeon2(2);
 
     Vision m_Camera;
 
@@ -168,27 +170,29 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void tractionControl() { //being run from periodic for now
         double slipFactor = 0.995; // 0.5% 
-        double slipThreshold = 1.05; //a little bit of slip is good but needs to be tuned
+        double slipThreshold = 1.15; //a little bit of slip is good but needs to be tuned
+        RobotContainer deadband = RobotContainer.getInstance();
 
-        double Y = -driver.getLeftY() * Constants.MaxSpeed; //should be in m/s
-        double X = -driver.getLeftX() * Constants.MaxSpeed;
-        double desiredSpeed = Math.sqrt(Math.pow(X, 2) + Math.pow(Y, 2)); //m/s
+        double desiredSpeed = Math.sqrt(Math.pow(deadband.scaledDeadBand(-driver.getLeftY()) * Constants.MaxSpeed, 2) + Math.pow(deadband.scaledDeadBand(-driver.getLeftX()) * Constants.MaxSpeed, 2)); //m/s
+        // double actualAcceleration =  Math.sqrt(Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2)); perhaps to change how mean the slip factor is?
 
         for(int i = 0; i < ModuleCount; i++){
+
             TalonFX module =  Modules[i].getDriveMotor();
-            double slipRatio = Math.abs(module.getRotorVelocity().getValue() * 60) * ((2 * Math.PI)/60) * (TunerConstants.getWheelRadius() * 0.0254) / desiredSpeed; 
+            double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2 * Math.PI)/60) * (TunerConstants.getWheelRadius() * 0.0254)) / desiredSpeed; 
 
             if(slipRatio > slipThreshold) {
                 module.set(module.get() * slipFactor);
             }
-               
+             SmartDashboard.putNumber("slip ratio", slipRatio);
         }
         SmartDashboard.putNumber("desired speed", desiredSpeed);
     }
 
-    public void enableTractionControl() { //for testing
-        tractionGO = true;
+    public void toggleTractionControl() { //for testing
+        tractionGO = (tractionGO == false) ? true : false;
     }
+
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
     public void setAutoStartPose(Pose2d pose){
