@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
+import frc.robot.subsystems.Lightz.ledModes;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
@@ -35,7 +36,7 @@ import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Intake.SetIntake;
-
+import frc.robot.subsystems.Lightz;
 
 public class RobotContainer {
 
@@ -53,6 +54,8 @@ public class RobotContainer {
 
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
     private final Pivot s_Pivot = Pivot.getInstance();
+    private final Intake s_intake = Intake.getInstance();
+    private final Lightz s_Lightz = Lightz.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
@@ -103,14 +106,14 @@ public class RobotContainer {
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
-        driver.leftTrigger().whileTrue(new SlowDrive());
+        // driver.leftTrigger().whileTrue(new SlowDrive());
         // driver.leftTrigger().onTrue(new PureAlignment());
-        // driver.leftTrigger().onTrue(new VisionAlign());
+        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Lightz.setLEDs(ledModes.BLUE))); //ESHAAN UNCOMMENT FOR LED
 
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
         driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
-        driver.leftBumper().onTrue(new SetShooterCommand(45));
-        // driver.leftBumper().onTrue(onIntake());
+        // driver.leftBumper().onTrue(new SetShooterCommand(45));
+        driver.leftBumper().onTrue(new SetIntake(IntakeStates.ON));
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
