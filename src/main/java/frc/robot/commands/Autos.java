@@ -557,22 +557,22 @@ public final class Autos {
                 new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new SetShooterCommand(0)));
     }
 
-    public static Command Horizontal() {
-        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal Test");
+//     public static Command Horizontal() {
+//         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal Test");
 
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    Pose2d initialPose;
-                    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-                    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
-                    s_Swerve.resetOdo(initialPose);
-                    System.out.println(initialPose.getX() + " " + initialPose.getY());
-                }),
-                FollowChoreoTrajectory(trajectory.get(0)),
-                Commands.waitSeconds(0.3),
-                FollowChoreoTrajectory(trajectory.get(1))
-        );
-    }
+//         return new SequentialCommandGroup(
+//                 new InstantCommand(() -> {
+//                     Pose2d initialPose;
+//                     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+//                     initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+//                     s_Swerve.resetOdo(initialPose);
+//                     System.out.println(initialPose.getX() + " " + initialPose.getY());
+//                 }),
+//                 FollowChoreoTrajectory(trajectory.get(0)),
+//                 Commands.waitSeconds(0.3),
+//                 FollowChoreoTrajectory(trajectory.get(1))
+//         );
+//     }
 
     public static Command Straight() {
         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Straight");
@@ -762,7 +762,7 @@ public final class Autos {
         ThreeNoteFarSide("ThreeNoteFarSide", ThreeNoteFarSide()),
         FourNoteCloseSide("FourNoteCloseSide", FourNoteCloseSide()),
         FourNoteSubwoofer("FourNoteSubwoofer", FourNoteSubwoofer()),
-        Horizontal("Horizontal", Horizontal()),
+        // Horizontal("Horizontal", Horizontal()),
         Straight("Straight", Straight()),
         Rotation("Rotation", Rotation()),
         //FourNoteMinTranslationMiddle("FourNoteMinTranslationMiddle", FourNoteStraightBot()),
