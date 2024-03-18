@@ -47,7 +47,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public enum IndexerStates {
-        ON(0.4),
+        ON(0.5),
         SHOOTING(0.7),
         AMP(0.8),
         ONAUTO(0.32),

@@ -17,6 +17,7 @@ public class SetIndexer extends Command {
     public SetIndexer(IndexerStates state, boolean intaking, double time) {
         this.intaking = intaking;
         s_Indexer = Indexer.getInstance();
+        s_Lightz = Lightz.getInstance();
         this.state = state;
         timer = new Timer();
         addRequirements(s_Indexer);

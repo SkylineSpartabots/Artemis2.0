@@ -42,7 +42,7 @@ public class SmartIntake extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return s_Indexer.getColorSensorResult() > 125; //TODO: need to tune so note doesn't touch shooter when command ends
+    return s_Indexer.getColorSensorResult() > 145; //TODO: need to tune so note doesn't touch shooter when command ends
     // return s_Indexer.getLimitSwitchResult();
   }
 }

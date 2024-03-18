@@ -109,7 +109,7 @@ public class RobotContainer {
 
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
         driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
-        driver.leftBumper().onTrue(new SetShooterCommand(60));
+        driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(onIntake());
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL

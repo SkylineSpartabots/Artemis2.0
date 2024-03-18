@@ -52,18 +52,13 @@ public class Shooter extends SubsystemBase {
 
         //invertMotor(shooterTopM);
         configMotor(shooterTopM, 0.21, 0.122);
-        configMotor(shooterBottomM, 0.362, 0.1225);
-    }
-
-    private void invertMotor(TalonFX motor) {
-        System.out.println("INVERT F");
-        motor.setInverted(true);
+        configMotor(shooterBottomM, 0.38, 0.125);
     }
 
     private void configMotor(TalonFX motor, double kS, double kV) {
 
         TalonFXConfiguration config = new TalonFXConfiguration();
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
@@ -79,41 +74,6 @@ public class Shooter extends SubsystemBase {
         motor.getConfigurator().apply(config);
         motor.getConfigurator().apply(slot0Configs);
     }
-
-    /**
-     * @param speeds:        Array containing speeds for Bottom and Top motors
-     *                       (bottom, top)
-     * @param MotorLocation: Choose motors to set, 1 is Bottom motor, 2 is Top
-     *                       motor, 0 is Both
-     */
-    /*
-     * public void setSpeed(double[] speeds, ShooterMotors MotorLocation) { //sets
-     * speed of motors using specific speed values
-     * 
-     * if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
-     * shooterBottomM.set(speeds[0]);
-     * botVelocitySetpoint = speeds[0];
-     * } else if (MotorLocation == Shooter.ShooterMotors.TOP) {
-     * shooterTopM.set(speeds[1]);
-     * topVelocitySetpoint = speeds[1];
-     * } else if (MotorLocation == Shooter.ShooterMotors.BOTH) {
-     * shooterTopM.set(speeds[0]);
-     * topVelocitySetpoint = speeds[0];
-     * shooterBottomM.set(speeds[1]);
-     * botVelocitySetpoint = speeds[1];
-     * }
-     * }
-     */
-
-    /*
-     * public void setSpeed(double speed) { //-1.0 - 1.0, not rpm
-     * double[] speeds = new double[3];
-     * for (int i = 0; i < 3; i++) {
-     * speeds[i] = speed;
-     * }
-     * setSpeed(speeds, ShooterMotors.BOTH);
-     * } //what does do 🦅🦅🍔🍔🌭 ??
-     */
 
     public double getTopSetpoint() { // gets specific Speed (i hope)
         return topVelocitySetpoint;
