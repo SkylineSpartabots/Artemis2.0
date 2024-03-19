@@ -99,7 +99,7 @@ public class RobotContainer {
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
-        
+            
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
@@ -109,7 +109,7 @@ public class RobotContainer {
 
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
         driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
-        driver.leftBumper().onTrue(new SetShooterCommand(10));
+        driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(onIntake());
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL

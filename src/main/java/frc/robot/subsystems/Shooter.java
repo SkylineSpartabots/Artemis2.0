@@ -58,11 +58,6 @@ public class Shooter extends SubsystemBase {
         configMotor(shooterBottomM, 0.362, 0.1225);
     }
 
-    private void invertMotor(TalonFX motor) {
-        System.out.println("INVERT F");
-        motor.setInverted(true);
-    }
-
     private void configMotor(TalonFX motor, double kS, double kV) {
 
         TalonFXConfiguration config = new TalonFXConfiguration();

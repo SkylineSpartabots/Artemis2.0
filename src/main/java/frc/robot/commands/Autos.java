@@ -159,6 +159,25 @@ public final class Autos {
                 new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new SetShooterCommand(0)));
     }
 
+    public static Command FourNoteSubwooferNew() {
+        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourPieceSubwooferNew");
+        return new SequentialCommandGroup(
+               new InstantCommand(() -> {
+                    Pose2d initialPose;
+                    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+                    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+                    s_Swerve.resetOdo(initialPose);
+                    System.out.println(initialPose.getX() + " " + initialPose.getY());
+                }),
+                FollowChoreoTrajectory(trajectory.get(0)),
+                Commands.waitSeconds(1),
+                FollowChoreoTrajectory(trajectory.get(1)),
+                Commands.waitSeconds(1),
+                FollowChoreoTrajectory(trajectory.get(2))
+        );
+    }
+
+
     public static Command ThreeNoteSubwooferMidTop(){
       ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourPieceSubwoofer");
         return new SequentialCommandGroup(
@@ -767,7 +786,8 @@ public final class Autos {
         FourNoteFromTop("FourNoteFromTop", FourNoteFromTop()),
         TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
         ThreeNoteSubwooferMidTop("ThreeNoteSubwooferMidTop", ThreeNoteSubwooferMidTop()),
-        ThreeNoteSubwooferMidBot("ThreeNoteSubwooferMidBot", ThreeNoteSubwooferMidBot());
+        ThreeNoteSubwooferMidBot("ThreeNoteSubwooferMidBot", ThreeNoteSubwooferMidBot()),
+        FourNoteSubwooferNew("FourNoteSubwooferNew", FourNoteSubwooferNew());
         //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
 
 
