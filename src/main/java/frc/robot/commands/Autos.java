@@ -98,13 +98,13 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true),
+                        new SetIndexer(IndexerStates.ON, true, 5),
                         new SetIntake(IntakeStates.ON),
                         new AlignPivot(PivotState.INTAKE),
                         new SequentialCommandGroup(new WaitCommand(0.3), FollowChoreoTrajectory(trajectory.get(0)))
                 ),
 
-                Commands.waitSeconds(0.5),
+                Commands.waitSeconds(0.7),
 
                 new ParallelCommandGroup(
                         // new AlignPivot(PivotState.SUBWOOFER), after pivot stops moving it drops a bit
@@ -365,7 +365,7 @@ public final class Autos {
 
           new ParallelCommandGroup(
             new AlignPivot(PivotState.SUBWOOFER),
-            new SetShooterCommand(40)
+            new SetShooterCommand(45)
           ),
 
           new SetIndexer(IndexerStates.ON, false),
