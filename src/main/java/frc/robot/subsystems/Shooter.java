@@ -50,10 +50,12 @@ public class Shooter extends SubsystemBase {
         shooterTopM = new TalonFX(Constants.HardwarePorts.shooterTopM);
         shooterBottomM = new TalonFX(Constants.HardwarePorts.shooterBottomM);
 
+        shooterBottomM.setInverted(false);
+        shooterTopM.setInverted(false);
+
         //invertMotor(shooterTopM);
         configMotor(shooterTopM, 0.21, 0.122);
         configMotor(shooterBottomM, 0.362, 0.1225);
-        invertMotor(shooterBottomM);
     }
 
     private void invertMotor(TalonFX motor) {
@@ -64,7 +66,7 @@ public class Shooter extends SubsystemBase {
     private void configMotor(TalonFX motor, double kS, double kV) {
 
         TalonFXConfiguration config = new TalonFXConfiguration();
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();

@@ -87,9 +87,15 @@ public class Indexer extends SubsystemBase {
         return indexerLeaderM.getMotorVoltage().getValueAsDouble();
     }
 
+    public double getMotorCurrent() {
+        return indexerLeaderM.getTorqueCurrent().getValueAsDouble();
+    }
+
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Color Sensor Proximity", getColorSensorResult());
+        SmartDashboard.putNumber("Indexer Motor Current", getMotorCurrent());
         // SmartDashboard.putBoolean("Limit Switch State", getLimitSwitchResult());
     }
 

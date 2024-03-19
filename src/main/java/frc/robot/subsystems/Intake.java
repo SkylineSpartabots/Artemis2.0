@@ -51,6 +51,7 @@ public class Intake extends SubsystemBase {
         intakeFollowerM = new TalonFX(Constants.HardwarePorts.intakeFollowerM);
         configMotor(intakeLeaderM);
         configMotor(intakeFollowerM);
+        intakeFollowerM.setInverted(true);
         //intakeFollowerM.setControl(follow);
         
         
