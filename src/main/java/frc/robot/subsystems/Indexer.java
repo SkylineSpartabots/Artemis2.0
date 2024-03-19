@@ -48,7 +48,7 @@ public class Indexer extends SubsystemBase {
 
     public enum IndexerStates {
         ON(0.4),
-        SHOOTING(0.7),
+        SHOOTING(0.8),
         AMP(0.8),
         ONAUTO(0.32),
         OFF(0),
@@ -87,9 +87,15 @@ public class Indexer extends SubsystemBase {
         return indexerLeaderM.getMotorVoltage().getValueAsDouble();
     }
 
+    public double getMotorCurrent() {
+        return indexerLeaderM.getTorqueCurrent().getValueAsDouble();
+    }
+
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Color Sensor Proximity", getColorSensorResult());
+        SmartDashboard.putNumber("Indexer Motor Current", getMotorCurrent());
         // SmartDashboard.putBoolean("Limit Switch State", getLimitSwitchResult());
     }
 

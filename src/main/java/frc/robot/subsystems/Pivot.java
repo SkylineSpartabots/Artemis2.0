@@ -42,7 +42,7 @@ public class Pivot extends SubsystemBase {
 
         INTAKE(70),
 
-        AMP(88); //90 for shooting vertically
+        AMP(105); //90 for shooting vertically
         //WING(position);
 
         private double pos;
