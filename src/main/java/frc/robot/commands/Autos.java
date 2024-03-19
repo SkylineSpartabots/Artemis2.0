@@ -568,9 +568,7 @@ public final class Autos {
                     s_Swerve.resetOdo(initialPose);
                     System.out.println(initialPose.getX() + " " + initialPose.getY());
                 }),
-                FollowChoreoTrajectory(trajectory.get(0)),
-                Commands.waitSeconds(0.3),
-                FollowChoreoTrajectory(trajectory.get(1))
+                FollowChoreoTrajectory(trajectory.get(0))
         );
     }
 
