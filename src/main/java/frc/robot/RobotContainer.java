@@ -51,8 +51,14 @@ public class RobotContainer {
     public final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
     private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
 
+    private final Amp s_Amp = Amp.getInstance();
+    private final Climb s_Climb = Climb.getInstance();
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
+    private final Indexer s_Indexer = Indexer.getInstance();
+    private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
+    private final Shooter s_Shooter = Shooter.getInstance();
+    private final Vision s_Vision = Vision.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
