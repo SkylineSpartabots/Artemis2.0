@@ -114,7 +114,7 @@ public class RobotContainer {
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadLeft.onTrue(new AlignPivot()); 
+        driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
         

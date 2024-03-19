@@ -53,6 +53,7 @@ public class Shooter extends SubsystemBase {
         //invertMotor(shooterTopM);
         configMotor(shooterTopM, 0.21, 0.122);
         configMotor(shooterBottomM, 0.362, 0.1225);
+        invertMotor(shooterBottomM);
     }
 
     private void invertMotor(TalonFX motor) {
