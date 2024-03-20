@@ -173,7 +173,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // }
     }
 
-    public void tractionControl() { // being run from periodic for now
+    public void tractionControl() { // needs collition detection in the future should be easy to make
+
         double slipFactor = 0.995; // 0.5%
         double slipThreshold = 1.15; //a little bit of slip is good but needs to be tuned
         RobotContainer deadband = RobotContainer.getInstance();
@@ -204,7 +205,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
 
         double frictionCoefficant = 0.65; // this is an educated guess of the dynamic coeffiant (need to simulate for this value or something idk)
-        double averageWheelAcceleration = 0;
+        double WheelAcceleration = 0;
         double desiredAcceleration = Math.sqrt(
                 Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2));
 
@@ -213,11 +214,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
-            averageWheelAcceleration = +(Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
-                    * (TunerConstants.getWheelRadius() * 0.0254)) / 4; // m/s
+            WheelAcceleration =+ (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
+                    * (TunerConstants.getWheelRadius() * 0.0254)); // not very sure about this math but should be m/s ill check later
         }
 
-        double desiredChange = desiredAcceleration - averageWheelAcceleration;
+        double desiredChange = desiredAcceleration - (WheelAcceleration / 4);
         double maxAcceleration = (pigeon.getAccelerationZ().getValue() * frictionCoefficant) * 0.03;
         // maximum acceleration we can have is equal to g*CoF, where g is the
         // acceleration due to gravity and CoF is the coefficient of friction between
