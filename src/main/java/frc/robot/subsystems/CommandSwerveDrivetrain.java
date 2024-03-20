@@ -44,11 +44,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private double m_lastSimTime;
 
     private double lastTimeReset = -1;
-    private double lastTractionCheck = 0;
     private boolean tractionGO = false;
+    private boolean tractionOveride = false;
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
-    private CommandXboxController driver = RobotContainer.getInstance().getDriverController();
     Pigeon2 pigeon = new Pigeon2(2);
 
     Vision m_Camera;
@@ -173,14 +172,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // }
     }
 
-    public void tractionControl() { // needs collition detection in the future should be easy to make
+    public void tractionControl(double driverLY, double driverLX) { // needs collition detection in the future should be easy to make
 
         double slipFactor = 0.995; // 0.5%
         double slipThreshold = 1.15; //a little bit of slip is good but needs to be tuned
-        RobotContainer deadband = RobotContainer.getInstance();
-        double desiredSpeed =
-        Math.sqrt(Math.pow(deadband.scaledDeadBand(-driver.getLeftY()) *
-        Constants.MaxSpeed, 2) + Math.pow(deadband.scaledDeadBand(-driver.getLeftX())
+        double desiredSpeed =   
+        Math.sqrt(Math.pow(driverLY *
+        Constants.MaxSpeed, 2) + Math.pow(driverLX
         * Constants.MaxSpeed, 2)); //m/s
 
         for(int i = 0; i < ModuleCount; i++){
@@ -191,11 +189,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         if(slipRatio > slipThreshold) {
         module.set(module.get() * slipFactor);
-        }
+        } else {tractionOveride = false;}
         SmartDashboard.putNumber("slip ratio", slipRatio);
         }
         SmartDashboard.putNumber("desired speed", desiredSpeed);
-
 
 
                                             // above and below are different approches to traction control tbh i think above 🦅🦅 
@@ -243,6 +240,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
     public Boolean getTraction() {
         return tractionGO;
+    }
+    public Boolean tractionOverride() {
+        return tractionOveride;
     }
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
