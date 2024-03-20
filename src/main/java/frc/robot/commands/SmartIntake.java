@@ -42,12 +42,14 @@ public class SmartIntake extends Command {
   public void end(boolean interrupted) {
     s_Intake.setSpeed(IntakeStates.OFF);
     s_Indexer.setState(IndexerStates.OFF);
+    if (!interrupted){
+      s_Lights.setLEDs(ledModes.IntakeSuccess);
+    }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (s_Indexer.getColorSensorResult() > 145){s_Lights.setLEDs(ledModes.IntakeSuccess);}
     return s_Indexer.getColorSensorResult() > 145; //TODO: need to tune so note doesn't touch shooter when command ends
     // return s_Indexer.getLimitSwitchResult();
   }
