@@ -12,6 +12,7 @@ import java.time.Instant;
 
 import org.opencv.core.Point;
 
+import com.ctre.phoenix.music.Orchestra;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -21,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
@@ -59,6 +61,7 @@ public class RobotContainer {
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Vision s_Vision = Vision.getInstance();
+    private final Music s_Orchestra = Music.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
@@ -154,6 +157,10 @@ public class RobotContainer {
 
         operator.rightBumper().onTrue(CommandFactory.Diagnostic());
 
+        operator.back().onTrue(new SequentialCommandGroup(
+            new InstantCommand(() -> s_Orchestra.loadMusic("jinglebells.chrp")),
+            new InstantCommand(() -> s_Orchestra.playMusic())));
+
         /*
          * simulation bindings
          */
@@ -162,6 +169,8 @@ public class RobotContainer {
         }
         
         drivetrain.registerTelemetry(logger::telemeterize);
+
+
     }
 
     public RobotContainer() {
