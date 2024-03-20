@@ -12,6 +12,7 @@ import java.time.Instant;
 
 import org.opencv.core.Point;
 
+import com.ctre.phoenix.music.Orchestra;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -162,6 +163,10 @@ public class RobotContainer {
         }
         
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        driverBack.onTrue(new SequentialCommandGroup(
+            new InstantCommand(() -> s_Orchestra.loadMusic("jinglebells.chrp")),
+            new InstantCommand(() -> s_Orchestra.playMusic())));
     }
 
     public RobotContainer() {
