@@ -12,7 +12,6 @@ import java.time.Instant;
 
 import org.opencv.core.Point;
 
-import com.ctre.phoenix.music.Orchestra;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -61,7 +60,7 @@ public class RobotContainer {
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Vision s_Vision = Vision.getInstance();
-    private final Music s_Orchestra = Music.getInstance();
+    // private final Music s_Orchestra = Music.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
@@ -113,6 +112,7 @@ public class RobotContainer {
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
         driver.leftTrigger().whileTrue(new SlowDrive());
+        // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
 
@@ -123,7 +123,8 @@ public class RobotContainer {
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
+        driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
+        // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
         
@@ -157,9 +158,9 @@ public class RobotContainer {
 
         operator.rightBumper().onTrue(CommandFactory.Diagnostic());
 
-        operator.back().onTrue(new SequentialCommandGroup(
-            new InstantCommand(() -> s_Orchestra.loadMusic("jinglebells.chrp")),
-            new InstantCommand(() -> s_Orchestra.playMusic())));
+        // operator.back().onTrue(new SequentialCommandGroup(
+        //     new InstantCommand(() -> s_Orchestra.loadMusic("jinglebells.chrp")),
+        //     new InstantCommand(() -> s_Orchestra.playMusic())));
 
         /*
          * simulation bindings
