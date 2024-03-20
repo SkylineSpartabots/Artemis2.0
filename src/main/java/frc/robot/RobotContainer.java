@@ -164,16 +164,13 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    public double scaledDeadBand(double input) { // values from -1 to 1... I HOPE!!!
+    public double scaledDeadBand(double input) { // guessing values are from -1 to 1 but they might not be and this would break the code so i got to check soon
     double newScaled = (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input;
-
-    // IDK!
     // if((Math.abs(newScaled) - Math.abs(lastScaled)) >= maximumStep) {
     //     newScaled = lastScaled + maximumStep;
     // }
     
     // lastScaled = newScaled;
-
     return newScaled;
     }
 

@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.sql.Driver;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -32,9 +33,9 @@ import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
 import frc.robot.Constants;
 
-
 /**
- * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
+ * Class that extends the Phoenix SwerveDrivetrain class and implements
+ * subsystem
  * so it can be used in command-based projects easily.
  */
 public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem {
@@ -43,6 +44,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private double m_lastSimTime;
 
     private double lastTimeReset = -1;
+    private double lastTractionCheck = 0;
     private boolean tractionGO = false;
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
@@ -53,10 +55,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private Field2d m_field = new Field2d();
 
-    public static CommandSwerveDrivetrain getInstance(){
-        if(s_Swerve == null){
+    public static CommandSwerveDrivetrain getInstance() {
+        if (s_Swerve == null) {
             s_Swerve = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
-            TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
+                    TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
         }
         return s_Swerve;
     }
@@ -68,16 +70,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             configs.SupplyCurrentLimitEnable = true;
             configs.StatorCurrentLimit = 40;
             configs.StatorCurrentLimitEnable = true;
-            
 
             module.getDriveMotor().getConfigurator().apply(configs);
             module.getSteerMotor().getConfigurator().apply(configs);
         }
     }
 
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
-        super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
-        
+    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
+            SwerveModuleConstants... modules) {
+        super(driveTrainConstants, OdometryUpdateFrequency, modules); // look here for parent library methods
+
         m_Camera = Vision.getInstance();
 
         if (Utils.isSimulation()) {
@@ -85,6 +87,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
         limit();
     }
+
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         if (Utils.isSimulation()) {
@@ -112,13 +115,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
-    public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
+    public void resetOdo() { // not being used, drivetrain.seedFieldRelative() instead for field centric
+                             // driving
         tareEverything();
         tareEverything();
         tareEverything();
     }
 
-    public void resetOdoUtil(Pose2d pose){
+    public void resetOdoUtil(Pose2d pose) {
         try {
             m_stateLock.writeLock().lock();
 
@@ -132,83 +136,135 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public void resetOdo(Pose2d pose){
+    public void resetOdo(Pose2d pose) {
         resetOdoUtil(pose);
         resetOdoUtil(pose);
         resetOdoUtil(pose);
     }
 
-    public Pose2d getPose(){
+    public Pose2d getPose() {
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
 
-    public double robotAbsoluteVelocity(){
+    public double robotAbsoluteVelocity() {
         double roughVel = 0.0;
-        for(int i = 0; i < ModuleCount; i++){
+        for (int i = 0; i < ModuleCount; i++) {
             roughVel += Modules[i].getCurrentState().speedMetersPerSecond;
         }
-        return roughVel/4.0;
+        return roughVel / 4.0;
     }
 
-    public void setVoltage(double voltage){
-        for(int i = 0; i < ModuleCount; i++){
+    public void setVoltage(double voltage) {
+        for (int i = 0; i < ModuleCount; i++) {
         }
         // s_Swerve.Modules[0].apply(null, null);
     }
 
-    public void updateOdometryByVision(){
+    public void updateOdometryByVision() {
         Pose3d poseFromVision = null;
         try {
             // poseFromVision = m_Camera.calculatePoseFromVision();
         } catch (Exception e) {
         }
-        //if(poseFromVision != null){
-            // s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-            //TODO add our own timer
-        //}
+        // if(poseFromVision != null){
+        // s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(),
+        // Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
+        // TODO add our own timer
+        // }
     }
 
-    public void tractionControl() { //being run from periodic for now
-        double slipFactor = 0.995; // 0.5% 
+    public void tractionControl() { // being run from periodic for now
+        double slipFactor = 0.995; // 0.5%
         double slipThreshold = 1.15; //a little bit of slip is good but needs to be tuned
         RobotContainer deadband = RobotContainer.getInstance();
-
-        double desiredSpeed = Math.sqrt(Math.pow(deadband.scaledDeadBand(-driver.getLeftY()) * Constants.MaxSpeed, 2) + Math.pow(deadband.scaledDeadBand(-driver.getLeftX()) * Constants.MaxSpeed, 2)); //m/s
-        // double actualAcceleration =  Math.sqrt(Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2)); perhaps to change how mean the slip factor is?
+        double desiredSpeed =
+        Math.sqrt(Math.pow(deadband.scaledDeadBand(-driver.getLeftY()) *
+        Constants.MaxSpeed, 2) + Math.pow(deadband.scaledDeadBand(-driver.getLeftX())
+        * Constants.MaxSpeed, 2)); //m/s
 
         for(int i = 0; i < ModuleCount; i++){
 
-            TalonFX module =  Modules[i].getDriveMotor();
-            double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2 * Math.PI)/60) * (TunerConstants.getWheelRadius() * 0.0254)) / desiredSpeed; 
+        TalonFX module = Modules[i].getDriveMotor();
+        double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
+        * Math.PI)/60) * (TunerConstants.getWheelRadius() * 0.0254)) / desiredSpeed;
 
-            if(slipRatio > slipThreshold) {
-                module.set(module.get() * slipFactor);
-            }
-             SmartDashboard.putNumber("slip ratio", slipRatio);
+        if(slipRatio > slipThreshold) {
+        module.set(module.get() * slipFactor);
+        }
+        SmartDashboard.putNumber("slip ratio", slipRatio);
         }
         SmartDashboard.putNumber("desired speed", desiredSpeed);
+
+
+
+                                            // above and below are different approches to traction control idk which one is
+                                            // better but i made them i guess 🦅🦅 (above targets specific wheels and uses
+                                            // speed, down is collective motors and uses acceleration)
+
+
+
+        double frictionCoefficant = 0.65; // this is an educated guess of the dynamic coeffiant (need to simulate for this value or something idk)
+        double averageWheelAcceleration = 0;
+        double desiredAcceleration = Math.sqrt(
+                Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2));
+
+        // could implement gyro values with this for more accurate acceleration using
+        // kalman filters but may be too expensive. idk!
+
+        for (int i = 0; i < ModuleCount; i++) {
+            TalonFX module = Modules[i].getDriveMotor();
+            averageWheelAcceleration = +(Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
+                    * (TunerConstants.getWheelRadius() * 0.0254)) / 4; // m/s
+        }
+
+        double desiredChange = desiredAcceleration - averageWheelAcceleration;
+        double maxAcceleration = (pigeon.getAccelerationZ().getValue() * frictionCoefficant) * 0.03;
+        // maximum acceleration we can have is equal to g*CoF, where g is the
+        // acceleration due to gravity and CoF is the coefficient of friction between
+        // the floor and the wheels, last number if for the max acceleration for traction in THIS loop
+        // 30 milis is an estimate, need to make it so its the time  
+
+        if (desiredChange < 0) { // if desired change is pos we are slowing down and we dont do anything about it
+                                 // (i dont think traction control would be useful to deccelerate)
+
+            if (-desiredChange > maxAcceleration) {
+                desiredAcceleration = desiredChange + maxAcceleration * Math.signum(desiredChange);
+            }
+
+            for (int i = 0; i < ModuleCount; i++) {
+                TalonFX module = Modules[i].getDriveMotor();
+                if (module.getAcceleration().getValue() == 1) {
+                    module.set(module.get() - 0.05); // IMPORTANT!! 0.05 IS A PLACEHOLDER BC I DONT KNOW WHAT DESIRED
+                                                     // CHANGE'S RANGE WOULD BE BUT ILL HAVE A MAGNITUDE FUNCTION FOR IT
+                                                     // IN THE FUTURE (higher differnce in accelerations = more change)
+                }
+            }
+        }
+
+        // run periodically...
     }
 
-    public void toggleTractionControl() { //for testing
+    public void toggleTractionControl() { // for testing
         tractionGO = (tractionGO == false) ? true : false;
     }
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
-    public void setAutoStartPose(Pose2d pose){
+    public void setAutoStartPose(Pose2d pose) {
         autoStartPose = pose;
     }
 
     @Override
     public void periodic() {
-        if(tractionGO = true) {
-        tractionControl();
+        if (tractionGO = true) {
+            tractionControl();
         }
         // updateOdometryByVision();
         Pose2d currPose = getPose();
-        
-        //allows driver to see if resetting worked
-        SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
+
+        // allows driver to see if resetting worked
+        SmartDashboard.putBoolean("Odo Reset (last 5 sec)",
+                lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", currPose.getX());
         SmartDashboard.putNumber("ODO Y", currPose.getY());
         SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
@@ -217,34 +273,37 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
         m_field.setRobotPose(m_odometry.getEstimatedPosition());
-        SmartDashboard.putData("field", m_field); 
+        SmartDashboard.putData("field", m_field);
 
-        for(int i = 0; i < ModuleCount; i++){
+        for (int i = 0; i < ModuleCount; i++) {
             Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            //Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
-            SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            //SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
-            SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
+            Logger.recordOutput("Swerve/CANcoder module " + i,
+                    Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+            // Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
+            SmartDashboard.putNumber("CANcoder position module " + i,
+                    Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+            // SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
+            SmartDashboard.putNumber("drive motor velocity mod " + i,
+                    Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+            SmartDashboard.putNumber("Angle motor velocity mod " + i,
+                    Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
         }
-
 
     }
 
     // private double getOffset(int id) {
     // if (id == 1) {
-    //     return TunerConstants.kFrontLeftEncoderOffset;
+    // return TunerConstants.kFrontLeftEncoderOffset;
     // }
     // else if (id == 2) {
-    //     return TunerConstants.kFrontRightEncoderOffset;
+    // return TunerConstants.kFrontRightEncoderOffset;
     // }
     // else if (id == 3) {
-    //     return TunerConstants.kBackLeftEncoderOffset;
+    // return TunerConstants.kBackLeftEncoderOffset;
     // }
     // else {
-    //     return TunerConstants.kBackRightEncoderOffset;
+    // return TunerConstants.kBackRightEncoderOffset;
     // }
-//}
+    // }
 
 }
