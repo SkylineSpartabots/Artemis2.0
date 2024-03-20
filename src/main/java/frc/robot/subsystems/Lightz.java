@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import javax.management.timer.Timer;
+
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -54,10 +56,12 @@ public class Lightz extends SubsystemBase {
         System.out.println("Selected LED Mode: " + selected);
 
         // Convert to binary
-        binaryString = Integer.toBinaryString(selected);
-        while (binaryString.length() < 4) { // Make sure that the string is 4 bits
-            binaryString = '0' + binaryString;
+        StringBuilder string = new StringBuilder(Integer.toBinaryString(selected));
+        while (string.length() < 4) { // Make sure that the string is 4 bits
+            string.insert(0, "0");
         }
+        binaryString = string.toString();
+        System.out.println(binaryString);
         setDigitalOutPins(binaryString);
     }
 
@@ -80,8 +84,7 @@ public class Lightz extends SubsystemBase {
 
     @Override
     public void periodic() {
-        setLEDs(ledModes.REDANT);
-        System.out.println("marching");
+        System.out.println(selected);
     }
 
     @Override

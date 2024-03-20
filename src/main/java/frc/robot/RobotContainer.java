@@ -108,12 +108,16 @@ public class RobotContainer {
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
         // driver.leftTrigger().whileTrue(new SlowDrive());
         // driver.leftTrigger().onTrue(new PureAlignment());
-        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Lightz.setLEDs(ledModes.BLUE))); //ESHAAN UNCOMMENT FOR LED
+        driver.leftTrigger().onTrue(new InstantCommand(() -> s_Lightz.setLEDs(ledModes.WHITE))); //ESHAAN UNCOMMENT FOR LED
 
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
-        driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
+        // driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
+                driver.rightTrigger().onTrue(new InstantCommand(() -> s_Lightz.setLEDs(ledModes.PINK))); //ESHAAN UNCOMMENT FOR LED
+
         // driver.leftBumper().onTrue(new SetShooterCommand(45));
-        driver.leftBumper().onTrue(new SetIntake(IntakeStates.ON));
+        // driver.leftBumper().onTrue(new SetIntake(IntakeStates.ON));
+                // driver.leftBumper().onTrue(new InstantCommand(() -> s_Lightz.setLEDs(ledModes.PINK))); //ESHAAN UNCOMMENT FOR LED
+
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
