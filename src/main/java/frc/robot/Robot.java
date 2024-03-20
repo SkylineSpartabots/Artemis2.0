@@ -27,7 +27,7 @@ import frc.robot.subsystems.Amp;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Lightz;
+import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
@@ -46,7 +46,7 @@ public class Robot extends LoggedRobot {
   private final Vision s_Vision;
   private final Climb s_Climb;
   private final Amp s_Amp;
-  private final Lightz s_Lightz;
+  private final Lights s_Lightz;
 
   public Robot() {
     super();
@@ -57,7 +57,7 @@ public class Robot extends LoggedRobot {
     s_Vision = Vision.getInstance();
     s_Climb = Climb.getInstance();
     s_Amp = Amp.getInstance();
-    s_Lightz = Lightz.getInstance();
+    s_Lightz = Lights.getInstance();
   }
 
   @Override

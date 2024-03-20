@@ -31,9 +31,6 @@ int flashHSV[] = {0, 0, 0}; // Hue, Saturation, Value/Brightness input into a fl
 int flashOnDelay; // On delay input into a flash method call
 int flashOffDelay; // Off delay input into a flash method call
 
-int flashCountLimit = 0; // Number of times to flash on/off
-int currentFlashCount = 1; // Current amount flashed. Incremented each time flashSolid is called
-
 boolean flashEnabled = false;
 
 
@@ -61,7 +58,7 @@ int  WHITE[] = {0, 0, 127}; // Dimmed right now cause i dont think the lil ardui
 
 
 void setup() {
-  // Serial.begin(9600);
+  Serial.begin(9600);
 
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
   FastLED.clearData();
@@ -91,23 +88,22 @@ void loop() {
     case 1://RED
       setSolid(0, 255, 127);
       break;
-    case 2://ORANGE
-      setSolid(15, 255, 127);
+    case 2://Shooter At Speed
+      setSolid(ORANGE);
       break;
-    case 3://YELLOW
-      setSolid(55, 255, 127);
+    case 3://Shooter Ramping
+      flashSolid(ORANGE, 200, 200);
       break;
-    case 4://GREEN
-      setSolid(96, 255, 127);
+    case 4://Intake Success
+      setSolid(GREEN);
       break;
-    case 5://BLUE
-      setSolid(160, 255, 127);
+    case 5://Intaking
+        flashSolid(GREEN, 200, 200);
       break;
     case 6://PURPLE
       setSolid(192, 255, 127);
       break;
     case 7://PINK
-      flashCountLimit = 2;
       flashSolid(224, 255, 127, 200, 200);
       // setSolid(224, 255, 255);
       break;
@@ -157,29 +153,26 @@ void runAnt(int color[], int g, int b, int delayMS){// Add differing color funct
 }
 void flashSolid(int color[], int onMS, int offMS){
 
-  if (currentFlashCount <= flashCountLimit){
-    // Set the variables so they can be used every loop cycle
-    flashHSV[0] = color[0];
-    flashHSV[1] = color[1];
-    flashHSV[2] = color[2];
-    flashOnDelay = onMS;
-    flashOffDelay = offMS;
-    // antEnabled = false;
-    // flashEnabled = true;
+  // Set the variables so they can be used every loop cycle
+  flashHSV[0] = color[0];
+  flashHSV[1] = color[1];
+  flashHSV[2] = color[2];
+  flashOnDelay = onMS;
+  flashOffDelay = offMS;
+  // antEnabled = false;
+  // flashEnabled = true;
 
-    for (int i = 0; i < NUM_LEDS; i++){
-      leds[i].setHSV(color[0], color[1], color[2]);
-    }
-    FastLED.show();
-    delay(onMS);
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i].setHSV(color[0], color[1], color[2]);
+  }
+  FastLED.show();
+  delay(onMS);
 
-    for (int i = 0; i < NUM_LEDS; i++){
-      leds[i] = CRGB::Black;
-    }
-    FastLED.show();
-    delay(offMS);
-    currentFlashCount++;
-  } else {currentFlashCount = 0;}
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i] = CRGB::Black;
+  }
+  FastLED.show();
+  delay(offMS);
 
 }
 void setSolid(int color[]){
@@ -220,30 +213,26 @@ void runAnt(int H, int S, int V, int g, int b, int delayMS){
   kReset(g);
 }
 void flashSolid(int H, int S, int V, int onMS, int offMS){
+  // Set the variables so they can be used every loop cycle
+  flashHSV[0] = H;
+  flashHSV[1] = S;
+  flashHSV[2] = V;
+  flashOnDelay = onMS;
+  flashOffDelay = offMS;
+  antEnabled = false;
+  flashEnabled = true;
 
-  if (currentFlashCount <= flashCountLimit){
-      // Set the variables so they can be used every loop cycle
-      flashHSV[0] = H;
-      flashHSV[1] = S;
-      flashHSV[2] = V;
-      flashOnDelay = onMS;
-      flashOffDelay = offMS;
-      antEnabled = false;
-      flashEnabled = true;
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i].setHSV(H, S, V);
+  }
+  FastLED.show();
+  delay(onMS);
 
-      for (int i = 0; i < NUM_LEDS; i++){
-        leds[i].setHSV(H, S, V);
-      }
-      FastLED.show();
-      delay(onMS);
-
-      for (int i = 0; i < NUM_LEDS; i++){
-        leds[i] = CRGB::Black;
-      }
-      FastLED.show();
-      delay(offMS);
-      currentFlashCount++;
-  } else {currentFlashCount = 0;}
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i] = CRGB::Black;
+  }
+  FastLED.show();
+  delay(offMS);
 
 }
 void setSolid(int H, int S, int V){

@@ -5,8 +5,8 @@ import javax.management.timer.Timer;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Lightz extends SubsystemBase {
-    private static Lightz instance;
+public class Lights extends SubsystemBase {
+    private static Lights instance;
     private int selected = 0;
     private String binaryString;
     private final DigitalOutput pin0;
@@ -14,9 +14,9 @@ public class Lightz extends SubsystemBase {
     private final DigitalOutput pin2;
     private final DigitalOutput pin3;
 
-    public static Lightz getInstance() {
+    public static Lights getInstance() {
         if (instance == null) {
-            instance = new Lightz();
+            instance = new Lights();
         }
         return instance;
     }
@@ -24,14 +24,14 @@ public class Lightz extends SubsystemBase {
     public enum ledModes { //TODO decide what each value should be and sync with other side code
         OFF(0),
         RED(1),
-        ORANGE(2),
-        YELLOW(3),
-        GREEN(4),
-        BLUE(5),
+        ShooterAtSpeed(2), // Shooter At Speed
+        ShooterRamping(3), // Shooter Ramp
+        IntakeSuccess(4), // Intake Success
+        Intaking(5), // Intaking
         PURPLE(6),
         PINK(7),
         WHITE(8),
-        REDANT(9);
+        PINKANT(9);
         private int modeNum;
 
         public int getModeNum() {
@@ -43,7 +43,7 @@ public class Lightz extends SubsystemBase {
         }
     }
 
-    public Lightz() {
+    public Lights() {
         pin0 = new DigitalOutput(5);
         pin1 = new DigitalOutput(6);
         pin2 = new DigitalOutput(7);
@@ -84,7 +84,6 @@ public class Lightz extends SubsystemBase {
 
     @Override
     public void periodic() {
-        System.out.println(selected);
     }
 
     @Override
