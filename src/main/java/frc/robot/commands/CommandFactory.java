@@ -93,11 +93,11 @@ public class CommandFactory {
 
     public static Command ampShootSequence() {
         return new SequentialCommandGroup(
-            new SetShooterCommand(24, 12), 
             new ParallelCommandGroup(
-                new AlignPivot(PivotState.AMP), 
-                new SetIndexer(IndexerStates.AMP)
-            )
+                new SetShooterCommand(25, 15),
+                new AlignPivot(PivotState.AMP)
+            ),   
+                new SetIndexer(IndexerStates.ON)
         );
     }
 

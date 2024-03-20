@@ -33,7 +33,7 @@ public class SetIntake extends Command {
 
 
     public SetIntake(Intake.IntakeStates state) {
-        this(state, 2);
+        this(state, 4);
     }
 
 
