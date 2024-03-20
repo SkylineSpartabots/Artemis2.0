@@ -32,12 +32,13 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.Drive.PIDAlign;
 import frc.robot.commands.Drive.SlowDrive;
-import frc.robot.commands.Drive.VisionAlign;
+import frc.robot.commands.Drive.Drive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Intake.SetIntake;
+import frc.robot.commands.Drive.Drive;
 
 
 public class RobotContainer {
@@ -64,9 +65,6 @@ public class RobotContainer {
     public static final double translationDeadband = 0.1;
     public static final double rotDeadband = 0.1;
 
-    private double lastScaled;
-    private double deadbandFactor = 0.5; // closer to 0 is more linear controls
-    private double maximumStep = 0.1; //needs to be tuned but caps maximum acceleration in a single step to maintain control and stability (theoretically) should be pretty high... ALL EXPERIMENTAL!!! IM BORED!!
     
     // driving in open loop
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -99,7 +97,6 @@ public class RobotContainer {
          * Mechanism bindings
          */
 
-        driver.a().onTrue(new VisionAlign()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(CommandFactory.eject()); //FINAL
         driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
@@ -129,10 +126,12 @@ public class RobotContainer {
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> drive.withVelocityX(scaledDeadBand(-driver.getLeftY()) * Constants.MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(scaledDeadBand(-driver.getLeftX()) * Constants.MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(scaledDeadBand(-driver.getRightX()) * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-                )
+
+        drivetrain.applyRequest(() -> drive.withVelocityX(1 * Constants.MaxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(1 * Constants.MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(1 * Constants.MaxAngularRate)) // Drive counterclockwise with negative X (left)
+
+                    // new Drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX())
                 );
 
         // reset the field-centric heading. AKA reset odometry
@@ -162,16 +161,6 @@ public class RobotContainer {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
         drivetrain.registerTelemetry(logger::telemeterize);
-    }
-
-    public double scaledDeadBand(double input) { // guessing values are from -1 to 1 but they might not be and this would break the code so i got to check soon
-    double newScaled = (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input;
-    // if((Math.abs(newScaled) - Math.abs(lastScaled)) >= maximumStep) {
-    //     newScaled = lastScaled + maximumStep;
-    // }
-    
-    // lastScaled = newScaled;
-    return newScaled;
     }
 
     public RobotContainer() {

@@ -198,55 +198,51 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
 
 
-                                            // above and below are different approches to traction control idk which one is
-                                            // better but i made them i guess 🦅🦅 (above targets specific wheels and uses
-                                            // speed, down is collective motors and uses acceleration)
+                                            // above and below are different approches to traction control tbh i think above 🦅🦅 
+                                            // is better but i made both i guess (perhaps bottom one for water game??) (above uses speed and joysticks 
+                                            // below is uses acceleration and gyro and would be more aggresive) (perhaps i could do both???)
 
 
-
-        double frictionCoefficant = 0.65; // this is an educated guess of the dynamic coeffiant (need to simulate for this value or something idk)
-        double WheelAcceleration = 0;
+        double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant (need to simulate for this value or something idk)
         double desiredAcceleration = Math.sqrt(
                 Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2));
-
         // could implement gyro values with this for more accurate acceleration using
         // kalman filters but may be too expensive. idk!
-
         for (int i = 0; i < ModuleCount; i++) {
-            TalonFX module = Modules[i].getDriveMotor();
-            WheelAcceleration =+ (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
-                    * (TunerConstants.getWheelRadius() * 0.0254)); // not very sure about this math but should be m/s ill check later
-        }
 
-        double desiredChange = desiredAcceleration - (WheelAcceleration / 4);
-        double maxAcceleration = (pigeon.getAccelerationZ().getValue() * frictionCoefficant) * 0.03;
+            TalonFX module = Modules[i].getDriveMotor();
+            double WheelAcceleration = (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
+                    * (TunerConstants.getWheelRadius() * 0.0254)); // not very sure about this math but should be m/s ill check later
+
+        double desiredChange = desiredAcceleration - WheelAcceleration; //neg is wheel is faster and vice versa
+        double maxAcceleration = (9.80665 * frictionCoefficant) * 0.025;
         // maximum acceleration we can have is equal to g*CoF, where g is the
         // acceleration due to gravity and CoF is the coefficient of friction between
-        // the floor and the wheels, last number if for the max acceleration for traction in THIS loop
-        // 30 milis is an estimate, need to make it so its the time  
-
-        if (desiredChange < 0) { // if desired change is pos we are slowing down and we dont do anything about it
-                                 // (i dont think traction control would be useful to deccelerate)
+        // the floor and the wheels (rubber and carpet i assumed), last number is for the max acceleration for traction in THIS time step
 
             if (-desiredChange > maxAcceleration) {
                 desiredAcceleration = desiredChange + maxAcceleration * Math.signum(desiredChange);
             }
-
-            for (int i = 0; i < ModuleCount; i++) {
-                TalonFX module = Modules[i].getDriveMotor();
                 if (module.getAcceleration().getValue() == 1) {
-                    module.set(module.get() - 0.05); // IMPORTANT!! 0.05 IS A PLACEHOLDER BC I DONT KNOW WHAT DESIRED
-                                                     // CHANGE'S RANGE WOULD BE BUT ILL HAVE A MAGNITUDE FUNCTION FOR IT
-                                                     // IN THE FUTURE (higher differnce in accelerations = more change)
-                }
+                    module.set(module.get() - 0.05 * desiredAcceleration); 
             }
         }
 
         // run periodically...
     }
 
+    private double deadbandFactor = 0.5; // closer to 0 is more linear controls
+
+    public double scaledDeadBand(double input) {
+        double newScaled = (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input;
+        return newScaled;
+    }
+
     public void toggleTractionControl() { // for testing
         tractionGO = (tractionGO == false) ? true : false;
+    }
+    public Boolean getTraction() {
+        return tractionGO;
     }
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
@@ -257,9 +253,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
-        if (tractionGO = true) {
-            tractionControl();
-        }
         // updateOdometryByVision();
         Pose2d currPose = getPose();
 
