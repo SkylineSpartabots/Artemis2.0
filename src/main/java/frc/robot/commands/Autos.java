@@ -877,9 +877,9 @@ public final class Autos {
                         new SetIndexer(IndexerStates.ON, true, intakeTimeLength + 0.5),
                         new SetIntake(IntakeStates.ON, intakeTimeLength),
                         new AlignPivot(PivotState.INTAKE),
-                        new SequentialCommandGroup(new WaitCommand(intakeRevTime), ChoreoDriveCommand, CommandFactory.eject())
+                        new SequentialCommandGroup(new WaitCommand(intakeRevTime), ChoreoDriveCommand)
                 ),
-
+                CommandFactory.eject(),
                 new ParallelCommandGroup(
                         new AlignPivot(shootAngle),
                         new SetShooterCommand(shooterSpeed)
