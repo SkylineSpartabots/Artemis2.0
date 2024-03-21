@@ -371,6 +371,39 @@ public final class Autos {
       );
     }
 
+    public static Command FirstLine() {
+        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FirstLine");
+        return new SequentialCommandGroup(
+
+                new InstantCommand(() -> {
+                        Pose2d initialPose;
+                        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+                        initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+                        s_Swerve.resetOdo(initialPose);
+                        System.out.println(initialPose.getX() + " " + initialPose.getY());
+                }),
+
+                FollowIntakePath(FollowChoreoTrajectory(trajectory.get(0)), 1.5, 0.3),
+
+                new ParallelCommandGroup(
+                        new SetShooterCommand(45),
+                        new AlignPivot(30)
+                ),
+
+                new SetIndexer(IndexerStates.SHOOTING, false),
+                Commands.waitSeconds(0.2),
+
+                FollowAutoCycle(FollowChoreoTrajectory(trajectory.get(1)), 1.5, 0.3, 35, 45),
+
+                FollowIntakePath(FollowChoreoTrajectory(trajectory.get(2)), 2.5, 0),
+                Commands.waitSeconds(0.3),
+
+                FollowShootPath(FollowChoreoTrajectory(trajectory.get(3)), 35, 45)
+
+        );
+    }
+        
+
     public static Command FourNoteCloseSide() {
         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteCloseSide");
         return new SequentialCommandGroup(
@@ -787,8 +820,10 @@ public final class Autos {
         TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
         ThreeNoteSubwooferMidTop("ThreeNoteSubwooferMidTop", ThreeNoteSubwooferMidTop()),
         ThreeNoteSubwooferMidBot("ThreeNoteSubwooferMidBot", ThreeNoteSubwooferMidBot()),
+        FirstLine("FirstLine", FirstLine()),
         FourNoteSubwooferNew("FourNoteSubwooferNew", FourNoteSubwooferNew());
         //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
+
 
 
 
