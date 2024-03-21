@@ -24,9 +24,11 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class Drive extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
     private double maximumStep = 0.1; //needs to be tuned but caps maximum acceleration in a single step to maintain control and stability (theoretically) should be pretty high... ALL EXPERIMENTAL!!! IM BORED!!
-    double driverLY;
-    double driverLX;
-    double driverRX;
+    private double driverLY;
+    private double driverLX;
+    private double driverRX;
+    private double[] adjustedInputs;
+    
     
 
     public Drive(double driverLY, double driverLX, double driverRX) { 
@@ -50,16 +52,16 @@ public class Drive extends Command {
     public void execute(){
 
         if(s_Swerve.getTraction() == true) {
-            s_Swerve.tractionControl(driverLX , driverLY);
+             adjustedInputs = s_Swerve.tractionControl(driverLX , driverLY);
         }
         
         
-        if (s_Swerve.tractionOverride() == false){
-            SwerveRequest request = new SwerveRequest() { //idk how to do this ill figure it out prop
+            SwerveRequest request = new SwerveRequest() {
+                     //idk how to do this ill figure it out prop
                         // .withVelocityX(driverLX) // Drive forward with negative Y (forward)
                         // .withVelocityY(driverLY) // Drive left with negative X (left)
                         // .withRotationalRate(driverRX); // Drive counterclockwise with negative X (left) 
-        };
+            }
         s_Swerve.applyRequest(() -> request);
         }
     }

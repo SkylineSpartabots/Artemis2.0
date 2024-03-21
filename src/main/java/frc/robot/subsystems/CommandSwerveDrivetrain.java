@@ -172,75 +172,75 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // }
     }
 
-    public void tractionControl(double driverLY, double driverLX) { // needs collition detection in the future should be easy to make
+    public double[] tractionControl(double driverLY, double driverLX) {
 
         double slipFactor = 0.995; // 0.5%
-        double slipThreshold = 1.15; //a little bit of slip is good but needs to be tuned
-        double desiredSpeed =   
-        Math.sqrt(Math.pow(driverLY *
-        Constants.MaxSpeed, 2) + Math.pow(driverLX
-        * Constants.MaxSpeed, 2)); //m/s
+        double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
 
-        for(int i = 0; i < ModuleCount; i++){
+        double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
 
-        TalonFX module = Modules[i].getDriveMotor();
-        double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
-        * Math.PI)/60) * (TunerConstants.getWheelRadius() * 0.0254)) / desiredSpeed;
+        for (int i = 0; i < ModuleCount; i++) {
+            TalonFX module = Modules[i].getDriveMotor();
+            double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
+                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / desiredSpeed;
+            if (slipRatio > slipThreshold) {
 
-        if(slipRatio > slipThreshold) {
-        module.set(module.get() * slipFactor);
-        } else {tractionOveride = false;}
-        SmartDashboard.putNumber("slip ratio", slipRatio);
+            } else {
+            }
+            SmartDashboard.putNumber("slip ratio", slipRatio);
         }
         SmartDashboard.putNumber("desired speed", desiredSpeed);
 
 
-                                            // above and below are different approches to traction control tbh i think above 🦅🦅 
-                                            // is better but i made both i guess (perhaps bottom one for water game??) (above uses speed and joysticks 
-                                            // below is uses acceleration and gyro and would be more aggresive) (perhaps i could do both???)
+        
 
-
-        double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant (need to simulate for this value or something idk)
-        double desiredAcceleration = Math.sqrt(
+        double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
+        
+        double currentAcceleration = Math.sqrt(
                 Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2));
         // could implement gyro values with this for more accurate acceleration using
         // kalman filters but may be too expensive. idk!
+
+        double WheelAcceleration;
+
         for (int i = 0; i < ModuleCount; i++) {
-
             TalonFX module = Modules[i].getDriveMotor();
-            double WheelAcceleration = (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
-                    * (TunerConstants.getWheelRadius() * 0.0254)); // not very sure about this math but should be m/s ill check later
+            WheelAcceleration =+ (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
+                    * (TunerConstants.getWheelRadius() * 0.0254));
+            if(i==1) {WheelAcceleration =+ 1;};
+        }                                                           
 
-        double desiredChange = desiredAcceleration - WheelAcceleration; //neg is wheel is faster and vice versa
-        double maxAcceleration = (9.80665 * frictionCoefficant) * 0.025;
-        // maximum acceleration we can have is equal to g*CoF, where g is the
-        // acceleration due to gravity and CoF is the coefficient of friction between
-        // the floor and the wheels (rubber and carpet i assumed), last number is for the max acceleration for traction in THIS time step
+            double desiredChange = (desiredSpeed - (WheelAcceleration / 4)); // neg is wheel is faster and vice versa
+            double maxAcceleration = (9.80665 * frictionCoefficant) * 0.025;
+            // maximum acceleration we can have is equal to g*CoF, where g is the
+            // acceleration due to gravity and CoF is the coefficient of friction between
+            // the floor and the wheels (rubber and carpet i assumed), last number is for
+            // the max acceleration for traction in THIS time step
 
             if (-desiredChange > maxAcceleration) {
                 desiredAcceleration = desiredChange + maxAcceleration * Math.signum(desiredChange);
             }
-                if (module.getAcceleration().getValue() == 1) {
-                    module.set(module.get() - 0.05 * desiredAcceleration); 
-            }
-        }
 
+        double[] outputs = {driverLX,driverLY};
+        return outputs;
         // run periodically...
     }
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear controls
 
     public double scaledDeadBand(double input) {
-        double newScaled = (deadbandFactor * Math.pow(input, 3)) + (1-deadbandFactor) * input;
+        double newScaled = (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
         return newScaled;
     }
 
     public void toggleTractionControl() { // for testing
         tractionGO = (tractionGO == false) ? true : false;
     }
+
     public Boolean getTraction() {
         return tractionGO;
     }
+
     public Boolean tractionOverride() {
         return tractionOveride;
     }
