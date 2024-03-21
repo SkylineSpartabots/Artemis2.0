@@ -20,7 +20,7 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerStates;
-import frc.robot.subsystems.Vision.CameraResult;
+import frc.robot.subsystems.Vision.SourceCamera;
 
 public class VisionAlign extends Command {
     private final CommandSwerveDrivetrain s_Swerve;

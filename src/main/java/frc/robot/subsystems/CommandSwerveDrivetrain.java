@@ -39,7 +39,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    Vision m_Camera;
+    Vision m_Camera = Vision.getInstance();
 
     private Field2d m_field = new Field2d();
 
@@ -151,13 +151,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void updateOdometryByVision(){
         Pose3d poseFromVision = null;
         try {
-            // poseFromVision = m_Camera.calculatePoseFromVision();
+            poseFromVision = m_Camera.calculatePoseFromVision();
         } catch (Exception e) {
         }
-        if(poseFromVision != null){
-            s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-            //TODO: add our own timer
-            
+        if(m_Camera.hasSmartTarget()){ //&& m_Camera.overallBestTarget != null
+            s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Timer.getMatchTime()); //Timer.getFPGATimestamp() //m_Camera.overallBestTarget.timeStamp
+        } else {
         }
     }
 
@@ -169,21 +168,20 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
-        // updateOdometryByVision();
+        updateOdometryByVision();
         Pose2d currPose = getPose();
-
         
-        
+        SmartDashboard.putNumber("BEST SMART TARGET", m_Camera.overallBestTarget.target.getFiducialId());
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", currPose.getX());
         SmartDashboard.putNumber("ODO Y", currPose.getY());
-        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
-        SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
-        SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
+        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getDegrees());
+        // SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
+        // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
 
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
-        m_field.setRobotPose(m_odometry.getEstimatedPosition());
+        m_field.setRobotPose(currPose);
         SmartDashboard.putData("field", m_field); 
 
         for(int i = 0; i < ModuleCount; i++){

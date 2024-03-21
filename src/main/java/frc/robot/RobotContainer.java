@@ -19,6 +19,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -53,15 +54,17 @@ public class RobotContainer {
     private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
 
     private final Amp s_Amp = Amp.getInstance();
+    private final Vision s_Vision = Vision.getInstance();
     private final Climb s_Climb = Climb.getInstance();
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
-    private final Vision s_Vision = Vision.getInstance();
     // private final Music s_Orchestra = Music.getInstance();
 
+    private final Music s_Orchestra = Music.getInstance();
+    
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
@@ -139,8 +142,8 @@ public class RobotContainer {
                 ));
 
         // reset the field-centric heading. AKA reset odometry
-        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
-        
+        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(Units.inchesToMeters(14.75), 5.6, new Rotation2d()))));
+        // driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d())))); //actual reset odometry
 
         /*
          * Operator bindings

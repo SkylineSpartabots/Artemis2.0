@@ -47,7 +47,7 @@ public final class Constants {
         public static final double backRightCameraHeight = Units.inchesToMeters(9.1);
         public static final double backRightCameraPitch = Units.degreesToRadians(30);
 
-        public static final double centerCameraHeight = Units.inchesToMeters(10.15);
+        public static final double centerCameraHeight = Units.inchesToMeters(10.5);
         public static final double centerCameraPitch = Units.degreesToRadians(15);
 
         

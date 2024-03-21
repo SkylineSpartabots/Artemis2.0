@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -38,19 +40,30 @@ public class Vision extends SubsystemBase {
     private static PhotonTrackedTarget lastValidTarget;
 
     private static CommandSwerveDrivetrain s_Swerve;
-    
+
     private double targetYaw;
     private double targetDistance;
     private int targetID;
 
+    private ArrayList<targetCameraPair> targets = new ArrayList<targetCameraPair>();
+
     public double floorDistance;
 
-    private Transform3d cameraToRobotTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-5.67162), Units.inchesToMeters(-10.172538)),
-        new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0))); //center cam
+    private static Transform3d centerCameraToRobotTransform = new Transform3d(
+            new Translation3d(Units.inchesToMeters(6), Units.inchesToMeters(0.0), Units.inchesToMeters(-10.5)),
+            new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(15), Units.degreesToRadians(180))); // center
+                                                                                                                 // cam
+    private static Transform3d backRightCameraToRobotTransform = new Transform3d(
+            new Translation3d(Units.inchesToMeters(8.125), Units.inchesToMeters(9.9375), Units.inchesToMeters(-10.5)),
+            new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(30), Units.degreesToRadians(150))); // center
+                                                                                                                 // cam
+    private static Transform3d backLeftCameraToRobotTransform = new Transform3d(
+            new Translation3d(Units.inchesToMeters(8.125), Units.inchesToMeters(-9.9375), Units.inchesToMeters(-10.5)),
+            new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(30), Units.degreesToRadians(-150))); // center
+                                                                                                                  // cam
 
     public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-//    private static PhotonCamera visionCamera;
+    // private static PhotonCamera visionCamera;
 
     public static Vision getInstance() {
         if (instance == null) {
@@ -70,92 +83,169 @@ public class Vision extends SubsystemBase {
         centerCameraResult = centerCamera.getLatestResult();
         backLeftCameraResult = backLeftCamera.getLatestResult();
         backRightCameraResult = backRightCamera.getLatestResult();
+        for (int i = 0; i < backRightCameraResult.getTargets().size(); i++) {
+            PhotonTrackedTarget temp = backRightCameraResult.getTargets().get(i);
+            if (temp.getPoseAmbiguity() < 0.3) {
+                targets.add(
+                        new targetCameraPair(temp, SourceCamera.BACK_RIGHT, backRightCameraResult.getTimestampSeconds()));
+            }
+        }
+        for (int i = 0; i < centerCameraResult.getTargets().size(); i++) {
+            PhotonTrackedTarget temp = centerCameraResult.getTargets().get(i);
+            if (temp.getPoseAmbiguity() < 0.3) {
+                targets.add(
+                        new targetCameraPair(temp, SourceCamera.CENTER, backRightCameraResult.getTimestampSeconds()));
+            }
+        }
+        for (int i = 0; i < backLeftCameraResult.getTargets().size(); i++) {
+            PhotonTrackedTarget temp = backLeftCameraResult.getTargets().get(i);
+            if (temp.getPoseAmbiguity() < 0.3) {
+                targets.add(
+                        new targetCameraPair(temp, SourceCamera.BACK_LEFT, backLeftCameraResult.getTimestampSeconds()));
+            }
+        }
         // backRightCameraResult = backRightCamera.getLatestResult();
     }
 
-    public PhotonTrackedTarget getCenterTarget(){
-        if(centerCameraResult.hasTargets()){
-            return centerCameraResult.getBestTarget();
+    public PhotonTrackedTarget getCenterTarget() {
+        if (backRightCameraResult.hasTargets()) {
+            return backRightCameraResult.getBestTarget();
         } else {
             return null;
         }
     }
 
-    // public PhotonPipelineResult getLatestAprilTagResult(boolean isBackLeft) { //true is left false is right
-    //     updateAprilTagResults();
-    //     if (isBackLeft) {
-    //         return centerCameraResult;
-    //     } else {
-    //         return backRightCameraResult;
-    //     }
-        
+    public PhotonTrackedTarget getBackLeftTarget() {
+        if (backRightCameraResult.hasTargets()) {
+            return backRightCameraResult.getBestTarget();
+        } else {
+            return null;
+        }
+    }
+
+    public PhotonTrackedTarget getBackRightTarget() {
+        if (backRightCameraResult.hasTargets()) {
+            return backRightCameraResult.getBestTarget();
+        } else {
+            return null;
+        }
+    }
+
+    public targetCameraPair overallBestTarget;
+
+    public targetCameraPair getBestTargetOverall() {
+        updateAprilTagResults();
+
+        targetCameraPair bestTarget = null;
+        double smallestAmbi = Double.MAX_VALUE;
+        for (int i = 0; i < targets.size(); i++) {
+            if (targets.get(i).target.getPoseAmbiguity() < smallestAmbi) {
+                bestTarget = targets.get(i);
+                smallestAmbi = targets.get(i).target.getPoseAmbiguity();
+            }
+        }
+        overallBestTarget = bestTarget;
+        return bestTarget;
+    }
+
+    class targetCameraPair {
+        PhotonTrackedTarget target;
+        SourceCamera source;
+        double timeStamp;
+
+        targetCameraPair(PhotonTrackedTarget target, SourceCamera source, double timeStamp) {
+            this.source = source;
+            this.target = target;
+            this.timeStamp = timeStamp;
+        }
+    }
+
+    // public PhotonPipelineResult getLatestAprilTagResult(boolean isBackLeft) {
+    // //true is left false is right
+    // updateAprilTagResults();
+    // if (isBackLeft) {
+    // return centerCameraResult;
+    // } else {
+    // return backRightCameraResult;
     // }
 
-    public PhotonPipelineResult getLatestAprilTagResult(){
+    // }
+
+    public PhotonPipelineResult getLatestAprilTagResult() {
         updateAprilTagResults();
-        return centerCameraResult;
+        return backRightCameraResult;
     }
 
     // public List<PhotonTrackedTarget> getTargets(boolean isBackLeft) {
-    //    if (isBackLeft) {
-    //         return backLeftCameraResult.getTargets();
-    //     } else {
-    //         return backRightCameraResult.getTargets();
-    //     }
+    // if (isBackLeft) {
+    // return backLeftCameraResult.getTargets();
+    // } else {
+    // return backRightCameraResult.getTargets();
     // }
-    public List<PhotonTrackedTarget> getTargets(){
-        return centerCameraResult.getTargets();
+    // }
+    public List<PhotonTrackedTarget> getTargets() {
+        return backRightCameraResult.getTargets();
     }
 
-    public enum CameraResult { //enum rahh
-        CENTER,
-        BACK_LEFT,
-        BACK_RIGHT,
-    }
+    public enum SourceCamera { // enum rahh
+        CENTER(centerCameraToRobotTransform),
+        BACK_LEFT(backLeftCameraToRobotTransform),
+        BACK_RIGHT(backRightCameraToRobotTransform);
 
-    public CameraResult hasValidTarget() {
-        PhotonTrackedTarget target = centerCameraResult.getBestTarget();
-        PhotonTrackedTarget rightTarget = backRightCameraResult.getBestTarget();
-        PhotonTrackedTarget leftTarget = backLeftCameraResult.getBestTarget();
+        Transform3d pose;
 
-        Boolean centerHasTarget = centerCameraResult.hasTargets() && target.getFiducialId() >= 1 && target.getFiducialId() <= Constants.Vision.aprilTagMax && target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
-        // Boolean backRightHasTarget = backRightCameraResult.hasTargets() && backRightCameraResult.getBestTarget().getFiducialId() >= 1 && backRightCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
-        // Boolean backLeftHasTarget = backLeftCameraResult.hasTargets() && backLeftCameraResult.getBestTarget().getFiducialId() >= 1 && backLeftCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
-
-        if(centerHasTarget){
-            return CameraResult.CENTER;
-        } else {
-            return null;
+        SourceCamera(Transform3d pose) {
+            this.pose = pose;
         }
-        //  if (backLeftHasTarget && !backRightHasTarget) {
-        //     return CameraResult.BACK_LEFT;
+    }
+
+    public boolean hasSmartTarget() {
+        updateAprilTagResults();
+        return targets.size() > 0;
+    }
+
+    public SourceCamera hasValidTarget() {
+
+        updateAprilTagResults();
+
+        if (targets.size() > 0) {
+            return targets.get(0).source;
+        }
+        return null;
+
+        // if (backLeftHasTarget && !backRightHasTarget) {
+        // return CameraResult.BACK_LEFT;
         // } else if (!backLeftHasTarget && backRightHasTarget) {
-        //     return CameraResult.BACK_RIGHT;
+        // return CameraResult.BACK_RIGHT;
         // } else if (backLeftHasTarget && backRightHasTarget) {
-        //     return CameraResult.BOTH;
+        // return CameraResult.BOTH;
         // } else {
-        //     return null; 
+        // return null;
         // }
     }
 
     // TODO verify that by the end of auto we have lastValidTarget set
 
     public PhotonTrackedTarget getBestTarget() {
-        CameraResult valids = hasValidTarget();
+        SourceCamera valids = hasValidTarget();
         if (valids != null) {
-            lastValidTarget = centerCameraResult.getBestTarget();
-            // if (valids == CameraResult.BACK_LEFT) { lastValidTarget = backLeftCameraResult.getBestTarget();}
-            // else if (valids == CameraResult.BACK_RIGHT) { lastValidTarget = backRightCameraResult.getBestTarget();}
+            lastValidTarget = backRightCameraResult.getBestTarget();
+            // if (valids == CameraResult.BACK_LEFT) { lastValidTarget =
+            // backLeftCameraResult.getBestTarget();}
+            // else if (valids == CameraResult.BACK_RIGHT) { lastValidTarget =
+            // backRightCameraResult.getBestTarget();}
             // else if (valids == CameraResult.BOTH) {
-            //     if (backLeftCameraResult.getTimestampSeconds() >= backRightCameraResult.getTimestampSeconds()) { // If both cams have a target get the MOST recent one
-            //         lastValidTarget = backRightCameraResult.getBestTarget();
-            //     } else {
-            //         lastValidTarget = backLeftCameraResult.getBestTarget();
-            //     }
+            // if (backLeftCameraResult.getTimestampSeconds() >=
+            // backRightCameraResult.getTimestampSeconds()) { // If both cams have a target
+            // get the MOST recent one
+            // lastValidTarget = backRightCameraResult.getBestTarget();
+            // } else {
+            // lastValidTarget = backLeftCameraResult.getBestTarget();
             // }
-        } 
+            // }
+        }
         return lastValidTarget;
-    } 
+    }
 
     public double getYaw() {
         if (getBestTarget() != null) {
@@ -172,82 +262,93 @@ public class Vision extends SubsystemBase {
     }
 
     /**
-     * @return the absolute distance in meters (there are different methods for horizontal or vertical)
+     * @return the absolute distance in meters (there are different methods for
+     *         horizontal or vertical)
      */
-    public double getFloorDistance(){
+    public double getFloorDistance() {
         // PhotonTrackedTarget target = getBestTarget();
         PhotonTrackedTarget target = getCenterTarget();
 
         if (target != null) {
             // code for back right corner camera
             // targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
-            // Units.inchesToMeters(9.1), 
-            // aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
-            // Units.degreesToRadians(30), 
+            // Units.inchesToMeters(9.1),
+            // aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(),
+            // Units.degreesToRadians(30),
             // Units.degreesToRadians(target.getPitch()));
             targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
-                Constants.Vision.centerCameraHeight, 
-                aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
-                Constants.Vision.centerCameraPitch, 
-                Units.degreesToRadians(target.getPitch())
-            );
+                    Constants.Vision.centerCameraHeight,
+                    aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(),
+                    Constants.Vision.centerCameraPitch,
+                    Units.degreesToRadians(target.getPitch()));
             floorDistance = targetDistance;
             return targetDistance;
         }
         return -1;
-
     }
 
-    public boolean hasSpeakerTag(){
+    public boolean hasSpeakerTag() {
         List<PhotonTrackedTarget> targets = centerCamera.getLatestResult().getTargets();
-        for(PhotonTrackedTarget a : targets){
-            if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
+        for (PhotonTrackedTarget a : targets) {
+            if (a.getFiducialId() == 4 || a.getFiducialId() == 8) {
                 return true;
             }
         }
         return false;
     }
 
-    public double getDistanceToPose(Pose2d pose){
+    public double getDistanceToPose(Pose2d pose) {
         return PhotonUtils.getDistanceToPose(s_Swerve.getPose(), pose);
     }
 
-
     /**
-     * calculates field-relative robot pose from vision reading, feed to pose estimator (Kalman filter)
+     * calculates field-relative robot pose from vision reading, feed to pose
+     * estimator (Kalman filter)
      */
-    // public Pose3d calculatePoseFromVision() throws Exception{ //TODO: integrate multicamera resetting
-        // PhotonTrackedTarget bestTarget = getBestTarget();
-        // if(bestTarget == null){
-        //     throw new Exception("No vision target");
-        // } else {
-        //     Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
-            // return PhotonUtils.estimateFieldToRobotAprilTag(aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()));
-    //     }
-    // }
+    public Pose3d calculatePoseFromVision() { // TODO: integrate multicamera resetting
+        targetCameraPair pair = getBestTargetOverall();
+        if (pair == null) {
+            return null;
+        } else {
+            PhotonTrackedTarget bestTarget = pair.target;
+            SourceCamera sourceCamera = pair.source;
+            if (bestTarget == null) {
+                return null;
+            } else if (sourceCamera == null) {
+                return null;
+            } else {
+                return PhotonUtils.estimateFieldToRobotAprilTag(bestTarget.getBestCameraToTarget(),
+                        aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).get(), sourceCamera.pose);
+            }
+        }
+
+    }
 
     @Override
     public void periodic() {
         updateAprilTagResults();
         try {
             // calculatePoseFromVision();
-        } catch (Exception e){}
+        } catch (Exception e) {
+        }
 
         Logger.recordOutput("has target", hasValidTarget() != null);
-        Logger.recordOutput("Vision/TargetYaw", getYaw());
-        Logger.recordOutput("Vision/TargetPitch", getPitch());
-        Logger.recordOutput("Vision/FloorDistance", getFloorDistance());
+        // Logger.recordOutput("Vision/TargetYaw", getYaw());
+        // Logger.recordOutput("Vision/TargetPitch", getPitch());
+        // Logger.recordOutput("Vision/FloorDistance", getFloorDistance());
         Logger.recordOutput("Vision/BestTargetID", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
-        Logger.recordOutput("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
+        Logger.recordOutput("Vision/BestTargetAmbiguity",
+                getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
 
+        SmartDashboard.putBoolean("has smart target", hasSmartTarget());
         SmartDashboard.putBoolean("has target", hasValidTarget() != null);
-        SmartDashboard.putNumber("Target yaw", getYaw());
-        SmartDashboard.putNumber("Target pitch", getPitch());
-        SmartDashboard.putNumber("Target floor distance", getFloorDistance());
-        SmartDashboard.putNumber("target id", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
-        SmartDashboard.putNumber("Pose ambiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
-        //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
+        // SmartDashboard.putNumber("Target yaw", getYaw());
+        // SmartDashboard.putNumber("Target pitch", getPitch());
+        // SmartDashboard.putNumber("Target floor distance", getFloorDistance());
+        // SmartDashboard.putNumber("target id", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
+        // SmartDashboard.putNumber("Pose ambiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
+        // SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
     }
 }
 
-//potential Kalman implementation: get a sequence of camera readings, run line
+// potential Kalman implementation: get a sequence of camera readings, run line
