@@ -22,7 +22,7 @@ int secondarySize; // Size of black (secondary) sections - eats into g size; set
 int antHSV[] = {0, 0, 0}; // Hue, Saturation, Value/Brightness input into an ant method call. Default {0, 0, 0}
 
 int antDelay; // Delay input into an ant method call
-boolean antEnabled = false;
+// boolean antEnabled = false;
 
 
 // --Flash Variables--
@@ -31,7 +31,7 @@ int flashHSV[] = {0, 0, 0}; // Hue, Saturation, Value/Brightness input into a fl
 int flashOnDelay; // On delay input into a flash method call
 int flashOffDelay; // Off delay input into a flash method call
 
-boolean flashEnabled = false;
+// boolean flashEnabled = false;
 
 
 // --DIO and Mode--
@@ -40,9 +40,11 @@ int input1;
 int input2; 
 int input3;
 
-int inputAsNumber;
+int inputAsNumber; // Int converted from binary
+int prevInput; // Previously read input from rio, prevents running switch every loop so things dont come back on after time
 
-int selected;
+unsigned long solidOnTime = 0;
+unsigned long solidOffDelay = 5000;
 
 
 // --Color Tuples HSV--
@@ -77,51 +79,52 @@ void loop() {
 
   inputAsNumber = input3 + (2*input2) + (4*input1) + (8*input0);
 
-  // digitalWrite(13, 1); // Debug
-  
-  //TODO Decide on mode meanings and what patterns they should be
-  switch (inputAsNumber) {
-    //****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
-    case 0: //OFF
-      setSolid(0, 0, 0);
-      break;
-    case 1://RED
-      setSolid(0, 255, 127);
-      break;
-    case 2://Shooter At Speed
-      setSolid(ORANGE);
-      break;
-    case 3://Shooter Ramping
-      flashSolid(ORANGE, 200, 200);
-      break;
-    case 4://Intake Success
-      setSolid(GREEN);
-      break;
-    case 5://Intaking
-        flashSolid(GREEN, 200, 200);
-      break;
-    case 6://PURPLE
-      setSolid(192, 255, 127);
-      break;
-    case 7://PINK
-      flashSolid(224, 255, 127, 200, 200);
-      // setSolid(224, 255, 255);
-      break;
-    case 8://WHITE
-      setSolid(0, 0, 127); // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
-      break;
-    case 9://redAnt - just demo really rn
-      runAnt(PURPLE, 7, 3, 35);
-      break;
+  if (inputAsNumber != prevInput){
+    //TODO Decide on mode meanings and what patterns they should be
+    switch (inputAsNumber) {
+      //****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
+      case 0: //OFF
+        setSolid(0, 0, 0);
+        break;
+      case 1://RED
+        setSolid(0, 255, 127);
+        break;
+      case 2://Shooter At Speed
+        setSolid(ORANGE);
+        break;
+      case 3://Shooter Ramping
+        flashSolid(ORANGE, 200, 200);
+        break;
+      case 4://Intake Success
+        setSolid(GREEN);
+        break;
+      case 5://Intaking
+          flashSolid(GREEN, 200, 200);
+        break;
+      case 6://PURPLE
+        setSolid(192, 255, 127);
+        break;
+      case 7://PINK
+        flashSolid(224, 255, 127, 200, 200);
+        // setSolid(224, 255, 255);
+        break;
+      case 8://WHITE
+        setSolid(0, 0, 127); // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
+        break;
+      case 9://redAnt - just demo really rn
+        runAnt(PURPLE, 7, 3, 35);
+        break;
+    }
   }
-  digitalWrite(13, 0); // Debug
-
-// Shouldnt matter anymore cause the DIO pins should always be written to on the rio - they wont dissappear
-  // if (antEnabled){runAnt(antHSV[0], antHSV[1], antHSV[2], primarySize, secondarySize, antDelay);}
-  // else if (flashEnabled && currentFlashCount <= flashCountLimit) {
-  //   flashSolid(flashHSV[0], flashHSV[1], flashHSV[2], flashOnDelay, flashOffDelay, flashCountLimit);
-  //   }
   
+  if (solidOnTime != 0){
+    if (millis() - solidOnTime > solidOffDelay){   // 10 - 4 > 5
+      setSolid(OFF);
+    }  
+  }
+ 
+
+  digitalWrite(13, 0); // Debug  
   delay(0);
 }
 
@@ -179,6 +182,8 @@ void setSolid(int color[]){
   // antEnabled = false;
   // flashEnabled = false;
 
+  solidOnTime = millis();
+
   for (int i =0 ; i < NUM_LEDS; i++){
     leds[i].setHSV(color[0], color[1], color[2]);
   }
@@ -195,8 +200,8 @@ void runAnt(int H, int S, int V, int g, int b, int delayMS){
   primarySize = g;
   secondarySize = b;
   antDelay = delayMS;
-  antEnabled = true;
-  flashEnabled = false;
+  // antEnabled = true;
+  // flashEnabled = false;
 
   for (int i = 0; i < NUM_LEDS; i++) {
     if((i - k)% g ==0) {
@@ -219,8 +224,8 @@ void flashSolid(int H, int S, int V, int onMS, int offMS){
   flashHSV[2] = V;
   flashOnDelay = onMS;
   flashOffDelay = offMS;
-  antEnabled = false;
-  flashEnabled = true;
+  // antEnabled = false;
+  // flashEnabled = true;
 
   for (int i = 0; i < NUM_LEDS; i++){
     leds[i].setHSV(H, S, V);
@@ -236,8 +241,11 @@ void flashSolid(int H, int S, int V, int onMS, int offMS){
 
 }
 void setSolid(int H, int S, int V){
-  antEnabled = false;
-  flashEnabled = false;
+  // antEnabled = false;
+  // flashEnabled = false;
+
+  solidOnTime = millis();
+
 
   for (int i =0 ; i < NUM_LEDS; i++){
     leds[i].setHSV(H, S, V);

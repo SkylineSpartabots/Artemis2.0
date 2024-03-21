@@ -76,10 +76,10 @@ public class Lights extends SubsystemBase {
         pin3.set(Character.getNumericValue(binaryString.charAt(3)) > 0);
 
         // Debug
-        System.out.println(pin0.get());
-        System.out.println(pin1.get());
-        System.out.println(pin2.get());
-        System.out.println(pin3.get());
+//        System.out.println(pin0.get());
+//        System.out.println(pin1.get());
+//        System.out.println(pin2.get());
+//        System.out.println(pin3.get());
     }
 
     @Override

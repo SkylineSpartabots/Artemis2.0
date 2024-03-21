@@ -6,6 +6,7 @@ package frc.robot;
 
 
 // import frc.robot.commands.SetLightz;
+import frc.robot.commands.TimerCommand;
 import frc.robot.subsystems.*;
 
 import java.time.Instant;
@@ -95,7 +96,7 @@ public class RobotContainer {
          * Mechanism bindings
          */
 
-        driver.a().onTrue(CommandFactory.offEverything()); //FINAL
+        driver.a().onTrue(new TimerCommand()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(CommandFactory.eject()); //FINAL
         driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
