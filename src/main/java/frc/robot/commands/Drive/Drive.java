@@ -28,7 +28,9 @@ public class Drive extends Command {
     private double driverLY;
     private double driverLX;
     private double driverRX;
-    private double[] adjustedInputs;
+    private Double[] adjustedInputs;
+    private double slipFactor = 0.02; //2%
+
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1)
@@ -43,27 +45,28 @@ public class Drive extends Command {
         addRequirements(s_Swerve);
     }
 
-
     @Override
     public void initialize() {
         driverLX = s_Swerve.scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = s_Swerve.scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = s_Swerve.scaledDeadBand(driverRX) * Constants.MaxSpeed;
-    }
-    
-    @Override
-    public void execute(){
 
         if(s_Swerve.getTraction() == true) {
              adjustedInputs = s_Swerve.tractionControl(driverLX , driverLY);
+             driverLX = adjustedInputs[4];
+             driverLY = adjustedInputs[5];
         }
         
         s_Swerve.applyRequest(() ->
                          drive.withVelocityX(driverLX)
-                        .withVelocityY(driverLY) 
+                        .withVelocityY(driverLY)
                         .withRotationalRate(driverRX));
-        //TODO factor in slip
+        s_Swerve.slipCorrection(adjustedInputs);
         s_Swerve.resetTime();
+    }
+    
+    @Override
+    public void execute(){
     }
 
 

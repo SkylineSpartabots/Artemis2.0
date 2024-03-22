@@ -47,7 +47,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private double lastTimeReset = 20;
     private boolean tractionGO = false;
-    private boolean tractionOveride = false;
+    private double slipFactor = 0.02; //2%
+    private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
+
+
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
     Pigeon2 pigeon = new Pigeon2(2);
@@ -173,9 +176,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // }
     }
 
-    public Double[] tractionControl(double driverLY, double driverLX) {
-        double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
-        double slipFactor = 0.02; //2%
+    public Double[] tractionControl(double driverLX, double driverLY) {
         double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
         Double[] outputs = new Double[6];
 
@@ -199,7 +200,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             TalonFX module = Modules[i].getDriveMotor();
             WheelAcceleration =+ (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
                     * (TunerConstants.getWheelRadius() * 0.0254));
-            if(outputs[i] != null) {WheelAcceleration =- WheelAcceleration * slipFactor;};
+            if(outputs[i] != null) {WheelAcceleration =- WheelAcceleration * (slipFactor - (outputs[i] - slipThreshold)/2);};
         }                                                           
 
 
@@ -216,10 +217,19 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 driverLY = WheelAcceleration + maxAcceleration * lastRun;
             }
 
-         outputs[4] = driverLX; //TODO output slip
+         outputs[4] = driverLX;
          outputs[5] = driverLY; 
         return outputs;
         // run periodically...
+    }
+
+    public void slipCorrection(Double[] inputs) {
+        for (int i = 0; i < 4; i++) {
+        TalonFX module = Modules[i].getDriveMotor();
+            if(inputs[i] != null) {
+                module.set(module.get() * (1 - (slipFactor + (inputs[i] - slipThreshold)/2) ));
+            }
+        }
     }
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear controls
@@ -237,9 +247,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return tractionGO;
     }
 
-    public Boolean tractionOverride() {
-        return tractionOveride;
-    }
     public void resetTime() {
         lastTimeReset = System.currentTimeMillis();
     }
