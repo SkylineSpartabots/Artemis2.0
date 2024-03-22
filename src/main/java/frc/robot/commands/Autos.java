@@ -438,6 +438,54 @@ public final class Autos {
         );
     }
 
+    public static Command TwoNoteFarSide() {
+        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("TwoNoteFarSide");
+        return new SequentialCommandGroup(
+             new InstantCommand(() -> {
+                    Pose2d initialPose;
+                    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+                    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.get(0).getInitialPose() : trajectory.get(0).flipped().getInitialPose();
+                    s_Swerve.resetOdo(initialPose);
+                    System.out.println(initialPose.getX() + " " + initialPose.getY());
+                }),
+                
+                new ParallelCommandGroup(
+                        new AlignPivot(PivotState.SUBWOOFER),
+                        // RobotContainer.getInstance().eject(),
+                        new SetShooterCommand(40)
+                ),
+                Commands.waitSeconds(1.0),
+                
+                new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
+                Commands.waitSeconds(0.2),
+
+                new ParallelCommandGroup(
+                        FollowChoreoTrajectory(trajectory.get(0)),
+                        new SetShooterCommand(0),
+                        new SetIndexer(IndexerStates.ON, true, 4.25),
+                        new SetIntake(IntakeStates.ON, 4),
+                        new AlignPivot(PivotState.INTAKE)
+                ),
+
+                Commands.waitSeconds(0.5),
+                CommandFactory.eject(),
+
+                new ParallelCommandGroup(
+                        FollowChoreoTrajectory(trajectory.get(1)),
+                        new AlignPivot(PivotState.SUBWOOFER),
+                        new SetShooterCommand(40)
+                ),
+
+                Commands.waitSeconds(0.5),
+                new SetIndexer(IndexerStates.ON, false),
+                Commands.waitSeconds(2),
+                new ParallelCommandGroup(
+                      new SetIndexer(IndexerStates.OFF),
+                      new SetShooterCommand(0)
+                )
+        );
+    }
+
     public static Command ThreeNoteFarSide() {
         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("ThreeNoteFarSide");
         return new SequentialCommandGroup(
