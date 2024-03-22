@@ -609,8 +609,8 @@ public final class Autos {
                 new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new SetShooterCommand(0)));
     }
 
-//     public static Command Horizontal() {
-//         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal Test");
+    public static Command Horizontal() {
+        ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("Horizontal Test");
 
         return new SequentialCommandGroup(
                 new InstantCommand(() -> {
