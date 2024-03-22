@@ -449,8 +449,6 @@ public final class Autos {
                     System.out.println(initialPose.getX() + " " + initialPose.getY());
                 }),
 
-                new WaitCommand(1.0),
-
                 new ParallelCommandGroup(
                         new AlignPivot(PivotState.SUBWOOFER),
                         // RobotContainer.getInstance().eject(),
@@ -459,7 +457,7 @@ public final class Autos {
                 
                 
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
-                Commands.waitSeconds(0.5),
+                Commands.waitSeconds(0.2),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
@@ -480,7 +478,7 @@ public final class Autos {
 
 
                 new SetIndexer(IndexerStates.ON, false),
-                Commands.waitSeconds(0.2),
+                Commands.waitSeconds(5),
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
