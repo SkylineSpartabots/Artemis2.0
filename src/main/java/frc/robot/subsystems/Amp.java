@@ -7,13 +7,18 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants;
 
 public class Amp extends SubsystemBase {
-  private static Amp instance;
+  public static Amp instance;
 
     public static Amp getInstance(){
         if(instance == null){
@@ -22,46 +27,69 @@ public class Amp extends SubsystemBase {
         return instance;
     }
 
-  private TalonSRX ampM;
-    
-  public Amp() {
-    ampM = new TalonSRX(Constants.HardwarePorts.ampMotor);
-    configMotor();
-  }
+  public enum AmpState {
 
-  private void configMotor() {
-    ampM.setNeutralMode(NeutralMode.Brake);
-    ampM.configContinuousCurrentLimit(Constants.ampContinuousCurrentLimit);
-    ampM.configPeakCurrentLimit(Constants.ampPeakCurrentLimit);
-  }
+    ZERO(0),
 
-  //TODO add configure amp motor method and pid if needed by mechanism
+    DEPLOYED(9.78);
 
-  public void setVelocity(double velocity){
-    ampM.set(ControlMode.Velocity, velocity);
-  }
+    private double pos;
 
-  public void setPercentPower(double power){
-    ampM.set(ControlMode.PercentOutput, power); //input values in [-1, 1]
-  }
+    private AmpState(double position) {
+      pos = position;
+    }
 
-  public void setAction(AmpActions action) {
-    ampM.set(ControlMode.PercentOutput, action.power);
-  }
-
-  public enum AmpActions {
-    EJECT_NOTE(-0.05),
-    INTAKE_NOTE(0.1),
-    HOLD_NOTE(0);
-
-    private double power;
-    private AmpActions( double power) {
-
-      this.power = power;
+    public double getPos() {
+      return pos;
     }
   }
+  
+  private TalonFX ampM;
+    
+  public Amp() {
+    ampM = new TalonFX(Constants.HardwarePorts.ampM);
+    configMotor(ampM);
+    ampM.setInverted(true);
+    ampM.setNeutralMode(NeutralModeValue.Brake);
+  }
+
+  public void resetMotorEncoder() {
+    ampM.setPosition(0);
+  }
+
+  public double getMotorCurrent() {
+    return ampM.getStatorCurrent().getValueAsDouble();
+  }
+
+  public double getPosition(){
+    return ampM.getPosition().getValueAsDouble();
+  }
+
+  public void setVoltage(double voltage) {
+    ampM.setVoltage(voltage);
+  }
+
+  public void setSpeed(double speed) { //-1.0 to 1.0
+    ampM.set(speed);
+  }
+
+  private void configMotor(TalonFX motor) {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+
+
+        currentLimitsConfigs.SupplyCurrentLimit = Constants.ampContinuousCurrentLimit;
+        currentLimitsConfigs.StatorCurrentLimit = Constants.ampContinuousCurrentLimit;
+        currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+        currentLimitsConfigs.SupplyCurrentThreshold = Constants.ampPeakCurrentLimit;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.CurrentLimits = currentLimitsConfigs;
+        motor.getConfigurator().apply(config);
+    }
+
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("Amp position", getPosition());
   }
 }

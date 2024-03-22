@@ -7,6 +7,7 @@ package frc.robot;
 
 // import frc.robot.commands.SetLightz;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Amp.AmpState;
 
 import java.time.Instant;
 
@@ -30,6 +31,8 @@ import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
+import frc.robot.commands.Amp.SetAmp;
+import frc.robot.commands.Amp.ZeroAmp;
 import frc.robot.commands.Drive.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
@@ -102,12 +105,13 @@ public class RobotContainer {
 
         driver.a().onTrue(CommandFactory.offEverything()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
-        driver.b().onTrue(CommandFactory.eject()); //FINAL
+        //driver.b().onTrue(CommandFactory.eject()); //FINAL
+        driver.b().onTrue(new ZeroAmp());
         driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
-            
+        
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
@@ -122,8 +126,10 @@ public class RobotContainer {
         // driver.leftBumper().onTrue(onIntake());
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
-        driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
+        //driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+        driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED));
+        //driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
+        driverDpadLeft.onTrue(new AlignPivot(PivotState.AMP));
         // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 

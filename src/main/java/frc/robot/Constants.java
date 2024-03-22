@@ -106,7 +106,7 @@ public final class Constants {
         public static final int pivotFollowerM = 41;
         public static final int pivotCANcoderID = 42;
 
-        public static final int ampMotor = 62;
+        public static final int ampM = 62;
         
     }
 
