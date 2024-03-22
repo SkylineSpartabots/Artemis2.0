@@ -59,11 +59,11 @@ public class Drive extends Command {
             SwerveRequest request = new SwerveRequest() {
                         .withVelocityX(driverLX) // Drive forward with negative Y (forward)
                         .withVelocityY(driverLY) // Drive left with negative X (left)
-                        .withRotationalRate(driverRX); // Drive counterclockwise with negative X (left) 
-            }
+                        .withRotationalRate(driverRX) // Drive counterclockwise with negative X (left) 
+            }; //TODO fix
 
         s_Swerve.applyRequest(() -> request);
-        s_Swerve.
+        //TODO factor in slip
         s_Swerve.lastTimeReset = System.currentTimeMillis();
 
         }

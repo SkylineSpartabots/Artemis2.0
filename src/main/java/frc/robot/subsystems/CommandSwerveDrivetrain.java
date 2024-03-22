@@ -176,11 +176,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public double[] tractionControl(double driverLY, double driverLX) {
         double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
         double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
+        double[] outputs = new double[6];
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
-                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / 1; //TODO get velocity from acceleration values make graph looptable basicoel
+                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / 1; //TODO get velocity from acceleration values make graph, lookup table basically
 
             if (slipRatio > slipThreshold) {//TODO save slip and motor
 
@@ -213,10 +214,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             // the max acceleration for traction in THIS time step
 
             if (desiredChange > maxAcceleration) {
-                desiredChange = maxAcceleration; //TODO output x,y values based on changed velocity
+                driverLX = WheelAcceleration + maxAcceleration * lastRun;
+                driverLY = WheelAcceleration + maxAcceleration * lastRun;
             }
 
-        double[] outputs = {driverLX,driverLY}; //TODO output slip corrctly (can i multiply)
+         outputs[0] = driverLX; //TODO output slip
+         outputs[1] = driverLY; 
         return outputs;
         // run periodically...
     }
