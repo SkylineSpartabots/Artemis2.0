@@ -31,7 +31,7 @@ public class Amp extends SubsystemBase {
 
     ZERO(0),
 
-    DEPLOYED(9.78);
+    DEPLOYED(9.8);
 
     private double pos;
 

@@ -120,16 +120,21 @@ public class RobotContainer {
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
 
-        driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
-        driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
-        driver.leftBumper().onTrue(new SetShooterCommand(45));
+
+        
+        //driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
+        driver.rightBumper().onTrue(new SetShooterCommand(20, 9)); //for test
+        //driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
+        driver.rightTrigger().onTrue(new SetShooterCommand(0)); //for test
+        //driver.leftBumper().onTrue(new SetShooterCommand(45));
+        driver.leftBumper().onTrue(new SetIndexer(IndexerStates.AMP)); //for test
         // driver.leftBumper().onTrue(onIntake());
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         //driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED));
+        driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED)); //for test
         //driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
-        driverDpadLeft.onTrue(new AlignPivot(PivotState.AMP));
+        driverDpadLeft.onTrue(new AlignPivot(PivotState.AMP)); //for test
         // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 

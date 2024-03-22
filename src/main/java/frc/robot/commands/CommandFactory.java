@@ -97,7 +97,6 @@ public class CommandFactory {
                 new SetShooterCommand(16, 9),
                 new AlignPivot(PivotState.AMP)
             ),  
-            Commands.waitSeconds(0.3),
             new SetIndexer(IndexerStates.AMP)
         );
     }
