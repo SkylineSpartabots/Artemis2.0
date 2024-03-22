@@ -31,6 +31,7 @@ import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
+import frc.robot.commands.Drive.PIDAlign;
 import frc.robot.commands.Drive.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
@@ -120,7 +121,8 @@ public class RobotContainer {
         // driver.leftTrigger().onTrue(new VisionAlign());
 
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
-        driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
+        // driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
+        driver.rightTrigger().onTrue(new PIDAlign());
         driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(onIntake());
 
@@ -142,8 +144,8 @@ public class RobotContainer {
                 ));
 
         // reset the field-centric heading. AKA reset odometry
-        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(Units.inchesToMeters(14.75), 5.6, new Rotation2d()))));
-        // driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d())))); //actual reset odometry
+        // driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(Units.inchesToMeters(14.75), 5.6, new Rotation2d()))));
+        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(drivetrain.getPose().getX(), drivetrain.getPose().getY(), new Rotation2d())))); //actual reset odometry
 
         /*
          * Operator bindings

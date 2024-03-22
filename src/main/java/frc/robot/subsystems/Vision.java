@@ -76,7 +76,6 @@ public class Vision extends SubsystemBase {
         centerCamera = new PhotonCamera(Constants.Vision.centerCameraName);
         backRightCamera = new PhotonCamera(Constants.Vision.backRightCameraName);
         backLeftCamera = new PhotonCamera(Constants.Vision.backLeftCameraName);
-        updateAprilTagResults();
     }
 
     public void updateAprilTagResults() {

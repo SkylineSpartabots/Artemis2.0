@@ -56,6 +56,11 @@ public class PIDAlign extends Command {
     addRequirements(s_Swerve);
   }
 
+  public PIDAlign(){
+    s_Swerve = CommandSwerveDrivetrain.getInstance();
+    addRequirements(s_Swerve);
+  }
+
   @Override
   public void initialize() {
     alignPID.reset();
@@ -72,35 +77,30 @@ public class PIDAlign extends Command {
     double xVel = -driver.getLeftY() * Constants.MaxSpeed;
     double yVel = -driver.getLeftX() * Constants.MaxSpeed;
 
-    try {
-      // s_Swerve.updateOdometryByVision(); can someon fix vison please thanks
-      Pose2d predictedPose = pose;
-      Transform2d predictionTransform = new Transform2d();
-      double refreshLoopPeriod = 0.02; //seconds
-      double realXVel = 0.5 * (lastXVel + xVel); //an attempt to account for acceleration by accounting for last vel vs. current desired vel
-      double realYVel = 0.5 * (lastYVel + yVel); 
-      if(Math.sqrt(Math.pow(realXVel, 2) + Math.pow(realYVel, 2)) < 6){
-        if(realXVel > RobotContainer.translationDeadband * Constants.MaxSpeed){
-          predictionTransform.plus(new Transform2d(realXVel*refreshLoopPeriod, 0.0, new Rotation2d()));
-        }
-        if(realYVel > RobotContainer.translationDeadband * Constants.MaxSpeed){
-          predictionTransform.plus(new Transform2d(0.0, realYVel*refreshLoopPeriod, new Rotation2d()));
-        }
-        predictedPose.transformBy(predictionTransform);
-      }
 
-      desiredYaw = PhotonUtils.getYawToPose(predictedPose, Vision.aprilTagFieldLayout.getTagPose(alliance.isPresent() && alliance.get() != Alliance.Red ? 7 : 4).get().toPose2d());
-      double rotationSpeed = alignPID.calculate(desiredYaw.getRotations(), 0);
-      s_Swerve.setControl(drive.withRotationalRate(rotationSpeed).withVelocityX(xVel).withVelocityY(yVel));
+    // try {
+    //   // s_Swerve.updateOdometryByVision(); can someon fix vison please thanks
+    //   predictedPose = pose;
+    //   Transform2d predictionTransform = new Transform2d();
+    //   double refreshLoopPeriod = 0.02; //seconds
+    //   double realXVel = 0.5 * (lastXVel + xVel); //an attempt to account for acceleration by accounting for last vel vs. current desired vel
+    //   double realYVel = 0.5 * (lastYVel + yVel); 
+    //   if(Math.sqrt(Math.pow(realXVel, 2) + Math.pow(realYVel, 2)) < 6){
+    //     if(realXVel > RobotContainer.translationDeadband * Constants.MaxSpeed){
+    //       predictionTransform.plus(new Transform2d(realXVel*refreshLoopPeriod, 0.0, new Rotation2d()));
+    //     }
+    //     if(realYVel > RobotContainer.translationDeadband * Constants.MaxSpeed){
+    //       predictionTransform.plus(new Transform2d(0.0, realYVel*refreshLoopPeriod, new Rotation2d()));
+    //     }
+    //     predictedPose.transformBy(predictionTransform);
+    //   }
+    desiredYaw = PhotonUtils.getYawToPose(pose, Vision.aprilTagFieldLayout.getTagPose(alliance.isPresent() && alliance.get() != Alliance.Red ? 7 : 4).get().toPose2d());
+    SmartDashboard.putNumber("desiredYaw", desiredYaw.getRotations());
 
-      lastXVel = xVel;
-      lastYVel = yVel;
-
-      SmartDashboard.putNumber("desired rot", desiredYaw.getRotations());
-      SmartDashboard.putBoolean("Align Running", true);
-    } catch (Exception e) {
-      SmartDashboard.putBoolean("Align Running", false);
-    }
+    double rotationSpeed = alignPID.calculate(desiredYaw.getRotations(), 0);
+    s_Swerve.setControl(drive.withRotationalRate(rotationSpeed).withVelocityX(xVel).withVelocityY(yVel));
+    lastXVel = xVel;
+    lastYVel = yVel;
 
   }
 

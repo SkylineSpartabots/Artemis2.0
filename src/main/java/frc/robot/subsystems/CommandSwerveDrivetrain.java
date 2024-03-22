@@ -18,6 +18,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -150,12 +151,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void updateOdometryByVision(){
         Pose3d poseFromVision = null;
-        try {
             poseFromVision = m_Camera.calculatePoseFromVision();
-        } catch (Exception e) {
-        }
-        if(m_Camera.hasSmartTarget()){ //&& m_Camera.overallBestTarget != null
-            s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Timer.getMatchTime()); //Timer.getFPGATimestamp() //m_Camera.overallBestTarget.timeStamp
+        if(poseFromVision != null){ //&& m_Camera.overallBestTarget != null
+            // s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Timer.getMatchTime()); //Timer.getFPGATimestamp() //m_Camera.overallBestTarget.timeStamp
+            Pose2d newPose = new Pose2d(getPose().getX() * 0.1 + poseFromVision.toPose2d().getX()*0.9, getPose().getY() * 0.1 + poseFromVision.toPose2d().getY()*0.9, getPose().getRotation());
+            resetOdo(newPose);
         } else {
         }
     }
@@ -168,7 +168,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
-        updateOdometryByVision();
+        if(!DriverStation.isAutonomous()){
+            updateOdometryByVision();
+        }
         Pose2d currPose = getPose();
         
         SmartDashboard.putNumber("BEST SMART TARGET", m_Camera.overallBestTarget.target.getFiducialId());
