@@ -116,7 +116,8 @@ void loop() {
         break;
     }
   }
-  
+  prevInput = inputAsNumber;
+
   if (solidOnTime != 0){
     if (millis() - solidOnTime > solidOffDelay){   // 10 - 4 > 5
       setSolid(OFF);
