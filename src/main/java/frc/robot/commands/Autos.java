@@ -454,7 +454,7 @@ public final class Autos {
                         // RobotContainer.getInstance().eject(),
                         new SetShooterCommand(40)
                 ),
-                
+                Commands.waitSeconds(1.0),
                 
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
                 Commands.waitSeconds(0.2),
@@ -875,7 +875,7 @@ public final class Autos {
                         new SetIndexer(IndexerStates.ON, true, intakeTimeLength + 0.5),
                         new SetIntake(IntakeStates.ON, intakeTimeLength),
                         new AlignPivot(PivotState.INTAKE),
-                        new SequentialCommandGroup(new WaitCommand(intakeRevTime), ChoreoDriveCommand)
+                        new SequentialCommandGroup(new WaitCommand(intakeRevTime), ChoreoDriveCommand )
                 ),
                 CommandFactory.eject(),
                 new ParallelCommandGroup(
