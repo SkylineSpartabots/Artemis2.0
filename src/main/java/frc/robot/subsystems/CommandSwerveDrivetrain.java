@@ -4,6 +4,8 @@ import java.sql.Driver;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.crypto.Mac;
+
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.Logger;
 
@@ -43,7 +45,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    private double lastTimeReset = -1;
+    private double lastTimeReset = 20;
     private boolean tractionGO = false;
     private boolean tractionOveride = false;
 
@@ -168,60 +170,53 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // if(poseFromVision != null){
         // s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(),
         // Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-        // TODO add our own timer
         // }
     }
 
     public double[] tractionControl(double driverLY, double driverLX) {
-
-        double slipFactor = 0.995; // 0.5%
         double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
-
         double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
-                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / desiredSpeed;
-            if (slipRatio > slipThreshold) {
+                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / 1; //TODO get velocity from acceleration values make graph looptable basicoel
 
-            } else {
-            }
+            if (slipRatio > slipThreshold) {//TODO save slip and motor
+
+            } 
             SmartDashboard.putNumber("slip ratio", slipRatio);
         }
         SmartDashboard.putNumber("desired speed", desiredSpeed);
 
-
-        
-
         double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
-        
-        double currentAcceleration = Math.sqrt(
-                Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2));
+
+        // double currentAcceleration = Math.sqrt(
+        //         Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2));
         // could implement gyro values with this for more accurate acceleration using
         // kalman filters but may be too expensive. idk!
-
-        double WheelAcceleration;
+        double WheelAcceleration = 0;
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             WheelAcceleration =+ (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
                     * (TunerConstants.getWheelRadius() * 0.0254));
-            if(i==1) {WheelAcceleration =+ 1;};
+            if(i==1) {WheelAcceleration =+ 1;}; //TODO factor values if they are slipping
         }                                                           
 
-            double desiredChange = (desiredSpeed - (WheelAcceleration / 4)); // neg is wheel is faster and vice versa
-            double maxAcceleration = (9.80665 * frictionCoefficant) * 0.025;
+        double lastRun = (System.currentTimeMillis() - lastTimeReset) / 1000;
+            double desiredChange = (desiredSpeed - (WheelAcceleration / 4))/lastRun; // neg is wheel is faster and vice versa
+            double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
             // maximum acceleration we can have is equal to g*CoF, where g is the
             // acceleration due to gravity and CoF is the coefficient of friction between
             // the floor and the wheels (rubber and carpet i assumed), last number is for
             // the max acceleration for traction in THIS time step
 
-            if (-desiredChange > maxAcceleration) {
-                desiredAcceleration = desiredChange + maxAcceleration * Math.signum(desiredChange);
+            if (desiredChange > maxAcceleration) {
+                desiredChange = maxAcceleration; //TODO output x,y values based on changed velocity
             }
 
-        double[] outputs = {driverLX,driverLY};
+        double[] outputs = {driverLX * desiredChange,driverLY * desiredChange}; //TODO output slip
         return outputs;
         // run periodically...
     }

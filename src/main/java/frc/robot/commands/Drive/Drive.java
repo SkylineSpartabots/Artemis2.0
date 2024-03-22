@@ -54,15 +54,18 @@ public class Drive extends Command {
         if(s_Swerve.getTraction() == true) {
              adjustedInputs = s_Swerve.tractionControl(driverLX , driverLY);
         }
-        
+
         
             SwerveRequest request = new SwerveRequest() {
-                     //idk how to do this ill figure it out prop
-                        // .withVelocityX(driverLX) // Drive forward with negative Y (forward)
-                        // .withVelocityY(driverLY) // Drive left with negative X (left)
-                        // .withRotationalRate(driverRX); // Drive counterclockwise with negative X (left) 
+                        .withVelocityX(driverLX) // Drive forward with negative Y (forward)
+                        .withVelocityY(driverLY) // Drive left with negative X (left)
+                        .withRotationalRate(driverRX); // Drive counterclockwise with negative X (left) 
             }
+
         s_Swerve.applyRequest(() -> request);
+        s_Swerve.
+        s_Swerve.lastTimeReset = System.currentTimeMillis();
+
         }
     }
 
