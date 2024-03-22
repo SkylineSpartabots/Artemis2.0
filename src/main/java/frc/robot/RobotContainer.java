@@ -169,6 +169,7 @@ public class RobotContainer {
         // operator.rightTrigger().whileTrue(new ManualClimb(true));
         // operator.leftTrigger().whileTrue(new ManualClimb(false));
 
+        operator.leftBumper().onTrue(new SetAmp(AmpState.PUSH));
         operator.rightBumper().onTrue(CommandFactory.Diagnostic());
 
         // operator.back().onTrue(new SequentialCommandGroup(
