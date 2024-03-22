@@ -178,23 +178,25 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         Double[] outputs = new Double[6]; // should be reset to null every call
         double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
         double WheelAcceleration = 0;
-
+        
         double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
+                double currentAcceleration = Math.sqrt(
+        Math.pow(pigeon.getAccelerationX().getValue(), 2) +
+        Math.pow(pigeon.getAccelerationY().getValue(), 2));
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
-            double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
-                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / 1; // TODO get velocity from
+            double slipRatio = (Math.abs(module.getAcceleration().getValue() * 60) * ((2
+                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / currentAcceleration; // TODO get velocity from
                                                                                         // acceleration values, make
                                                                                         // graph, lookup table basically
             if (slipRatio > slipThreshold) {
                 outputs[i] = slipRatio;
+
             }
         }
 
-        // double currentAcceleration = Math.sqrt(
-        // Math.pow(pigeon.getAccelerationX().getValue(), 2) +
-        // Math.pow(pigeon.getAccelerationY().getValue(), 2));
+
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
