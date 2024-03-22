@@ -867,6 +867,7 @@ public final class Autos {
         ThreeNoteSubwooferMidTop("ThreeNoteSubwooferMidTop", ThreeNoteSubwooferMidTop()),
         ThreeNoteSubwooferMidBot("ThreeNoteSubwooferMidBot", ThreeNoteSubwooferMidBot()),
         FirstLine("FirstLine", FirstLine()),
+        TwoNoteFarSide("TwoNoteFarSide", TwoNoteFarSide()),
         FourNoteSubwooferNew("FourNoteSubwooferNew", FourNoteSubwooferNew());
         //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
 
