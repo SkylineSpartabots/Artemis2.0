@@ -216,7 +216,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 desiredChange = maxAcceleration; //TODO output x,y values based on changed velocity
             }
 
-        double[] outputs = {driverLX * desiredChange,driverLY * desiredChange}; //TODO output slip
+        double[] outputs = {driverLX,driverLY}; //TODO output slip corrctly (can i multiply)
         return outputs;
         // run periodically...
     }
