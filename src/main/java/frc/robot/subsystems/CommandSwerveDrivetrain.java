@@ -47,10 +47,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private double lastTimeReset = 20;
     private boolean tractionGO = false;
-    private double slipFactor = 0.02; //2%
+    private double slipFactor = 0.02; // 2%
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
-
-
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
     Pigeon2 pigeon = new Pigeon2(2);
@@ -177,57 +175,63 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public Double[] tractionControl(double driverLX, double driverLY) {
+        Double[] outputs = new Double[6]; // should be reset to null every call
+        double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
+        double WheelAcceleration = 0;
+
         double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
-        Double[] outputs = new Double[6];
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
-                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / 1; //TODO get velocity from acceleration values make graph, lookup table basically
+                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / 1; // TODO get velocity from
+                                                                                        // acceleration values make
+                                                                                        // graph, lookup table basically
             if (slipRatio > slipThreshold) {
                 outputs[i] = slipRatio;
-            } 
+            }
         }
 
-        double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
         // double currentAcceleration = Math.sqrt(
-        //         Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2));
-        // could implement gyro values with this for more accurate acceleration using
-        // kalman filters but may be too expensive. idk!
-        double WheelAcceleration = 0;
+        // Math.pow(pigeon.getAccelerationX().getValue(), 2) +
+        // Math.pow(pigeon.getAccelerationY().getValue(), 2));
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
-            WheelAcceleration =+ (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
-                    * (TunerConstants.getWheelRadius() * 0.0254));
-            if(outputs[i] != null) {WheelAcceleration =- WheelAcceleration * (slipFactor - (outputs[i] - slipThreshold)/2);};
-        }                                                           
-
+            WheelAcceleration = +(Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
+                    * (TunerConstants.getWheelRadius() * 0.0254)); // 0.0254 is meters in an inch
+            if (outputs[i] != null) {
+                WheelAcceleration = -WheelAcceleration * (slipFactor + (outputs[i] - slipThreshold) / 2);
+            }
+            ;
+        }
 
         double lastRun = (System.currentTimeMillis() - lastTimeReset) / 1000;
-            double desiredAcceleration = (desiredSpeed - (WheelAcceleration / 4))/lastRun; // neg is wheel is faster and vice versa
-            double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
-            // maximum acceleration we can have is equal to g*CoF, where g is the
-            // acceleration due to gravity and CoF is the coefficient of friction between
-            // the floor and the wheels (rubber and carpet i assumed), last number is for
-            // the max acceleration for traction in THIS time step
 
-            if (desiredAcceleration > maxAcceleration) {
-                driverLX = WheelAcceleration + maxAcceleration * lastRun;
-                driverLY = WheelAcceleration + maxAcceleration * lastRun;
-            }
+        double desiredAcceleration = (desiredSpeed - (WheelAcceleration / 4)) / lastRun; // not very sure about this
+                                                                                         // math
+        double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
+        // maximum acceleration we can have is equal to g*CoF, where g is the
+        // acceleration due to gravity and CoF is the coefficient of friction between
+        // the floor and the wheels (rubber and carpet i assumed), last number is for
+        // the max acceleration for traction in THIS time step
 
-         outputs[4] = driverLX;
-         outputs[5] = driverLY; 
+        if (desiredAcceleration > maxAcceleration) {
+            driverLX = WheelAcceleration + (maxAcceleration * lastRun);
+            driverLY = WheelAcceleration + (maxAcceleration * lastRun);
+        }
+
+        outputs[4] = driverLX;
+        outputs[5] = driverLY;
         return outputs;
         // run periodically...
     }
 
     public void slipCorrection(Double[] inputs) {
         for (int i = 0; i < 4; i++) {
-        TalonFX module = Modules[i].getDriveMotor();
-            if(inputs[i] != null) {
-                module.set(module.get() * (1 - (slipFactor + (inputs[i] - slipThreshold)/2) ));
+            if (inputs[i] != null) {
+                TalonFX module = Modules[i].getDriveMotor();
+                module.set(module.get() * (1 - (slipFactor + (inputs[i] - slipThreshold) / 2)));
             }
         }
     }

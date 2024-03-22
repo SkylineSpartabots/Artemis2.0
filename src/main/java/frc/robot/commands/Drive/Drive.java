@@ -24,12 +24,10 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Drive extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
-    private double maximumStep = 0.1; //needs to be tuned but caps maximum acceleration in a single step to maintain control and stability (theoretically) should be pretty high... ALL EXPERIMENTAL!!! IM BORED!!
     private double driverLY;
     private double driverLX;
     private double driverRX;
     private Double[] adjustedInputs;
-    private double slipFactor = 0.02; //2%
 
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -41,7 +39,6 @@ public class Drive extends Command {
         this.driverLY = driverLY;
         this.driverLX = driverLX;
         this.driverRX = driverRX;
-        
         addRequirements(s_Swerve);
     }
 
