@@ -28,10 +28,12 @@ public class Drive extends Command {
     private double driverLX;
     private double driverRX;
     private Double[] adjustedInputs;
+    public static final double translationDeadband = 0.1;
+    public static final double rotDeadband = 0.1;
 
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1)
+            .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
 
     public Drive(double driverLY, double driverLX, double driverRX) { 

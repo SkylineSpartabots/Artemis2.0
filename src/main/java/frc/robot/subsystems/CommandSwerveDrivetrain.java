@@ -45,7 +45,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    private double lastTimeReset = 20;
+    private double lastTimeReset = 0;
     private boolean tractionGO = false;
     private double slipFactor = 0.02; // 2%
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
@@ -185,7 +185,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             TalonFX module = Modules[i].getDriveMotor();
             double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
                     * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / 1; // TODO get velocity from
-                                                                                        // acceleration values make
+                                                                                        // acceleration values, make
                                                                                         // graph, lookup table basically
             if (slipRatio > slipThreshold) {
                 outputs[i] = slipRatio;
@@ -201,13 +201,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             WheelAcceleration = +(Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
                     * (TunerConstants.getWheelRadius() * 0.0254)); // 0.0254 is meters in an inch
             if (outputs[i] != null) {
-                WheelAcceleration = -WheelAcceleration * (slipFactor + (outputs[i] - slipThreshold) / 2);
+                WheelAcceleration -= WheelAcceleration * (slipFactor + (outputs[i] - slipThreshold) / 2);
             }
             ;
         }
 
-        double lastRun = (System.currentTimeMillis() - lastTimeReset) / 1000;
-
+        double lastRun = (System.currentTimeMillis() - lastTimeReset) / 1000; //very jank for first run but after should be good
+        if(lastRun<365*24*60*60) { //checking if first run
         double desiredAcceleration = (desiredSpeed - (WheelAcceleration / 4)) / lastRun; // not very sure about this
                                                                                          // math
         double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
@@ -223,6 +223,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         outputs[4] = driverLX;
         outputs[5] = driverLY;
+        }
         return outputs;
         // run periodically...
     }
