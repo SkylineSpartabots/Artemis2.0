@@ -36,8 +36,9 @@ public final class Constants {
 
     public static final class Vision {
         public static final int aprilTagMax = 16;
-        public static final String centerCameraName = "Camera1";
-        public static final String backLeftCameraName = "";
+        public static final String centerCameraName = "Center";
+        public static final String backLeftCameraName = "BackLeft";
+        public static final String backRightCameraName = "BackRight";
         public static final double cameraHeight = 0; //fix
         public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet | unnecessary, we have photonvision's field layout import
         public static final double cameraRollOffset = Units.degreesToRadians(0);

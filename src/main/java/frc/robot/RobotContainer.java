@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
@@ -55,8 +56,15 @@ public class RobotContainer {
     public final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
     private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
 
+    private final Amp s_Amp = Amp.getInstance();
+    private final Climb s_Climb = Climb.getInstance();
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
+    private final Indexer s_Indexer = Indexer.getInstance();
+    private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
+    private final Shooter s_Shooter = Shooter.getInstance();
+    private final Vision s_Vision = Vision.getInstance();
+    // private final Music s_Orchestra = Music.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
@@ -103,22 +111,24 @@ public class RobotContainer {
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
-        
+            
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
         driver.leftTrigger().whileTrue(new SlowDrive());
+        // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
 
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
         driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
-        driver.leftBumper().onTrue(new SetShooterCommand(60));
+        driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(onIntake());
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadLeft.onTrue(new AlignPivot()); 
+        driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
+        // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
         
@@ -154,6 +164,10 @@ public class RobotContainer {
 
         operator.rightBumper().onTrue(CommandFactory.Diagnostic());
 
+        // operator.back().onTrue(new SequentialCommandGroup(
+        //     new InstantCommand(() -> s_Orchestra.loadMusic("jinglebells.chrp")),
+        //     new InstantCommand(() -> s_Orchestra.playMusic())));
+
         /*
          * simulation bindings
          */
@@ -161,6 +175,8 @@ public class RobotContainer {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
         drivetrain.registerTelemetry(logger::telemeterize);
+
+
     }
 
     public RobotContainer() {

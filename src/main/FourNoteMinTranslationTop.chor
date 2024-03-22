@@ -2,7 +2,7 @@
     "version": "v0.2.2",
     "robotConfiguration": {
         "mass": 71.124,
-        "rotationalInertia": 0.594,
+        "rotationalInertia": 6.5,
         "motorMaxTorque": 1.162295081967213,
         "motorMaxVelocity": 4800,
         "gearing": 5.25,
@@ -22,7 +22,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 9
+                    "controlIntervalCount": 10
                 },
                 {
                     "x": 2.8873088359832764,
@@ -31,16 +31,16 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 14
+                    "controlIntervalCount": 8
                 },
                 {
                     "x": 2.887,
-                    "y": 6.303014278411865,
+                    "y": 5.553,
                     "heading": 1.57,
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 6
+                    "controlIntervalCount": 10
                 },
                 {
                     "x": 2.887,
@@ -67,7 +67,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 20
+                    "controlIntervalCount": 21
                 },
                 {
                     "x": 2.1280295848846436,
@@ -76,7 +76,7 @@
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
-                    "controlIntervalCount": 5
+                    "controlIntervalCount": 6
                 },
                 {
                     "x": 2.5869250297546387,
@@ -816,12 +816,6 @@
                 },
                 {
                     "scope": [
-                        0
-                    ],
-                    "type": "StopPoint"
-                },
-                {
-                    "scope": [
                         1
                     ],
                     "type": "StopPoint"
@@ -831,14 +825,16 @@
                         0,
                         1
                     ],
-                    "type": "StraightLine"
+                    "type": "StraightLine",
+                    "direction": 0
                 },
                 {
                     "scope": [
                         2,
                         3
                     ],
-                    "type": "StraightLine"
+                    "type": "StraightLine",
+                    "direction": 0
                 },
                 {
                     "scope": [
@@ -858,14 +854,16 @@
                         5,
                         6
                     ],
-                    "type": "StraightLine"
+                    "type": "StraightLine",
+                    "direction": 0
                 },
                 {
                     "scope": [
                         6,
                         7
                     ],
-                    "type": "StraightLine"
+                    "type": "StraightLine",
+                    "direction": 0
                 },
                 {
                     "scope": [
