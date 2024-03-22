@@ -173,25 +173,22 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // }
     }
 
-    public double[] tractionControl(double driverLY, double driverLX) {
+    public Double[] tractionControl(double driverLY, double driverLX) {
         double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
+        double slipFactor = 0.02; //2%
         double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
-        double[] outputs = new double[6];
+        Double[] outputs = new Double[6];
 
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double slipRatio = (Math.abs(module.getRotorVelocity().getValue() * 60) * ((2
                     * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / 1; //TODO get velocity from acceleration values make graph, lookup table basically
-
-            if (slipRatio > slipThreshold) {//TODO save slip and motor
-
+            if (slipRatio > slipThreshold) {
+                outputs[i] = slipRatio;
             } 
-            SmartDashboard.putNumber("slip ratio", slipRatio);
         }
-        SmartDashboard.putNumber("desired speed", desiredSpeed);
 
         double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
-
         // double currentAcceleration = Math.sqrt(
         //         Math.pow(pigeon.getAccelerationX().getValue(), 2) + Math.pow(pigeon.getAccelerationY().getValue(), 2));
         // could implement gyro values with this for more accurate acceleration using
@@ -202,24 +199,25 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             TalonFX module = Modules[i].getDriveMotor();
             WheelAcceleration =+ (Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
                     * (TunerConstants.getWheelRadius() * 0.0254));
-            if(i==1) {WheelAcceleration =+ 1;}; //TODO factor values if they are slipping
+            if(outputs[i] != null) {WheelAcceleration =- WheelAcceleration * slipFactor;};
         }                                                           
 
+
         double lastRun = (System.currentTimeMillis() - lastTimeReset) / 1000;
-            double desiredChange = (desiredSpeed - (WheelAcceleration / 4))/lastRun; // neg is wheel is faster and vice versa
+            double desiredAcceleration = (desiredSpeed - (WheelAcceleration / 4))/lastRun; // neg is wheel is faster and vice versa
             double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
             // maximum acceleration we can have is equal to g*CoF, where g is the
             // acceleration due to gravity and CoF is the coefficient of friction between
             // the floor and the wheels (rubber and carpet i assumed), last number is for
             // the max acceleration for traction in THIS time step
 
-            if (desiredChange > maxAcceleration) {
+            if (desiredAcceleration > maxAcceleration) {
                 driverLX = WheelAcceleration + maxAcceleration * lastRun;
                 driverLY = WheelAcceleration + maxAcceleration * lastRun;
             }
 
-         outputs[0] = driverLX; //TODO output slip
-         outputs[1] = driverLY; 
+         outputs[4] = driverLX; //TODO output slip
+         outputs[5] = driverLY; 
         return outputs;
         // run periodically...
     }
@@ -241,6 +239,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public Boolean tractionOverride() {
         return tractionOveride;
+    }
+    public void resetTime() {
+        lastTimeReset = System.currentTimeMillis();
     }
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());

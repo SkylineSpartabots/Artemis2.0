@@ -10,6 +10,7 @@ import javax.print.DocFlavor.INPUT_STREAM;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -28,8 +29,10 @@ public class Drive extends Command {
     private double driverLX;
     private double driverRX;
     private double[] adjustedInputs;
-    
-    
+
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(Constants.MaxSpeed * 0.1).withRotationalDeadband(Constants.MaxAngularRate * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
 
     public Drive(double driverLY, double driverLX, double driverRX) { 
         s_Swerve = CommandSwerveDrivetrain.getInstance();
@@ -54,20 +57,15 @@ public class Drive extends Command {
         if(s_Swerve.getTraction() == true) {
              adjustedInputs = s_Swerve.tractionControl(driverLX , driverLY);
         }
-
         
-            SwerveRequest request = new SwerveRequest() {
-                        .withVelocityX(driverLX) // Drive forward with negative Y (forward)
-                        .withVelocityY(driverLY) // Drive left with negative X (left)
-                        .withRotationalRate(driverRX) // Drive counterclockwise with negative X (left) 
-            }; //TODO fix
-
-        s_Swerve.applyRequest(() -> request);
+        s_Swerve.applyRequest(() ->
+                         drive.withVelocityX(driverLX)
+                        .withVelocityY(driverLY) 
+                        .withRotationalRate(driverRX));
         //TODO factor in slip
-        s_Swerve.lastTimeReset = System.currentTimeMillis();
-
-        }
+        s_Swerve.resetTime();
     }
+
 
     @Override
     public void end(boolean interrupted) { 
