@@ -21,7 +21,7 @@ public class AlignPivot extends Command {
     double distance;
 
     // Tune later
-    PIDController CANController = new PIDController(53, 18, 0);
+    PIDController CANController = new PIDController(53, 20, 0);
 
     public AlignPivot(double desiredAngle) {
         s_Pivot = Pivot.getInstance();
@@ -65,7 +65,7 @@ public class AlignPivot extends Command {
 
     @Override
 	public boolean isFinished() {
-		return shootingFromDistance ? Math.abs(desiredCANcoderValue - s_Pivot.getCANcoderAbsolutePosition()) < 1/(125*distance) : Math.abs(desiredCANcoderValue - s_Pivot.getCANcoderAbsolutePosition()) < 0.005;
+		return shootingFromDistance ? Math.abs(desiredCANcoderValue - s_Pivot.getCANcoderAbsolutePosition()) < 1/(125*distance) : Math.abs(desiredCANcoderValue - s_Pivot.getCANcoderAbsolutePosition()) < 0.001;
 	}
 		
 	@Override

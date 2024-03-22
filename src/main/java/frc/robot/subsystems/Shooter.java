@@ -50,6 +50,9 @@ public class Shooter extends SubsystemBase {
         shooterTopM = new TalonFX(Constants.HardwarePorts.shooterTopM);
         shooterBottomM = new TalonFX(Constants.HardwarePorts.shooterBottomM);
 
+        shooterBottomM.setInverted(false);
+        shooterTopM.setInverted(false);
+
         //invertMotor(shooterTopM);
         configMotor(shooterTopM, 0.21, 0.122);
         configMotor(shooterBottomM, 0.38, 0.125);

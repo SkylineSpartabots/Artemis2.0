@@ -928,7 +928,7 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
-          "4,1": {
+          "0,1": {
             "size": [
               1,
               1
@@ -941,7 +941,7 @@
               "_showGlyph": false
             }
           },
-          "5,1": {
+          "1,1": {
             "size": [
               1,
               1
@@ -954,7 +954,7 @@
               "_showGlyph": false
             }
           },
-          "4,0": {
+          "0,0": {
             "size": [
               1,
               1
@@ -967,7 +967,7 @@
               "_showGlyph": false
             }
           },
-          "4,2": {
+          "0,2": {
             "size": [
               2,
               1
@@ -980,7 +980,7 @@
               "_showGlyph": false
             }
           },
-          "4,4": {
+          "0,4": {
             "size": [
               2,
               2
@@ -995,7 +995,7 @@
               "Colors/Color when false": "#8B0000FF"
             }
           },
-          "6,4": {
+          "2,4": {
             "size": [
               2,
               1
@@ -1008,7 +1008,7 @@
               "_showGlyph": false
             }
           },
-          "11,0": {
+          "7,0": {
             "size": [
               2,
               2
@@ -1023,7 +1023,7 @@
               "Colors/Color when false": "#8B0000FF"
             }
           },
-          "8,4": {
+          "4,4": {
             "size": [
               2,
               2
@@ -1038,7 +1038,7 @@
               "Colors/Color when false": "#8B0000FF"
             }
           },
-          "11,4": {
+          "7,4": {
             "size": [
               2,
               2
@@ -1054,7 +1054,7 @@
               "Visuals/Show value": true
             }
           },
-          "6,0": {
+          "2,0": {
             "size": [
               2,
               2
@@ -1070,7 +1070,7 @@
               "Visuals/Show Outside Circles": false
             }
           },
-          "6,5": {
+          "2,5": {
             "size": [
               2,
               1
@@ -1083,7 +1083,7 @@
               "_showGlyph": false
             }
           },
-          "12,2": {
+          "8,2": {
             "size": [
               1,
               1
@@ -1098,7 +1098,7 @@
               "Colors/Color when false": "#8B0000FF"
             }
           },
-          "10,5": {
+          "6,5": {
             "size": [
               1,
               1
@@ -1110,15 +1110,34 @@
               "_glyph": 148,
               "_showGlyph": false
             }
+          },
+          "4,1": {
+            "size": [
+              3,
+              3
+            ],
+            "content": {
+              "_type": "Graph",
+              "_source0": "network_table:///SmartDashboard/Indexer Motor Current",
+              "_title": "SmartDashboard/Indexer Motor Current",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Graph/Visible time": 30.0,
+              "Graph/X-axis auto scrolling": true,
+              "Y-axis/Automatic bounds": true,
+              "Y-axis/Upper bound": 150.0,
+              "Y-axis/Lower bound": -1.0,
+              "Y-axis/Unit": "ul"
+            }
           }
         }
       }
     }
   ],
   "windowGeometry": {
-    "x": -7.199999809265137,
-    "y": -7.199999809265137,
-    "width": 1550.4000244140625,
-    "height": 838.4000244140625
+    "x": -7.0,
+    "y": -7.0,
+    "width": 1455.0,
+    "height": 838.5
   }
 }

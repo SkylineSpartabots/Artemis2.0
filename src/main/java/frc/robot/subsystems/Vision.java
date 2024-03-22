@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
+import org.photonvision.proto.Photon;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -27,9 +28,13 @@ import org.littletonrobotics.junction.Logger;
 public class Vision extends SubsystemBase {
     private static Vision instance;
     private static PhotonCamera centerCamera;
+    private static PhotonCamera backRightCamera;
+    private static PhotonCamera backLeftCamera;
+
     // private static PhotonCamera backRightCamera;
     private static PhotonPipelineResult centerCameraResult;
     private static PhotonPipelineResult backRightCameraResult;
+    private static PhotonPipelineResult backLeftCameraResult;
     private static PhotonTrackedTarget lastValidTarget;
 
     private static CommandSwerveDrivetrain s_Swerve;
@@ -56,13 +61,24 @@ public class Vision extends SubsystemBase {
 
     private Vision() {
         centerCamera = new PhotonCamera(Constants.Vision.centerCameraName);
-        // backRightCamera = new PhotonCamera(Constants.Vision.backRightCameraName);
+        backRightCamera = new PhotonCamera(Constants.Vision.backRightCameraName);
+        backLeftCamera = new PhotonCamera(Constants.Vision.backLeftCameraName);
         updateAprilTagResults();
     }
 
     public void updateAprilTagResults() {
         centerCameraResult = centerCamera.getLatestResult();
+        backLeftCameraResult = backLeftCamera.getLatestResult();
+        backRightCameraResult = backRightCamera.getLatestResult();
         // backRightCameraResult = backRightCamera.getLatestResult();
+    }
+
+    public PhotonTrackedTarget getCenterTarget(){
+        if(centerCameraResult.hasTargets()){
+            return centerCameraResult.getBestTarget();
+        } else {
+            return null;
+        }
     }
 
     // public PhotonPipelineResult getLatestAprilTagResult(boolean isBackLeft) { //true is left false is right
@@ -95,13 +111,16 @@ public class Vision extends SubsystemBase {
         CENTER,
         BACK_LEFT,
         BACK_RIGHT,
-        BOTH
     }
 
     public CameraResult hasValidTarget() {
         PhotonTrackedTarget target = centerCameraResult.getBestTarget();
+        PhotonTrackedTarget rightTarget = backRightCameraResult.getBestTarget();
+        PhotonTrackedTarget leftTarget = backLeftCameraResult.getBestTarget();
+
         Boolean centerHasTarget = centerCameraResult.hasTargets() && target.getFiducialId() >= 1 && target.getFiducialId() <= Constants.Vision.aprilTagMax && target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
         // Boolean backRightHasTarget = backRightCameraResult.hasTargets() && backRightCameraResult.getBestTarget().getFiducialId() >= 1 && backRightCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
+        // Boolean backLeftHasTarget = backLeftCameraResult.hasTargets() && backLeftCameraResult.getBestTarget().getFiducialId() >= 1 && backLeftCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
 
         if(centerHasTarget){
             return CameraResult.CENTER;
@@ -156,7 +175,9 @@ public class Vision extends SubsystemBase {
      * @return the absolute distance in meters (there are different methods for horizontal or vertical)
      */
     public double getFloorDistance(){
-        PhotonTrackedTarget target = getBestTarget();
+        // PhotonTrackedTarget target = getBestTarget();
+        PhotonTrackedTarget target = getCenterTarget();
+
         if (target != null) {
             // code for back right corner camera
             // targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
@@ -229,4 +250,4 @@ public class Vision extends SubsystemBase {
     }
 }
 
-//potential Kalman implementation: get a sequence of camera readings, run linear 
+//potential Kalman implementation: get a sequence of camera readings, run line
