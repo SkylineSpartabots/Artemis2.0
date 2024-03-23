@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
+import frc.robot.commands.Amp.ZeroAmp;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -44,7 +45,13 @@ public final class Autos {
     private static final PIDController yController = new PIDController(5, 1, 0);
 
     public static Command getAutoCommand(AutoPath autoPath) {
-        return new SequentialCommandGroup(new ZeroPivot(), autoPath.autoCommand);
+        return new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                  new ZeroPivot(),
+                  new ZeroAmp()      
+                ), 
+                autoPath.autoCommand
+                );
     }
 
     public static Command FollowChoreoTrajectory(ChoreoTrajectory path) {
@@ -89,7 +96,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         new AlignPivot(PivotState.SUBWOOFER),
-                        new SetShooterCommand(40), new WaitCommand(0.2)
+                        new SetShooterCommand(40)//, new WaitCommand(0.2)
                 ),
 
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
@@ -462,8 +469,8 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
                         new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true, 4.25),
-                        new SetIntake(IntakeStates.ON, 4),
+                        new SetIndexer(IndexerStates.ON, true, 4.75),
+                        new SetIntake(IntakeStates.ON, 4.5),
                         new AlignPivot(PivotState.INTAKE)
                 ),
 

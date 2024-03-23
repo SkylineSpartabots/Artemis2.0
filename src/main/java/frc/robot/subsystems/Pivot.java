@@ -191,11 +191,11 @@ public class Pivot extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Logger.recordOutput("Pivot/CurrentCANcoderRotation", getCANcoderAbsolutePosition());
+        //Logger.recordOutput("Pivot/CurrentCANcoderRotation", getCANcoderAbsolutePosition());
         // Logger.recordOutput("Pivot/CurrentMotorEncoderRotation", getMotorEncoderPosition());
-        Logger.recordOutput("Pivot/PivotCurrent", getMotorCurrent());
-        Logger.recordOutput("Pivot/RotInDegrees", pivotAngle());
-        Logger.recordOutput("Pivot/CANCoderStatus", CANcoderWorking());
+        //Logger.recordOutput("Pivot/PivotCurrent", getMotorCurrent());
+        //Logger.recordOutput("Pivot/RotInDegrees", pivotAngle());
+        //Logger.recordOutput("Pivot/CANCoderStatus", CANcoderWorking());
         SmartDashboard.putNumber("Pivot CANcoder", getCANcoderAbsolutePosition());
         SmartDashboard.putNumber("Pivot measured angle", pivotAngle());
         // SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());

@@ -39,7 +39,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    Vision m_Camera;
+    //Vision m_Camera;
 
     private Field2d m_field = new Field2d();
 
@@ -69,7 +69,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
         
-        m_Camera = Vision.getInstance();
+        //m_Camera = Vision.getInstance();
 
         if (Utils.isSimulation()) {
             startSimThread();
@@ -187,8 +187,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putData("field", m_field); 
 
         for(int i = 0; i < ModuleCount; i++){
-            Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+            //Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+            //Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
             //Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
             SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
             //SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));

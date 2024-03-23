@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Amp.SetAmp;
 import frc.robot.commands.Amp.ZeroAmp;
-import frc.robot.commands.Drive.PureAlignment;
+//import frc.robot.commands.Drive.PureAlignment;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -64,8 +64,8 @@ public class CommandFactory {
     public static Command autoShootSequence(){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new SetShooterCommand(60), 
-                new PureAlignment()
+                new SetShooterCommand(60)
+                //new PureAlignment()
             ), 
             new AlignPivot(), 
             new SetIndexer(IndexerStates.ON),
@@ -99,9 +99,10 @@ public class CommandFactory {
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
                 new SetShooterCommand(16, 9),
-                new AlignPivot(PivotState.AMP)
-            ),
-            new SetAmp(AmpState.DEPLOYED)
+                new AlignPivot(PivotState.AMP),
+                new SetAmp(AmpState.DEPLOYED)
+            )
+           
         );
     }
 
@@ -109,6 +110,16 @@ public class CommandFactory {
         return new ParallelCommandGroup(
             new ZeroPivot(),
             new ZeroAmp()
+        );
+    }
+
+    public static Command lobNote() {
+        return new SequentialCommandGroup(
+        new ParallelCommandGroup(
+            new AlignPivot(PivotState.FARWING),
+            new SetShooterCommand(20)  
+          ),
+        new SetIndexer(IndexerStates.AMP)
         );
     }
 }

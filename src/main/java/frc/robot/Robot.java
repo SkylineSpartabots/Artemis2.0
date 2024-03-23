@@ -29,7 +29,7 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Vision;
+//import frc.robot.subsystems.Vision;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -42,7 +42,7 @@ public class Robot extends LoggedRobot {
   private final Indexer s_Indexer;
   private final Intake s_Intake;
   private final Pivot s_Pivot;
-  private final Vision s_Vision;
+  //private final Vision s_Vision;
   private final Climb s_Climb;
   private final Amp s_Amp;
 
@@ -52,7 +52,7 @@ public class Robot extends LoggedRobot {
     s_Indexer = Indexer.getInstance();
     s_Intake = Intake.getInstance();
     s_Pivot = Pivot.getInstance();
-    s_Vision = Vision.getInstance();
+    //s_Vision = Vision.getInstance();
     s_Climb = Climb.getInstance();
     s_Amp = Amp.getInstance();
   }

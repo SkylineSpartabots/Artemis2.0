@@ -7,12 +7,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.Pivot;
-import frc.robot.subsystems.Vision;
+//import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Pivot.PivotState;
 
 public class AlignPivot extends Command {
     Pivot s_Pivot;
-    Vision s_Vision;
+    //Vision s_Vision;
 
     double desiredCANcoderValue;
     double desiredAngle;
@@ -25,7 +25,7 @@ public class AlignPivot extends Command {
 
     public AlignPivot(double desiredAngle) {
         s_Pivot = Pivot.getInstance();
-        s_Vision = Vision.getInstance();
+        //s_Vision = Vision.getInstance();
         shootingFromDistance = false;
         this.desiredAngle = desiredAngle;
         addRequirements(s_Pivot);
@@ -33,8 +33,8 @@ public class AlignPivot extends Command {
 
     public AlignPivot() {
         s_Pivot = Pivot.getInstance();
-        s_Vision = Vision.getInstance();
-        distance = s_Vision.getFloorDistance();
+        //s_Vision = Vision.getInstance();
+        //distance = s_Vision.getFloorDistance();
         desiredAngle = Constants.getAngleForDistance(distance);
         shootingFromDistance = true;
         addRequirements(s_Pivot);

@@ -53,7 +53,7 @@ public class RobotContainer {
     }
     /* Setting up bindings for necessary control of the swerve drive platform */
     public final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
-    private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
+    //private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
 
     private final Amp s_Amp = Amp.getInstance();
     private final Climb s_Climb = Climb.getInstance();
@@ -62,7 +62,7 @@ public class RobotContainer {
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
-    private final Vision s_Vision = Vision.getInstance();
+    //private final Vision s_Vision = Vision.getInstance();
     // private final Music s_Orchestra = Music.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -134,6 +134,7 @@ public class RobotContainer {
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+        driverDpadLeft.onTrue(new SetAmp(AmpState.PUSH));
         //driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED)); //for test
         //driverDpadLeft.onTrue(CommandFactory.ampPrep());
         //driverDpadLeft.onTrue(new AlignPivot(PivotState.AMP)); //for testing only
@@ -153,24 +154,25 @@ public class RobotContainer {
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
+        driverStart.onTrue(new SetShooterCommand(0));
         
 
         /*
          * Operator bindings
          */
         // operator.b().onTrue(offEverything());
-        operator.a().onTrue(CommandFactory.offEverything());
-        operator.x().onTrue(new SetIntake(IntakeStates.OFF)); //FINAL
-        operator.b().onTrue(CommandFactory.eject()); //FINAL
-        operator.y().whileTrue(new SetIndexer(IndexerStates.OFF));
+        //operator.a().onTrue(CommandFactory.offEverything());
+        //operator.x().onTrue(new SetIntake(IntakeStates.OFF)); //FINAL
+        //operator.b().onTrue(CommandFactory.eject()); //FINAL
+        //operator.y().whileTrue(new SetIndexer(IndexerStates.OFF));
 
-        operator.povLeft().onTrue(new ZeroPivot());
+        //operator.povLeft().onTrue(new ZeroPivot());
 
         // operator.rightTrigger().whileTrue(new ManualClimb(true));
         // operator.leftTrigger().whileTrue(new ManualClimb(false));
 
-        operator.leftBumper().onTrue(new SetAmp(AmpState.PUSH));
-        operator.rightBumper().onTrue(CommandFactory.Diagnostic());
+        //operator.leftBumper().onTrue(new SetAmp(AmpState.PUSH));
+        //operator.rightBumper().onTrue(CommandFactory.Diagnostic());
 
         // operator.back().onTrue(new SequentialCommandGroup(
         //     new InstantCommand(() -> s_Orchestra.loadMusic("jinglebells.chrp")),
