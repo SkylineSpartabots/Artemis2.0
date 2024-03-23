@@ -22,7 +22,7 @@ int secondarySize; // Size of black (secondary) sections - eats into g size; set
 int antHSV[] = {0, 0, 0}; // Hue, Saturation, Value/Brightness input into an ant method call. Default {0, 0, 0}
 
 int antDelay; // Delay input into an ant method call
-// boolean antEnabled = false;
+boolean antEnabled = false;
 
 
 // --Flash Variables--
@@ -31,8 +31,9 @@ int flashHSV[] = {0, 0, 0}; // Hue, Saturation, Value/Brightness input into a fl
 int flashOnDelay; // On delay input into a flash method call
 int flashOffDelay; // Off delay input into a flash method call
 
-// boolean flashEnabled = false;
+boolean flashEnabled = false;
 
+boolean solidEnabled = false;
 
 // --DIO and Mode--
 int input0;
@@ -78,51 +79,83 @@ void loop() {
   input3 = digitalRead(dataPin3);
 
   inputAsNumber = input3 + (2*input2) + (4*input1) + (8*input0);
+  // Serial.println(input0);
+  //   Serial.println(input1);
+  // Serial.println(input2);
+  // Serial.println(input3);
+  // Serial.println("\n");
+    // Serial.println(inputAsNumber);
 
   if (inputAsNumber != prevInput){
+    Serial.println("TRUE");
     //TODO Decide on mode meanings and what patterns they should be
     switch (inputAsNumber) {
       //****WHEN CHANGING CASES YOU NEED TO CHANGE ENUM NAME IN ROBOT CODE****
       case 0: //OFF
-        setSolid(0, 0, 0);
+        setSolid(OFF);
+              Serial.println("Case 0");
+
         break;
       case 1://RED
-        setSolid(0, 255, 127);
+        setSolid(RED);
+              Serial.println("Case 1");
+
         break;
       case 2://Shooter At Speed
         Serial.println("setting orange");
+              Serial.println("Case 2");
+
         setSolid(ORANGE);
         break;
       case 3://Shooter Ramping
+            Serial.println("Case 3");
+
         flashSolid(ORANGE, 200, 200);
         break;
       case 4://Intake Success
+            Serial.println("Case 4");
+
         setSolid(GREEN);
         break;
       case 5://Intaking
+            Serial.println("Case 5");
+
         flashSolid(GREEN, 200, 200);
         break;
       case 6://PURPLE
-        setSolid(192, 255, 127);
+            Serial.println("Case 6");
+
+        setSolid(PURPLE);
         break;
       case 7://PINK
-        flashSolid(224, 255, 127, 200, 200);
+      Serial.println("Case 7");
+        flashSolid(PINK, 200, 200);
         // setSolid(224, 255, 255);
         break;
       case 8://WHITE
-        setSolid(0, 0, 127); // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
+            Serial.println("Case 8");
+
+        setSolid(WHITE); // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
         break;
       case 9://redAnt - just demo really rn
+            Serial.println("Case 9");
+
         runAnt(PURPLE, 7, 3, 35);
         break;
     }
   }
   prevInput = inputAsNumber;
-  
-  if (millis() - solidOnTime > solidOffDelay){   // 10 - 4 > 5
+  if ((millis() - solidOnTime > solidOffDelay) && solidEnabled == true){   // 10 - 4 > 5
+    Serial.println("OFF");
+    solidEnabled = false;
+    // Serial.println(solidEnabled);
     setSolid(OFF);
-
   }  
+  // Shouldnt matter anymore cause the DIO pins should always be written to on the rio - they wont dissappear
+  // if (antEnabled){runAnt(antHSV[0], antHSV[1], antHSV[2], primarySize, secondarySize, antDelay);}
+  // else if (flashEnabled ) { //&& currentFlashCount <= flashCountLimit
+  //   flashSolid(flashHSV[0], flashHSV[1], flashHSV[2], flashOnDelay, flashOffDelay);
+  //   }
  
 
   digitalWrite(13, 0); // Debug  
@@ -138,8 +171,9 @@ void runAnt(int color[], int g, int b, int delayMS){// Add differing color funct
   primarySize = g;
   secondarySize = b;
   antDelay = delayMS;
-  // antEnabled = true;
-  // flashEnabled = false;
+  antEnabled = true;
+  flashEnabled = false;
+  solidEnabled = false;
 
   for (int i = 0; i < NUM_LEDS; i++) {
     if((i - k)% g ==0) {
@@ -163,8 +197,9 @@ void flashSolid(int color[], int onMS, int offMS){
   flashHSV[2] = color[2];
   flashOnDelay = onMS;
   flashOffDelay = offMS;
-  // antEnabled = false;
-  // flashEnabled = true;
+  antEnabled = false;
+  flashEnabled = true;
+  solidEnabled = false;
 
   for (int i = 0; i < NUM_LEDS; i++){
     leds[i].setHSV(color[0], color[1], color[2]);
@@ -180,11 +215,17 @@ void flashSolid(int color[], int onMS, int offMS){
 
 }
 void setSolid(int color[]){
-  // antEnabled = false;
-  // flashEnabled = false;
+  antEnabled = false;
+  flashEnabled = false;
 
-  solidOnTime = millis();
-  Serial.println(solidOnTime);
+  if (color != OFF){
+      solidEnabled = true;
+
+    Serial.println("NOT OFF");
+      solidOnTime = millis();
+  } else {solidEnabled = false;}
+
+  Serial.println("ON1");
 
 
   for (int i =0 ; i < NUM_LEDS; i++){
@@ -203,8 +244,9 @@ void runAnt(int H, int S, int V, int g, int b, int delayMS){
   primarySize = g;
   secondarySize = b;
   antDelay = delayMS;
-  // antEnabled = true;
-  // flashEnabled = false;
+  antEnabled = true;
+  flashEnabled = false;
+  solidEnabled = false;
 
   for (int i = 0; i < NUM_LEDS; i++) {
     if((i - k)% g ==0) {
@@ -227,8 +269,9 @@ void flashSolid(int H, int S, int V, int onMS, int offMS){
   flashHSV[2] = V;
   flashOnDelay = onMS;
   flashOffDelay = offMS;
-  // antEnabled = false;
-  // flashEnabled = true;
+  antEnabled = false;
+  flashEnabled = true;
+  solidEnabled = false;
 
   for (int i = 0; i < NUM_LEDS; i++){
     leds[i].setHSV(H, S, V);
@@ -244,54 +287,18 @@ void flashSolid(int H, int S, int V, int onMS, int offMS){
 
 }
 void setSolid(int H, int S, int V){
-  // antEnabled = false;
-  // flashEnabled = false;
+  antEnabled = false;
+  flashEnabled = false;
+  solidEnabled = true;
 
   solidOnTime = millis();
-  Serial.println(solidOnTime);
+  Serial.println("ON2");
 
   for (int i =0 ; i < NUM_LEDS; i++){
     leds[i].setHSV(H, S, V);
   }
   FastLED.show();
 }
-
-
-// // --Extra Modes--
-// void cautionAnt(int g, int b, int delayMS){
-  
-//   for (int i = 0; i < NUM_LEDS; i++) {
-//     if((i - k)% g ==0) {
-//       for (int j = 0; j < b; j++){ // set all the LEDs behind i but before b
-//         if (i - j >= 0){ // make sure we arent trying to set an LED that isnt on the strip
-//           leds[i - j].setHSV(25, 255, 150);
-//         }
-//       }
-//     }
-//     else{leds[i] = CHSV(0, 255, 255);}
-//   }
-//   FastLED.show();
-//   delay(delayMS);
-//   kReset(g);
-// }
-// void cautionJump(int g, int b, int delayMS){
-
-//   for (int i = 0; i < NUM_LEDS; i++) {
-//     if((i - k)% g == 0) {
-//       for (int j = 0; j < b; j++){ // set all the LEDs behind i but before b
-//         if (i - j >= 0){ // make sure we arent trying to set an LED that isnt on the strip
-//           leds[i - j].setHSV(25, 255, 150);
-//         }
-//       }
-//     }
-//     else{leds[i] = CHSV(0, 255, 255);}
-//   }
-//   FastLED.show();
-//   delay(delayMS);
- 
-//   kFlip(b);
-  
-// }
 
 
 // --Utility Functions--

@@ -9,7 +9,7 @@ import frc.robot.subsystems.Lights;
 public class TimerCommand extends Command {
 
     private final Lights s_Lights;
-    private Timer timer;
+    private Timer timer = new Timer();
     public TimerCommand(){
         s_Lights = Lights.getInstance();
         addRequirements(s_Lights);
@@ -17,8 +17,8 @@ public class TimerCommand extends Command {
 
     @Override
     public void initialize() {
-        timer.reset();
         timer.start();
+        timer.reset();
         s_Lights.setLEDs(Lights.ledModes.Intaking);
     }
 
