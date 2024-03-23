@@ -43,7 +43,7 @@ int input3;
 int inputAsNumber; // Int converted from binary
 int prevInput; // Previously read input from rio, prevents running switch every loop so things dont come back on after time
 
-unsigned long solidOnTime = 0;
+unsigned long solidOnTime = millis();
 unsigned long solidOffDelay = 5000;
 
 
@@ -90,6 +90,7 @@ void loop() {
         setSolid(0, 255, 127);
         break;
       case 2://Shooter At Speed
+        Serial.println("setting orange");
         setSolid(ORANGE);
         break;
       case 3://Shooter Ramping
@@ -99,7 +100,7 @@ void loop() {
         setSolid(GREEN);
         break;
       case 5://Intaking
-          flashSolid(GREEN, 200, 200);
+        flashSolid(GREEN, 200, 200);
         break;
       case 6://PURPLE
         setSolid(192, 255, 127);
@@ -117,12 +118,11 @@ void loop() {
     }
   }
   prevInput = inputAsNumber;
+  
+  if (millis() - solidOnTime > solidOffDelay){   // 10 - 4 > 5
+    setSolid(OFF);
 
-  if (solidOnTime != 0){
-    if (millis() - solidOnTime > solidOffDelay){   // 10 - 4 > 5
-      setSolid(OFF);
-    }  
-  }
+  }  
  
 
   digitalWrite(13, 0); // Debug  
@@ -184,6 +184,8 @@ void setSolid(int color[]){
   // flashEnabled = false;
 
   solidOnTime = millis();
+  Serial.println(solidOnTime);
+
 
   for (int i =0 ; i < NUM_LEDS; i++){
     leds[i].setHSV(color[0], color[1], color[2]);
@@ -246,7 +248,7 @@ void setSolid(int H, int S, int V){
   // flashEnabled = false;
 
   solidOnTime = millis();
-
+  Serial.println(solidOnTime);
 
   for (int i =0 ; i < NUM_LEDS; i++){
     leds[i].setHSV(H, S, V);
