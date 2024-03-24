@@ -20,6 +20,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Current;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -225,8 +226,8 @@ public class Shooter extends SubsystemBase {
         // Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
         // Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
 
-        // SmartDashboard.putNumber("Shooter top motor velocity", getTopMotorVelocity());
-        // SmartDashboard.putNumber("Shooter bot motor velocity", getBottomMotorVelocity());
+        SmartDashboard.putNumber("Shooter top motor velocity", getTopMotorVelocity());
+        SmartDashboard.putNumber("Shooter bot motor velocity", getBottomMotorVelocity());
 
 
         //Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());

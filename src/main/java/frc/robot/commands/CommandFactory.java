@@ -98,7 +98,7 @@ public class CommandFactory {
     public static Command ampPrep() {
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new SetShooterCommand(16, 9),
+                new SetShooterCommand(21, 11),
                 new AlignPivot(PivotState.AMP),
                 new SetAmp(AmpState.DEPLOYED)
             )

@@ -126,7 +126,7 @@ public class RobotContainer {
         //driver.rightBumper().onTrue(new SetShooterCommand(20, 9)); //for test
         //driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
         driver.rightTrigger().onTrue(new SetIndexer(IndexerStates.AMP));
-       // driver.rightTrigger().onTrue(new SetShooterCommand(0)); //for test
+        //driver.rightTrigger().onTrue(new SetShooterCommand(45)); //for test
         //driver.leftBumper().onTrue(new SetShooterCommand(45));
         driver.leftBumper().onTrue(CommandFactory.ampPrep());
         //driver.leftBumper().onTrue(new SetIndexer(IndexerStates.AMP)); //for test

@@ -100,7 +100,7 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeStates {
-        ON(0.35, 0.85),
+        ON(0.45, 0.85),
         INDEX(0.5, 0.5),
         OFF(0, 0),
         REV(-0.4, -0.8);
