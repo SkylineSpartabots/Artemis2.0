@@ -470,7 +470,7 @@ public final class Autos {
                         // RobotContainer.getInstance().eject(),
                         new SetShooterCommand(40)
                 ),
-                Commands.waitSeconds(1.0),
+                Commands.waitSeconds(0.2),
                 
                 new InstantCommand(() -> Indexer.getInstance().setSpeed(0.8)),
                 Commands.waitSeconds(0.2),
@@ -488,16 +488,20 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(1)),
-                        new AlignPivot(60),
+                        new AlignPivot(63),
                         new SetShooterCommand(40)
                 ),
 
                 Commands.waitSeconds(1),
                 new SetIndexer(IndexerStates.ON, false),
-                Commands.waitSeconds(2),
+                Commands.waitSeconds(0.3),
+
                 new ParallelCommandGroup(
-                      new SetIndexer(IndexerStates.OFF),
-                      new SetShooterCommand(0)
+                        FollowChoreoTrajectory(trajectory.get(1)),
+                        new SetShooterCommand(0),
+                        new SetIndexer(IndexerStates.ON, true, 5),
+                        new SetIntake(IntakeStates.ON, 4.75),
+                        new AlignPivot(PivotState.INTAKE)
                 )
         );
     }
