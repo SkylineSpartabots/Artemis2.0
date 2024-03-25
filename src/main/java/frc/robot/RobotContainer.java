@@ -38,6 +38,7 @@ import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
+import frc.robot.commands.Shooter.ZeroShooter;
 import frc.robot.commands.Intake.SetIntake;
 
 
@@ -123,18 +124,20 @@ public class RobotContainer {
 
 
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
+        driver.rightTrigger().onTrue(CommandFactory.lobNote());
+        //driver.leftBumper().onTrue(CommandFactory.defensiveStance());
         //driver.rightBumper().onTrue(new SetShooterCommand(20, 9)); //for test
         //driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
-        driver.rightTrigger().onTrue(new SetIndexer(IndexerStates.AMP));
+        //driver.rightTrigger().onTrue(new SetIndexer(IndexerStates.AMP));
         //driver.rightTrigger().onTrue(new SetShooterCommand(45)); //for test
         //driver.leftBumper().onTrue(new SetShooterCommand(45));
-        driver.leftBumper().onTrue(CommandFactory.ampPrep());
+        //driver.leftBumper().onTrue(CommandFactory.defensiveStance());
         //driver.leftBumper().onTrue(new SetIndexer(IndexerStates.AMP)); //for test
         // driver.leftBumper().onTrue(onIntake());
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadLeft.onTrue(new SetAmp(AmpState.PUSH));
+        //driverDpadLeft.onTrue(new SetAmp(AmpState.PUSH));
         //driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED)); //for test
         //driverDpadLeft.onTrue(CommandFactory.ampPrep());
         //driverDpadLeft.onTrue(new AlignPivot(PivotState.AMP)); //for testing only
@@ -154,7 +157,7 @@ public class RobotContainer {
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
-        driverStart.onTrue(new SetShooterCommand(0));
+        driverStart.onTrue(new ZeroShooter());
         
 
         /*

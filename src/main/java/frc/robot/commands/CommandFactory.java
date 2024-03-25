@@ -12,6 +12,7 @@ import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
+import frc.robot.commands.Shooter.ZeroShooter;
 import frc.robot.subsystems.Amp.AmpState;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
@@ -47,17 +48,23 @@ public class CommandFactory {
         );
     }
 
+    public static Command defensiveStance() {
+        return new ParallelCommandGroup(
+            new AlignPivot(67.4),
+            new SetAmp(AmpState.DEFENSE) 
+        );
+    }
+
     public static Command offEverything(){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new SetShooterCommand(-5), 
+                new ZeroShooter(), 
                 new SetIntake(IntakeStates.OFF), 
                 Commands.waitSeconds(0.5), 
                 new SetIndexer(IndexerStates.OFF), 
                 new AlignPivot(PivotState.GROUND),
                 new SetAmp(AmpState.ZERO)
-            ), 
-            new SetShooterCommand(0)
+            )
         );
     }
 
@@ -98,7 +105,7 @@ public class CommandFactory {
     public static Command ampPrep() {
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new SetShooterCommand(21, 11),
+                new SetShooterCommand(22, 7),
                 new AlignPivot(PivotState.AMP),
                 new SetAmp(AmpState.DEPLOYED)
             )

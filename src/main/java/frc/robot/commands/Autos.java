@@ -30,6 +30,7 @@ import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
+import frc.robot.commands.Shooter.ZeroShooter;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerStates;
@@ -107,8 +108,7 @@ public final class Autos {
                 Commands.waitSeconds(0.2),
 
                 new ParallelCommandGroup(
-                        new InstantCommand(() -> s_Shooter.setTopVelocity(0)),
-                        new InstantCommand(() -> s_Shooter.setBotVelocity(0)),
+                        new ZeroShooter(),
                         new SetIndexer(IndexerStates.ON, true, 5),
                         new SetIntake(IntakeStates.ON),
                         new AlignPivot(PivotState.INTAKE),
@@ -130,8 +130,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
-                        new InstantCommand(() -> s_Shooter.setTopVelocity(0)),
-                        new InstantCommand(() -> s_Shooter.setBotVelocity(0)),
+                        new ZeroShooter(),
                         new AlignPivot(PivotState.INTAKE),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
@@ -152,8 +151,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(4)),
-                        new InstantCommand(() -> s_Shooter.setTopVelocity(0)),
-                        new InstantCommand(() -> s_Shooter.setBotVelocity(0)),
+                        new ZeroShooter(),
                         new AlignPivot(PivotState.INTAKE),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
@@ -172,7 +170,7 @@ public final class Autos {
                 new SetIndexer(IndexerStates.ON),
                 Commands.waitSeconds(0.5),
                 new SetIndexer(IndexerStates.OFF),
-                new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new SetShooterCommand(0)));
+                new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new ZeroShooter()));
     }
 
     public static Command FourNoteSubwooferNew() {
@@ -488,7 +486,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(1)),
-                        new AlignPivot(63),
+                        new AlignPivot(60.5),
                         new SetShooterCommand(40)
                 ),
 

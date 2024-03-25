@@ -29,11 +29,13 @@ public class Amp extends SubsystemBase {
 
   public enum AmpState {
 
-    ZERO(0),
+    ZERO(0),    
 
-    PUSH(5.8),
+    PUSH(7.5),
 
-    DEPLOYED(9.53);
+    DEPLOYED(9.2),
+
+    DEFENSE(6.5);
 
     private double pos;
 

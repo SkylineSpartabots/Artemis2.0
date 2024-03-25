@@ -15,7 +15,7 @@ public class SetAmp extends Command {
   double desiredPosition;
   AmpState ampState;
 
-  PIDController AmpController = new PIDController(0.4, 0, 0);
+  PIDController AmpController = new PIDController(0.7, 0, 0);
   public SetAmp(AmpState state) {
     s_Amp = Amp.getInstance();
     this.ampState = state;
