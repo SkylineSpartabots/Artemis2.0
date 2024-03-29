@@ -23,6 +23,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -49,6 +50,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean tractionGO = false;
     private double slipFactor = 0.02; // 2%
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
+    private double lastVelocity = 0;
+    private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
+
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
     Pigeon2 pigeon = new Pigeon2(2);
@@ -176,26 +180,31 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public Double[] tractionControl(double driverLX, double driverLY) {
         Double[] outputs = new Double[6]; // should be reset to null every call
-        double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
+
         double WheelAcceleration = 0;
         
         double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
+
                 double currentAcceleration = Math.sqrt(
         Math.pow(pigeon.getAccelerationX().getValue(), 2) +
         Math.pow(pigeon.getAccelerationY().getValue(), 2));
 
+        double lastRun = (System.currentTimeMillis() - lastTimeReset) / 1000; 
+        double chassisVelocity = lastVelocity + (lastRun * currentAcceleration);
+
+        SmartDashboard.putNumber("pigeon Velocity", chassisVelocity);
+        SmartDashboard.putNumber("pigeon acceleration", currentAcceleration);
+
+        if(lastRun<365*24*60*60) { //checking if first run
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
-            double slipRatio = (Math.abs(module.getAcceleration().getValue() * 60) * ((2
-                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / currentAcceleration; // TODO get velocity from
-                                                                                        // acceleration values, make
-                                                                                        // graph, lookup table basically
+            double slipRatio = (Math.abs(module.getVelocity().getValue() * 60) * ((2
+                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / chassisVelocity; // TODO get velocity
             if (slipRatio > slipThreshold) {
                 outputs[i] = slipRatio;
 
             }
         }
-
 
 
         for (int i = 0; i < ModuleCount; i++) {
@@ -208,8 +217,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             ;
         }
 
-        double lastRun = (System.currentTimeMillis() - lastTimeReset) / 1000; //very jank for first run but after should be good
-        if(lastRun<365*24*60*60) { //checking if first run
+        
         double desiredAcceleration = (desiredSpeed - (WheelAcceleration / 4)) / lastRun; // not very sure about this
                                                                                          // math
         double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
@@ -226,6 +234,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         outputs[4] = driverLX;
         outputs[5] = driverLY;
         }
+        lastVelocity = chassisVelocity;
         return outputs;
         // run periodically...
     }
