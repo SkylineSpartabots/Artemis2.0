@@ -196,6 +196,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("pigeon acceleration", currentAcceleration);
 
         if(lastRun<365*24*60*60) { //checking if first run
+
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double slipRatio = (Math.abs(module.getVelocity().getValue() * 60) * ((2
@@ -206,19 +207,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             }
         }
 
-
-        for (int i = 0; i < ModuleCount; i++) {
-            TalonFX module = Modules[i].getDriveMotor();
-            WheelAcceleration = +(Math.abs(module.getAcceleration().getValue() * 60) * ((2 * Math.PI) / 60)
-                    * (TunerConstants.getWheelRadius() * 0.0254)); // 0.0254 is meters in an inch
-            if (outputs[i] != null) {
-                WheelAcceleration -= WheelAcceleration * (slipFactor + (outputs[i] - slipThreshold) / 2);
-            }
-            ;
-        }
-
-        
-        double desiredAcceleration = (desiredSpeed - (WheelAcceleration / 4)) / lastRun; // not very sure about this
+        double desiredAcceleration = (desiredSpeed - chassisVelocity) / lastRun; // not very sure about this
                                                                                          // math
         double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
         // maximum acceleration we can have is equal to g*CoF, where g is the
