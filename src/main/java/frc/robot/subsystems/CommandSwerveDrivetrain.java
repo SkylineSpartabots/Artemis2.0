@@ -181,8 +181,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public Double[] tractionControl(double driverLX, double driverLY) {
         Double[] outputs = new Double[6]; // should be reset to null every call
 
-        double WheelAcceleration = 0;
-        
         double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
 
                 double currentAcceleration = Math.sqrt(
@@ -200,24 +198,23 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double slipRatio = (Math.abs(module.getVelocity().getValue() * 60) * ((2
-                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / chassisVelocity; // TODO get velocity
+                    * Math.PI) / 60) * (TunerConstants.getWheelRadius() * 0.0254)) / chassisVelocity;
             if (slipRatio > slipThreshold) {
                 outputs[i] = slipRatio;
-
             }
         }
 
-        double desiredAcceleration = (desiredSpeed - chassisVelocity) / lastRun; // not very sure about this
-                                                                                         // math
-        double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
+        double desiredAcceleration = (desiredSpeed - chassisVelocity) / lastRun; 
+
+        double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun; // TODO help me with math
         // maximum acceleration we can have is equal to g*CoF, where g is the
         // acceleration due to gravity and CoF is the coefficient of friction between
         // the floor and the wheels (rubber and carpet i assumed), last number is for
         // the max acceleration for traction in THIS time step
 
         if (desiredAcceleration > maxAcceleration) {
-            driverLX = WheelAcceleration + (maxAcceleration * lastRun);
-            driverLY = WheelAcceleration + (maxAcceleration * lastRun);
+            driverLX = chassisVelocity + (maxAcceleration * lastRun);
+            driverLY = chassisVelocity + (maxAcceleration * lastRun);
         }
 
         outputs[4] = driverLX;
