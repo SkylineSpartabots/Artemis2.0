@@ -33,6 +33,8 @@ import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.TimerCommand;
+//import frc.robot.commands.Amp.SetAmp;
+//import frc.robot.commands.Amp.ZeroAmp;
 import frc.robot.commands.Drive.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
@@ -61,9 +63,9 @@ public class RobotContainer {
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
+    private final Lights s_Lights = Lights.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
     private final Vision s_Vision = Vision.getInstance();
-    private final Lights s_Lights = Lights.getInstance();
     // private final Music s_Orchestra = Music.getInstance();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()

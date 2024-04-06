@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.*;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -20,21 +21,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.Autos;
-import frc.robot.commands.Autos.AutoPath;
+// import frc.robot.commands.Autos;
+// import frc.robot.commands.Autos.AutoPath;
 import frc.robot.commands.Pivot.AlignPivot;
-import frc.robot.subsystems.Amp;
-import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Lights;
-import frc.robot.subsystems.Pivot;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Vision;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
-  SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
+  // SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
 
 
   private RobotContainer m_robotContainer;
@@ -47,6 +40,7 @@ public class Robot extends LoggedRobot {
   private final Climb s_Climb;
   private final Amp s_Amp;
   private final Lights s_Lightz;
+  // private final BasicSerial s_Serial;
 
   public Robot() {
     super();
@@ -58,6 +52,7 @@ public class Robot extends LoggedRobot {
     s_Climb = Climb.getInstance();
     s_Amp = Amp.getInstance();
     s_Lightz = Lights.getInstance();
+    // s_Serial = BasicSerial.getInstance();
   }
 
   @Override
@@ -80,24 +75,24 @@ public class Robot extends LoggedRobot {
 
 
 
-    autoChooser.setDefaultOption("ThreeNoteFarSide", Autos.AutoPath.ThreeNoteFarSide);
-    autoChooser.addOption("FourNoteSubWoofer", Autos.AutoPath.FourNoteSubwoofer);
-    autoChooser.addOption("FourNoteCloseSide", Autos.AutoPath.FourNoteCloseSide);
-    // autoChooser.addOption("Horizontal", Autos.AutoPath.Horizontal);
-    autoChooser.addOption("Straight", Autos.AutoPath.Straight);
-    autoChooser.addOption("Rotation", Autos.AutoPath.Rotation);
-    autoChooser.addOption("FourNoteFromTop", Autos.AutoPath.FourNoteFromTop);
-    autoChooser.addOption("TwoNoteSubwoofer", Autos.AutoPath.TwoNoteSubwoofer);
-    autoChooser.addOption("ThreeNoteSubwooferMidTop", Autos.AutoPath.ThreeNoteSubwooferMidTop);
-    autoChooser.addOption("ThreeNoteSubwooferMidBot", Autos.AutoPath.ThreeNoteSubwooferMidBot);
-    autoChooser.addOption("FourNoteSubwooferNew", Autos.AutoPath.FourNoteSubwooferNew);
-    autoChooser.addOption("FirstLine", Autos.AutoPath.FirstLine);
-    /*autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
-    autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
-    autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
-    SmartDashboard.putData("Auto choices", autoChooser);
-    m_robotContainer = RobotContainer.getInstance();
-    //PortForwarder.add(5800, "photonvision.local", 5800);
+    // autoChooser.setDefaultOption("ThreeNoteFarSide", Autos.AutoPath.ThreeNoteFarSide);
+    // autoChooser.addOption("FourNoteSubWoofer", Autos.AutoPath.FourNoteSubwoofer);
+    // autoChooser.addOption("FourNoteCloseSide", Autos.AutoPath.FourNoteCloseSide);
+    // // autoChooser.addOption("Horizontal", Autos.AutoPath.Horizontal);
+    // autoChooser.addOption("Straight", Autos.AutoPath.Straight);
+    // autoChooser.addOption("Rotation", Autos.AutoPath.Rotation);
+    // autoChooser.addOption("FourNoteFromTop", Autos.AutoPath.FourNoteFromTop);
+    // autoChooser.addOption("TwoNoteSubwoofer", Autos.AutoPath.TwoNoteSubwoofer);
+    // autoChooser.addOption("ThreeNoteSubwooferMidTop", Autos.AutoPath.ThreeNoteSubwooferMidTop);
+    // autoChooser.addOption("ThreeNoteSubwooferMidBot", Autos.AutoPath.ThreeNoteSubwooferMidBot);
+    // autoChooser.addOption("FourNoteSubwooferNew", Autos.AutoPath.FourNoteSubwooferNew);
+    // autoChooser.addOption("FirstLine", Autos.AutoPath.FirstLine);
+    // /*autoChooser.addOption("Straight and turn 180", Autos.AutoPath.StraightAndTurn180Testing);
+    // autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
+    // autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
+    // SmartDashboard.putData("Auto choices", autoChooser);
+    // m_robotContainer = RobotContainer.getInstance();
+    // //PortForwarder.add(5800, "photonvision.local", 5800);
 
   }
 
@@ -117,7 +112,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand =  Autos.getAutoCommand(autoChooser.getSelected());
+    // m_autonomousCommand =  Autos.getAutoCommand(autoChooser.getSelected());
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
