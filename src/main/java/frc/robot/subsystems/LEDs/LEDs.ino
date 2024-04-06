@@ -5,11 +5,13 @@
 
 CRGB leds[NUM_LEDS];
 
+// DIO Pins
 boolean pin2 = false;
 boolean pin3 = false;
 boolean pin4 = false;
 boolean pin5 = false;
-int inputAsNumber = 0;
+
+int inputAsNumber = 0; // LED mode converted to decimal from binary DIO inputs
 
 // --Color Tuples HSV--
 int  OFF[] = {0, 0, 0};
@@ -22,6 +24,9 @@ int  PURPLE[] = {192, 255, 255};
 int  PINK[] = {224, 255, 255};
 int  WHITE[] = {0, 0, 127}; // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
 
+//Debug
+boolean state = true; // State of the onboard LED
+unsigned long count = 0;
 
 void setup() {
 Serial.begin(9600);
@@ -45,7 +50,7 @@ void loop() {
   pin3 = digitalRead(3);
   pin4 = digitalRead(4);
   pin5 = digitalRead(5);
-  inputAsNumber = pin5 + (2*pin4) + (4*pin3) + (8*pin2);
+  inputAsNumber = pin5 + (2*pin4) + (4*pin3) + (8*pin2); // Convert to decimal
 
   //Switching between modes based upon read value
   switch (inputAsNumber) {
@@ -74,7 +79,7 @@ void loop() {
       setSolid(PINK);
       break;
     case 8:
-      setSolid(WHITE);
+      flashSolid(250, 250, RED, PURPLE);
       break;
     default:
       setSolid(OFF);
@@ -89,16 +94,19 @@ void loop() {
   Serial.print("Num: ");
   Serial.println(inputAsNumber);
 
+  digitalWrite(LED_BUILTIN, state);
+  if (count > 10){state = !state;}
+  count++;
+
   delay(50);
 }
-
+// Methods
 void setSolid(int color[]){
   for (int i =0 ; i < NUM_LEDS; i++){
     leds[i].setHSV(color[0], color[1], color[2]);
   }
   FastLED.show();
 }
-
 void flashSolid(int onMS, int offMS, int primaryColor[]){// , int secondaryColor[]
 
   for (int i = 0; i < NUM_LEDS; i++){
@@ -109,6 +117,21 @@ void flashSolid(int onMS, int offMS, int primaryColor[]){// , int secondaryColor
 
   for (int i = 0; i < NUM_LEDS; i++){
     leds[i] = CRGB::Black;
+  }
+  FastLED.show();
+  delay(offMS);
+
+}
+void flashSolid(int onMS, int offMS, int primaryColor[], int secondaryColor[]){
+
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i].setHSV(primaryColor[0], primaryColor[1], primaryColor[2]);
+  }
+  FastLED.show();
+  delay(onMS);
+
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i].setHSV(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   }
   FastLED.show();
   delay(offMS);
