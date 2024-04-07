@@ -136,12 +136,7 @@ public class RobotContainer {
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-
-        drivetrain.applyRequest(() -> drive.withVelocityX(1 * Constants.MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(1 * Constants.MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(1 * Constants.MaxAngularRate)) // Drive counterclockwise with negative X (left)
-
-                    // new Drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX())
+                    new Drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX())
                 );
 
         // reset the field-centric heading. AKA reset odometry
