@@ -48,7 +48,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     // traction control variables
     private double lastTimeReset = 0;
-    private boolean tractionGO = false; // for toggling traction control
+    private boolean TractionControlON = false; // for toggling traction control
     private double slipFactor = 0.02; // 2%
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
     private double lastVelocity = 0;
@@ -162,6 +162,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return roughVel / 4.0;
     }
 
+    public double robotAbsoluteAcceleration() {
+        return Math.hypot(pigeon.getAccelerationX().getValue(), pigeon.getAccelerationY().getValue());
+    }
+
     public void setVoltage(double voltage) {
         for (int i = 0; i < ModuleCount; i++) {
         }
@@ -181,24 +185,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public Double[] tractionControl(double driverLX, double driverLY) {
-        Double[] outputs = new Double[6]; // should be reset to null every call
+        Double[] outputs = new Double[6]; // reset to null every call
 
-        double desiredSpeed = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
+        double desiredVelocity = Math.hypot(driverLX, driverLY);
 
-        double currentAcceleration = Math.sqrt(
-                Math.pow(pigeon.getAccelerationX().getValue(), 2) +
-                        Math.pow(pigeon.getAccelerationY().getValue(), 2));
+        double currentAcceleration = robotAbsoluteAcceleration();
 
-        double lastRun = (System.currentTimeMillis() - lastTimeReset) / 1000;
-        double chassisVelocity = lastVelocity + (lastRun * currentAcceleration);
+        double passedTime = (System.currentTimeMillis() - lastTimeReset) / 1000;
+        double chassisVelocity = lastVelocity + (passedTime * currentAcceleration);
 
-        SmartDashboard.putNumber("Calculated Chassis Velocity", chassisVelocity);
+        SmartDashboard.putNumber("Chassis Velocity from pigeon", chassisVelocity);
         SmartDashboard.putNumber("pigeon acceleration", currentAcceleration);
 
-        if (lastRun > 365 * 24 * 60 * 60) {
+        if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
             chassisVelocity = 0;
-        } else { // checking if first run
-
+        } else { 
             for (int i = 0; i < ModuleCount; i++) {
                 TalonFX module = Modules[i].getDriveMotor();
                 double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
@@ -217,10 +218,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 }
             }
 
-            double desiredAcceleration = (desiredSpeed - chassisVelocity) / lastRun;
+            double desiredAcceleration = (desiredVelocity - chassisVelocity) / passedTime;
 
-            double maxAcceleration = (9.80665 * frictionCoefficant) * lastRun;
-             /* TODO max acceleration should change with applied forces (acceleration)
+            double maxAcceleration = (9.80665 * frictionCoefficant) * passedTime;
+             /* TODO max acceleration should change with forces
                 but im not in physics please help 😭😭
 
              maximum acceleration we can have is equal to g*CoF, where g is the
@@ -228,10 +229,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
              the floor and the wheels (rubber and carpet i assumed), last number is for
              the max acceleration for traction in THIS time step */
 
-            if (desiredAcceleration > maxAcceleration) {
-                driverLX = chassisVelocity + (maxAcceleration * lastRun);
-                driverLY = chassisVelocity + (maxAcceleration * lastRun);
-            }
+            while (desiredAcceleration > maxAcceleration) {
+                Math.
+                driverLX = chassisVelocity + (maxAcceleration * passedTime);
+                driverLY = chassisVelocity + (maxAcceleration * passedTime);
+                desiredVelocity = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
+                desiredAcceleration = (desiredVelocity - chassisVelocity) / passedTime;
+            } 
         }
 
         outputs[4] = driverLX;
@@ -256,11 +260,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public void toggleTractionControl() { // for testing
-        tractionGO = (tractionGO == false) ? true : false;
+        TractionControlON = (TractionControlON == false) ? true : false;
     }
 
     public Boolean getTraction() {
-        return tractionGO;
+        return TractionControlON;
     }
 
     public void resetTime() {
@@ -286,6 +290,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
         SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
+
+        SmartDashboard.putNumber("Chassis Velocity from wheels", robotAbsoluteVelocity());
 
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
         m_field.setRobotPose(m_odometry.getEstimatedPosition());
