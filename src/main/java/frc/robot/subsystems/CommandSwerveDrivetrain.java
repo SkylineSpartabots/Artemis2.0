@@ -229,12 +229,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
              the floor and the wheels (rubber and carpet i assumed), last number is for
              the max acceleration for traction in THIS time step */
 
-            while (desiredAcceleration > maxAcceleration) {
-                Math.
-                driverLX = chassisVelocity + (maxAcceleration * passedTime);
-                driverLY = chassisVelocity + (maxAcceleration * passedTime);
-                desiredVelocity = Math.sqrt((Math.pow(driverLX, 2) + Math.pow(driverLY, 2)));
-                desiredAcceleration = (desiredVelocity - chassisVelocity) / passedTime;
+            if (desiredAcceleration > maxAcceleration) {
+                while (desiredVelocity > ((maxAcceleration * passedTime) + chassisVelocity)) {//algebruh
+                driverLX =- 0.02;
+                driverLY =- 0.02;
+                desiredVelocity = Math.hypot(driverLX,driverLY);
+                } //smallest values of drive inputs that dont result in going over calculated max acceleration
             } 
         }
 
@@ -247,10 +247,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     } // runs periodically as a default command
 
     public void slipCorrection(Double[] inputs) {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < ModuleCount; i++) {
             if (inputs[i] != null) {
                 TalonFX module = Modules[i].getDriveMotor();
-                module.set(module.get() * (1 - (slipFactor + (inputs[i] - slipThreshold) / 2)));
+                module.set(module.get() * (1 - (slipFactor + (inputs[i] - slipThreshold)) / 3));
             } // multiplies by slip factor, more agressive if far above slip threshold
         }
     }
