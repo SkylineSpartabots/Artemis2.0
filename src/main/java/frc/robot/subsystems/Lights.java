@@ -22,6 +22,10 @@ public class Lights extends SubsystemBase {
     private Timer timer;
     private final int offTime = 5; // Time to wait until the LEDs should be turned off
 
+    // Debug and testing
+    private boolean ran = false;
+    private int count = 0;
+
     public static Lights getInstance() {
         if (instance == null) {
             instance = new Lights();
@@ -39,7 +43,7 @@ public class Lights extends SubsystemBase {
         PURPLE(6),
         PINK(7),
         WHITE(8),
-        PINKANT(9);
+        PURPLEANT(9);
 
         private int modeNum;
 
@@ -113,12 +117,38 @@ public class Lights extends SubsystemBase {
         pin5.set(Character.getNumericValue(binaryString.charAt(3)) > 0);
     }
 
+    // Just to display all the modes, only run for testing in periodic
+    private void loopDisplay() {
+        count++;
+
+        if (count >= 100) {
+            count = 0;
+            if (selected < 9) {
+                selected++;
+            } else {
+                selected = 0;
+            }
+            setLEDs(selected);
+        }
+    }
+
     @Override
     public void periodic() {
         // Turns LEDs off after a set amount of time
         if (timer.get() > offTime) {
             setLEDs(ledModes.OFF);
         }
+
+        // Debug and testing
+        // loopDisplay(); // This or
+
+        if (!ran) { // That, only do one at a time
+        setLEDs(ledModes.PURPLEANT);
+        ran = true;
+        }
+
+        // System.out.println(timer.get());
+        // System.out.println(selected);
     }
 
 }

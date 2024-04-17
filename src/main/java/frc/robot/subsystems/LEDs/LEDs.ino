@@ -24,6 +24,9 @@ int PURPLE[] = {192, 255, 255};
 int PINK[] = {224, 255, 255};
 int WHITE[] = {0, 0, 127}; // Dimmed right now cause i dont think the lil arduino can supply enough power at full bright
 
+// Ant Variables
+int k = 0; // Turns every nth LED off -- global; is flipped/reset when incremented to primarySize
+
 
 // Debug
 boolean state = true; // State of the onboard LED
@@ -81,6 +84,10 @@ void loop() {
   case 8:
     setSolid(WHITE);
     break;
+  case 9:
+    // runAnt(PURPLE, ORANGE, 10, 5, 10);
+    runAnt(PURPLE, 10, 5, 10);  
+    break;
   default:
     setSolid(OFF);
     break;
@@ -136,4 +143,36 @@ void flashSolid(int primaryMS, int secondaryMS, int PRIMARY[], int SECONDARY[]){
 
   FastLED.show();
   delay(secondaryMS);
+}
+void runAnt(int PRIMARY[], int groupSize, int backSize, int delayMS){
+  runAnt(PRIMARY, OFF, groupSize, backSize, delayMS); // Just call the other one but with black as the Secondary
+}
+
+void runAnt(int PRIMARY[], int SECONDARY[], int groupSize, int backSize, int delayMS){
+
+  for (int i = 0; i < NUM_LEDS; i++) { // Loop through the LED strand
+    if((i - k) % groupSize ==0) { // If the current LED is divisible by the groupsize it should be off
+      for (int j = 0; j < backSize; j++){ // Loop backwards to create a larger black section
+        if (i - j >= 0){ // While j is before i set the LED off
+          leds[i - j] = CHSV(SECONDARY[0], SECONDARY[1], SECONDARY[2]);
+        }
+      }
+    }
+    // If the LED isnt divisible by the groupsize then make it a color
+    else{leds[i] = CHSV(PRIMARY[0], PRIMARY[1], PRIMARY[2]);} 
+  }
+
+  FastLED.show();
+  delay(delayMS);
+  kReset(groupSize);
+}
+
+// --Utility Functions--
+void kReset(int g){ // Checks if k reached the groupsize
+  if (k == g){
+    k = 0;
+  }
+  else {
+    k++;
+  }
 }
