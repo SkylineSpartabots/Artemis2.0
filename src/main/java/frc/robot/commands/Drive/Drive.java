@@ -34,7 +34,7 @@ public class Drive extends Command {
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public Drive(double driverLY, double driverLX, double driverRX) { 
         s_Swerve = CommandSwerveDrivetrain.getInstance();
@@ -48,10 +48,11 @@ public class Drive extends Command {
     public void initialize() {
         driverLX = s_Swerve.scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = s_Swerve.scaledDeadBand(driverLY) * Constants.MaxSpeed;
-        driverRX = s_Swerve.scaledDeadBand(driverRX) * Constants.MaxSpeed;
+        driverRX = s_Swerve.scaledDeadBand(driverRX) * Constants.MaxSpeed; //desired inputs in velocity
+        //now should rotation be scaled? idk! (ill scale it for now)
 
-        if(s_Swerve.getTraction() == true) {
-             adjustedInputs = s_Swerve.tractionControl(driverLX , driverLY);
+        if(s_Swerve.getTraction()) {
+             adjustedInputs = s_Swerve.tractionControl(driverLX, driverLY);
              driverLX = adjustedInputs[4];
              driverLY = adjustedInputs[5];
         }
@@ -59,8 +60,10 @@ public class Drive extends Command {
         s_Swerve.applyRequest(() ->
                          drive.withVelocityX(driverLX)
                         .withVelocityY(driverLY)
-                        .withRotationalRate(driverRX));
+                        .withRotationalRate(driverRX)); 
+                        
         s_Swerve.slipCorrection(adjustedInputs);
+        // s_Swerve.angularDriftCorrection();
         s_Swerve.resetTime();
     }
     

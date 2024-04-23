@@ -49,15 +49,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     // traction control variables
     private double lastTimeReset = 0;
     private boolean TractionControlON = false; // for toggling traction control
-    private double slipFactor = 0.02; // 2%
+    private double slipFactor = 5; // how agressive slip correction is, higher = less agressive
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
     private double lastVelocity = 0;
-    private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic coeffiant
+    private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
-    Pigeon2 pigeon = new Pigeon2(2);
+    Pigeon2 pigeon = getPigeon2(); //using the already contructed pigeon
 
     Vision m_Camera;
 
@@ -195,7 +195,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         double chassisVelocity = lastVelocity + (passedTime * currentAcceleration);
 
         SmartDashboard.putNumber("Chassis Velocity from pigeon", chassisVelocity);
-        SmartDashboard.putNumber("pigeon acceleration", currentAcceleration);
+        SmartDashboard.putNumber("Pigeon acceleration", currentAcceleration);
 
         if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
             chassisVelocity = 0;
@@ -210,7 +210,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                     break;
                 } // this should prevent last velocity from deviating too much
 
-                double slipRatio = (wheelRPM * ((2 * Math.PI) / 60) * (TunerConstants.getWheelRadius()
+                double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius()
                         * 0.0254)) / chassisVelocity;
 
                 if (slipRatio > slipThreshold) {
@@ -221,8 +221,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             double desiredAcceleration = (desiredVelocity - chassisVelocity) / passedTime;
 
             double maxAcceleration = (9.80665 * frictionCoefficant) * passedTime;
-             /* TODO max acceleration should change with forces
-                but im not in physics please help 😭😭
+             /* TODO
+             fricitonal force = f f = u * N
+             subtract the force applied by the wheels
 
              maximum acceleration we can have is equal to g*CoF, where g is the
              acceleration due to gravity and CoF is the coefficient of friction between
@@ -230,7 +231,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
              the max acceleration for traction in THIS time step */
 
             if (desiredAcceleration > maxAcceleration) {
-                while (desiredVelocity > ((maxAcceleration * passedTime) + chassisVelocity)) {//algebruh
+                while (desiredVelocity > ((maxAcceleration * passedTime) + chassisVelocity)) {//algebruh - if you wanna go faster than is possible in the time
                 driverLX =- 0.02;
                 driverLY =- 0.02;
                 desiredVelocity = Math.hypot(driverLX,driverLY);
@@ -246,11 +247,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     } // runs periodically as a default command
 
+    // public void angularDriftCorrection() {
+    //     // ill see if this necessary after testing normal traction control (if i ever do 😭) 
+    // }
+
     public void slipCorrection(Double[] inputs) {
         for (int i = 0; i < ModuleCount; i++) {
             if (inputs[i] != null) {
                 TalonFX module = Modules[i].getDriveMotor();
-                module.set(module.get() * (1 - (slipFactor + (inputs[i] - slipThreshold)) / 3));
+                module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
             } // multiplies by slip factor, more agressive if far above slip threshold
         }
     }
