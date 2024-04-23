@@ -192,6 +192,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         double currentAcceleration = robotAbsoluteAcceleration();
 
         double passedTime = (System.currentTimeMillis() - lastTimeReset) / 1000;
+        updateVelocity(); //going back to the integration idea + going to get gryo values in here for accurate data
+        
         double chassisVelocity = lastVelocity + (passedTime * currentAcceleration);
 
         SmartDashboard.putNumber("Chassis Velocity from pigeon", chassisVelocity);
@@ -247,9 +249,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     } // runs periodically as a default command
 
-    // public void angularDriftCorrection() {
-    //     // ill see if this necessary after testing normal traction control (if i ever do 😭) 
-    // }
+    public void updateVelocity() {
+
+    }
 
     public void slipCorrection(Double[] inputs) {
         for (int i = 0; i < ModuleCount; i++) {
