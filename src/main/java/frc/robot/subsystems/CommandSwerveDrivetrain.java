@@ -165,10 +165,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return roughVel / 4.0;
     }
 
-    public double robotAbsoluteAcceleration() {
-        return Math.hypot(pigeon.getAccelerationX().getValue(), pigeon.getAccelerationY().getValue());
-    }
-
     public void setVoltage(double voltage) {
         for (int i = 0; i < ModuleCount; i++) {
         }
@@ -194,22 +190,20 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
         double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
-        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue();
+        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue(); //technically we dont need z but no harm no foul
 
         double passedTime = (System.currentTimeMillis() - lastTimeReset) / 1000;
         filteredVelocityX  =+ passedTime * pigeon.getAccumGyroX().getValue();
         filteredVelocityY  =+ passedTime * pigeon.getAccumGyroY().getValue();
         filteredVelocityZ  =+ passedTime * pigeon.getAccumGyroZ().getValue();
 
-        double alpha = 0.95;
+        double alpha = 0.95; //must tune at some point
         filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * accelerationX;
         filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * accelerationY;
         filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * accelerationZ;
         
         double velocityMagnitude = Math.sqrt(Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2));
 
-        updateVelocity(); //going back to the integration idea + going to get gryo values in here for accurate data
-        
         if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
             velocityMagnitude = 0;
         } else { 
