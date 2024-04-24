@@ -51,8 +51,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean TractionControlON = false; // for toggling traction control
     private double slipFactor = 5; // how agressive slip correction is, higher = less agressive
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
-    private double lastVelocity = 0;
+    private double InitialVelocity = 0;
     private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
+    double filteredVelocityX  = 0;
+    double filteredVelocityY  = 0;
+    double filteredVelocityZ  = 0;
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
@@ -189,38 +192,46 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         double desiredVelocity = Math.hypot(driverLX, driverLY);
 
-        double currentAcceleration = robotAbsoluteAcceleration();
+        double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
+        double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
+        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue();
 
         double passedTime = (System.currentTimeMillis() - lastTimeReset) / 1000;
+        filteredVelocityX  =+ passedTime * pigeon.getAccumGyroX().getValue();
+        filteredVelocityY  =+ passedTime * pigeon.getAccumGyroY().getValue();
+        filteredVelocityZ  =+ passedTime * pigeon.getAccumGyroZ().getValue();
+
+        double alpha = 0.95;
+        filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * accelerationX;
+        filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * accelerationY;
+        filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * accelerationZ;
+        
+        double velocityMagnitude = Math.sqrt(Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2));
+
         updateVelocity(); //going back to the integration idea + going to get gryo values in here for accurate data
         
-        double chassisVelocity = lastVelocity + (passedTime * currentAcceleration);
-
-        SmartDashboard.putNumber("Chassis Velocity from pigeon", chassisVelocity);
-        SmartDashboard.putNumber("Pigeon acceleration", currentAcceleration);
-
         if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
-            chassisVelocity = 0;
+            velocityMagnitude = 0;
         } else { 
             for (int i = 0; i < ModuleCount; i++) {
                 TalonFX module = Modules[i].getDriveMotor();
                 double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
 
                 if (wheelRPM < 0.01) {
-                    lastVelocity = 0;
+                    InitialVelocity = 0;
                     resetTime();
                     break;
                 } // this should prevent last velocity from deviating too much
 
                 double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius()
-                        * 0.0254)) / chassisVelocity;
+                        * 0.0254)) / velocityMagnitude;
 
                 if (slipRatio > slipThreshold) {
                     outputs[i] = slipRatio;
                 }
             }
 
-            double desiredAcceleration = (desiredVelocity - chassisVelocity) / passedTime;
+            double desiredAcceleration = (desiredVelocity - velocityMagnitude) / passedTime;
 
             double maxAcceleration = (9.80665 * frictionCoefficant) * passedTime;
              /* TODO
@@ -233,7 +244,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
              the max acceleration for traction in THIS time step */
 
             if (desiredAcceleration > maxAcceleration) {
-                while (desiredVelocity > ((maxAcceleration * passedTime) + chassisVelocity)) {//algebruh - if you wanna go faster than is possible in the time
+                while (desiredVelocity > ((maxAcceleration * passedTime) + velocityMagnitude)) {//algebruh - if you wanna go faster than is possible in the time
                 driverLX =- 0.02;
                 driverLY =- 0.02;
                 desiredVelocity = Math.hypot(driverLX,driverLY);
@@ -244,7 +255,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         outputs[4] = driverLX;
         outputs[5] = driverLY;
 
-        lastVelocity = chassisVelocity;
+        InitialVelocity = velocityMagnitude;
         return outputs;
 
     } // runs periodically as a default command
