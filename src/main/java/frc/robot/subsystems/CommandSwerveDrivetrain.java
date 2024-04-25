@@ -210,13 +210,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             for (int i = 0; i < ModuleCount; i++) {
                 TalonFX module = Modules[i].getDriveMotor();
                 double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
-
-                if (wheelRPM < 0.01) {
-                    InitialVelocity = 0;
-                    resetTime();
-                    break;
-                } // this should prevent last velocity from deviating too much
-
                 double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius()
                         * 0.0254)) / velocityMagnitude;
 
@@ -253,10 +246,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return outputs;
 
     } // runs periodically as a default command
-
-    public void updateVelocity() {
-
-    }
 
     public void slipCorrection(Double[] inputs) {
         for (int i = 0; i < ModuleCount; i++) {
