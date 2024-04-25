@@ -197,17 +197,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
         double latency = pigeon.getAccelerationX().getTimestamp().getLatency();
-        Boolean interpolate = latency > 24 ? true : false; //this better be in milis (how often to interpolate)
+        Boolean interpolate = latency > 30 ? true : false; //this better be in milis (how often to interpolate)
 
         if(interpolate) {
             accelerationX = interpolate(prevAcceX,accelerationX,latency);
             accelerationY = interpolate(prevAcceY,accelerationY,latency);
             accelerationZ = interpolate(prevAcceZ,accelerationZ,latency);
         }
-        
-        filteredVelocityX  =+ passedTime * accelerationX;
-        filteredVelocityY  =+ passedTime * accelerationY;
-        filteredVelocityZ  =+ passedTime * accelerationZ; 
+        filteredVelocityX  =+ 0.5 * (accelerationX + prevAcceX) * (passedTime - (lastTimeReset/1000));
+        filteredVelocityY  =+ 0.5 * (accelerationY + prevAcceY) * (passedTime - (lastTimeReset/1000));
+        filteredVelocityZ  =+ 0.5 * (accelerationZ + prevAcceZ) * (passedTime - (lastTimeReset/1000)); //trapaziodal rule
 
         prevAcceX = accelerationX;
         prevAcceY = accelerationY;
@@ -272,7 +271,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     } // runs periodically as a default command
 
     public double interpolate(double prev, double latest, double latency) {
-        return prev + (latency/100) * (latest - prev); //sensor data should be 100ms apart (10Hz)
+        return (prev + (latency/100) * (latest-prev)); //sensor data should be 100ms apart (10Hz) then put into miliseconds
     }
 
     public void recalibrateVelocity() {
