@@ -205,19 +205,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             accelerationZ = interpolate(prevAcceZ,accelerationZ,latency);
         }
         
-        filteredVelocityX  =+ passedTime * pigeon.getAngularVelocityXDevice().getValue();
-        filteredVelocityY  =+ passedTime * pigeon.getAngularVelocityYDevice().getValue();
-        filteredVelocityZ  =+ passedTime * pigeon.getAngularVelocityZDevice().getValue(); 
-
+        filteredVelocityX  =+ passedTime * accelerationX;
+        filteredVelocityY  =+ passedTime * accelerationY;
+        filteredVelocityZ  =+ passedTime * accelerationZ; 
 
         prevAcceX = accelerationX;
         prevAcceY = accelerationY;
         prevAcceZ = accelerationZ;
 
         double alpha = 0.95; //must tune at some point (lower is more resistant to change)
-        filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * accelerationX;
-        filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * accelerationY;
-        filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * accelerationZ;
+        filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * pigeon.getAngularVelocityXDevice().getValue();
+        filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * pigeon.getAngularVelocityYDevice().getValue();
+        filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * pigeon.getAngularVelocityZDevice().getValue();
         
         double velocityMagnitude = Math.sqrt(Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2));
 
