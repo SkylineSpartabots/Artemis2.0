@@ -51,11 +51,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean TractionControlON = false; // for toggling traction control
     private double slipFactor = 5; // how agressive slip correction is, higher = less agressive
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
-    private double InitialVelocity = 0;
     private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
     double filteredVelocityX  = 0;
     double filteredVelocityY  = 0;
     double filteredVelocityZ  = 0;
+    double prevAngularVelcoityX = 0;
+    double prevAngularVelcoityY = 0;
+    double prevAngularVelcoityZ = 0;
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
@@ -187,17 +189,38 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         Double[] outputs = new Double[6]; // reset to null every call
 
         double desiredVelocity = Math.hypot(driverLX, driverLY);
+        double passedTime = (System.currentTimeMillis() - lastTimeReset) / 1000;
+
+        //omg i was doing data sync but turns out the pigeon does it for me bruh 😭😭😭😭🙏🙏🙏🙏 new data every 100ms
 
         double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
         double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
-        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue(); //technically we dont need z but no harm no foul
+        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue(); 
+        //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
-        double passedTime = (System.currentTimeMillis() - lastTimeReset) / 1000;
-        filteredVelocityX  =+ passedTime * pigeon.getAccumGyroX().getValue();
-        filteredVelocityY  =+ passedTime * pigeon.getAccumGyroY().getValue();
-        filteredVelocityZ  =+ passedTime * pigeon.getAccumGyroZ().getValue();
+        double latency = pigeon.getAngularVelocityXDevice().getTimestamp().getLatency();
+        Boolean interpolate = latency > 24 ? true : false; //this better be in milis (how often to interpolate)
 
-        double alpha = 0.95; //must tune at some point
+        double angularX = pigeon.getAngularVelocityXDevice().getValue();
+        double angularY = pigeon.getAngularVelocityYDevice().getValue();
+        double angularZ = pigeon.getAngularVelocityZDevice().getValue();
+
+        if(interpolate) {
+            angularX = interpolate(prevAngularVelcoityX,angularX,latency);
+            angularY = interpolate(prevAngularVelcoityY,angularY,latency);
+            angularZ = interpolate(prevAngularVelcoityZ,angularZ,latency);
+        }
+        
+        filteredVelocityX  =+ passedTime * angularX;
+        filteredVelocityY  =+ passedTime * angularY;
+        filteredVelocityZ  =+ passedTime * angularZ; 
+
+
+        prevAngularVelcoityX = angularX;
+        prevAngularVelcoityY = angularY;
+        prevAngularVelcoityZ = angularZ;
+
+        double alpha = 0.95; //must tune at some point (lower is more resistant to change)
         filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * accelerationX;
         filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * accelerationY;
         filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * accelerationZ;
@@ -207,11 +230,20 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
             velocityMagnitude = 0;
         } else { 
+            int k=0;
             for (int i = 0; i < ModuleCount; i++) {
                 TalonFX module = Modules[i].getDriveMotor();
                 double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
                 double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius()
                         * 0.0254)) / velocityMagnitude;
+
+                if(wheelRPM == 0) { //minimize drift by recalibrating if we are at rest
+                    k++;
+                    if(k==3) { //if 3 wheels say we are stopped 
+                        recalibrateVelocity();
+                        break;
+                    }
+                }
 
                 if (slipRatio > slipThreshold) {
                     outputs[i] = slipRatio;
@@ -242,17 +274,26 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         outputs[4] = driverLX;
         outputs[5] = driverLY;
 
-        InitialVelocity = velocityMagnitude;
         return outputs;
 
     } // runs periodically as a default command
+
+    public double interpolate(double prev, double latest, double latency) {
+        return prev + (latency/100) * (latest - prev); //sensor data should be 100ms apart (10Hz)
+    }
+
+    public void recalibrateVelocity() {
+        filteredVelocityX = 0;
+        filteredVelocityY = 0; 
+        filteredVelocityZ = 0;
+    }
 
     public void slipCorrection(Double[] inputs) {
         for (int i = 0; i < ModuleCount; i++) {
             if (inputs[i] != null) {
                 TalonFX module = Modules[i].getDriveMotor();
                 module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
-            } // multiplies by slip factor, more agressive if far above slip threshold
+            } // divides by slip factor, more agressive if far above slip threshold
         }
     }
 
