@@ -55,9 +55,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     double filteredVelocityX  = 0;
     double filteredVelocityY  = 0;
     double filteredVelocityZ  = 0;
-    double prevAngularVelcoityX = 0;
-    double prevAngularVelcoityY = 0;
-    double prevAngularVelcoityZ = 0;
+    double prevAcceX = 0;
+    double prevAcceY = 0;
+    double prevAcceZ = 0;
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
@@ -191,34 +191,28 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         double desiredVelocity = Math.hypot(driverLX, driverLY);
         double passedTime = (System.currentTimeMillis() - lastTimeReset) / 1000;
 
-        //omg i was doing data sync but turns out the pigeon does it for me bruh 😭😭😭😭🙏🙏🙏🙏 new data every 100ms
-
         double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
         double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
         double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue(); 
         //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
-        double latency = pigeon.getAngularVelocityXDevice().getTimestamp().getLatency();
+        double latency = pigeon.getAccelerationX().getTimestamp().getLatency();
         Boolean interpolate = latency > 24 ? true : false; //this better be in milis (how often to interpolate)
 
-        double angularX = pigeon.getAngularVelocityXDevice().getValue();
-        double angularY = pigeon.getAngularVelocityYDevice().getValue();
-        double angularZ = pigeon.getAngularVelocityZDevice().getValue();
-
         if(interpolate) {
-            angularX = interpolate(prevAngularVelcoityX,angularX,latency);
-            angularY = interpolate(prevAngularVelcoityY,angularY,latency);
-            angularZ = interpolate(prevAngularVelcoityZ,angularZ,latency);
+            accelerationX = interpolate(prevAcceX,accelerationX,latency);
+            accelerationY = interpolate(prevAcceY,accelerationY,latency);
+            accelerationZ = interpolate(prevAcceZ,accelerationZ,latency);
         }
         
-        filteredVelocityX  =+ passedTime * angularX;
-        filteredVelocityY  =+ passedTime * angularY;
-        filteredVelocityZ  =+ passedTime * angularZ; 
+        filteredVelocityX  =+ passedTime * pigeon.getAngularVelocityXDevice().getValue();
+        filteredVelocityY  =+ passedTime * pigeon.getAngularVelocityYDevice().getValue();
+        filteredVelocityZ  =+ passedTime * pigeon.getAngularVelocityZDevice().getValue(); 
 
 
-        prevAngularVelcoityX = angularX;
-        prevAngularVelcoityY = angularY;
-        prevAngularVelcoityZ = angularZ;
+        prevAcceX = accelerationX;
+        prevAcceY = accelerationY;
+        prevAcceZ = accelerationZ;
 
         double alpha = 0.95; //must tune at some point (lower is more resistant to change)
         filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * accelerationX;
