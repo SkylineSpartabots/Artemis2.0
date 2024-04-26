@@ -51,7 +51,7 @@ public class Drive extends Command {
         driverRX = s_Swerve.scaledDeadBand(driverRX) * Constants.MaxSpeed; //desired inputs in velocity
         //now should rotation be scaled? idk! (ill scale it for now)
 
-        if(s_Swerve.getTraction()) {
+        if(s_Swerve.getTractionBool()) {
              adjustedInputs = s_Swerve.tractionControl(driverLX, driverLY);
              driverLX = adjustedInputs[4];
              driverLY = adjustedInputs[5];
@@ -63,7 +63,6 @@ public class Drive extends Command {
                         .withRotationalRate(driverRX)); 
                         
         s_Swerve.slipCorrection(adjustedInputs);
-        // s_Swerve.angularDriftCorrection();
         s_Swerve.resetTime();
     }
     

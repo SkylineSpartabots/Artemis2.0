@@ -196,13 +196,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue(); 
         //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
-        double latency = pigeon.getAccelerationX().getTimestamp().getLatency();
-        Boolean interpolate = latency > 30 ? true : false; //this better be in milis (how often to interpolate)
+        double latency = pigeon.getAccelerationX().getTimestamp().getLatency(); 
+        Boolean extrapolate = latency > 30 ? true : false; //TODO this better be in milis (how often to interpolate)
 
-        if(interpolate) {
-            accelerationX = interpolate(prevAcceX,accelerationX,latency);
-            accelerationY = interpolate(prevAcceY,accelerationY,latency);
-            accelerationZ = interpolate(prevAcceZ,accelerationZ,latency);
+        if(extrapolate) {
+            accelerationX = extrapolate(prevAcceX,accelerationX,latency);
+            accelerationY = extrapolate(prevAcceY,accelerationY,latency);
+            accelerationZ = extrapolate(prevAcceZ,accelerationZ,latency);
         }
         filteredVelocityX  =+ 0.5 * (accelerationX + prevAcceX) * (passedTime - (lastTimeReset/1000));
         filteredVelocityY  =+ 0.5 * (accelerationY + prevAcceY) * (passedTime - (lastTimeReset/1000));
@@ -246,14 +246,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             double maxAcceleration = (9.80665 * frictionCoefficant) * passedTime;
              /* TODO
-             fricitonal force = f f = u * N
-             subtract the force applied by the wheels
-
              maximum acceleration we can have is equal to g*CoF, where g is the
              acceleration due to gravity and CoF is the coefficient of friction between
              the floor and the wheels (rubber and carpet i assumed), last number is for
              the max acceleration for traction in THIS time step */
-
+            
             if (desiredAcceleration > maxAcceleration) {
                 while (desiredVelocity > ((maxAcceleration * passedTime) + velocityMagnitude)) {//algebruh - if you wanna go faster than is possible in the time
                 driverLX =- 0.02;
@@ -270,7 +267,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     } // runs periodically as a default command
 
-    public double interpolate(double prev, double latest, double latency) {
+    public double extrapolate(double prev, double latest, double latency) {
         return (prev + (latency/100) * (latest-prev)); //sensor data should be 100ms apart (10Hz) then put into miliseconds
     }
 
@@ -297,7 +294,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         TractionControlON = (TractionControlON == false) ? true : false;
     }
 
-    public Boolean getTraction() {
+    public Boolean getTractionBool() {
         return TractionControlON;
     }
 
