@@ -250,9 +250,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
              acceleration due to gravity and CoF is the coefficient of friction between
              the floor and the wheels (rubber and carpet i assumed), last number is for
              the max acceleration for traction in THIS time step */
-            
+
             if (desiredAcceleration > maxAcceleration) {
-                while (desiredVelocity > ((maxAcceleration * passedTime) + velocityMagnitude)) {//algebruh - if you wanna go faster than is possible in the time
+                while (desiredVelocity > (9.80665 * frictionCoefficant) * Math.pow(passedTime, 2) + velocityMagnitude) {//algebruh - if you wanna go faster than is possible in the time
                 driverLX =- 0.02;
                 driverLY =- 0.02;
                 desiredVelocity = Math.hypot(driverLX,driverLY);
