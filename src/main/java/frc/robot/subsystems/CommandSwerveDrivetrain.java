@@ -23,6 +23,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.Notifier;
@@ -35,6 +36,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
 import frc.robot.Constants;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
+import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -45,6 +52,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
+    static Interpolator<Double> interpolator;
 
     // traction control variables
     private double lastTimeReset = 0;
@@ -58,6 +67,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     double prevAcceX = 0;
     double prevAcceY = 0;
     double prevAcceZ = 0;
+    private UnscentedKalmanFilter<N3,N1,N1> filter; //3 states, 1 input, 1 output
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
@@ -186,6 +196,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public Double[] tractionControl(double driverLX, double driverLY) {
+        
         Double[] outputs = new Double[6]; // reset to null every call
 
         double desiredVelocity = Math.hypot(driverLX, driverLY);
@@ -197,13 +208,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
         double latency = pigeon.getAccelerationX().getTimestamp().getLatency(); 
-        Boolean extrapolate = latency > 30 ? true : false; //TODO this better be in milis (how often to interpolate)
+        Boolean extrapolate = latency > 55 || latency < 45 ? true : false; 
 
         if(extrapolate) {
-            accelerationX = extrapolate(prevAcceX,accelerationX,latency);
-            accelerationY = extrapolate(prevAcceY,accelerationY,latency);
-            accelerationZ = extrapolate(prevAcceZ,accelerationZ,latency);
+            latency = 1.5 - (latency/100);
+            accelerationX = interpolator.interpolate(prevAcceX, accelerationX, latency);
+            accelerationY = interpolator.interpolate(prevAcceX, accelerationX, latency);
+            accelerationZ = interpolator.interpolate(prevAcceX, accelerationX, latency); //TODO lets hope this has exterpolation built in 🙏🙏
         }
+
         filteredVelocityX  =+ 0.5 * (accelerationX + prevAcceX) * (passedTime - (lastTimeReset/1000));
         filteredVelocityY  =+ 0.5 * (accelerationY + prevAcceY) * (passedTime - (lastTimeReset/1000));
         filteredVelocityZ  =+ 0.5 * (accelerationZ + prevAcceZ) * (passedTime - (lastTimeReset/1000)); //trapaziodal rule
@@ -212,15 +225,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         prevAcceY = accelerationY;
         prevAcceZ = accelerationZ;
 
-        double alpha = 0.95; //must tune at some point (lower is more resistant to change)
-        filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * pigeon.getAngularVelocityXDevice().getValue();
-        filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * pigeon.getAngularVelocityYDevice().getValue();
-        filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * pigeon.getAngularVelocityZDevice().getValue();
+        
+        // double alpha = 0.95; //must tune at some point (lower is more resistant to change)
+        // filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * pigeon.getAngularVelocityXDevice().getValue();
+        // filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * pigeon.getAngularVelocityYDevice().getValue();
+        // filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * pigeon.getAngularVelocityZDevice().getValue();
         
         double velocityMagnitude = Math.sqrt(Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2));
 
         if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
             velocityMagnitude = 0;
+            initKalman();
         } else { 
             int k=0;
             for (int i = 0; i < ModuleCount; i++) {
@@ -267,15 +282,23 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     } // runs periodically as a default command
 
-    public double extrapolate(double prev, double latest, double latency) {
-        return (prev + (latency/100) * (latest-prev)); //sensor data should be 100ms apart (10Hz) then put into miliseconds
-    }
-
-    public void recalibrateVelocity() {
+    private void recalibrateVelocity() {
         filteredVelocityX = 0;
         filteredVelocityY = 0; 
         filteredVelocityZ = 0;
     }
+
+    private void initKalman() {
+        filter = new UnscentedKalmanFilter<>(Nat.N3(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, 0.02);
+
+        //TODO determine state and neasurement standard deviation, could use simulation or smth else
+        //TODO make a system model somehow
+        //TODO figure out how to do linearization of the system model 
+        // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs, BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
+        // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h, Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs, double nominalDtSeconds)
+        // 😭😭😭😭😭
+        // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/estimator/UnscentedKalmanFilter.html
+    } 
 
     public void slipCorrection(Double[] inputs) {
         for (int i = 0; i < ModuleCount; i++) {
