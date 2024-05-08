@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.sql.Driver;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import javax.crypto.Mac;
@@ -41,6 +42,9 @@ import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+
 
 
 /**
@@ -67,7 +71,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     double prevAcceX = 0;
     double prevAcceY = 0;
     double prevAcceZ = 0;
-    private UnscentedKalmanFilter<N3,N1,N1> filter; //3 states, 1 input, 1 output
+    double prevaccelerationMagnitude = 0;
+    private UnscentedKalmanFilter<N3,N1,N1> UKF; //3 states, 1 input, 1 output
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
@@ -208,41 +213,41 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
         double latency = pigeon.getAccelerationX().getTimestamp().getLatency(); 
-        Boolean extrapolate = latency > 55 || latency < 45 ? true : false; 
+        Boolean extrapolate = passedTime > 55 || passedTime < 45 ? true : false; 
 
         if(extrapolate) {
             latency = 1.5 - (latency/100);
             accelerationX = interpolator.interpolate(prevAcceX, accelerationX, latency);
-            accelerationY = interpolator.interpolate(prevAcceX, accelerationX, latency);
-            accelerationZ = interpolator.interpolate(prevAcceX, accelerationX, latency); //TODO lets hope this has exterpolation built in 🙏🙏
+            accelerationY = interpolator.interpolate(prevAcceY, accelerationY, latency);
+            accelerationZ = interpolator.interpolate(prevAcceZ, accelerationX, latency); //TODO align all timestamps at 50ms since last run, also lets hope this has exterpolation built in 🙏🙏
         }
 
-        filteredVelocityX  =+ 0.5 * (accelerationX + prevAcceX) * (passedTime - (lastTimeReset/1000));
-        filteredVelocityY  =+ 0.5 * (accelerationY + prevAcceY) * (passedTime - (lastTimeReset/1000));
-        filteredVelocityZ  =+ 0.5 * (accelerationZ + prevAcceZ) * (passedTime - (lastTimeReset/1000)); //trapaziodal rule
-
-        prevAcceX = accelerationX;
+        // filteredVelocityX = alpha * (acceleration) + (1-alpha) * angular);
+        // filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * ;
+        // filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * ;
+        
+         double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
+         prevaccelerationMagnitude = Math.sqrt(Math.pow(prevAcceX, 2) + Math.pow(prevAcceY, 2) + Math.pow(prevAcceZ, 2));
+         double angularMagnitude = Math.sqrt(Math.pow(pigeon.getAngularVelocityXDevice().getValue(), 2) + Math.pow(pigeon.getAngularVelocityYDevice().getValue(), 2) + Math.pow(pigeon.getAngularVelocityZDevice().getValue(), 2));
+        
+         prevAcceX = accelerationX;
         prevAcceY = accelerationY;
         prevAcceZ = accelerationZ;
 
-        
-        // double alpha = 0.95; //must tune at some point (lower is more resistant to change)
-        // filteredVelocityX = alpha * (filteredVelocityX) + (1-alpha) * pigeon.getAngularVelocityXDevice().getValue();
-        // filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * pigeon.getAngularVelocityYDevice().getValue();
-        // filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * pigeon.getAngularVelocityZDevice().getValue();
-        
-        double velocityMagnitude = Math.sqrt(Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2) + Math.pow(filteredVelocityX, 2));
 
         if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
-            velocityMagnitude = 0;
             initKalman();
         } else { 
+            ukfPredict(passedTime, accelerationMagnitude, prevaccelerationMagnitude, angularMagnitude, desiredVelocity);
+            ukfUpdate();
+         double estimatedVelocity = UKF.getS(1, 0);
+
             int k=0;
             for (int i = 0; i < ModuleCount; i++) {
                 TalonFX module = Modules[i].getDriveMotor();
                 double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
                 double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius()
-                        * 0.0254)) / velocityMagnitude;
+                        * 0.0254)) / estimatedVelocity;
 
                 if(wheelRPM == 0) { //minimize drift by recalibrating if we are at rest
                     k++;
@@ -256,8 +261,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                     outputs[i] = slipRatio;
                 }
             }
-
-            double desiredAcceleration = (desiredVelocity - velocityMagnitude) / passedTime;
+            double desiredAcceleration = (desiredVelocity - estimatedVelocity) / passedTime;
 
             double maxAcceleration = (9.80665 * frictionCoefficant) * passedTime;
              /* TODO
@@ -267,7 +271,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
              the max acceleration for traction in THIS time step */
 
             if (desiredAcceleration > maxAcceleration) {
-                while (desiredVelocity > (9.80665 * frictionCoefficant) * Math.pow(passedTime, 2) + velocityMagnitude) {//algebruh - if you wanna go faster than is possible in the time
+                while (desiredVelocity > (9.80665 * frictionCoefficant) * Math.pow(passedTime, 2) + estimatedVelocity) {//algebruh - if you wanna go faster than is possible in the time
                 driverLX =- 0.02;
                 driverLY =- 0.02;
                 desiredVelocity = Math.hypot(driverLX,driverLY);
@@ -289,16 +293,40 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     private void initKalman() {
-        filter = new UnscentedKalmanFilter<>(Nat.N3(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, 0.02);
 
+        // creating the functions
+        BiFunction<Matrix<N3, N1>, Matrix<N1, N1>, Matrix<N3, N1>> f = (state, input) -> {
+            // Extract current states
+            double accele = state.get(0, 0);
+            double angular = state.get(1, 0);
+            double velocity = state.get(2, 0);
+            
+            // predicting
+            double nextX = 0.5 * (accele + prevaccelerationMagnitude) * (passedTime - (lastTimeReset/1000));;
+            double nextV = angular * 0.05;
+            double nextA = input.get(0, 0);
+            
+            // Construct the predicted next state
+            Matrix<N3, N1> nextState = MatBuilder.fill(Nat.N3(),Nat.N1(),nextX, nextV, nextA);
+            
+            return nextState;
+        };
+
+        //TODO propigate sigma points :(
+        //TODO computate mean
+        //TODO cross variance with state vs mesurment prediction
+        //TODO computate gain
+        UKF = new UnscentedKalmanFilter<>(Nat.N3(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, 0.02);
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
-        //TODO make a system model somehow
-        //TODO figure out how to do linearization of the system model 
+        //TODO f
+        //TODO h
         // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs, BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
         // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h, Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs, double nominalDtSeconds)
         // 😭😭😭😭😭
         // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/estimator/UnscentedKalmanFilter.html
     } 
+
+    
 
     public void slipCorrection(Double[] inputs) {
         for (int i = 0; i < ModuleCount; i++) {
