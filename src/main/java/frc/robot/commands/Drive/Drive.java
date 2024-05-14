@@ -63,6 +63,7 @@ public class Drive extends Command {
                         .withRotationalRate(driverRX)); 
                         
         s_Swerve.slipCorrection(adjustedInputs);
+        
         s_Swerve.resetTime();
     }
     

@@ -42,6 +42,7 @@ import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 
@@ -229,17 +230,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
          double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
          prevaccelerationMagnitude = Math.sqrt(Math.pow(prevAcceX, 2) + Math.pow(prevAcceY, 2) + Math.pow(prevAcceZ, 2));
          double angularMagnitude = Math.sqrt(Math.pow(pigeon.getAngularVelocityXDevice().getValue(), 2) + Math.pow(pigeon.getAngularVelocityYDevice().getValue(), 2) + Math.pow(pigeon.getAngularVelocityZDevice().getValue(), 2));
-        
-         prevAcceX = accelerationX;
-        prevAcceY = accelerationY;
-        prevAcceZ = accelerationZ;
 
 
         if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
             initKalman();
         } else { 
-            ukfPredict(passedTime, accelerationMagnitude, prevaccelerationMagnitude, angularMagnitude, desiredVelocity);
-            ukfUpdate();
+            Matrix<N4, N1> inputMatrix = {accelerationMagnitude, prevaccelerationMagnitude, angularMagnitude, desiredVelocity};
+            UKF.predict(inputMatrix, passedTime);
          double estimatedVelocity = UKF.getS(1, 0);
 
             int k=0;
@@ -261,10 +258,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                     outputs[i] = slipRatio;
                 }
             }
+
             double desiredAcceleration = (desiredVelocity - estimatedVelocity) / passedTime;
 
             double maxAcceleration = (9.80665 * frictionCoefficant) * passedTime;
-             /* TODO
+             /* 
              maximum acceleration we can have is equal to g*CoF, where g is the
              acceleration due to gravity and CoF is the coefficient of friction between
              the floor and the wheels (rubber and carpet i assumed), last number is for
@@ -279,6 +277,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             } 
         }
 
+        UKF.correct(null, null, null); //TODO correct based on new inputs
+
         outputs[4] = driverLX;
         outputs[5] = driverLY;
 
@@ -287,9 +287,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     } // runs periodically as a default command
 
     private void recalibrateVelocity() {
-        filteredVelocityX = 0;
-        filteredVelocityY = 0; 
-        filteredVelocityZ = 0;
+        UKF.reset();
     }
 
     private void initKalman() {
@@ -302,8 +300,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             double velocity = state.get(2, 0);
             
             // predicting
-            double nextX = 0.5 * (accele + prevaccelerationMagnitude) * (passedTime - (lastTimeReset/1000));;
-            double nextV = angular * 0.05;
+            double nextX = 0.5 * (accele + prevaccelerationMagnitude) * (passedTime - (lastTimeReset/1000));
+            double nextV = angular;
             double nextA = input.get(0, 0);
             
             // Construct the predicted next state
@@ -312,11 +310,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             return nextState;
         };
 
+
+        BiFunction<Matrix<N3, N1>, Matrix<N1, N1>, Matrix<N3, N1>> h = (state, input) -> { }
+
         //TODO propigate sigma points :(
         //TODO computate mean
         //TODO cross variance with state vs mesurment prediction
         //TODO computate gain
-        UKF = new UnscentedKalmanFilter<>(Nat.N3(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, 0.02);
+        UKF = new UnscentedKalmanFilter<>(Nat.N3(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, 0.03);
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
         //TODO f
         //TODO h
