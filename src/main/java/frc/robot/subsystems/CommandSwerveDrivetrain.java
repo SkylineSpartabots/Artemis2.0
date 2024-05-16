@@ -66,13 +66,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private double slipFactor = 5; // how agressive slip correction is, higher = less agressive
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
     private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
-    double filteredVelocityX  = 0;
-    double filteredVelocityY  = 0;
-    double filteredVelocityZ  = 0;
     double prevAcceX = 0;
     double prevAcceY = 0;
     double prevAcceZ = 0;
     double prevaccelerationMagnitude = 0;
+    double dt = 0.03;
     private UnscentedKalmanFilter<N3,N1,N1> UKF; //3 states, 1 input, 1 output
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
@@ -202,11 +200,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public Double[] tractionControl(double driverLX, double driverLY) {
+
+        initKalman(); // i want this only ran once
         
         Double[] outputs = new Double[6]; // reset to null every call
 
         double desiredVelocity = Math.hypot(driverLX, driverLY);
-        double passedTime = (System.currentTimeMillis() - lastTimeReset) / 1000;
 
         double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
         double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
@@ -214,29 +213,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
         double latency = pigeon.getAccelerationX().getTimestamp().getLatency(); 
-        Boolean extrapolate = passedTime > 55 || passedTime < 45 ? true : false; 
 
-        if(extrapolate) {
             latency = 1.5 - (latency/100);
             accelerationX = interpolator.interpolate(prevAcceX, accelerationX, latency);
             accelerationY = interpolator.interpolate(prevAcceY, accelerationY, latency);
             accelerationZ = interpolator.interpolate(prevAcceZ, accelerationX, latency); //TODO align all timestamps at 50ms since last run, also lets hope this has exterpolation built in 🙏🙏
-        }
 
-        // filteredVelocityX = alpha * (acceleration) + (1-alpha) * angular);
-        // filteredVelocityY = alpha * (filteredVelocityY) + (1-alpha) * ;
-        // filteredVelocityZ = alpha * (filteredVelocityZ) + (1-alpha) * ;
-        
          double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
          prevaccelerationMagnitude = Math.sqrt(Math.pow(prevAcceX, 2) + Math.pow(prevAcceY, 2) + Math.pow(prevAcceZ, 2));
          double angularMagnitude = Math.sqrt(Math.pow(pigeon.getAngularVelocityXDevice().getValue(), 2) + Math.pow(pigeon.getAngularVelocityYDevice().getValue(), 2) + Math.pow(pigeon.getAngularVelocityZDevice().getValue(), 2));
 
 
-        if (passedTime > 365 * 24 * 60 * 60) { // checking if first run
-            initKalman();
-        } else { 
-            Matrix<N4, N1> inputMatrix = {accelerationMagnitude, prevaccelerationMagnitude, angularMagnitude, desiredVelocity};
-            UKF.predict(inputMatrix, passedTime);
+
+        Matrix<N4, N1> inputMatrix = {accelerationMagnitude, prevaccelerationMagnitude, angularMagnitude, desiredVelocity};
+        UKF.predict(inputMatrix, dt);
+
          double estimatedVelocity = UKF.getS(1, 0);
 
             int k=0;
@@ -259,9 +250,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 }
             }
 
-            double desiredAcceleration = (desiredVelocity - estimatedVelocity) / passedTime;
+            double desiredAcceleration = (desiredVelocity - estimatedVelocity) / dt;
 
-            double maxAcceleration = (9.80665 * frictionCoefficant) * passedTime;
+            double maxAcceleration = (9.80665 * frictionCoefficant) * dt;
              /* 
              maximum acceleration we can have is equal to g*CoF, where g is the
              acceleration due to gravity and CoF is the coefficient of friction between
@@ -269,15 +260,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
              the max acceleration for traction in THIS time step */
 
             if (desiredAcceleration > maxAcceleration) {
-                while (desiredVelocity > (9.80665 * frictionCoefficant) * Math.pow(passedTime, 2) + estimatedVelocity) {//algebruh - if you wanna go faster than is possible in the time
+                while (desiredVelocity > (9.80665 * frictionCoefficant) * Math.pow(dt, 2) + estimatedVelocity) {//algebruh - if you wanna go faster than is possible in the time
                 driverLX =- 0.02;
                 driverLY =- 0.02;
                 desiredVelocity = Math.hypot(driverLX,driverLY);
                 } //smallest values of drive inputs that dont result in going over calculated max acceleration
             } 
-        }
 
-        UKF.correct(null, null, null); //TODO correct based on new inputs
+        // UKF.correct(null, null, null); //TODO correct based on new inputs
 
         outputs[4] = driverLX;
         outputs[5] = driverLY;
@@ -285,6 +275,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return outputs;
 
     } // runs periodically as a default command
+
 
     private void recalibrateVelocity() {
         UKF.reset();
@@ -298,36 +289,39 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             double accele = state.get(0, 0);
             double angular = state.get(1, 0);
             double velocity = state.get(2, 0);
+
+            double desiredVelocity = input.get(0, 0);
             
             // predicting
-            double nextX = 0.5 * (accele + prevaccelerationMagnitude) * (passedTime - (lastTimeReset/1000));
+            double nextX = 0.5 * (accele + prevaccelerationMagnitude) * dt;
             double nextV = angular;
-            double nextA = input.get(0, 0);
+            double nextA = ;
             
             // Construct the predicted next state
             Matrix<N3, N1> nextState = MatBuilder.fill(Nat.N3(),Nat.N1(),nextX, nextV, nextA);
             
             return nextState;
         };
+        //f function needs to predict the next states based on the previous and the input alone
 
 
-        BiFunction<Matrix<N3, N1>, Matrix<N1, N1>, Matrix<N3, N1>> h = (state, input) -> { }
+        BiFunction<Matrix<N3, N1>, Matrix<N1, N1>, Matrix<N3, N1>> h = (state, input) -> {
 
-        //TODO propigate sigma points :(
-        //TODO computate mean
-        //TODO cross variance with state vs mesurment prediction
-        //TODO computate gain
+         }
+         // h function needs to predict what the measurements would be based on f's predicted state 
+
+         //the filter will assume noise
+
+        //TODO propigate sigma points 
+        //TODO cross variance with state vs mesurment prediction (correct)
         UKF = new UnscentedKalmanFilter<>(Nat.N3(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, 0.03);
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
         //TODO f
         //TODO h
         // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs, BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
         // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h, Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs, double nominalDtSeconds)
-        // 😭😭😭😭😭
         // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/estimator/UnscentedKalmanFilter.html
     } 
-
-    
 
     public void slipCorrection(Double[] inputs) {
         for (int i = 0; i < ModuleCount; i++) {
