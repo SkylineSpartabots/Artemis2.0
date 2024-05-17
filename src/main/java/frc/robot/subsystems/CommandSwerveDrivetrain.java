@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.sql.Driver;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.crypto.Mac;
@@ -41,6 +42,7 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.math.MatBuilder;
@@ -71,7 +73,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     double prevAcceZ = 0;
     double prevaccelerationMagnitude = 0;
     double dt = 0.03;
-    private UnscentedKalmanFilter<N3,N1,N1> UKF; //3 states, 1 input, 1 output
+    private UnscentedKalmanFilter<N2,N1,N1> UKF; //3 states, 1 input, 1 output
 
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
@@ -220,12 +222,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             accelerationZ = interpolator.interpolate(prevAcceZ, accelerationX, latency); //TODO align all timestamps at 50ms since last run, also lets hope this has exterpolation built in 🙏🙏
 
          double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
-         prevaccelerationMagnitude = Math.sqrt(Math.pow(prevAcceX, 2) + Math.pow(prevAcceY, 2) + Math.pow(prevAcceZ, 2));
          double angularMagnitude = Math.sqrt(Math.pow(pigeon.getAngularVelocityXDevice().getValue(), 2) + Math.pow(pigeon.getAngularVelocityYDevice().getValue(), 2) + Math.pow(pigeon.getAngularVelocityZDevice().getValue(), 2));
 
-
-
-        Matrix<N4, N1> inputMatrix = {accelerationMagnitude, prevaccelerationMagnitude, angularMagnitude, desiredVelocity};
+        Matrix<N2, N1> inputMatrix = MatBuilder.fill(Nat.N2(),Nat.N1(),accelerationMagnitude, desiredVelocity);
         UKF.predict(inputMatrix, dt);
 
          double estimatedVelocity = UKF.getS(1, 0);
@@ -284,40 +283,41 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private void initKalman() {
 
         // creating the functions
-        BiFunction<Matrix<N3, N1>, Matrix<N1, N1>, Matrix<N3, N1>> f = (state, input) -> {
+        BiFunction<Matrix<N2, N1>, Matrix<N2, N1>, Matrix<N2, N1>> f = (state, input) -> {
             // Extract current states
             double accele = state.get(0, 0);
-            double angular = state.get(1, 0);
-            double velocity = state.get(2, 0);
+            double velocity = state.get(1, 0);
 
             double desiredVelocity = input.get(0, 0);
             
+            // 0.5 * (accele + prevaccelerationMagnitude) * dt
+
             // predicting
-            double nextX = 0.5 * (accele + prevaccelerationMagnitude) * dt;
-            double nextV = angular;
-            double nextA = ;
+            double nextX = ; //predict next acceleration based on input
+            double nextA = ; //predict next velocity based on input
             
             // Construct the predicted next state
-            Matrix<N3, N1> nextState = MatBuilder.fill(Nat.N3(),Nat.N1(),nextX, nextV, nextA);
+            Matrix<N2, N1> nextState = MatBuilder.fill(Nat.N2(),Nat.N1(),nextX, nextA);
             
             return nextState;
         };
         //f function needs to predict the next states based on the previous and the input alone
 
+        Function<Matrix<N1, N1>, Matrix<N1, N1>> h = (state) -> {
+            return MatBuilder.fill(Nat.N1(),Nat.N1(),state.get(0,0));
+         };
+         // h function needs to predict what the measurements would be present based on f's predicted state 
 
-        BiFunction<Matrix<N3, N1>, Matrix<N1, N1>, Matrix<N3, N1>> h = (state, input) -> {
-
-         }
-         // h function needs to predict what the measurements would be based on f's predicted state 
-
-         //the filter will assume noise
+         //Noise covariance for state and measurment funcitons
+         Matrix<N3,N1> stateStdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(), 0.1,0.1,0.1);
+         Matrix<N3,N1> measurementStdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(), 0.1,0.1,0.1);
 
         //TODO propigate sigma points 
         //TODO cross variance with state vs mesurment prediction (correct)
-        UKF = new UnscentedKalmanFilter<>(Nat.N3(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, 0.03);
+        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​f,
+         BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,h,stateStdDevs,measurementStdDevs, dt);
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
         //TODO f
-        //TODO h
         // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs, BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
         // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h, Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs, double nominalDtSeconds)
         // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/estimator/UnscentedKalmanFilter.html
