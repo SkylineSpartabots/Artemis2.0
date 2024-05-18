@@ -283,7 +283,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private void initKalman() {
 
         // creating the functions
-        BiFunction<Matrix<N2, N1>, Matrix<N2, N1>, Matrix<N2, N1>> f = (state, input) -> {
+        BiFunction<Matrix<N2, N1>, Matrix<N1, N1>, Matrix<N2, N1>> f = (state, input) -> {
             // Extract current states
             double accele = state.get(0, 0);
             double velocity = state.get(1, 0);
@@ -303,27 +303,19 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         };
         //f function needs to predict the next states based on the previous and the input alone
 
-        BiFunction<Matrix<N2, N1>, Matrix<N2, N1>, Matrix<N1, N1>> h = (state, fstate) -> {
-            return MatBuilder.fill(Nat.N1(),Nat.N1(),state.get(0,0));
+        BiFunction<Matrix<N2, N1>, Matrix<N1, N1>,Matrix<N1, N1>> h = (stateEstimate, state) -> {
+            return MatBuilder.fill(Nat.N1(),Nat.N1(),stateEstimate.get(1,0));
         };
 
          // h function needs to predict what the measurements would be present based on f's predicted state 
 
          //Noise covariance for state and measurment funcitons
-         Vector stateStdDevs = VecBuilder.fill(0.1,0.1,0.1);
-         Vector measurementStdDevs = VecBuilder.fill(0.1,0.1);
+         Matrix<N2,N1> stateStdDevs = VecBuilder.fill(0.1,0.1);
+         Matrix<N1,N1> measurementStdDevs = VecBuilder.fill(0.1);
 
         //TODO propigate sigma points   
         //TODO cross variance with state vs mesurment prediction (correct)
-         UnscentedKalmanFilter<N2,N1,N1> UKF = new UnscentedKalmanFilter<>(
-            Nat.N2(),
-            Nat.N1(),
-            f,
-            h,
-            stateStdDevs,
-            measurementStdDevs,
-            dt
-            );
+         UnscentedKalmanFilter<N2,N1,N1> UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
 
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
         //TODO f
