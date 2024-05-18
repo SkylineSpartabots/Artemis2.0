@@ -76,6 +76,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     double prevaccelerationMagnitude = 0;
     double dt = 0.03;
 
+    UnscentedKalmanFilter<N2,N1,N1> UKF;
+
     private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
@@ -222,10 +224,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             accelerationY = interpolator.interpolate(prevAcceY, accelerationY, latency);
             accelerationZ = interpolator.interpolate(prevAcceZ, accelerationX, latency); //TODO align all timestamps at 50ms since last run, also lets hope this has exterpolation built in 🙏🙏
 
-         double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
+        double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
 
-        Matrix<N2, N1> inputMatrix = MatBuilder.fill(Nat.N2(),Nat.N1(),accelerationMagnitude, desiredVelocity);
-        UKF.predict(inputMatrix, dt);
+        UKF.predict(MatBuilder.fill(Nat.N1(),Nat.N1(), desiredVelocity), dt);
 
          double estimatedVelocity = UKF.getS(1, 0);
 
@@ -315,7 +316,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         //TODO propigate sigma points   
         //TODO cross variance with state vs mesurment prediction (correct)
-         UnscentedKalmanFilter<N2,N1,N1> UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
+        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
 
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
         //TODO f
