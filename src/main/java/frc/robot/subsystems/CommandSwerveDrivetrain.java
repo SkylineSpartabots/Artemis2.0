@@ -222,13 +222,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             latency = 1.5 - (latency/100);
             accelerationX = interpolator.interpolate(prevAcceX, accelerationX, latency);
             accelerationY = interpolator.interpolate(prevAcceY, accelerationY, latency);
-            accelerationZ = interpolator.interpolate(prevAcceZ, accelerationX, latency); //TODO align all timestamps at 50ms since last run, also lets hope this has exterpolation built in 🙏🙏
+            accelerationZ = interpolator.interpolate(prevAcceZ, accelerationX, latency); //TODO lets hope this has exterpolation built in 🙏🙏
 
         double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
 
+        //predict acceleration based on input
         UKF.predict(MatBuilder.fill(Nat.N1(),Nat.N1(), desiredVelocity), dt);
 
-         double estimatedVelocity = UKF.getS(1, 0);
+        //correct our acceleration estimate
+        UKF.correct(MatBuilder.fill(Nat.N1(),Nat.N1(),desiredVelocity), MatBuilder.fill(Nat.N1(),Nat.N1(),accelerationMagnitude));
+        
+        //get accurate velocity
+        double estimatedVelocity = UKF.getXhat(1);
 
             int k=0;
             for (int i = 0; i < ModuleCount; i++) {
@@ -239,8 +244,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
                 if(wheelRPM == 0) { //minimize drift by recalibrating if we are at rest
                     k++;
-                    if(k==3) { //if 3 wheels say we are stopped 
-                        recalibrateVelocity();
+                    if(k==3) { //if 3 wheels say we are at rest, reset acceleration and velocity to 0
+                        UKF.setXhat(MatBuilder.fill(Nat.N2(),Nat.N1(),0,0)); 
                         break;
                     }
                 }
@@ -260,14 +265,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
              the max acceleration for traction in THIS time step */
 
             if (desiredAcceleration > maxAcceleration) {
-                while (desiredVelocity > (9.80665 * frictionCoefficant) * Math.pow(dt, 2) + estimatedVelocity) {//algebruh - if you wanna go faster than is possible in the time
+                while (desiredVelocity > (9.80665 * frictionCoefficant) * Math.pow(dt, 2) + estimatedVelocity) {
                 driverLX =- 0.02;
                 driverLY =- 0.02;
                 desiredVelocity = Math.hypot(driverLX,driverLY);
                 } //smallest values of drive inputs that dont result in going over calculated max acceleration
             } 
 
-        // UKF.correct(null, null, null); //TODO correct based on new inputs
+        //TODO fix kalman estimates if input has changed
 
         outputs[4] = driverLX;
         outputs[5] = driverLY;
@@ -278,7 +283,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
 
     private void recalibrateVelocity() {
-        UKF.reset();
+        ;
     }
 
     private void initKalman() {
@@ -291,35 +296,27 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             double desiredVelocity = input.get(0, 0);
             
-            // 0.5 * (accele + prevaccelerationMagnitude) * dt
+            accele += 0; //TODO I NEED SIMULATION TO MAP INPUTS TO CHANGES IN ACCELERATION
 
-            // predicting
             double nextX = accele; //predict next acceleration based on input
-            double nextA = velocity; //predict next velocity based on input
+            double nextA = velocity + (accele * dt); //predict next velocity based on input
             
             // Construct the predicted next state
-            Matrix<N2, N1> nextState = MatBuilder.fill(Nat.N2(),Nat.N1(),nextX, nextA);
-            
-            return nextState;
+            return MatBuilder.fill(Nat.N2(),Nat.N1(),nextX, nextA);
         };
         //f function needs to predict the next states based on the previous and the input alone
 
         BiFunction<Matrix<N2, N1>, Matrix<N1, N1>,Matrix<N1, N1>> h = (stateEstimate, state) -> {
-            return MatBuilder.fill(Nat.N1(),Nat.N1(),stateEstimate.get(1,0));
+            return MatBuilder.fill(Nat.N1(),Nat.N1(),stateEstimate.get(0,0));
         };
-
          // h function needs to predict what the measurements would be present based on f's predicted state 
 
-         //Noise covariance for state and measurment funcitons
+         //Noise covariance for state and measurment funcitons (not tuned)
          Matrix<N2,N1> stateStdDevs = VecBuilder.fill(0.1,0.1);
          Matrix<N1,N1> measurementStdDevs = VecBuilder.fill(0.1);
 
-        //TODO propigate sigma points   
-        //TODO cross variance with state vs mesurment prediction (correct)
         UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
-
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
-        //TODO f
         // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs, BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
         // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h, Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs, double nominalDtSeconds)
         // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/estimator/UnscentedKalmanFilter.html
