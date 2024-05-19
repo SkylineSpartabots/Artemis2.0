@@ -22,7 +22,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-public class Drive extends Command {
+public class Drive extends Command implements Runnable{
     private final CommandSwerveDrivetrain s_Swerve;
     private double driverLY;
     private double driverLX;
@@ -45,6 +45,12 @@ public class Drive extends Command {
     }
 
     @Override
+    public void run() {
+        // TODO do i need to be putting things in here???? or cause i schedule it will it just run execute as a thread
+    }
+    @Override
+    // Drive.java needs to be its own thread but to do that we need joystick values to be processed in diff thread
+    // All the traction stuff happens here - calls into commandSwerveDrivetrain
     public void initialize() {
         driverLX = s_Swerve.scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = s_Swerve.scaledDeadBand(driverLY) * Constants.MaxSpeed;

@@ -6,6 +6,7 @@ package frc.robot;
 
 
 // import frc.robot.commands.SetLightz;
+import frc.robot.commands.Drive.*;
 import frc.robot.subsystems.*;
 
 import java.time.Instant;
@@ -31,9 +32,6 @@ import frc.robot.subsystems.Pivot.PivotState;
 import pabeles.concurrency.ConcurrencyOps.NewInstance;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
-import frc.robot.commands.Drive.PIDAlign;
-import frc.robot.commands.Drive.SlowDrive;
-import frc.robot.commands.Drive.Drive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -95,6 +93,21 @@ public class RobotContainer {
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
 
+    // Trying to thread Drive.java - need safe access to these i think
+    // Maybe not cause people only ever read them and the data is typically passed on and never gotten more than once for any task right?
+    //TODO see if these are needed
+    public synchronized double getDriverLeftY() {
+        return driver.getLeftY();
+    }
+
+    public synchronized double getDriverLeftX() {
+        return driver.getLeftX();
+    }
+
+    public synchronized double getDriverRightX() {
+        return driver.getRightX();
+    }
+
     public CommandXboxController getDriverController(){
         return driver;
     }
@@ -136,8 +149,7 @@ public class RobotContainer {
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                    new Drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX())
-                );
+                new DriveThread(this));
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
