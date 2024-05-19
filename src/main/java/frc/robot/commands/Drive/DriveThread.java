@@ -16,7 +16,7 @@ public class DriveThread extends CommandBase {
     public void execute(){
         new Thread(() -> {
             Drive driveCommand = new Drive(container.getDriverLeftY(), container.getDriverLeftX(), container.getDriverRightX());
-            driveCommand.schedule();
+            driveCommand.schedule(); // why am i scheduling this? - scheduling it should be scheduling the other thread to run the execute right, i think. this is the other thought process of my brain
         }).start();
     }
     @Override

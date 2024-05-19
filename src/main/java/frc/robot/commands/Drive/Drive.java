@@ -46,7 +46,7 @@ public class Drive extends Command implements Runnable{
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
+        // TODO do i need to be putting things in here???? or cause i schedule it will it just run execute as a thread
     }
     @Override
     // Drive.java needs to be its own thread but to do that we need joystick values to be processed in diff thread
