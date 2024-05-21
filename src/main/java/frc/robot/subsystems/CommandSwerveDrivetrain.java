@@ -313,7 +313,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
          //Noise covariance for state and measurment funcitons (not tuned)
          Matrix<N2,N1> stateStdDevs = VecBuilder.fill(0.1,0.1);
-         Matrix<N1,N1> measurementStdDevs = VecBuilder.fill(0.1);
+         Matrix<N1,N1> measurementStdDevs = VecBuilder.fill(3.17*Math.pow(10, -7)); //got from document and gbt
 
         UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
