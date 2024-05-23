@@ -70,10 +70,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private double slipFactor = 5; // how agressive slip correction is, higher = less agressive
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
     private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
-    double prevAcceX = 0;
-    double prevAcceY = 0;
-    double prevAcceZ = 0;
-    double prevaccelerationMagnitude = 0;
+    double prevAccelerationMagnitude = 0;
     double dt = 0.03;
 
     UnscentedKalmanFilter<N2,N1,N1> UKF;
@@ -217,14 +214,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue(); 
         //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
+        double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
+        
         double latency = pigeon.getAccelerationX().getTimestamp().getLatency(); 
 
-            latency = 1.5 - (latency/100);
-            accelerationX = interpolator.interpolate(prevAcceX, accelerationX, latency);
-            accelerationY = interpolator.interpolate(prevAcceY, accelerationY, latency);
-            accelerationZ = interpolator.interpolate(prevAcceZ, accelerationX, latency); //TODO lets hope this has exterpolation built in 🙏🙏
+        accelerationMagnitude = extrapolate(prevAccelerationMagnitude, accelerationX, latency, dt);
+        prevAccelerationMagnitude = accelerationMagnitude;
 
-        double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
+        accelerationMagnitude = accelerationMagnitude * 9.80665; //g to m/s
 
         //predict acceleration based on input
         UKF.predict(MatBuilder.fill(Nat.N1(),Nat.N1(), desiredVelocity), dt);
@@ -281,11 +278,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     } // runs periodically as a default command
 
-
-    private void recalibrateVelocity() {
-        ;
-    }
-
     private void initKalman() {
 
         // creating the functions
@@ -297,9 +289,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             double desiredVelocity = input.get(0, 0);
             
             accele += 0; //TODO I NEED SIMULATION TO MAP INPUTS TO CHANGES IN ACCELERATION
-
-            double nextX = accele; //predict next acceleration based on input
-            double nextA = velocity + (accele * dt); //predict next velocity based on input
+            
+            double nextX = ; //predict next acceleration based on input
+            double nextA = ; //predict next velocity based on input
             
             // Construct the predicted next state
             return MatBuilder.fill(Nat.N2(),Nat.N1(),nextX, nextA);
@@ -329,6 +321,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
             } // divides by slip factor, more agressive if far above slip threshold
         }
+    }
+
+    public double extrapolate(double prevX, double X, double latency, double dt) {
+        return ((X-prevX) / latency) * dt + X;
     }
 
     public double scaledDeadBand(double input) {
