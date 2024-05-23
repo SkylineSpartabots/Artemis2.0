@@ -203,7 +203,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public Double[] tractionControl(double driverLX, double driverLY) {
 
-        initKalman(); // i want this only ran once
+                initKalman(); // i want this only ran once
         
         Double[] outputs = new Double[6]; // reset to null every call
 
@@ -222,9 +222,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         prevAccelerationMagnitude = accelerationMagnitude;
 
         accelerationMagnitude = accelerationMagnitude * 9.80665; //g to m/s
-
-        //predict acceleration based on input
-        UKF.predict(MatBuilder.fill(Nat.N1(),Nat.N1(), desiredVelocity), dt);
 
         //correct our acceleration estimate
         UKF.correct(MatBuilder.fill(Nat.N1(),Nat.N1(),desiredVelocity), MatBuilder.fill(Nat.N1(),Nat.N1(),accelerationMagnitude));
@@ -267,9 +264,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 driverLY =- 0.02;
                 desiredVelocity = Math.hypot(driverLX,driverLY);
                 } //smallest values of drive inputs that dont result in going over calculated max acceleration
-            } 
+            }
 
-        //TODO fix kalman estimates if input has changed
+        //predict acceleration based on input
+        UKF.predict(MatBuilder.fill(Nat.N1(),Nat.N1(), desiredVelocity), dt);
 
         outputs[4] = driverLX;
         outputs[5] = driverLY;
