@@ -1,22 +1,22 @@
 package frc.robot.commands.Drive;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
-public class DriveThread extends CommandBase {
+public class DriveThread extends Command {
 
     private final RobotContainer container;
-
 
     public DriveThread(RobotContainer container) {
         this.container = container;
     }
 
+    // When defaultCommand calls this command a new Thread is created which will make a command of Drive.java and then schedule that command to run in the Thread. Then it starts the thread
     @Override
     public void execute(){
-        new Thread(() -> {
+        new Thread(() -> { // Creates a thread which makes driveCommand and then schedules it - should run all the stuff inside Drive.java as a normal command no need for run method i dont think
             Drive driveCommand = new Drive(container.getDriverLeftY(), container.getDriverLeftX(), container.getDriverRightX());
-            driveCommand.schedule(); // why am i scheduling this? - scheduling it should be scheduling the other thread to run the execute right, i think. this is the other thought process of my brain
+            driveCommand.schedule();
         }).start();
     }
     @Override
