@@ -244,17 +244,19 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         double desiredAcceleration = (desiredVelocity - estimatedVelocity) / dt;
 
-        double maxAcceleration = (9.80665 * frictionCoefficant) * dt;
+        double maxAcceleration = (9.80665 * frictionCoefficant);
              /*
              maximum acceleration we can have is equal to g*CoF, where g is the
              acceleration due to gravity and CoF is the coefficient of friction between
              the floor and the wheels (rubber and carpet i assumed), last number is for
              the max acceleration for traction in THIS time step */
 
+        double alg = (9.80665 * frictionCoefficant) * dt + estimatedVelocity;
+
         if (desiredAcceleration > maxAcceleration) {
-            while (desiredVelocity > (9.80665 * frictionCoefficant) * Math.pow(dt, 2) + estimatedVelocity) {
-                driverLX = -0.02;
-                driverLY = -0.02;
+            while (desiredVelocity > alg) {
+                driverLX = (desiredVelocity - alg)/3;
+                driverLY = (desiredVelocity - alg)/3;
                 desiredVelocity = Math.hypot(driverLX, driverLY);
             } //smallest values of drive inputs that dont result in going over calculated max acceleration
         }
@@ -294,8 +296,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         };
         // h function needs to predict what the measurements would be present based on f's predicted state
 
+        
         //Noise covariance for state and measurment funcitons (not tuned)
-        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1);
+        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0, 0); //obtained from noise when sensor is at rest
         Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(3.17 * Math.pow(10, -7)); //got from document and gbt
 
         UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
