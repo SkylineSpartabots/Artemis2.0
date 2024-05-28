@@ -6,6 +6,7 @@ package frc.robot;
 
 
 // import frc.robot.commands.SetLightz;
+
 import frc.robot.commands.Drive.*;
 import frc.robot.subsystems.*;
 
@@ -42,18 +43,12 @@ import frc.robot.commands.Drive.Drive;
 
 public class RobotContainer {
 
+    public static final double translationDeadband = 0.1;
+    public static final double rotDeadband = 0.1;
     private static RobotContainer container;
-
-    public static RobotContainer getInstance(){//so i can grab controller values lol
-        if(container == null){
-            container = new RobotContainer();
-        }
-        return container;
-    }
     /* Setting up bindings for necessary control of the swerve drive platform */
     public final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
     private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
-
     private final Amp s_Amp = Amp.getInstance();
     private final Climb s_Climb = Climb.getInstance();
     private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
@@ -61,22 +56,15 @@ public class RobotContainer {
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
-    private final Vision s_Vision = Vision.getInstance();
     // private final Music s_Orchestra = Music.getInstance();
-
+    private final Vision s_Vision = Vision.getInstance();
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-
-    public static final double translationDeadband = 0.1;
-    public static final double rotDeadband = 0.1;
-
-    
     // driving in open loop
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
-
     /* Driver Buttons */
     private final Trigger driverBack = driver.back();
     private final Trigger driverStart = driver.start();
@@ -92,6 +80,16 @@ public class RobotContainer {
     private final Trigger driverDpadDown = driver.povDown();
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
+    public RobotContainer() {
+        configureBindings();
+    }
+
+    public static RobotContainer getInstance() {//so i can grab controller values lol
+        if (container == null) {
+            container = new RobotContainer();
+        }
+        return container;
+    }
 
     // Trying to thread Drive.java - need safe access to these i think
     // Maybe not cause people only ever read them and the data is typically passed on and never gotten more than once for any task right?
@@ -108,7 +106,7 @@ public class RobotContainer {
         return driver.getRightX();
     }
 
-    public CommandXboxController getDriverController(){
+    public CommandXboxController getDriverController() {
         return driver;
     }
 
@@ -124,7 +122,7 @@ public class RobotContainer {
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
-            
+
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
@@ -141,10 +139,10 @@ public class RobotContainer {
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
         driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
-        // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
+        // driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
-        
+
         /*
          * Drivetrain bindings
          */
@@ -153,7 +151,7 @@ public class RobotContainer {
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
-        
+
 
         /*
          * Operator bindings
@@ -184,9 +182,5 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
 
-    }
-
-    public RobotContainer() {
-        configureBindings();
     }
 }
