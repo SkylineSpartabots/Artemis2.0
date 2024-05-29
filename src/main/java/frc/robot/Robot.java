@@ -25,6 +25,7 @@ import frc.robot.commands.Autos.AutoPath;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.subsystems.Amp;
 import frc.robot.subsystems.Climb;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pivot;
@@ -42,6 +43,8 @@ public class Robot extends LoggedRobot {
     SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
     private Command m_autonomousCommand;
     private RobotContainer m_robotContainer;
+    private CommandSwerveDrivetrain s_Swerve;
+
 
     public Robot() {
         super();
@@ -90,8 +93,9 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
         SmartDashboard.putData("Auto choices", autoChooser);
         m_robotContainer = RobotContainer.getInstance();
+        s_Swerve = CommandSwerveDrivetrain.getInstance();
+        s_Swerve.initKalman();
         //PortForwarder.add(5800, "photonvision.local", 5800);
-
     }
 
     @Override

@@ -61,22 +61,35 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     static Interpolator<Double> interpolator;
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
-    double prevAccelerationMagnitude = 0;
-    double dt = 0.03;
+
     UnscentedKalmanFilter<N2, N1, N1> UKF;
-    Pigeon2 pigeon = getPigeon2(); //using the already contructed pigeon
     Vision m_Camera;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
     // traction control variables
-    private double lastTimeReset = 0;
+    Pigeon2 pigeon = getPigeon2(); //using the already contructed pigeon
+
+    double prevAccelerationMagnitude = 0;
+    double dt = 0.03;
+    
     private boolean TractionControlON = false; // for toggling traction control
+    private double lastTimeReset = 0;
+
     private double slipFactor = 5; // how agressive slip correction is, higher = less agressive
     private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
+
     private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
-    private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
-    private Field2d m_field = new Field2d();
+    
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
+    private Field2d m_field = new Field2d();
+
+    // deadband
+    private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
+
+    //UKF variables
+    PIDController pidControllerAcceleration = new PIDController(0.1, 0.001, 0);
+    PIDController pidControllerVelocity = new PIDController(0.1, 0.001, 0);
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
                                    SwerveModuleConstants... modules) {
@@ -197,42 +210,34 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public Double[] tractionControl(double driverLX, double driverLY) {
 
-        initKalman(); // i want this only ran once
-
         Double[] outputs = new Double[6]; // reset to null every call
 
         double desiredVelocity = Math.hypot(driverLX, driverLY);
 
-        double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
-        double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
-        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue();
-        //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
-
-        double accelerationMagnitude = Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
+        double accelerationMagnitude = obtainAcceleration();
 
         double latency = pigeon.getAccelerationX().getTimestamp().getLatency();
 
-        accelerationMagnitude = extrapolate(prevAccelerationMagnitude, accelerationX, latency, dt);
+        accelerationMagnitude = extrapolate(prevAccelerationMagnitude, accelerationMagnitude, latency, dt);
         prevAccelerationMagnitude = accelerationMagnitude;
+        accelerationMagnitude = accelerationMagnitude * 9.80665; // g to m/s
 
-        accelerationMagnitude = accelerationMagnitude * 9.80665; //g to m/s
+        // correct our acceleration estimate
+        UKF.correct(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity),
+                MatBuilder.fill(Nat.N1(), Nat.N1(), accelerationMagnitude));
 
-        //correct our acceleration estimate
-        UKF.correct(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), MatBuilder.fill(Nat.N1(), Nat.N1(), accelerationMagnitude));
-
-        //get accurate velocity
+        // get accurate velocity
         double estimatedVelocity = UKF.getXhat(1);
 
         int k = 0;
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
-            double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius()
-                    * 0.0254)) / estimatedVelocity;
+            double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / estimatedVelocity;
 
-            if (wheelRPM == 0) { //minimize drift by recalibrating if we are at rest
+            if (wheelRPM == 0) { // minimize drift by recalibrating if we are at rest
                 k++;
-                if (k == 3) { //if 3 wheels say we are at rest, reset acceleration and velocity to 0
+                if (k == 3) { // if 3 wheels say we are at rest, reset acceleration and velocity to 0
                     UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
                     break;
                 }
@@ -246,23 +251,25 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         double desiredAcceleration = (desiredVelocity - estimatedVelocity) / dt;
 
         double maxAcceleration = (9.80665 * frictionCoefficant);
-             /*
-             maximum acceleration we can have is equal to g*CoF, where g is the
-             acceleration due to gravity and CoF is the coefficient of friction between
-             the floor and the wheels (rubber and carpet i assumed), last number is for
-             the max acceleration for traction in THIS time step */
+        /*
+         * maximum acceleration we can have is equal to g*CoF, where g is the
+         * acceleration due to gravity and CoF is the coefficient of friction between
+         * the floor and the wheels (rubber and carpet i assumed), last number is for
+         * the max acceleration for traction in THIS time step
+         */
 
         double alg = (9.80665 * frictionCoefficant) * dt + estimatedVelocity;
 
         if (desiredAcceleration > maxAcceleration) {
             while (desiredVelocity > alg) {
-                driverLX = (desiredVelocity - alg)/3;
-                driverLY = (desiredVelocity - alg)/3;
+                driverLX = (desiredVelocity - alg) / 3;
+                driverLY = (desiredVelocity - alg) / 3;
                 desiredVelocity = Math.hypot(driverLX, driverLY);
-            } //smallest values of drive inputs that dont result in going over calculated max acceleration
+            } // smallest values of drive inputs that dont result in going over calculated max
+              // acceleration
         }
 
-        //predict acceleration based on input
+        // predict acceleration based on input
         UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
 
         outputs[4] = driverLX;
@@ -272,12 +279,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     } // runs periodically as a default command
 
-    private void initKalman() {
-
-        PIDController pidControllerAcceleration = new PIDController(0.1, 0.001, 0);
-        PIDController pidControllerVelocity = new PIDController(0.1, 0.001, 0);
-
+    public void initKalman() {
         // creating the functions
+        // f function needs to predict the next states based on the previous and the input alone
         BiFunction<Matrix<N2, N1>, Matrix<N1, N1>, Matrix<N2, N1>> f = (state, input) -> {
             // Extract current states
             double accele = state.get(0, 0);
@@ -285,28 +289,29 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             double desiredVelocity = input.get(0, 0);
 
-            double nextX = accele + pidControllerAcceleration.calculate(((desiredVelocity-velocity)/dt)-accele,dt); //predict next acceleration based on input
-            double nextA = velocity + pidControllerVelocity.calculate(desiredVelocity - velocity, dt); //predict next velocity based on input
+            double nextX = accele + pidControllerAcceleration.calculate(((desiredVelocity - velocity) / dt) - accele, dt); // predict next acceleration based on input
+            double nextA = velocity + pidControllerVelocity.calculate(desiredVelocity - velocity, dt); // predict next velocity base on input
 
             // Construct the predicted next state
             return MatBuilder.fill(Nat.N2(), Nat.N1(), nextX, nextA);
         };
-        //f function needs to predict the next states based on the previous and the input alone
 
+        // h function needs to predict what the measurements would be present based on f's predicted state
         BiFunction<Matrix<N2, N1>, Matrix<N1, N1>, Matrix<N1, N1>> h = (stateEstimate, state) -> {
             return MatBuilder.fill(Nat.N1(), Nat.N1(), stateEstimate.get(0, 0));
         };
-        // h function needs to predict what the measurements would be present based on f's predicted state
 
-        
-        //Noise covariance for state and measurment funcitons (not tuned)
-        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0, 0); //obtained from noise when sensor is at rest
-        Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(3.17 * Math.pow(10, -7)); //got from document and gbt
+        // Noise covariance for state and measurment funcitons (not tuned)
+        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0, 0); // obtained from noise when sensor is at rest
+        Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(3.17e-7); // got from document and gbt
 
-        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs,dt);
-        //TODO determine state and neasurement standard deviation, could use simulation or smth else
-        // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs, BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
-        // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h, Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs, double nominalDtSeconds)
+        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
+        // TODO determine state and neasurement standard deviation, could use simulation
+        // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs,
+        // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
+        // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h,
+        // Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs,
+        // double nominalDtSeconds)
         // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/estimator/UnscentedKalmanFilter.html
     }
 
@@ -321,6 +326,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public double extrapolate(double prevX, double X, double latency, double dt) {
         return ((X - prevX) / latency) * dt + X;
+    }
+
+    public double obtainAcceleration() {
+        double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
+        double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
+        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue();
+        //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
+
+        return Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
     }
 
     public double scaledDeadBand(double input) {
