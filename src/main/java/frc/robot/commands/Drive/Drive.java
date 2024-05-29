@@ -44,10 +44,10 @@ public class Drive extends Command implements Runnable {
 
     @Override
     public void run() {
-    } // Dont think i need anything in this. The DriveThread.java creates and schedules a command which will run the below initialize, execute and other command methods.
+    } // Dont think i need anything in this.
 
     @Override
-    public void initialize() {
+    public void initialize() { // The DriveThread.java creates and schedules this command which will run the below initialize, execute and other command methods.
         driverLX = s_Swerve.scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = s_Swerve.scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = s_Swerve.scaledDeadBand(driverRX) * Constants.MaxSpeed; //desired inputs in velocity
