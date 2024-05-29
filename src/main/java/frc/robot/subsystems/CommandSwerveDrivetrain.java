@@ -49,6 +49,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 
 
 /**
@@ -271,6 +272,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private void initKalman() {
 
+        PIDController pidControllerAcceleration = new PIDController(0.1, 0.001, 0);
+        PIDController pidControllerVelocity = new PIDController(0.1, 0.001, 0);
+
         // creating the functions
         BiFunction<Matrix<N2, N1>, Matrix<N1, N1>, Matrix<N2, N1>> f = (state, input) -> {
             // Extract current states
@@ -279,10 +283,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             double desiredVelocity = input.get(0, 0);
 
-            accele += 0; //TODO I NEED SIMULATION TO MAP INPUTS TO CHANGES IN ACCELERATION
-
-            double nextX = ; //predict next acceleration based on input
-            double nextA = ; //predict next velocity based on input
+            double nextX = accele + pidControllerAcceleration.calculate(((desiredVelocity-velocity)/dt)-accele,dt); //predict next acceleration based on input
+            double nextA = velocity + pidControllerVelocity.calculate(desiredVelocity - velocity, dt); //predict next velocity based on input
 
             // Construct the predicted next state
             return MatBuilder.fill(Nat.N2(), Nat.N1(), nextX, nextA);
@@ -298,7 +300,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1);
         Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(3.17 * Math.pow(10, -7)); //got from document and gbt
 
-        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
+        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs,dt);
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
         // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs, BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
         // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h, Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs, double nominalDtSeconds)
