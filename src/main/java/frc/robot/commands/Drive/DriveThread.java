@@ -11,13 +11,10 @@ public class DriveThread extends Command {
         this.container = container;
     }
 
-    // When defaultCommand calls this command a new Thread is created which will make a command of Drive.java and then schedule that command to run in the Thread. Then it starts the thread
     @Override
-    public void execute() {
-        new Thread(() -> { // Creates a thread which makes driveCommand and then schedules it - should run all the stuff inside Drive.java as a normal command no need for run method i dont think
+    public void execute() { // Create a new Drive.java command and then schedule it to be run. This should be the only thing running and being scheduled I would think
             Drive driveCommand = new Drive(container.getDriverLeftY(), container.getDriverLeftX(), container.getDriverRightX());
             driveCommand.schedule();
-        }).start();
     }
 
     @Override

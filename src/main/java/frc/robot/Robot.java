@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import frc.robot.commands.Drive.Drive;
+import frc.robot.commands.Drive.DriveThread;
+import frc.robot.subsystems.*;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -23,13 +26,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Autos.AutoPath;
 import frc.robot.commands.Pivot.AlignPivot;
-import frc.robot.subsystems.Amp;
-import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Pivot;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Vision;
 
 public class Robot extends LoggedRobot {
     private final Shooter s_Shooter;
@@ -39,12 +35,16 @@ public class Robot extends LoggedRobot {
     private final Vision s_Vision;
     private final Climb s_Climb;
     private final Amp s_Amp;
+    private final CommandSwerveDrivetrain s_Swerve;
     SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
     private Command m_autonomousCommand;
-    private RobotContainer m_robotContainer;
+    private RobotContainer robotContainer;
 
-    public Robot() {
+    private Thread tractionThread;
+
+    public Robot(CommandSwerveDrivetrain sSwerve) {
         super();
+        s_Swerve = CommandSwerveDrivetrain.getInstance();
         s_Shooter = Shooter.getInstance();
         s_Indexer = Indexer.getInstance();
         s_Intake = Intake.getInstance();
@@ -89,12 +89,21 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Angled drive", Autos.AutoPath.AngledDrivingTesting);
     autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
         SmartDashboard.putData("Auto choices", autoChooser);
-        m_robotContainer = RobotContainer.getInstance();
+        robotContainer = RobotContainer.getInstance();
         //PortForwarder.add(5800, "photonvision.local", 5800);
 
 
-        // Create thread here - this thread should run schedule a new command which will call the drive command periodically - basically bypass the default command
-        // Just run Drive in the periodic method of the command created in the Run method of this thread
+        // Creating a thread so traction control can run on its own
+        tractionThread =
+                new Thread( // Create a new thread which sets the defaultCommand for Swerve to be DriveThread.java
+                        () -> {
+                            s_Swerve.setDefaultCommand(
+                                    new DriveThread(robotContainer)
+                            );
+                        }
+                );
+        tractionThread.setDaemon(true);
+        tractionThread.start(); //  wont this thread just stop running though? will the default command continue running everything else in the thread?
     }
 
     @Override
