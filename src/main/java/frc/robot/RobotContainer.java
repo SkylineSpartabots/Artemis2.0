@@ -91,21 +91,6 @@ public class RobotContainer {
         return container;
     }
 
-    // Trying to thread Drive.java - need safe access to these i think
-    // Maybe not cause people only ever read them and the data is typically passed on and never gotten more than once for any task right?
-    //TODO see if these are needed
-    public synchronized double getDriverLeftY() {
-        return driver.getLeftY();
-    }
-
-    public synchronized double getDriverLeftX() {
-        return driver.getLeftX();
-    }
-
-    public synchronized double getDriverRightX() {
-        return driver.getRightX();
-    }
-
     public CommandXboxController getDriverController() {
         return driver;
     }
@@ -147,9 +132,12 @@ public class RobotContainer {
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                new DriveThread(this)); // Default command creates a new thread - might be an issue that this creates a new one every 20 ms?
-                // TODO Will drivetrain be creating a new thread every 20 ms?
-        // reset the field-centric heading. AKA reset odometry
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
+                        // negative Y (forward)
+                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                ));
+
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
 
 

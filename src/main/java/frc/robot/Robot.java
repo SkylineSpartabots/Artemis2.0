@@ -92,9 +92,6 @@ public class Robot extends LoggedRobot {
         m_robotContainer = RobotContainer.getInstance();
         //PortForwarder.add(5800, "photonvision.local", 5800);
 
-
-        // Create thread here - this thread should run schedule a new command which will call the drive command periodically - basically bypass the default command
-        // Just run Drive in the periodic method of the command created in the Run method of this thread
     }
 
     @Override

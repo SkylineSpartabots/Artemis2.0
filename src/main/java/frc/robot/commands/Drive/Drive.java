@@ -22,7 +22,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-public class Drive extends Command implements Runnable {
+public class Drive extends Command {
     public static final double translationDeadband = 0.1;
     public static final double rotDeadband = 0.1;
     private final CommandSwerveDrivetrain s_Swerve;
@@ -41,10 +41,6 @@ public class Drive extends Command implements Runnable {
         this.driverRX = driverRX;
         addRequirements(s_Swerve);
     }
-
-    @Override
-    public void run() {
-    } // Dont think i need anything in this. The DriveThread.java creates and schedules a command which will run the below initialize, execute and other command methods.
 
     @Override
     public void initialize() {
