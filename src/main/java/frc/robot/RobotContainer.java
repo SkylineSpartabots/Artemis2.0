@@ -80,6 +80,7 @@ public class RobotContainer {
     private final Trigger driverDpadDown = driver.povDown();
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
+
     public RobotContainer() {
         configureBindings();
     }
@@ -148,7 +149,7 @@ public class RobotContainer {
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 new DriveThread(this)); // Default command creates a new thread - might be an issue that this creates a new one every 20 ms?
-                // TODO Will drivetrain be creating a new thread every 20 ms?
+        // TODO Will drivetrain be creating a new thread every 20 ms?
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
 

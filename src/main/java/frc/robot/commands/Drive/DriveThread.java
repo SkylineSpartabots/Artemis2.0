@@ -13,8 +13,8 @@ public class DriveThread extends Command {
 
     @Override
     public void execute() { // Create a new Drive.java command and then schedule it to be run. This should be the only thing running and being scheduled I would think
-            Drive driveCommand = new Drive(container.getDriverLeftY(), container.getDriverLeftX(), container.getDriverRightX());
-            driveCommand.schedule();
+        Drive driveCommand = new Drive(container.getDriverLeftY(), container.getDriverLeftX(), container.getDriverRightX());
+        driveCommand.schedule();
     }
 
     @Override

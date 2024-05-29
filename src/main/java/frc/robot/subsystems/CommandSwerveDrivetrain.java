@@ -256,8 +256,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         if (desiredAcceleration > maxAcceleration) {
             while (desiredVelocity > alg) {
-                driverLX = (desiredVelocity - alg)/3;
-                driverLY = (desiredVelocity - alg)/3;
+                driverLX = (desiredVelocity - alg) / 3;
+                driverLY = (desiredVelocity - alg) / 3;
                 desiredVelocity = Math.hypot(driverLX, driverLY);
             } //smallest values of drive inputs that dont result in going over calculated max acceleration
         }
@@ -285,7 +285,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             double desiredVelocity = input.get(0, 0);
 
-            double nextX = accele + pidControllerAcceleration.calculate(((desiredVelocity-velocity)/dt)-accele,dt); //predict next acceleration based on input
+            double nextX = accele + pidControllerAcceleration.calculate(((desiredVelocity - velocity) / dt) - accele, dt); //predict next acceleration based on input
             double nextA = velocity + pidControllerVelocity.calculate(desiredVelocity - velocity, dt); //predict next velocity based on input
 
             // Construct the predicted next state
@@ -298,12 +298,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         };
         // h function needs to predict what the measurements would be present based on f's predicted state
 
-        
+
         //Noise covariance for state and measurment funcitons (not tuned)
         Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0, 0); //obtained from noise when sensor is at rest
         Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(3.17 * Math.pow(10, -7)); //got from document and gbt
 
-        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs,dt);
+        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
         //TODO determine state and neasurement standard deviation, could use simulation or smth else
         // UnscentedKalmanFilter​(Nat<States> states, Nat<Outputs> outputs, BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
         // BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h, Matrix<States,​N1> stateStdDevs, Matrix<Outputs,​N1> measurementStdDevs, double nominalDtSeconds)
