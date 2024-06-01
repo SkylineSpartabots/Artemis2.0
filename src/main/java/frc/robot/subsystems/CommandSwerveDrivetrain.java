@@ -76,16 +76,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean TractionControlON = false; // for toggling traction control
     private double lastTimeReset = 0;
 
-    private double slipFactor = 5; // how agressive slip correction is, higher = less agressive
-    private double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
+    private final double slipFactor = 5; // how agressive slip correction is, higher = less agressive
+    private final double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
 
-    private double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
+    private final double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
     
+    // deadband
+    private final double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
+
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
     private Field2d m_field = new Field2d();
-
-    // deadband
-    private double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
 
     //UKF variables
     PIDController pidControllerAcceleration = new PIDController(0.1, 0.001, 0);
@@ -214,9 +214,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         double desiredVelocity = Math.hypot(driverLX, driverLY);
 
-        double accelerationMagnitude = obtainAcceleration();
-
-        accelerationMagnitude = accelerationMagnitude * 9.80665; // g to m/s
+        double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
 
         // correct our acceleration estimate
         UKF.correct(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity),
@@ -258,13 +256,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         if (desiredAcceleration > maxAcceleration) {
             while (desiredVelocity > alg) {
-                driverLX = (desiredVelocity - alg) / 3;
-                driverLY = (desiredVelocity - alg) / 3;
+                driverLX -= 0.05;
+                driverLY -= 0.05;
                 desiredVelocity = Math.hypot(driverLX, driverLY);
             } // smallest values of drive inputs that dont result in going over calculated max
               // acceleration
         }
-
+        
         // predict acceleration based on input
         UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
 
@@ -285,8 +283,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             double desiredVelocity = input.get(0, 0);
 
-            double nextX = accele + pidControllerAcceleration.calculate(((desiredVelocity - velocity) / dt) - accele, dt); // predict next acceleration based on input
-            double nextA = velocity + pidControllerVelocity.calculate(desiredVelocity - velocity, dt); // predict next velocity base on input
+            double nextX = accele + pidControllerAcceleration.calculate(accele, (desiredVelocity - velocity) / dt); // predict next acceleration based on input
+            double nextA = velocity + pidControllerVelocity.calculate(velocity, desiredVelocity); // predict next velocity base on input
 
             // Construct the predicted next state
             return MatBuilder.fill(Nat.N2(), Nat.N1(), nextX, nextA);
@@ -294,12 +292,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         // h function needs to predict what the measurements would be present based on f's predicted state
         BiFunction<Matrix<N2, N1>, Matrix<N1, N1>, Matrix<N1, N1>> h = (stateEstimate, state) -> {
-            return MatBuilder.fill(Nat.N1(), Nat.N1(), stateEstimate.get(0, 0));
+            return MatBuilder.fill(Nat.N1(), Nat.N1(), stateEstimate.get(1, 0));
         };
 
         // Noise covariance for state and measurment funcitons (not tuned)
         Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0, 0); // obtained from noise when sensor is at rest
-        Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(3.17e-7); // got from document and gbt
+        Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(6.92e-4); // got from document and gbt
 
         UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
         // TODO determine state and neasurement standard deviation, could use simulation
