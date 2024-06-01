@@ -216,10 +216,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         double accelerationMagnitude = obtainAcceleration();
 
-        double latency = pigeon.getAccelerationX().getTimestamp().getLatency();
-
-        accelerationMagnitude = extrapolate(prevAccelerationMagnitude, accelerationMagnitude, latency, dt);
-        prevAccelerationMagnitude = accelerationMagnitude;
         accelerationMagnitude = accelerationMagnitude * 9.80665; // g to m/s
 
         // correct our acceleration estimate
@@ -324,8 +320,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public double extrapolate(double prevX, double X, double latency, double dt) {
-        return ((X - prevX) / latency) * dt + X;
+    public double extrapolate(double prevValue, double value, double latency, double dt) {
+        return ((value - prevValue) / latency) * dt + value;
     }
 
     public double obtainAcceleration() {

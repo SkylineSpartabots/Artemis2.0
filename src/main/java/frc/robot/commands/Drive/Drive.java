@@ -53,6 +53,8 @@ public class Drive extends Command {
             adjustedInputs = s_Swerve.tractionControl(driverLX, driverLY);
             driverLX = adjustedInputs[4];
             driverLY = adjustedInputs[5];
+
+            s_Swerve.slipCorrection(adjustedInputs);
         }
 
         s_Swerve.applyRequest(() ->
@@ -60,7 +62,6 @@ public class Drive extends Command {
                         .withVelocityY(driverLY)
                         .withRotationalRate(driverRX));
 
-        s_Swerve.slipCorrection(adjustedInputs);
 
         s_Swerve.resetTime();
     }
