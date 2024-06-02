@@ -42,7 +42,7 @@ public class Robot extends LoggedRobot {
 
     private Thread tractionThread;
 
-    public Robot(CommandSwerveDrivetrain sSwerve) {
+    public Robot() {
         super();
         s_Swerve = CommandSwerveDrivetrain.getInstance();
         s_Shooter = Shooter.getInstance();
