@@ -73,7 +73,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     double prevAccelerationMagnitude = 0;
     double dt = 0.03;
     
-    private boolean TractionControlON = false; // for toggling traction control
+    private boolean tractionControl = false; // for toggling traction control
+    private boolean headingControl = false; // for toggling heading control
     private double lastTimeReset = 0;
 
     private final double slipFactor = 5; // how agressive slip correction is, higher = less agressive
@@ -88,8 +89,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Field2d m_field = new Field2d();
 
     //UKF variables
-    PIDController pidControllerAcceleration = new PIDController(0.1, 0.001, 0);
-    PIDController pidControllerVelocity = new PIDController(0.1, 0.001, 0);
+    PIDController pidAcceleration = new PIDController(0.1, 0.001, 0);
+    PIDController pidVelocity = new PIDController(0.1, 0.001, 0);
+
+    //Heading 
+    PIDController pidHeading = new PIDController(0.1, 0.001, 0);
+    double lastHeading = 0; // in radians
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
                                    SwerveModuleConstants... modules) {
@@ -273,6 +278,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     } // runs periodically as a default command
 
+    public double headingControl(double driverRX) {
+        if(driverRX < 0.1 && robotAbsoluteVelocity() > 1) { //1 is placeholder
+            driverRX = pidHeading.calculate(getRotation3d().getAngle(),lastHeading);
+        } else {
+            lastHeading = getRotation3d().getAngle();
+        }
+
+        return driverRX;
+
+    } // me when im bored and i need to expand ignacious drive
+    
     public void initKalman() {
         // creating the functions
         // f function needs to predict the next states based on the previous and the input alone
@@ -283,8 +299,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
             double desiredVelocity = input.get(0, 0);
 
-            double nextX = accele + pidControllerAcceleration.calculate(accele, (desiredVelocity - velocity) / dt); // predict next acceleration based on input
-            double nextA = velocity + pidControllerVelocity.calculate(velocity, desiredVelocity); // predict next velocity base on input
+            double nextX = accele + pidAcceleration.calculate(accele, (desiredVelocity - velocity) / dt); // predict next acceleration based on input
+            double nextA = velocity + pidVelocity.calculate(velocity, desiredVelocity); // predict next velocity base on input
 
             // Construct the predicted next state
             return MatBuilder.fill(Nat.N2(), Nat.N1(), nextX, nextA);
@@ -336,11 +352,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public void toggleTractionControl() { // for testing
-        TractionControlON = (TractionControlON == false) ? true : false;
+        tractionControl = (tractionControl == false) ? true : false;
+    }
+
+    public void toggleHeadingControl() { // for testing
+        headingControl = (headingControl == false) ? true : false;
     }
 
     public Boolean getTractionBool() {
-        return TractionControlON;
+        return tractionControl;
+    }
+    public Boolean getHeadingControlBool() {
+        return headingControl;
     }
 
     public void resetTime() {

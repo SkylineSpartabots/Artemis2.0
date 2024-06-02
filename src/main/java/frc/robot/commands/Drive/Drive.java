@@ -29,6 +29,7 @@ public class Drive extends Command {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
     private double driverLY;
     private double driverLX;
     private double driverRX;
@@ -46,7 +47,7 @@ public class Drive extends Command {
     public void initialize() {
         driverLX = s_Swerve.scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = s_Swerve.scaledDeadBand(driverLY) * Constants.MaxSpeed;
-        driverRX = s_Swerve.scaledDeadBand(driverRX) * Constants.MaxSpeed; //desired inputs in velocity
+        driverRX = s_Swerve.scaledDeadBand(driverRX); //desired inputs in velocity
         //now should rotation be scaled? idk! (ill scale it for now)
 
         if (s_Swerve.getTractionBool()) {
@@ -57,11 +58,14 @@ public class Drive extends Command {
             s_Swerve.slipCorrection(adjustedInputs);
         }
 
+        if(s_Swerve.getHeadingControlBool()) {
+            s_Swerve.headingControl(driverRX);
+        }
+
         s_Swerve.applyRequest(() ->
                 drive.withVelocityX(driverLX)
                         .withVelocityY(driverLY)
-                        .withRotationalRate(driverRX));
-
+                        .withRotationalRate(driverRX * Constants.MaxSpeed));
 
         s_Swerve.resetTime();
     }
