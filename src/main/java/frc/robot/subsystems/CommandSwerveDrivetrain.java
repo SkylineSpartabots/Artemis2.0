@@ -218,8 +218,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         Double[] outputs = new Double[6]; // reset to null every call
 
         double desiredVelocity = Math.hypot(driverLX, driverLY);
+        SmartDashboard.putNumber("desired velocity", desiredVelocity);
 
         double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
+        SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude);
 
         // correct our acceleration estimate
         UKF.correct(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity),
@@ -227,12 +229,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         // get accurate velocity
         double estimatedVelocity = UKF.getXhat(1);
+        SmartDashboard.putNumber("UKF estimated velocity", estimatedVelocity);
 
         int k = 0;
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
             double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / estimatedVelocity;
+            SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
 
             if (wheelRPM == 0) { // minimize drift by recalibrating if we are at rest
                 k++;
@@ -247,26 +251,28 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             }
         }
 
-        double desiredAcceleration = (desiredVelocity - estimatedVelocity) / dt;
+        // double desiredAcceleration = (desiredVelocity - estimatedVelocity) / dt;
 
-        double maxAcceleration = (9.80665 * frictionCoefficant);
-        /*
-         * maximum acceleration we can have is equal to g*CoF, where g is the
-         * acceleration due to gravity and CoF is the coefficient of friction between
-         * the floor and the wheels (rubber and carpet i assumed), last number is for
-         * the max acceleration for traction in THIS time step
-         */
+        // double maxAcceleration = (9.80665 * frictionCoefficant);
+        // /*
+        //  * maximum acceleration we can have is equal to g*CoF, where g is the
+        //  * acceleration due to gravity and CoF is the coefficient of friction between
+        //  * the floor and the wheels (rubber and carpet i assumed), last number is for
+        //  * the max acceleration for traction in THIS time step
+        //  */
 
-        double alg = (9.80665 * frictionCoefficant) * dt + estimatedVelocity;
+        // double alg = (9.80665 * frictionCoefficant) * dt + estimatedVelocity;
 
-        if (desiredAcceleration > maxAcceleration) {
-            while (desiredVelocity > alg) {
-                driverLX -= 0.05;
-                driverLY -= 0.05;
-                desiredVelocity = Math.hypot(driverLX, driverLY);
-            } // smallest values of drive inputs that dont result in going over calculated max
-              // acceleration
-        }
+        // if (desiredAcceleration > maxAcceleration) {
+        //     while (desiredVelocity > alg) {
+        //         driverLX -= 0.05;
+        //         driverLY -= 0.05;
+        //         desiredVelocity = Math.hypot(driverLX, driverLY);
+        //     } // smallest values of drive inputs that dont result in going over calculated max
+        //       // acceleration
+        // }
+
+        //will be removing all of this part if we can get max acceleration as a constant
         
         // predict acceleration based on input
         UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
