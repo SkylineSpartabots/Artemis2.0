@@ -279,7 +279,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     } // runs periodically as a default command
 
     public double headingControl(double driverRX) {
-        if(driverRX < 0.1 && robotAbsoluteVelocity() > 1) { //1 is placeholder
+        if(driverRX < 0.1 && robotAbsoluteVelocity() > 0.5) { //0.5 is placeholder
             driverRX = pidHeading.calculate(getRotation3d().getAngle(),lastHeading);
         } else {
             lastHeading = getRotation3d().getAngle();

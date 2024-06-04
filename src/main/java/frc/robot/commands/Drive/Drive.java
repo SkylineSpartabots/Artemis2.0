@@ -59,7 +59,7 @@ public class Drive extends Command {
         }
 
         if(s_Swerve.getHeadingControlBool()) {
-            s_Swerve.headingControl(driverRX);
+            driverRX = s_Swerve.headingControl(driverRX);
         }
 
         s_Swerve.applyRequest(() ->
