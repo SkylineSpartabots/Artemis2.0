@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.commands.Drive.Drive;
 import frc.robot.commands.Drive.DriveThread;
 import frc.robot.subsystems.*;
@@ -40,7 +41,8 @@ public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
     private RobotContainer robotContainer;
 
-    private Thread tractionThread;
+    private Notifier tractionControl;
+    private final double tractionControlPeriodic = 0.02; // Controls speed of tractionControl periodic calling - 20 ms
 
     public Robot() {
         super();
@@ -92,18 +94,13 @@ public class Robot extends LoggedRobot {
         robotContainer = RobotContainer.getInstance();
         //PortForwarder.add(5800, "photonvision.local", 5800);
 
-
-        // Creating a thread so traction control can run on its own
-        tractionThread =
-                new Thread( // Create a new thread which sets the defaultCommand for Swerve to be DriveThread.java
-                        () -> {
-                            s_Swerve.setDefaultCommand(
-                                    new DriveThread(robotContainer)
-                            );
-                        }
-                );
-        tractionThread.setDaemon(true);
-        tractionThread.start(); //  wont this thread just stop running though? will the default command continue running everything else in the thread?
+// Create a new Notifier - basically a Thread thing that can be run periodically
+        tractionControl = new Notifier(() -> {
+            Drive driveCommand = new Drive(robotContainer.getDriverLeftY(), robotContainer.getDriverLeftX(), robotContainer.getDriverRightX());
+            driveCommand.run();
+            // should be thread safe - you create your own instance in this Notifier thread so yeah
+        });
+        tractionControl.startPeriodic(tractionControlPeriodic); // Start the tractionControl Notifier and make it run every 20 ms
     }
 
     @Override

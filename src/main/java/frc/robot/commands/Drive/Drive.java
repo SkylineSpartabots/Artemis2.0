@@ -44,10 +44,6 @@ public class Drive extends Command implements Runnable {
 
     @Override
     public void run() {
-    } // Dont think i need anything in this.
-
-    @Override
-    public void initialize() { // The DriveThread.java creates and schedules this command which will run the below initialize, execute and other command methods.
         driverLX = s_Swerve.scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = s_Swerve.scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = s_Swerve.scaledDeadBand(driverRX) * Constants.MaxSpeed; //desired inputs in velocity
@@ -67,6 +63,12 @@ public class Drive extends Command implements Runnable {
         s_Swerve.slipCorrection(adjustedInputs);
 
         s_Swerve.resetTime();
+    } // actually i do need this
+    // uh no i dont think so, i could just put all this code in initialize or execute - but ig this prevents it from being run by any random .schedule()
+
+    @Override
+    public void initialize() { // The DriveThread.java creates and schedules this command which will run the below initialize, execute and other command methods.
+
     }
 
     @Override
