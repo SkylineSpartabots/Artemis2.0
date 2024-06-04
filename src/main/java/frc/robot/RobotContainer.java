@@ -39,6 +39,7 @@ import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Drive.Drive;
+import frc.robot.commands.Drive.Toggles;
 
 
 public class RobotContainer {
@@ -101,9 +102,11 @@ public class RobotContainer {
          * Mechanism bindings
          */
 
-        driver.x().onTrue(new SmartIntake()); //FINAL
-        driver.b().onTrue(CommandFactory.eject()); //FINAL
-        driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
+        driver.a().onTrue(new Toggles()); //FINAL
+
+        // driver.x().onTrue(new SmartIntake()); //FINAL
+        // driver.b().onTrue(CommandFactory.eject()); //FINAL
+        // driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
@@ -111,21 +114,21 @@ public class RobotContainer {
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
-        driver.leftTrigger().whileTrue(new SlowDrive());
+        // driver.leftTrigger().whileTrue(new SlowDrive());
         // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
 
-        driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
-        driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
-        driver.leftBumper().onTrue(new SetShooterCommand(45));
+        // driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
+        // driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
+        // driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(onIntake());
 
-        driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
-        driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
-        // driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
-        driverDpadRight.onTrue(new ZeroPivot()); //FINAL
+         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
+         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+         driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
+         driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
+         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
 
         /*
@@ -135,24 +138,24 @@ public class RobotContainer {
                new Drive(-driver.getLeftY(),-driver.getLeftX(),-driver.getRightX())
                 );
 
-        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
+        // driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
 
 
         /*
          * Operator bindings
          */
         // operator.b().onTrue(offEverything());
-        operator.a().onTrue(CommandFactory.offEverything());
-        operator.x().onTrue(new SetIntake(IntakeStates.OFF)); //FINAL
-        operator.b().onTrue(CommandFactory.eject()); //FINAL
-        operator.y().whileTrue(new SetIndexer(IndexerStates.OFF));
+        // operator.a().onTrue(CommandFactory.offEverything());
+        // operator.x().onTrue(new SetIntake(IntakeStates.OFF)); //FINAL
+        // operator.b().onTrue(CommandFactory.eject()); //FINAL
+        // operator.y().whileTrue(new SetIndexer(IndexerStates.OFF));
 
-        operator.povLeft().onTrue(new ZeroPivot());
+        // operator.povLeft().onTrue(new ZeroPivot());
 
         // operator.rightTrigger().whileTrue(new ManualClimb(true));
         // operator.leftTrigger().whileTrue(new ManualClimb(false));
 
-        operator.rightBumper().onTrue(CommandFactory.Diagnostic());
+        // operator.rightBumper().onTrue(CommandFactory.Diagnostic());
 
         // operator.back().onTrue(new SequentialCommandGroup(
         //     new InstantCommand(() -> s_Orchestra.loadMusic("jinglebells.chrp")),
