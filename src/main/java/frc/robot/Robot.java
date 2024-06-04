@@ -93,7 +93,7 @@ public class Robot extends LoggedRobot {
         robotContainer = RobotContainer.getInstance();
         //PortForwarder.add(5800, "photonvision.local", 5800);
 
-// Create a new Notifier - basically a Thread thing that can be run periodically
+        // Create a new Notifier - basically a Thread thing that can be run periodically
         tractionControl = new Notifier(() -> {
             Drive driveCommand = new Drive(robotContainer.getDriverLeftY(), robotContainer.getDriverLeftX(), robotContainer.getDriverRightX());
             driveCommand.run();
