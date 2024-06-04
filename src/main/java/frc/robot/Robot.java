@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.commands.Drive.Drive;
-import frc.robot.commands.Drive.DriveThread;
 import frc.robot.subsystems.*;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;

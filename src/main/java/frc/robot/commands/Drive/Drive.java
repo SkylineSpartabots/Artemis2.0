@@ -67,7 +67,7 @@ public class Drive extends Command implements Runnable {
     // uh no i dont think so, i could just put all this code in initialize or execute - but ig this prevents it from being run by any random .schedule()
 
     @Override
-    public void initialize() { // The DriveThread.java creates and schedules this command which will run the below initialize, execute and other command methods.
+    public void initialize() {
 
     }
 
