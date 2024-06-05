@@ -67,6 +67,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+    public static final double translationDeadband = 0.1;
+    public static final double rotDeadband = 0.1;
+
     // traction control variables
     Pigeon2 pigeon = getPigeon2(); //using the already contructed pigeon
 
@@ -140,6 +143,33 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
     }
+
+    // In CommandSwerveDrivetrain.java
+public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
+    driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
+    driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
+    driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
+
+    if (getTractionBool()) {
+        Double[] adjustedInputs = tractionControl(driverLX, driverLY);
+        driverLX = adjustedInputs[4];
+        driverLY = adjustedInputs[5];
+
+        slipCorrection(adjustedInputs);
+    }
+
+    if(getHeadingControlBool()) {
+        driverRX = headingControl(driverRX);
+    }
+
+    return new SwerveRequest.FieldCentric()
+        .withVelocityX(driverLX)
+        .withVelocityY(driverLY)
+        .withRotationalRate(driverRX * Constants.MaxSpeed)
+        .withDeadband(Constants.MaxSpeed * translationDeadband)
+        .withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+}
 
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
