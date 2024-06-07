@@ -96,7 +96,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     PIDController pidVelocity = new PIDController(0.1, 0.001, 0);
 
     //Heading 
-    PIDController pidHeading = new PIDController(0.2, 0, 0);
+    PIDController pidHeading = new PIDController(5, 0, 0.001);
+    
+    public void setPidHeadingTolerance() {
+        pidHeading.setTolerance(0.01);
+    }
+
     double lastHeading = 0; // in radians
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
@@ -148,24 +153,24 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
     driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
-    driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
+    driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed; //desired inputs in velocity
 
-    if (getTractionBool()) {
-        Double[] adjustedInputs = tractionControl(driverLX, driverLY);
-        driverLX = adjustedInputs[4];
-        driverLY = adjustedInputs[5];
+    // if (getTractionBool()) {
+    //     Double[] adjustedInputs = tractionControl(driverLX, driverLY);
+    //     driverLX = adjustedInputs[4];
+    //     driverLY = adjustedInputs[5];
 
-        slipCorrection(adjustedInputs);
-    }
+    //     slipCorrection(adjustedInputs);
+    // }
 
     if(getHeadingControlBool()) {
         driverRX = headingControl(driverRX);
     }
 
     return new SwerveRequest.FieldCentric()
-        .withVelocityX(driverLX)
-        .withVelocityY(driverLY)
-        .withRotationalRate(driverRX * Constants.MaxSpeed)
+        .withVelocityX(driverLY)
+        .withVelocityY(driverLX) //its like this for a reason
+        .withRotationalRate(driverRX)
         .withDeadband(Constants.MaxSpeed * translationDeadband)
         .withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -315,10 +320,12 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     } // runs periodically as a default command
 
     public double headingControl(double driverRX) {
-        if(driverRX < 0.1 && robotAbsoluteVelocity() > 0.5) { //0.5 is placeholder
-            driverRX = pidHeading.calculate(getRotation3d().getAngle(),lastHeading);
+        if(driverRX < (0.05 * Constants.MaxSpeed) && Math.abs(robotAbsoluteVelocity()) > 0.3) { //0.5 is placeholder
+            driverRX = pidHeading.calculate(getRotation3d().getAngle() , lastHeading);
+            SmartDashboard.putBoolean("headingON", true);
         } else {
             lastHeading = getRotation3d().getAngle();
+            SmartDashboard.putBoolean("headingON", false);
         }
 
         return driverRX;
@@ -348,7 +355,7 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         };
 
         // Noise covariance for state and measurment funcitons (not tuned)
-        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0, 0); // obtained from noise when sensor is at rest
+        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.105, 0); // obtained from noise when sensor is at rest
         Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(6.92e-4); // got from document and gbt
 
         UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
@@ -389,10 +396,12 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
 
     public void toggleTractionControl() { // for testing
         tractionControl = (tractionControl == false) ? true : false;
+        SmartDashboard.putBoolean("traction control", tractionControl);
     }
 
     public void toggleHeadingControl() { // for testing
         headingControl = (headingControl == false) ? true : false;
+        SmartDashboard.putBoolean("heading control", headingControl);
     }
 
     public Boolean getTractionBool() {
@@ -423,7 +432,6 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
         SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
-
         SmartDashboard.putNumber("Chassis Velocity from wheels", robotAbsoluteVelocity());
 
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());

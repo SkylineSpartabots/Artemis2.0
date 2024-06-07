@@ -95,6 +95,7 @@ public class Robot extends LoggedRobot {
         m_robotContainer = RobotContainer.getInstance();
         s_Swerve = CommandSwerveDrivetrain.getInstance();
         s_Swerve.initKalman();
+        s_Swerve.setPidHeadingTolerance();
         //PortForwarder.add(5800, "photonvision.local", 5800);
     }
 
