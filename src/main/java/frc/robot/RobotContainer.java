@@ -124,11 +124,11 @@ public class RobotContainer {
         // driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(onIntake());
 
-         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
-         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-         driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
-         driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
-         driverDpadRight.onTrue(new ZeroPivot()); //FINAL
+        //  driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
+        //  driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+        //  driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
+        //  driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
+        //  driverDpadRight.onTrue(new ZeroPivot()); //FINAL
 
 
         /*
@@ -136,10 +136,10 @@ public class RobotContainer {
          */
             //    new Drive(-driver.getLeftY(),-driver.getLeftX(),-driver.getRightX())
             drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drivetrain.drive(-driver.getLeftY(),-driver.getLeftX(),-driver.getRightX())) // Drive counterclockwise with negative X (left)
+                drivetrain.applyRequest(() -> drivetrain.drive(-driver.getLeftY(),-driver.getLeftX(),-driver.getRightX()))
             );
 
-        // driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
+        driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
 
 
         /*

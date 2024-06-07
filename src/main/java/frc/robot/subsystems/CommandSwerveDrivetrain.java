@@ -86,7 +86,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private final double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
     
     // deadband
-    private final double deadbandFactor = 0.5; // closer to 0 is more linear deadband controls
+    private final double deadbandFactor = 0.8; // closer to 0 is more linear deadband controls
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
     private Field2d m_field = new Field2d();
@@ -96,7 +96,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     PIDController pidVelocity = new PIDController(0.1, 0.001, 0);
 
     //Heading 
-    PIDController pidHeading = new PIDController(0.1, 0.001, 0);
+    PIDController pidHeading = new PIDController(0.2, 0, 0);
     double lastHeading = 0; // in radians
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
