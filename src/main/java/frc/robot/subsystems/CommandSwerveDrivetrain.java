@@ -92,8 +92,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Field2d m_field = new Field2d();
 
     //UKF variables
-    PIDController pidAcceleration = new PIDController(0.1, 0.001, 0);
-    PIDController pidVelocity = new PIDController(0.1, 0.001, 0);
+    PIDController pidAcceleration = new PIDController(0.3, 0.001, 0);
+    PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
 
     //Heading 
     PIDController pidHeading = new PIDController(6, 0, 0.005);
@@ -155,13 +155,13 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
     driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed; //desired inputs in velocity
 
-    // if (getTractionBool()) {
-    //     Double[] adjustedInputs = tractionControl(driverLX, driverLY);
-    //     driverLX = adjustedInputs[4];
-    //     driverLY = adjustedInputs[5];
+    if (getTractionBool()) {
+        Double[] adjustedInputs = tractionControl(driverLX, driverLY);
+        driverLX = adjustedInputs[4];
+        driverLY = adjustedInputs[5];
 
-    //     slipCorrection(adjustedInputs);
-    // }
+        slipCorrection(adjustedInputs);
+    }
 
     if(getHeadingControlBool()) {
         driverRX = headingControl(driverRX);
@@ -273,9 +273,9 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
             double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / estimatedVelocity;
             SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
 
-            if (wheelRPM == 0) { // minimize drift by recalibrating if we are at rest
+            if (wheelRPM < 0.001) { // minimize drift by recalibrating if we are at rest
                 k++;
-                if (k == 3) { // if 3 wheels say we are at rest, reset acceleration and velocity to 0
+                if (k == 4) { // if all 4 wheels say we are at rest, reset acceleration and velocity to 0
                     UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
                     break;
                 }
@@ -373,7 +373,8 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
             if (inputs[i] != null) {
                 TalonFX module = Modules[i].getDriveMotor();
                 module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
-            } // divides by slip factor, more agressive if far above slip threshold
+                SmartDashboard.putBoolean("slipON", true);
+            }  else {SmartDashboard.putBoolean("slipON", false);}// divides by slip factor, more agressive if far above slip threshold 
         }
     }
 
