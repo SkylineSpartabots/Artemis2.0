@@ -96,7 +96,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
 
     //Heading 
-    PIDController pidHeading = new PIDController(6, 0, 0.005);
+    PIDController pidHeading = new PIDController(8, 0, 0);
     
     public void setPidHeadingTolerance() {
         pidHeading.setTolerance(0.01);
@@ -310,7 +310,7 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         //will be removing all of this part if we can get max acceleration as a constant
         
         // predict acceleration based on input
-        UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
+        //UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
 
         outputs[4] = driverLX;
         outputs[5] = driverLY;
@@ -426,6 +426,7 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         Pose2d currPose = getPose();
 
         // allows driver to see if resetting worked
+        
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)",
                 lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", currPose.getX());
