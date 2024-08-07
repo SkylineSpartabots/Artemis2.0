@@ -96,7 +96,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
 
     //Heading 
-    PIDController pidHeading = new PIDController(8, 0, 0);
+    PIDController pidHeading = new PIDController(8, 0, 8);
     
     public void setPidHeadingTolerance() {
         pidHeading.setTolerance(0.01);
@@ -227,6 +227,7 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         for (int i = 0; i < ModuleCount; i++) {
             roughVel += Modules[i].getCurrentState().speedMetersPerSecond;
         }
+        SmartDashboard.putNumber("Absolute vel", roughVel);
         return roughVel / 4.0;
     }
 
@@ -320,12 +321,15 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     } // runs periodically as a default command
 
     public double headingControl(double driverRX) {
-        if(Math.abs(driverRX) < (0.05 * Constants.MaxSpeed) && Math.abs(robotAbsoluteVelocity()) > 0.3) { //0.5 is placeholder
+        if(Math.abs(driverRX) < (Constants.MaxAngularRate * 0.1)) { //0.5 is placeholder
+            if(Math.abs(robotAbsoluteVelocity()) > 0.05){
             driverRX = pidHeading.calculate(getRotation3d().getAngle() , lastHeading);
             SmartDashboard.putBoolean("headingON", true);
+            }
         } else {
             lastHeading = getRotation3d().getAngle();
             SmartDashboard.putBoolean("headingON", false);
+            SmartDashboard.putNumber("lastHeading", lastHeading);
         }
 
         return driverRX;

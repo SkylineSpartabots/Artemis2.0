@@ -1010,8 +1010,8 @@
           },
           "7,0": {
             "size": [
-              2,
-              2
+              1,
+              1
             ],
             "content": {
               "_type": "Boolean Box",
@@ -1174,6 +1174,32 @@
               "_showGlyph": false,
               "Colors/Color when true": "#7CFC00FF",
               "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "8,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Absolute vel",
+              "_title": "SmartDashboard/Absolute vel",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "9,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/lastHeading",
+              "_title": "/SmartDashboard/lastHeading",
+              "_glyph": 148,
+              "_showGlyph": false
             }
           }
         }
