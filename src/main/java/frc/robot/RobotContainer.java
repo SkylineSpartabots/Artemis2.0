@@ -40,6 +40,7 @@ import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Drive.Drive;
 import frc.robot.commands.Drive.Toggles;
+import frc.robot.commands.Drive.HoldHeading;
 
 
 public class RobotContainer {
@@ -118,6 +119,7 @@ public class RobotContainer {
         // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
+        driver.leftTrigger().whileTrue(new HoldHeading());
 
         // driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
         // driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());

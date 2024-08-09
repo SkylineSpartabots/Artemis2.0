@@ -78,6 +78,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     
     private boolean tractionControl = false; // for toggling traction control
     private boolean headingControl = false; // for toggling heading control
+    private boolean headingOn = false;
     private double lastTimeReset = 0;
 
     private final double slipFactor = 5; // how agressive slip correction is, higher = less agressive
@@ -96,10 +97,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
 
     //Heading 
-    PIDController pidHeading = new PIDController(8, 0, 8);
+    PIDController pidHeading = new PIDController(8, 0, 1);
     
     public void setPidHeadingTolerance() {
-        pidHeading.setTolerance(0.01);
+        pidHeading.setTolerance(Math.toRadians(2.5));
     }
 
     double lastHeading = 0; // in radians
@@ -320,15 +321,20 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
 
     } // runs periodically as a default command
 
+    public void setLastHeading(){
+        lastHeading = getRotation3d().getAngle();
+    }
+
     public double headingControl(double driverRX) {
         if(Math.abs(driverRX) < (Constants.MaxAngularRate * 0.1)) { //0.5 is placeholder
             if(Math.abs(robotAbsoluteVelocity()) > 0.05){
             driverRX = pidHeading.calculate(getRotation3d().getAngle() , lastHeading);
-            SmartDashboard.putBoolean("headingON", true);
+            headingOn = true;
+            SmartDashboard.putBoolean("headingON", headingOn);
             }
         } else {
-            lastHeading = getRotation3d().getAngle();
-            SmartDashboard.putBoolean("headingON", false);
+            headingOn = false;
+            SmartDashboard.putBoolean("headingON", headingOn);
             SmartDashboard.putNumber("lastHeading", lastHeading);
         }
 
@@ -430,7 +436,9 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         Pose2d currPose = getPose();
 
         // allows driver to see if resetting worked
-        
+        SmartDashboard.putBoolean("heading control", headingControl);
+        SmartDashboard.putBoolean("traction control", tractionControl);
+        SmartDashboard.putBoolean("heading on", headingOn);
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)",
                 lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", currPose.getX());
