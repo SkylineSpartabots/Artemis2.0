@@ -322,16 +322,16 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     } // runs periodically as a default command
 
     public void setLastHeading(){
-        lastHeading = getRotation3d().getAngle();
+        lastHeading = getPose().getRotation().getRadians();
+        SmartDashboard.putNumber("lastHeading", lastHeading);
+
     }
 
     public double headingControl(double driverRX) {
         if(Math.abs(driverRX) < (Constants.MaxAngularRate * 0.1)) { //0.5 is placeholder
-            if(Math.abs(robotAbsoluteVelocity()) > 0.05){
-            driverRX = pidHeading.calculate(getRotation3d().getAngle() , lastHeading);
+            driverRX = pidHeading.calculate(getPose().getRotation().getRadians() , lastHeading);
             headingOn = true;
             SmartDashboard.putBoolean("headingON", headingOn);
-            }
         } else {
             headingOn = false;
             SmartDashboard.putBoolean("headingON", headingOn);
