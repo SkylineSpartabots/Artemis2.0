@@ -98,7 +98,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     //Heading 
     PIDController pidHeading = new PIDController(8, 0, 1);
-    
+    private final double headingControlSensitivity = 0.1; // heading control should be active when driverRX input is less than this value * constants.MaxAngularRate
+
     public void setPidHeadingTolerance() {
         pidHeading.setTolerance(Math.toRadians(2.5));
     }
@@ -328,11 +329,12 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     }
 
     public double headingControl(double driverRX) {
-        if(Math.abs(driverRX) < (Constants.MaxAngularRate * 0.1)) { //0.5 is placeholder
+        if(Math.abs(driverRX) < (Constants.MaxAngularRate * headingControlSensitivity)) { // if the driver is not touching right stick ie trying to turn
             driverRX = pidHeading.calculate(getPose().getRotation().getRadians() , lastHeading);
             headingOn = true;
             SmartDashboard.putBoolean("headingON", headingOn);
-        } else {
+        } else { // if they are trying to turn then dont run the pid, we need to also reset the heading to be whatever they set it to
+            setLastHeading();
             headingOn = false;
             SmartDashboard.putBoolean("headingON", headingOn);
             SmartDashboard.putNumber("lastHeading", lastHeading);
@@ -414,6 +416,7 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         headingControl = (headingControl == false) ? true : false;
         SmartDashboard.putBoolean("heading control", headingControl);
     }
+    // maybe create a set heading control method - boolean
 
     public Boolean getTractionBool() {
         return tractionControl;
