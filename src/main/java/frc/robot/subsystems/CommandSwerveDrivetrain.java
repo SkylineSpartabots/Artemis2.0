@@ -4,6 +4,8 @@ import java.sql.Driver;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
@@ -18,6 +20,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -129,6 +132,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         resetOdoUtil(pose);
     }
 
+    @AutoLogOutput(key = "Swerve/Pose")
     public Pose2d getPose(){
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
@@ -167,13 +171,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         autoStartPose = pose;
     }
 
+    @AutoLogOutput(key = "SwerveStates/Measured")
+    private SwerveModuleState[] getModuleStates() {
+        SwerveModuleState[] states = new SwerveModuleState[4];
+        for (int i = 0; i < 4; i++) {
+          states[i] = Modules[i].getCurrentState();
+        }
+        return states;
+      }
+
     @Override
     public void periodic() {
         // updateOdometryByVision();
         Pose2d currPose = getPose();
 
-        
-        
+        Logger.recordOutput("SwerveStates/M",  getModuleStates());
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", currPose.getX());

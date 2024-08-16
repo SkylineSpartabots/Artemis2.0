@@ -27,6 +27,19 @@ import com.revrobotics.CANSparkBase.IdleMode;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    // freaks
+    // public static final Mode currentMode = Mode.SIM;
+
+    // public static enum Mode {
+    //   /** Running on a real robot. */
+    //   REAL,
+  
+    //   /** Running a physics simulator. */
+    //   SIM,
+  
+    //   /** Replaying from a log file. */
+    //   REPLAY
+    // }
     public static double MaxSpeed = 6; //can be lowered during testing
     public static double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
