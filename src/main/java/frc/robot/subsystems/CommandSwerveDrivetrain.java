@@ -185,14 +185,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // updateOdometryByVision();
         Pose2d currPose = getPose();
 
-        Logger.recordOutput("SwerveStates/M",  getModuleStates());
+        Logger.recordOutput("SwerveStates/ModuleStates",  getModuleStates());
         //allows driver to see if resetting worked
-        SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        SmartDashboard.putNumber("ODO X", currPose.getX());
-        SmartDashboard.putNumber("ODO Y", currPose.getY());
-        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
-        SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
-        SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
+        SmartDashboard.putBoolean("Odometry/Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
+        SmartDashboard.putNumber("Odometry/ODO X", currPose.getX());
+        SmartDashboard.putNumber("Odometry/ODO Y", currPose.getY());
+        SmartDashboard.putNumber("Odometry/ODO ROT", currPose.getRotation().getRadians());
+        SmartDashboard.putNumber("Odometry/AUTO INIT X", autoStartPose.getX());
+        SmartDashboard.putNumber("Odometry/AUTO INIT Y", autoStartPose.getY());
 
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
         m_field.setRobotPose(m_odometry.getEstimatedPosition());
@@ -202,10 +202,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             //Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
             //Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
             //Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
-            SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+            SmartDashboard.putNumber("CANcoder/CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
             //SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
-            SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
+            SmartDashboard.putNumber("MotorVelocity/drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+            SmartDashboard.putNumber("MotorVelocity/Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
         }
 
 

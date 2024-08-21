@@ -226,8 +226,8 @@ public class Shooter extends SubsystemBase {
         // Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
         // Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
 
-        SmartDashboard.putNumber("Shooter top motor velocity", getTopMotorVelocity());
-        SmartDashboard.putNumber("Shooter bot motor velocity", getBottomMotorVelocity());
+        SmartDashboard.putNumber("Shooter/Shooter top motor velocity", getTopMotorVelocity());
+        SmartDashboard.putNumber("Shooter/Shooter bot motor velocity", getBottomMotorVelocity());
 
 
         //Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());

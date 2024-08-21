@@ -94,8 +94,8 @@ public class Indexer extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Color Sensor Proximity", getColorSensorResult());
-        SmartDashboard.putNumber("Indexer Motor Current", getMotorCurrent());
+        SmartDashboard.putNumber("Indexer/Color Sensor Proximity", getColorSensorResult());
+        SmartDashboard.putNumber("Indexer/Indexer Motor Current", getMotorCurrent());
         // SmartDashboard.putBoolean("Limit Switch State", getLimitSwitchResult());
     }
 

@@ -158,7 +158,7 @@ public class Intake extends SubsystemBase {
         // if (stateName != null) {
         //     SmartDashboard.putString("Intake State", stateName);
         // }
-        SmartDashboard.putBoolean("Intake On", intakeLeaderM.getMotorVoltage().getValueAsDouble() > 2);
+        SmartDashboard.putBoolean("Intake/Intake On", intakeLeaderM.getMotorVoltage().getValueAsDouble() > 2);
     }
 
     @Override
