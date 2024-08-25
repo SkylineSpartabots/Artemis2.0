@@ -40,7 +40,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    //Vision m_Camera;
+    Vision m_Camera;
 
     private Field2d m_field = new Field2d();
 
@@ -70,7 +70,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
         
-        //m_Camera = Vision.getInstance();
+        m_Camera = Vision.getInstance();
 
         if (Utils.isSimulation()) {
             startSimThread();
@@ -153,10 +153,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void updateOdometryByVision(){
         Pose3d poseFromVision = null;
         try {
-            // poseFromVision = m_Camera.calculatePoseFromVision();
+             poseFromVision = m_Camera.calculatePoseFromVision();
         } catch (Exception e) {
         }
         if(poseFromVision != null){
+            System.out.println("HIIII i did something i think rifht???");
             s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
             //TODO: add our own timer
             
@@ -180,7 +181,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
-        // updateOdometryByVision();
+         updateOdometryByVision();
         Pose2d currPose = getPose();
 
         Logger.recordOutput("SwerveStates/ModuleStates",  getModuleStates());

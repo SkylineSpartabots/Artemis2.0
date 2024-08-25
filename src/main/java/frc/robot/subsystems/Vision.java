@@ -95,13 +95,13 @@ public class Vision extends SubsystemBase {
     public Map<Cameras, PhotonTrackedTarget> getBestTargets() {
         getLatestResults(); // Make sure the latestResults are up to date
 
-        if (latestResults.get(Cameras.CENTER) != null) {
+        if (latestResults.get(Cameras.CENTER).hasTargets()) {
             bestTargets.put(Cameras.CENTER, latestResults.get(Cameras.CENTER).getBestTarget());
         }
-        // if (latestResults.get(Cameras.RIGHT_BACK) != null) {
+        // if (latestResults.get(Cameras.RIGHT_BACK).hasTargets()) {
         //     bestTargets.put(Cameras.RIGHT_BACK, latestResults.get(Cameras.RIGHT_BACK).getBestTarget());
         // }
-        // if (latestResults.get(Cameras.LEFT_BACK) != null) {
+        // if (latestResults.get(Cameras.LEFT_BACK).hasTargets()) {
         //     bestTargets.put(Cameras.LEFT_BACK, latestResults.get(Cameras.LEFT_BACK).getBestTarget());
         // }
 
@@ -391,6 +391,7 @@ public class Vision extends SubsystemBase {
     @Override
     public void periodic() {
         try {
+            // System.out.println("Calculate PoseEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
             calculatePoseFromVision();
         } catch (Exception e) {
         }
