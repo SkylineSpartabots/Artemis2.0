@@ -1,6 +1,7 @@
 package frc.robot.commands.Drive;
 
 import java.util.List;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -47,19 +48,19 @@ public class VisionAlign extends Command {
         lastYaw = Integer.MAX_VALUE;
         time.restart();
     }
-    
+
     @Override
-    public void execute(){
+    public void execute() {
         SmartDashboard.putBoolean("Align Running", true);
         hasSpeaker = false;
         List<PhotonTrackedTarget> targets = s_Vision.getTargetsAsList();
-        for(PhotonTrackedTarget a : targets){
-            if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
+        for (PhotonTrackedTarget a : targets) {
+            if (a.getFiducialId() == 4 || a.getFiducialId() == 8) {
                 hasSpeaker = true;
                 target = a;
             }
         }
-        if(hasSpeaker){
+        if (hasSpeaker) {
             lastYaw = target.getYaw();
             double rotSpeed = rotController.calculate(lastYaw, 0);
             s_Swerve.setControl(drive.withRotationalRate(rotSpeed));
@@ -69,7 +70,7 @@ public class VisionAlign extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) { 
+    public void end(boolean interrupted) {
         SmartDashboard.putBoolean("Align Running", false);
 
         s_Swerve.setControl(drive.withRotationalRate(0));
