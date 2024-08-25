@@ -17,6 +17,7 @@ import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,22 +120,43 @@ public class Vision extends SubsystemBase {
         return camerasWithValidTargets;
     }
 
+    /**
+     * Combines the getTargets of every camera's latestResults.
+     * @return List containing every target from every camera.
+     */
+    public List<PhotonTrackedTarget> getTargetsAsList() {
+        List<PhotonTrackedTarget> centerTargets = getLatestResults().get(Cameras.CENTER).getTargets();
+        List<PhotonTrackedTarget> rightBackTargets = getLatestResults().get(Cameras.RIGHT_BACK).getTargets();
+        List<PhotonTrackedTarget> leftBackTargets = getLatestResults().get(Cameras.LEFT_BACK).getTargets();
+
+        List<PhotonTrackedTarget> allTargets = new ArrayList<>(); // Combine all the elements of each individual camera target list into one big list
+        allTargets.addAll(centerTargets);
+        allTargets.addAll(rightBackTargets);
+        allTargets.addAll(leftBackTargets);
+
+        return allTargets;
+    }
+    /**
+     * Returns a list of the provided camera's targets
+     * @return List containing the targets of the supplied camera.
+     */
+    public List<PhotonTrackedTarget> getTargetsAsList(Cameras camera) {
+        return getLatestResults().get(camera).getTargets() ;
+    }
 
     /**
      * Get the best target from the PhotonVision pipeline based on the selected camera.
-     *
      * @param camera Camera to get the best target from.
      * @return The best target from the selected camera based upon the latestResults Map.
      */
     public PhotonTrackedTarget getBestTarget(Cameras camera) {
-        return getBestTargets().get(camera.toString());
+        return getBestTargets().get(camera);
     }
 
     // my implementation of OLDVision.java  getBestTarget() method is below
 
     /**
      * Decides which camera has the best result based on a combined score of age and ambiguity.
-     *
      * @return Target with the lowest combined age and ambiguity score.
      */
     public PhotonTrackedTarget getBestTarget() {
@@ -165,21 +187,11 @@ public class Vision extends SubsystemBase {
         return bestTarget;
     }
 
-
-//
-//    // OBSOLETE just use latestResults map
-//    /**
-//     * Get the latest result from the PhotonVision pipeline based on the selected camera
-//     *
-//     * @param camera Camera to get the latest result from
-//     * @return The latest result from the selected camera's PhotonVision pipeline
-//     */
-//    public PhotonPipelineResult getLatestResult(Cameras camera) {
-//        updateAprilTagResults();
-//
-//        return latestResults.get(camera.toString());
-//    }
-
+    /**
+     * Calculates the position of the robot based on vision readings. Used for odometry.
+     * @return Estimated position of the robot.
+     * @throws Exception If target is null.
+     */
     public Pose3d calculatePoseFromVision() throws Exception {
         PhotonTrackedTarget bestTarget = getBestTarget();
         if (bestTarget != null) {
@@ -297,10 +309,10 @@ public class Vision extends SubsystemBase {
         List<PhotonTrackedTarget> rightBackTargets = rightBackCamera.getLatestResult().getTargets();
         List<PhotonTrackedTarget> leftBackTargets = leftBackCamera.getLatestResult().getTargets();
 
-        List<List<PhotonTrackedTarget>> allTargets = List.of(centerTargets, rightBackTargets, leftBackTargets);
+        List<List<PhotonTrackedTarget>> allTargets = List.of(centerTargets, rightBackTargets, leftBackTargets); // A list of lists
 
-        for (List<PhotonTrackedTarget> targets : allTargets) { // For each list in allTargets
-            for (PhotonTrackedTarget target : targets) { // For each target in each list
+        for (List<PhotonTrackedTarget> list : allTargets) { // For each list in allTargets
+            for (PhotonTrackedTarget target : list) { // For each target in each list
                 if (isSpeakerTag(target, canBeOffsetTag)) { // Check if it is a speaker tag
                     return true;
                 }

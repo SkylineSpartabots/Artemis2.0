@@ -19,7 +19,6 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerStates;
-import frc.robot.subsystems.Vision.CameraResult;
 
 public class VisionAlign extends Command {
     private final CommandSwerveDrivetrain s_Swerve;
@@ -53,7 +52,7 @@ public class VisionAlign extends Command {
     public void execute(){
         SmartDashboard.putBoolean("Align Running", true);
         hasSpeaker = false;
-        List<PhotonTrackedTarget> targets = s_Vision.getTargets();
+        List<PhotonTrackedTarget> targets = s_Vision.getTargetsAsList();
         for(PhotonTrackedTarget a : targets){
             if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
                 hasSpeaker = true;
