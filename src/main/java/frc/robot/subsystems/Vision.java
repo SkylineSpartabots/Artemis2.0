@@ -44,6 +44,7 @@ public class Vision extends SubsystemBase {
 
     // Cameras with valid targets
     private static Map<Cameras, Boolean> camerasWithValidTargets = new HashMap<>();
+    // TODO This can store null values.... not good make sure this wont cause issues
 
     // Valid Camera Names
     public enum Cameras {
@@ -172,8 +173,8 @@ public class Vision extends SubsystemBase {
         double currentTime = System.currentTimeMillis() / 1000.0; // Current time in seconds
 
         // Loop through the cameras and see which have valid targets
-        for (Map.Entry<Cameras, Boolean> entry : getValidTargets().entrySet()) {
-            if (entry.getValue()) { // If camera has a valid target
+        for (Map.Entry<Cameras, Boolean> entry : getValidTargets().entrySet()) { // For each camera in the camreasWithValidTargets Map
+            if (entry.getValue()) { // If camera has a valid target - the value for each key (camera) is just a boolean
                 PhotonTrackedTarget target = getBestTargets().get(entry.getKey());
 
                 double ambiguity = target.getPoseAmbiguity();
@@ -214,6 +215,7 @@ public class Vision extends SubsystemBase {
 
         } else {
             throw new Exception("No Vision Targets!");
+            // seems to only throw if we have never seen a tag before, not if there just isnt one in frame...
         }
     }
 
@@ -394,21 +396,24 @@ public class Vision extends SubsystemBase {
             // System.out.println("Calculate PoseEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
             calculatePoseFromVision();
         } catch (Exception e) {
+            System.out.println(e);
         }
+
+        PhotonTrackedTarget bestTarget = getBestTarget(); // this way i dont call it to check if null and then output the return from a second call. basically calling it twice allowed the return value to become null on the second call
 
 //        Logger.recordOutput("Has Target", hasValidTarget() != null); //TODO
         Logger.recordOutput("Vision/BestTargetYaw", getBestYaw());
         Logger.recordOutput("Vision/BestTargetPitch", getBestPitch());
 //        Logger.recordOutput("Vision/FloorDistance", getFloorDistance()); // TODO
-        Logger.recordOutput("Vision/BestTargetID", getBestTarget() != null ? getBestTarget().getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
-        Logger.recordOutput("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
+        Logger.recordOutput("Vision/BestTargetID", bestTarget != null ? bestTarget.getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
+        Logger.recordOutput("Vision/BestTargetAmbiguity", bestTarget != null ? bestTarget.getPoseAmbiguity() : -1);
 
 //        SmartDashboard.putBoolean("has target", hasValidTarget() != null);
         SmartDashboard.putNumber("Vision/BestTargetYaw", getBestYaw());
         SmartDashboard.putNumber("Vision/BestTargetPitch", getBestPitch());
 //        SmartDashboard.putNumber("Target floor distance", getFloorDistance());
-        SmartDashboard.putNumber("Vision/BestTargetID", getBestTarget() != null ? getBestTarget().getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
-        SmartDashboard.putNumber("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
+        SmartDashboard.putNumber("Vision/BestTargetID", bestTarget != null ? bestTarget.getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
+        SmartDashboard.putNumber("Vision/BestTargetAmbiguity", bestTarget != null ? bestTarget.getPoseAmbiguity() : -1);
         //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());    }
     }
 }
