@@ -33,8 +33,8 @@ public class Vision extends SubsystemBase {
     // TODO move these to constants - the transforms
     // Cameras
     private static PhotonCamera centerCamera;
-    private static PhotonCamera rightBackCamera;
-    private static PhotonCamera leftBackCamera;
+    // private static PhotonCamera rightBackCamera;
+    // private static PhotonCamera leftBackCamera;
 
     // Latest Results of every camera
     private static Map<Cameras, PhotonPipelineResult> latestResults = new HashMap<>();
@@ -47,9 +47,9 @@ public class Vision extends SubsystemBase {
 
     // Valid Camera Names
     public enum Cameras {
-        CENTER(centerCamera),
-        RIGHT_BACK(rightBackCamera),
-        LEFT_BACK(leftBackCamera);
+        CENTER(centerCamera);
+        // RIGHT_BACK(rightBackCamera),
+        // LEFT_BACK(leftBackCamera);
 
         Cameras(PhotonCamera camera) {
         }
@@ -68,8 +68,8 @@ public class Vision extends SubsystemBase {
     // Constructor
     private Vision() {
         centerCamera = new PhotonCamera("centerCamera");
-        rightBackCamera = new PhotonCamera("rightBackCamera");
-        leftBackCamera = new PhotonCamera("leftBackCamera");
+        // rightBackCamera = new PhotonCamera("rightBackCamera");
+        // leftBackCamera = new PhotonCamera("leftBackCamera");
         getBestTargets();
     }
 
@@ -81,8 +81,8 @@ public class Vision extends SubsystemBase {
      */
     public Map<Cameras, PhotonPipelineResult> getLatestResults() {
         latestResults.put(Cameras.CENTER, centerCamera.getLatestResult());
-        latestResults.put(Cameras.RIGHT_BACK, rightBackCamera.getLatestResult());
-        latestResults.put(Cameras.LEFT_BACK, leftBackCamera.getLatestResult());
+        // latestResults.put(Cameras.RIGHT_BACK, rightBackCamera.getLatestResult());
+        // latestResults.put(Cameras.LEFT_BACK, leftBackCamera.getLatestResult());
 
         return latestResults;
     }
@@ -95,9 +95,15 @@ public class Vision extends SubsystemBase {
     public Map<Cameras, PhotonTrackedTarget> getBestTargets() {
         getLatestResults(); // Make sure the latestResults are up to date
 
-        bestTargets.put(Cameras.CENTER, latestResults.get(Cameras.CENTER).getBestTarget());
-        bestTargets.put(Cameras.RIGHT_BACK, latestResults.get(Cameras.RIGHT_BACK).getBestTarget());
-        bestTargets.put(Cameras.LEFT_BACK, latestResults.get(Cameras.LEFT_BACK).getBestTarget());
+        if (latestResults.get(Cameras.CENTER) != null) {
+            bestTargets.put(Cameras.CENTER, latestResults.get(Cameras.CENTER).getBestTarget());
+        }
+        // if (latestResults.get(Cameras.RIGHT_BACK) != null) {
+        //     bestTargets.put(Cameras.RIGHT_BACK, latestResults.get(Cameras.RIGHT_BACK).getBestTarget());
+        // }
+        // if (latestResults.get(Cameras.LEFT_BACK) != null) {
+        //     bestTargets.put(Cameras.LEFT_BACK, latestResults.get(Cameras.LEFT_BACK).getBestTarget());
+        // }
 
         return bestTargets;
     }
@@ -114,8 +120,8 @@ public class Vision extends SubsystemBase {
         getBestTargets(); // Make sure besttargets are up to date
 
         camerasWithValidTargets.put(Cameras.CENTER, isValidTarget(bestTargets.get(Cameras.CENTER)));
-        camerasWithValidTargets.put(Cameras.RIGHT_BACK, isValidTarget(bestTargets.get(Cameras.RIGHT_BACK)));
-        camerasWithValidTargets.put(Cameras.LEFT_BACK, isValidTarget(bestTargets.get(Cameras.LEFT_BACK)));
+        // camerasWithValidTargets.put(Cameras.RIGHT_BACK, isValidTarget(bestTargets.get(Cameras.RIGHT_BACK)));
+        // camerasWithValidTargets.put(Cameras.LEFT_BACK, isValidTarget(bestTargets.get(Cameras.LEFT_BACK)));
 
         return camerasWithValidTargets;
     }
@@ -126,13 +132,13 @@ public class Vision extends SubsystemBase {
      */
     public List<PhotonTrackedTarget> getTargetsAsList() {
         List<PhotonTrackedTarget> centerTargets = getLatestResults().get(Cameras.CENTER).getTargets();
-        List<PhotonTrackedTarget> rightBackTargets = getLatestResults().get(Cameras.RIGHT_BACK).getTargets();
-        List<PhotonTrackedTarget> leftBackTargets = getLatestResults().get(Cameras.LEFT_BACK).getTargets();
+        // List<PhotonTrackedTarget> rightBackTargets = getLatestResults().get(Cameras.RIGHT_BACK).getTargets();
+        // List<PhotonTrackedTarget> leftBackTargets = getLatestResults().get(Cameras.LEFT_BACK).getTargets();
 
         List<PhotonTrackedTarget> allTargets = new ArrayList<>(); // Combine all the elements of each individual camera target list into one big list
         allTargets.addAll(centerTargets);
-        allTargets.addAll(rightBackTargets);
-        allTargets.addAll(leftBackTargets);
+        // allTargets.addAll(rightBackTargets);
+        // allTargets.addAll(leftBackTargets);
 
         return allTargets;
     }
@@ -306,18 +312,18 @@ public class Vision extends SubsystemBase {
      */
     public boolean hasSpeakerTag(boolean canBeOffsetTag) {
         List<PhotonTrackedTarget> centerTargets = centerCamera.getLatestResult().getTargets();
-        List<PhotonTrackedTarget> rightBackTargets = rightBackCamera.getLatestResult().getTargets();
-        List<PhotonTrackedTarget> leftBackTargets = leftBackCamera.getLatestResult().getTargets();
+        // List<PhotonTrackedTarget> rightBackTargets = rightBackCamera.getLatestResult().getTargets();
+        // List<PhotonTrackedTarget> leftBackTargets = leftBackCamera.getLatestResult().getTargets();
 
-        List<List<PhotonTrackedTarget>> allTargets = List.of(centerTargets, rightBackTargets, leftBackTargets); // A list of lists
+        // List<List<PhotonTrackedTarget>> allTargets = List.of(centerTargets, rightBackTargets, leftBackTargets); // A list of lists
 
-        for (List<PhotonTrackedTarget> list : allTargets) { // For each list in allTargets
-            for (PhotonTrackedTarget target : list) { // For each target in each list
+        // for (List<PhotonTrackedTarget> list : allTargets) { // For each list in allTargets
+            for (PhotonTrackedTarget target : centerTargets) { // For each target in each list
                 if (isSpeakerTag(target, canBeOffsetTag)) { // Check if it is a speaker tag
                     return true;
                 }
             }
-        }
+        // }
         return false;
     }
 
