@@ -1,57 +1,62 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import java.util.List;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.UnitBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import org.littletonrobotics.junction.Logger;
+import org.opencv.photo.Photo;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
-import org.photonvision.proto.Photon;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import org.littletonrobotics.junction.Logger;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Vision extends SubsystemBase {
-    private static Vision instance;
+    public static Vision instance;
+    public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    private Transform3d centerCamToRobotTransform = new Transform3d(
+            new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-5.67162), Units.inchesToMeters(-10.172538)),
+            new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(40), Units.degreesToRadians(0))
+    );
+    // TODO ADD MORE TRANSFORMS FOR OTHER  CAMERAS
+    // TODO move these to constants - the transforms
+    // Cameras
     private static PhotonCamera centerCamera;
-    private static PhotonCamera backRightCamera;
-    private static PhotonCamera backLeftCamera;
+    private static PhotonCamera rightBackCamera;
+    private static PhotonCamera leftBackCamera;
 
-    // private static PhotonCamera backRightCamera;
-    private static PhotonPipelineResult centerCameraResult;
-    private static PhotonPipelineResult backRightCameraResult;
-    private static PhotonPipelineResult backLeftCameraResult;
-    private static PhotonTrackedTarget lastValidTarget;
+    // Latest Results of every camera
+    private static Map<Cameras, PhotonPipelineResult> latestResults = new HashMap<>();
+
+    // Best Targets of every camera
+    private static Map<Cameras, PhotonTrackedTarget> bestTargets = new HashMap<>();
+
+    // Cameras with valid targets
+    private static Map<Cameras, Boolean> camerasWithValidTargets = new HashMap<>();
+
+    // Valid Camera Names
+    public enum Cameras {
+        CENTER(centerCamera),
+        RIGHT_BACK(rightBackCamera),
+        LEFT_BACK(leftBackCamera);
+
+        Cameras(PhotonCamera camera) {
+        }
+    }
 
     private static CommandSwerveDrivetrain s_Swerve;
-    
-    private double targetYaw;
-    private double targetDistance;
-    private int targetID;
 
-    public double floorDistance;
-
-    private Transform3d cameraToRobotTransform = new Transform3d(
-        new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-5.67162), Units.inchesToMeters(-10.172538)),
-        new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0))); //center cam
-
-    public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-//    private static PhotonCamera visionCamera;
-
+    // Get Instance
     public static Vision getInstance() {
         if (instance == null) {
             instance = new Vision();
@@ -59,193 +64,333 @@ public class Vision extends SubsystemBase {
         return instance;
     }
 
+    // Constructor
     private Vision() {
-        centerCamera = new PhotonCamera(Constants.Vision.centerCameraName);
-        backRightCamera = new PhotonCamera(Constants.Vision.backRightCameraName);
-        backLeftCamera = new PhotonCamera(Constants.Vision.backLeftCameraName);
-        updateAprilTagResults();
+        centerCamera = new PhotonCamera("centerCamera");
+        rightBackCamera = new PhotonCamera("rightBackCamera");
+        leftBackCamera = new PhotonCamera("leftBackCamera");
+        getBestTargets();
     }
 
-    public void updateAprilTagResults() {
-        centerCameraResult = centerCamera.getLatestResult();
-        backLeftCameraResult = backLeftCamera.getLatestResult();
-        backRightCameraResult = backRightCamera.getLatestResult();
-        // backRightCameraResult = backRightCamera.getLatestResult();
+
+    /**
+     * Update the latestResults Map with the latest result from each camera.
+     *
+     * @return latestResults Map
+     */
+    public Map<Cameras, PhotonPipelineResult> getLatestResults() {
+        latestResults.put(Cameras.CENTER, centerCamera.getLatestResult());
+        latestResults.put(Cameras.RIGHT_BACK, rightBackCamera.getLatestResult());
+        latestResults.put(Cameras.LEFT_BACK, leftBackCamera.getLatestResult());
+
+        return latestResults;
     }
 
-    public PhotonTrackedTarget getCenterTarget(){
-        if(centerCameraResult.hasTargets()){
-            return centerCameraResult.getBestTarget();
-        } else {
-            return null;
-        }
+    /**
+     * Updates bestTargets Map after calling updateAprilTagResults.
+     *
+     * @return bestTargets Map
+     */
+    public Map<Cameras, PhotonTrackedTarget> getBestTargets() {
+        getLatestResults(); // Make sure the latestResults are up to date
+
+        bestTargets.put(Cameras.CENTER, latestResults.get(Cameras.CENTER).getBestTarget());
+        bestTargets.put(Cameras.RIGHT_BACK, latestResults.get(Cameras.RIGHT_BACK).getBestTarget());
+        bestTargets.put(Cameras.LEFT_BACK, latestResults.get(Cameras.LEFT_BACK).getBestTarget());
+
+        return bestTargets;
     }
 
-    // public PhotonPipelineResult getLatestAprilTagResult(boolean isBackLeft) { //true is left false is right
-    //     updateAprilTagResults();
-    //     if (isBackLeft) {
-    //         return centerCameraResult;
-    //     } else {
-    //         return backRightCameraResult;
-    //     }
-        
-    // }
+// my implementation of OLDVision.java  hasValidTarget() method is below
+// i used a map to store which cameras have valid targets and then call getBestTarget() method to get the best target from any camera
 
-    public PhotonPipelineResult getLatestAprilTagResult(){
-        updateAprilTagResults();
-        return centerCameraResult;
+    /**
+     * Updates which cameras have valid targets after calling updateBestTargets.
+     *
+     * @return camerasWithValidTargets Map.
+     */
+    public Map<Cameras, Boolean> getValidTargets() {
+        getBestTargets(); // Make sure besttargets are up to date
+
+        camerasWithValidTargets.put(Cameras.CENTER, isValidTarget(bestTargets.get(Cameras.CENTER)));
+        camerasWithValidTargets.put(Cameras.RIGHT_BACK, isValidTarget(bestTargets.get(Cameras.RIGHT_BACK)));
+        camerasWithValidTargets.put(Cameras.LEFT_BACK, isValidTarget(bestTargets.get(Cameras.LEFT_BACK)));
+
+        return camerasWithValidTargets;
     }
 
-    // public List<PhotonTrackedTarget> getTargets(boolean isBackLeft) {
-    //    if (isBackLeft) {
-    //         return backLeftCameraResult.getTargets();
-    //     } else {
-    //         return backRightCameraResult.getTargets();
-    //     }
-    // }
-    public List<PhotonTrackedTarget> getTargets(){
-        return centerCameraResult.getTargets();
+
+    /**
+     * Get the best target from the PhotonVision pipeline based on the selected camera.
+     *
+     * @param camera Camera to get the best target from.
+     * @return The best target from the selected camera based upon the latestResults Map.
+     */
+    public PhotonTrackedTarget getBestTarget(Cameras camera) {
+        return getBestTargets().get(camera.toString());
     }
 
-    public enum CameraResult { //enum rahh
-        CENTER,
-        BACK_LEFT,
-        BACK_RIGHT,
-    }
+    // my implementation of OLDVision.java  getBestTarget() method is below
 
-    public CameraResult hasValidTarget() {
-        PhotonTrackedTarget target = centerCameraResult.getBestTarget();
-        PhotonTrackedTarget rightTarget = backRightCameraResult.getBestTarget();
-        PhotonTrackedTarget leftTarget = backLeftCameraResult.getBestTarget();
-
-        Boolean centerHasTarget = centerCameraResult.hasTargets() && target.getFiducialId() >= 1 && target.getFiducialId() <= Constants.Vision.aprilTagMax && target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
-        // Boolean backRightHasTarget = backRightCameraResult.hasTargets() && backRightCameraResult.getBestTarget().getFiducialId() >= 1 && backRightCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
-        // Boolean backLeftHasTarget = backLeftCameraResult.hasTargets() && backLeftCameraResult.getBestTarget().getFiducialId() >= 1 && backLeftCameraResult.getBestTarget().getFiducialId() <= Constants.Vision.aprilTagMax;
-
-        if(centerHasTarget){
-            return CameraResult.CENTER;
-        } else {
-            return null;
-        }
-        //  if (backLeftHasTarget && !backRightHasTarget) {
-        //     return CameraResult.BACK_LEFT;
-        // } else if (!backLeftHasTarget && backRightHasTarget) {
-        //     return CameraResult.BACK_RIGHT;
-        // } else if (backLeftHasTarget && backRightHasTarget) {
-        //     return CameraResult.BOTH;
-        // } else {
-        //     return null; 
-        // }
-    }
-
-    // TODO verify that by the end of auto we have lastValidTarget set
-
+    /**
+     * Decides which camera has the best result based on a combined score of age and ambiguity.
+     *
+     * @return Target with the lowest combined age and ambiguity score.
+     */
     public PhotonTrackedTarget getBestTarget() {
-        CameraResult valids = hasValidTarget();
-        if (valids != null) {
-            lastValidTarget = centerCameraResult.getBestTarget();
-            // if (valids == CameraResult.BACK_LEFT) { lastValidTarget = backLeftCameraResult.getBestTarget();}
-            // else if (valids == CameraResult.BACK_RIGHT) { lastValidTarget = backRightCameraResult.getBestTarget();}
-            // else if (valids == CameraResult.BOTH) {
-            //     if (backLeftCameraResult.getTimestampSeconds() >= backRightCameraResult.getTimestampSeconds()) { // If both cams have a target get the MOST recent one
-            //         lastValidTarget = backRightCameraResult.getBestTarget();
-            //     } else {
-            //         lastValidTarget = backLeftCameraResult.getBestTarget();
-            //     }
-            // }
-        } 
-        return lastValidTarget;
-    } 
 
-    public double getYaw() {
-        if (getBestTarget() != null) {
-            return getBestTarget().getYaw();
+        PhotonTrackedTarget bestTarget = null;
+        double bestScore = Double.MAX_VALUE; // make sure it isnt tooooo big lol
+        double currentTime = System.currentTimeMillis() / 1000.0; // Current time in seconds
+
+        // Loop through the cameras and see which have valid targets
+        for (Map.Entry<Cameras, Boolean> entry : getValidTargets().entrySet()) {
+            if (entry.getValue()) { // If camera has a valid target
+                PhotonTrackedTarget target = getBestTargets().get(entry.getKey());
+
+                double ambiguity = target.getPoseAmbiguity();
+                double age = currentTime - latestResults.get(entry.getKey()).getTimestampSeconds(); // Get the time of the latest result - I assume the time should be the same as the bestTarget (PhotonTrackedTarget) but idk
+                double score = ambiguity + age; // Combine ambiguity and age to get a score
+
+                // double score = (age * 0.7) + (ambiguity * 0.3); // Weighted sum: age is more important
+                // Use this if we need to weight age more importantly, this all would need to be tested to see how everything affects accuracy of results
+
+                // Lowest score wins - minimal ambiguity and age
+                if (score < bestScore && isValidTarget(target)) { // Just make sure its valid even though it should be but just checking to be sure
+                    bestScore = score;
+                    bestTarget = target;
+                }
+            }
         }
-        return -1;
+        return bestTarget;
     }
 
-    public double getPitch() {
-        if (getBestTarget() != null) {
-            return getBestTarget().getPitch();
+
+//
+//    // OBSOLETE just use latestResults map
+//    /**
+//     * Get the latest result from the PhotonVision pipeline based on the selected camera
+//     *
+//     * @param camera Camera to get the latest result from
+//     * @return The latest result from the selected camera's PhotonVision pipeline
+//     */
+//    public PhotonPipelineResult getLatestResult(Cameras camera) {
+//        updateAprilTagResults();
+//
+//        return latestResults.get(camera.toString());
+//    }
+
+    public Pose3d calculatePoseFromVision() throws Exception {
+        PhotonTrackedTarget bestTarget = getBestTarget();
+        if (bestTarget != null) {
+            Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null); // Return null if getTagPose doesnt return anything
+            if (targetPose != null) {
+                return PhotonUtils.estimateFieldToRobotAprilTag(
+                        bestTarget.getBestCameraToTarget(),
+                        targetPose,
+                        centerCamToRobotTransform
+                );
+            } else {
+                throw new Exception("TargetPose is null. Invalid Tag ID");
+            }
+
+        } else {
+            throw new Exception("No Vision Targets!");
+        }
+    }
+
+    // Overload land
+
+    /**
+     * Gets the Pitch of the best target from any camera.
+     *
+     * @return Pitch of best target from any camera.
+     */
+    public double getBestPitch() {
+        PhotonTrackedTarget target = getBestTarget();
+
+        if (target != null) {
+            return target.getPitch();
         }
         return -1;
     }
 
     /**
-     * @return the absolute distance in meters (there are different methods for horizontal or vertical)
+     * Gets the Yaw of the best target from any camera.
+     *
+     * @return Yaw of best target from any camera.
      */
-    public double getFloorDistance(){
-        // PhotonTrackedTarget target = getBestTarget();
-        PhotonTrackedTarget target = getCenterTarget();
+    public double getBestYaw() {
+        PhotonTrackedTarget target = getBestTarget();
 
         if (target != null) {
-            // code for back right corner camera
-            // targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
-            // Units.inchesToMeters(9.1), 
-            // aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
-            // Units.degreesToRadians(30), 
-            // Units.degreesToRadians(target.getPitch()));
-            targetDistance = PhotonUtils.calculateDistanceToTargetMeters(
-                Constants.Vision.centerCameraHeight, 
-                aprilTagFieldLayout.getTagPose(target.getFiducialId()).get().getZ(), 
-                Constants.Vision.centerCameraPitch, 
-                Units.degreesToRadians(target.getPitch())
-            );
-            floorDistance = targetDistance;
-            return targetDistance;
+            return target.getYaw();
         }
         return -1;
-
     }
 
-    public boolean hasSpeakerTag(){
-        List<PhotonTrackedTarget> targets = centerCamera.getLatestResult().getTargets();
-        for(PhotonTrackedTarget a : targets){
-            if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
+    /**
+     * Gets the Pitch of the supplied target.
+     *
+     * @param target Target to get Pitch of.
+     * @return Pitch of target.
+     */
+    public double getPitch(PhotonTrackedTarget target) {
+        if (target != null) {
+            return target.getPitch();
+        }
+        return -1;
+    }
+
+    /**
+     * Gets the Yaw of the supplied target.
+     *
+     * @param target Target to get Yaw of.
+     * @return Yaw of target.
+     */
+    public double getYaw(PhotonTrackedTarget target) {
+        if (target != null) {
+            return target.getYaw();
+        }
+        return -1;
+    }
+
+    /**
+     * Gets the Pitch of the best target from the supplied camera.
+     *
+     * @param camera Camera to get best target from.
+     * @return Pitch of target from camera
+     */
+    public double getPitch(Cameras camera) {
+        PhotonTrackedTarget target = getBestTargets().get(camera);
+
+        if (target != null) {
+            return target.getPitch();
+        }
+        return -1;
+    }
+
+    /**
+     * Gets the Yaw of the best target from the supplied camera.
+     *
+     * @param camera Camera to get best target from.
+     * @return Yaw of target from camera
+     */
+    public double getYaw(Cameras camera) {
+        PhotonTrackedTarget target = getBestTargets().get(camera);
+
+        if (target != null) {
+            return target.getYaw();
+        }
+        return -1;
+    }
+// No roll method :(
+
+    /**
+     * Checks if any camera has a speaker target.
+     *
+     * @param canBeOffsetTag Can the target be an offset speaker tag?
+     * @return True if any camera has a speaker tag, false if not.
+     */
+    public boolean hasSpeakerTag(boolean canBeOffsetTag) {
+        List<PhotonTrackedTarget> centerTargets = centerCamera.getLatestResult().getTargets();
+        List<PhotonTrackedTarget> rightBackTargets = rightBackCamera.getLatestResult().getTargets();
+        List<PhotonTrackedTarget> leftBackTargets = leftBackCamera.getLatestResult().getTargets();
+
+        List<List<PhotonTrackedTarget>> allTargets = List.of(centerTargets, rightBackTargets, leftBackTargets);
+
+        for (List<PhotonTrackedTarget> targets : allTargets) { // For each list in allTargets
+            for (PhotonTrackedTarget target : targets) { // For each target in each list
+                if (isSpeakerTag(target, canBeOffsetTag)) { // Check if it is a speaker tag
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if provided camera has a speaker target.
+     *
+     * @param camera         Camera to check for a valid speaker tag.
+     * @param canBeOffsetTag Can the target be an offset speaker tag?
+     * @return True if provided camera has a speaker tag, false if not.
+     */
+    public boolean hasSpeakerTag(Cameras camera, boolean canBeOffsetTag) {
+        List<PhotonTrackedTarget> targets = getLatestResults().get(camera).getTargets();
+
+        for (PhotonTrackedTarget target : targets) { // For each target in each list
+            if (isSpeakerTag(target, canBeOffsetTag)) { // Check if it is a speaker tag
                 return true;
             }
         }
         return false;
     }
 
-    public double getDistanceToPose(Pose2d pose){
-        return PhotonUtils.getDistanceToPose(s_Swerve.getPose(), pose);
-    }
+    // should i  return the speaker that has the target? or should i just say yeah somebody has one
 
+    // Utilities
 
     /**
-     * calculates field-relative robot pose from vision reading, feed to pose estimator (Kalman filter)
+     * Checks if the target is valid.
+     *
+     * @param target Target to check.
+     * @return True if the target pose is unambiguous and has a real ID, false if pose is ambiguous or ID is invalid.
      */
-    // public Pose3d calculatePoseFromVision() throws Exception{ //TODO: integrate multicamera resetting
-        // PhotonTrackedTarget bestTarget = getBestTarget();
-        // if(bestTarget == null){
-        //     throw new Exception("No vision target");
-        // } else {
-        //     Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
-            // return PhotonUtils.estimateFieldToRobotAprilTag(aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()));
-    //     }
-    // }
+    public boolean isValidTarget(PhotonTrackedTarget target) {
+        return target != null && target.getFiducialId() >= 1 && target.getFiducialId() <= Constants.Vision.aprilTagMax && target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
+    }
+
+    /**
+     * Checks if the target is a speaker tag.
+     *
+     * @param target         Target to check.
+     * @param canBeOffsetTag Can the target be an offset speaker tag?
+     * @return True if the target is a speaker tag, false if not.
+     */
+    public boolean isSpeakerTag(PhotonTrackedTarget target, boolean canBeOffsetTag) {
+        if (target == null) {
+            return false;
+        }
+        if (canBeOffsetTag) {
+            return target.getFiducialId() == Constants.Vision.AprilTags.redSpeakerOffset || target.getFiducialId() == Constants.Vision.AprilTags.blueSpeakerOffset;
+        } else {
+            return target.getFiducialId() == Constants.Vision.AprilTags.redSpeakerCenter || target.getFiducialId() == Constants.Vision.AprilTags.blueSpeakerCenter;
+        }
+    }
+
+    /**
+     * Checks if the target is a speaker tag. Always checks if the target is an offset speaker tag.
+     *
+     * @param target Target to check.
+     * @return True if the target is a speaker tag, false if not.
+     */
+    public boolean isSpeakerTag(PhotonTrackedTarget target) {
+        return isSpeakerTag(target, true); // Call the other method so I don't duplicate so much code.
+    }
+
 
     @Override
     public void periodic() {
-        updateAprilTagResults();
         try {
-            // calculatePoseFromVision();
-        } catch (Exception e){}
+            calculatePoseFromVision();
+        } catch (Exception e) {
+        }
 
-        Logger.recordOutput("has target", hasValidTarget() != null);
-        Logger.recordOutput("Vision/TargetYaw", getYaw());
-        Logger.recordOutput("Vision/TargetPitch", getPitch());
-        Logger.recordOutput("Vision/FloorDistance", getFloorDistance());
-        Logger.recordOutput("Vision/BestTargetID", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
+//        Logger.recordOutput("Has Target", hasValidTarget() != null); //TODO
+        Logger.recordOutput("Vision/BestTargetYaw", getBestYaw());
+        Logger.recordOutput("Vision/BestTargetPitch", getBestPitch());
+//        Logger.recordOutput("Vision/FloorDistance", getFloorDistance()); // TODO
+        Logger.recordOutput("Vision/BestTargetID", getBestTarget() != null ? getBestTarget().getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
         Logger.recordOutput("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
 
-        SmartDashboard.putBoolean("has target", hasValidTarget() != null);
-        SmartDashboard.putNumber("Target yaw", getYaw());
-        SmartDashboard.putNumber("Target pitch", getPitch());
-        SmartDashboard.putNumber("Target floor distance", getFloorDistance());
-        SmartDashboard.putNumber("target id", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
-        SmartDashboard.putNumber("Pose ambiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
-        //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
+//        SmartDashboard.putBoolean("has target", hasValidTarget() != null);
+        SmartDashboard.putNumber("Vision/BestTargetYaw", getBestYaw());
+        SmartDashboard.putNumber("Vision/BestTargetPitch", getBestPitch());
+//        SmartDashboard.putNumber("Target floor distance", getFloorDistance());
+        SmartDashboard.putNumber("Vision/BestTargetID", getBestTarget() != null ? getBestTarget().getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
+        SmartDashboard.putNumber("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
+        //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());    }
     }
 }
+

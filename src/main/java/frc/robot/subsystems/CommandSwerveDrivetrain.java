@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.sql.Driver;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -15,7 +14,6 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
