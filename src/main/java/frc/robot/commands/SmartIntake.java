@@ -8,26 +8,32 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
+import frc.robot.subsystems.Lights.ledModes;
 import frc.robot.subsystems.Pivot.PivotState;
 
 public class SmartIntake extends Command {
   private final Intake s_Intake;
   private final Indexer s_Indexer;
+  private final Lights s_Lights;
 
   private final int motorCurrentThreshold = 150;
 
   public SmartIntake() {
     s_Intake = Intake.getInstance();
     s_Indexer = Indexer.getInstance();
-    addRequirements(s_Intake, s_Indexer);
+    s_Lights = Lights.getInstance();
+
+    addRequirements(s_Intake, s_Indexer, s_Lights);
   }
 
   @Override
   public void initialize() {
     s_Indexer.setState(IndexerStates.ON);
     s_Intake.setSpeed(IntakeStates.ON);
+    s_Lights.setLEDs(ledModes.Intaking);
     new AlignPivot(PivotState.INTAKE).schedule();
   }
 
@@ -39,6 +45,8 @@ public class SmartIntake extends Command {
   public void end(boolean interrupted) {
     s_Intake.setSpeed(IntakeStates.OFF);
     s_Indexer.setState(IndexerStates.OFF);
+    s_Lights.setLEDs(ledModes.IntakeSuccess);
+
   }
 
   // Returns true when the command should end.
