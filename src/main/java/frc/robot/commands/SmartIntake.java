@@ -33,6 +33,7 @@ public class SmartIntake extends Command {
 
   @Override
   public void execute() {
+    // Nothing needs to run repeatedly for this command
   }
 
   @Override
@@ -44,8 +45,6 @@ public class SmartIntake extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // return s_Indexer.getMotorCurrent() > motorCurrentThreshold;
-    return s_Indexer.getColorSensorResult() > 400; //TODO: need to tune so note doesn't touch shooter when command ends
-    // return s_Indexer.getLimitSwitchResult();
+    return s_Indexer.getColorSensorResult() > 400; // When the color sensor detects a note, return true ending the command
   }
 }

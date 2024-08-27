@@ -43,6 +43,7 @@ public class Shooter extends SubsystemBase {
 
     // Constructor
     public Shooter() {
+        // Initialize the shooter motors with their IDs in Constants.java
         shooterTopM = new TalonFX(Constants.HardwarePorts.shooterTopM);
         shooterBottomM = new TalonFX(Constants.HardwarePorts.shooterBottomM);
 
