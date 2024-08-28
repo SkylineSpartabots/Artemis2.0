@@ -441,6 +441,8 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         // updateOdometryByVision();
         Pose2d currPose = getPose();
 
+        Logger.recordOutput("acceleration for iggy in gs", obtainAcceleration());
+
         // allows driver to see if resetting worked
         SmartDashboard.putBoolean("heading control", headingControl);
         SmartDashboard.putBoolean("traction control", tractionControl);
