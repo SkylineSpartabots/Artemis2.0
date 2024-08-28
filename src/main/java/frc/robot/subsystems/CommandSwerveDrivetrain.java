@@ -251,7 +251,12 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         // }
     }
 
+
+
     public Double[] tractionControl(double driverLX, double driverLY) {
+
+        Logger.recordOutput("tractionDT",System.currentTimeMillis() - lastTimeReset);
+        lastTimeReset = System.currentTimeMillis();
 
         Double[] outputs = new Double[6]; // reset to null every call
 
@@ -289,31 +294,30 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
             }
         }
 
-        // double desiredAcceleration = (desiredVelocity - estimatedVelocity) / dt;
+        double desiredAcceleration = (desiredVelocity - estimatedVelocity) / dt;
 
-        // double maxAcceleration = (9.80665 * frictionCoefficant);
-        // /*
-        //  * maximum acceleration we can have is equal to g*CoF, where g is the
-        //  * acceleration due to gravity and CoF is the coefficient of friction between
-        //  * the floor and the wheels (rubber and carpet i assumed), last number is for
-        //  * the max acceleration for traction in THIS time step
-        //  */
+        double maxAcceleration = (9.80665 * frictionCoefficant);
+        /*
+         * maximum acceleration we can have is equal to g*CoF, where g is the
+         * acceleration due to gravity and CoF is the coefficient of friction between
+         * the floor and the wheels (rubber and carpet i assumed), last number is for
+         * the max acceleration for traction in THIS time step
+         */
+        double alg = (9.80665 * frictionCoefficant) * dt + estimatedVelocity;
 
-        // double alg = (9.80665 * frictionCoefficant) * dt + estimatedVelocity;
+        if (desiredAcceleration > maxAcceleration) {
+            while (desiredVelocity > alg) {
+                driverLX -= 0.05;
+                driverLY -= 0.05;
+                desiredVelocity = Math.hypot(driverLX, driverLY);
+            } // smallest values of drive inputs that dont result in going over calculated max
+              // acceleration
+        }
 
-        // if (desiredAcceleration > maxAcceleration) {
-        //     while (desiredVelocity > alg) {
-        //         driverLX -= 0.05;
-        //         driverLY -= 0.05;
-        //         desiredVelocity = Math.hypot(driverLX, driverLY);
-        //     } // smallest values of drive inputs that dont result in going over calculated max
-        //       // acceleration
-        // }
+        // will be removing all of this part if we can get max acceleration as a constant
 
-        //will be removing all of this part if we can get max acceleration as a constant
-        
         // predict acceleration based on input
-        //UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
+        UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
 
         outputs[4] = driverLX;
         outputs[5] = driverLY;
@@ -325,12 +329,11 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     public void setLastHeading(){
         lastHeading = getPose().getRotation().getRadians();
         SmartDashboard.putNumber("lastHeading", lastHeading);
-
     }
 
     public double headingControl(double driverRX) {
-        if(Math.abs(driverRX) < (Constants.MaxAngularRate * headingControlSensitivity)) { // if the driver is not touching right stick ie trying to turn
-            driverRX = pidHeading.calculate(getPose().getRotation().getRadians() , lastHeading);
+        if(Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband)) { // if the driver is not touching right stick ie trying to turn
+            driverRX = pidHeading.calculate(getPose().getRotation().getRadians(), lastHeading);
             headingOn = true;
             SmartDashboard.putBoolean("headingON", headingOn);
         } else { // if they are trying to turn then dont run the pid, we need to also reset the heading to be whatever they set it to
@@ -367,8 +370,8 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         };
 
         // Noise covariance for state and measurment funcitons (not tuned)
-        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.105, 0); // obtained from noise when sensor is at rest
-        Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(6.92e-4); // got from document and gbt
+        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0, 0); // obtained from noise when sensor is at rest
+        Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(0); // got from document and gbt
 
         UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N1(), f, h, stateStdDevs, measurementStdDevs, dt);
         // TODO determine state and neasurement standard deviation, could use simulation
@@ -386,7 +389,7 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
                 TalonFX module = Modules[i].getDriveMotor();
                 module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
                 SmartDashboard.putBoolean("slipON", true);
-            }  else {SmartDashboard.putBoolean("slipON", false);}// divides by slip factor, more agressive if far above slip threshold 
+            }  else {SmartDashboard.putBoolean("slipON", false);} // divides by slip factor, more agressive if far above slip threshold 
         }
     }
 
