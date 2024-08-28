@@ -65,9 +65,7 @@ public class Drive extends Command {
         s_Swerve.applyRequest(() ->
                 drive.withVelocityX(driverLX)
                         .withVelocityY(driverLY)
-                        .withRotationalRate(driverRX * Constants.MaxSpeed));
-
-        s_Swerve.resetTime();
+                        .withRotationalRate(driverRX * Constants.MaxAngularRate));
     }
 
     @Override
