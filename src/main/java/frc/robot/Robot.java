@@ -94,7 +94,7 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putData("Auto choices", autoChooser);
         m_robotContainer = RobotContainer.getInstance();
         s_Swerve = CommandSwerveDrivetrain.getInstance();
-        s_Swerve.initKalman();
+        // s_Swerve.initKalman();
         s_Swerve.setPidHeadingTolerance();
         //PortForwarder.add(5800, "photonvision.local", 5800);
     }
