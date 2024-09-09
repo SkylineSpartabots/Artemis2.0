@@ -292,8 +292,9 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
 
             if (wheelRPM < 0.001) { // minimize drift by recalibrating if we are at rest
                 k++;
-                if (k == 4) { // if all 4 wheels say we are at rest, reset acceleration and velocity to 0
+                if (k == 3) { // if all 4 wheels say we are at rest, reset acceleration and velocity to 0
                     prevAccelMagnitude = 0;
+                    prevFilteredAccelMagnitude = 0;
                     prevVelocity = 0;
                     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
                     break;
