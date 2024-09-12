@@ -14,24 +14,22 @@ public class SetIntake extends Command {
     private final Indexer s_Indexer;
 
     private Timer timer;
-    private double time;
-    private boolean intaking;
-    private final int colorSensorProximityThreshold = 110;
+    private double time; // Time to wait for command to complete
+    private final int colorSensorProximityThreshold = 110; // How close does the note need to be to the color sensor to be considered "detected"
 
-    public SetIntake(Intake.IntakeStates state, double time){
+    // Overloaded Constructor
+    public SetIntake(Intake.IntakeStates state, double time) {
         s_Intake = Intake.getInstance();
+        s_Indexer = Indexer.getInstance();
+
+        this.state = state;
         this.time = time;
         timer = new Timer();
-        this.state = state;
-        if(state == IntakeStates.ON){
-            intaking = true;
-        }
-        addRequirements(s_Intake);
 
-        s_Indexer = Indexer.getInstance();
+        addRequirements(s_Intake, s_Indexer);
     }
 
-
+    // Overloaded constructor
     public SetIntake(Intake.IntakeStates state) {
         this(state, 4);
     }
@@ -46,17 +44,16 @@ public class SetIntake extends Command {
 
     @Override
     public void execute() {
+        // Nothing needs to run repeatedly for this command
     }
 
     @Override
     public void end(boolean interrupted) {
-        if(intaking){
-            s_Intake.setSpeed(IntakeStates.OFF);
-        }
+        s_Intake.setSpeed(IntakeStates.OFF);
     }
 
     @Override
-    public boolean isFinished() {
-        return intaking ?  (s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold || timer.hasElapsed(time)) : true;
+    public boolean isFinished() { // Return the color sensor result is greater than the threshold or the timer has elapsed, if true end the command
+        return  s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold || timer.hasElapsed(time);
     }
 }

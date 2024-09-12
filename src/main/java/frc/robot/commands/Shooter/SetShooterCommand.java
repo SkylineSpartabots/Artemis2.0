@@ -29,7 +29,7 @@ public class SetShooterCommand extends Command {
     public void initialize() {
         System.out.println("SHOOT");
         s_Shooter.setTopVelocity(velTop);
-        s_Shooter.setBotVelocity(velBot);
+        s_Shooter.setBottomVelocity(velBot);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SetShooterCommand extends Command {
 
     @Override
 	public boolean isFinished() {
-        double[] speeds = s_Shooter.getBothSpeeds();
+        double[] speeds = s_Shooter.getBothVelocities();
         return Math.abs(speeds[0] - velTop) < 3 && Math.abs(speeds[1] - velBot) < 3;
 	}
 		

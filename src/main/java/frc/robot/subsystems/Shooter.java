@@ -4,30 +4,24 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.RelativeEncoder;
-
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.units.Current;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
 
-    private static Shooter instance;
+    private static Shooter instance; //  Static variable meaning that it is shared between all instances of the class. Belongs to the class itself.
 
+    // Theis makes sure that there is only ever one instance of the Shooter class. If the instance has not already been created (someone hasn't created an instance of it yet), then it creates a new instance of the Shooter class. If it has already been created, it returns the instance that has already been created.
     public static Shooter getInstance() {
         if (instance == null) {
             instance = new Shooter();
@@ -38,6 +32,7 @@ public class Shooter extends SubsystemBase {
     private TalonFX shooterTopM;
     private TalonFX shooterBottomM;
 
+    // Used to limit the speed of the shooter
     private double velocityCap = 65;
 
     private double topVelocitySetpoint = 0;
@@ -46,8 +41,9 @@ public class Shooter extends SubsystemBase {
     final VelocityVoltage topVelocityVoltage = new VelocityVoltage(0);
     final VelocityVoltage bottomVelocityVoltage = new VelocityVoltage(0);
 
+    // Constructor
     public Shooter() {
-        currentPercentage = 0.0;
+        // Initialize the shooter motors with their IDs in Constants.java
         shooterTopM = new TalonFX(Constants.HardwarePorts.shooterTopM);
         shooterBottomM = new TalonFX(Constants.HardwarePorts.shooterBottomM);
 
@@ -59,11 +55,17 @@ public class Shooter extends SubsystemBase {
         configMotor(shooterBottomM, 0.362, 0.1225);
     }
 
+    /**
+     * Used to set configurations to the motor themselves such as current limits.
+     * @param motor The motor object to configure
+     * @param kS Value for kS Feedforward. Voltage needed to overcome static friction.
+     * @param kV Value for kV Feedforward. Voltage needed to overcome counter electromotive forces and additional friction that arises with speed.
+     */
     private void configMotor(TalonFX motor, double kS, double kV) {
 
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Coast; // Break or coast. When powered should the motor keep itself in place (brake) or allow itself to move freely (coast)
 
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
         currentLimitsConfigs.SupplyCurrentLimit = Constants.shooterContinuousCurrentLimit;
@@ -79,165 +81,164 @@ public class Shooter extends SubsystemBase {
         motor.getConfigurator().apply(slot0Configs);
     }
 
+    // Getters for the shooter motors
     /**
-     * @param speeds:        Array containing speeds for Bottom and Top motors
-     *                       (bottom, top)
-     * @param MotorLocation: Choose motors to set, 1 is Bottom motor, 2 is Top
-     *                       motor, 0 is Both
+     * Get both motor setpoints.
+     * @return Double Array where the first element is the top motor setpoint and the second element is the bottom motor setpoint.
      */
-    /*
-     * public void setSpeed(double[] speeds, ShooterMotors MotorLocation) { //sets
-     * speed of motors using specific speed values
-     * 
-     * if (MotorLocation == Shooter.ShooterMotors.BOTTOM) {
-     * shooterBottomM.set(speeds[0]);
-     * botVelocitySetpoint = speeds[0];
-     * } else if (MotorLocation == Shooter.ShooterMotors.TOP) {
-     * shooterTopM.set(speeds[1]);
-     * topVelocitySetpoint = speeds[1];
-     * } else if (MotorLocation == Shooter.ShooterMotors.BOTH) {
-     * shooterTopM.set(speeds[0]);
-     * topVelocitySetpoint = speeds[0];
-     * shooterBottomM.set(speeds[1]);
-     * botVelocitySetpoint = speeds[1];
-     * }
-     * }
-     */
+    public double[] getBothSetpoints() {
+        return new double[] { topVelocitySetpoint, botVelocitySetpoint };
+    }
 
-    /*
-     * public void setSpeed(double speed) { //-1.0 - 1.0, not rpm
-     * double[] speeds = new double[3];
-     * for (int i = 0; i < 3; i++) {
-     * speeds[i] = speed;
-     * }
-     * setSpeed(speeds, ShooterMotors.BOTH);
-     * } //what does do 🦅🦅🍔🍔🌭 ??
-     */
-
-    public double getTopSetpoint() { // gets specific Speed (i hope)
+    public double getTopSetpoint() {
         return topVelocitySetpoint;
     }
-
-    public void setVoltage(double volts) {
-        shooterTopM.setVoltage(volts);
-        shooterBottomM.setVoltage(volts);
+    public double getBottomSetpoint() {
+        return botVelocitySetpoint;
+    }
+    /**
+     * Get both motor velocities in Rotations Per Second.
+     * @return Double Array where the first element is the top motor velocity and the second element is the bottom motor velocity.
+     */
+    public double[] getBothVelocities() {
+        return new double[] { (shooterTopM.getVelocity().getValueAsDouble()),
+                (shooterBottomM.getVelocity().getValueAsDouble()) };
     }
 
+    /**
+     * Get the velocity of the top shooter motor in Rotations Per Second.
+      * @return Velocity of the top shooter motor in Rotations Per Second.
+     */
+    public double getTopVelocity() {
+        return shooterTopM.getVelocity().getValueAsDouble();
+    }
+
+    /**
+     * Get the velocity of the bottom shooter motor in Rotations Per Second.
+     * @return Velocity of the bottom shooter motor in Rotations Per Second.
+     */
+    public double getBottomVelocity() {
+        return shooterBottomM.getVelocity().getValueAsDouble();
+    }
+    /**
+     * Get both motor voltages.
+     * @return Double Array where the first element is the top motor voltage and the second element is the bottom motor voltage.
+     */
+    public double[] getBothVoltages() {
+        return new double[] { (shooterTopM.getMotorVoltage().getValueAsDouble()),
+                (shooterBottomM.getMotorVoltage().getValueAsDouble()) };
+    }
+    public double getTopMotorVoltage() {
+        return shooterTopM.getMotorVoltage().getValueAsDouble();
+    }
+
+    public double getBottomMotorVoltage() {
+        return shooterBottomM.getMotorVoltage().getValueAsDouble();
+    }
+
+// Setters for the shooter motors
+
+    /**
+     * Set the velocity of both the shooter motors.
+     * @param velocity Velocity in Rotations Per Second to set shooter motors to.
+     */
     public void setVelocity(double velocity) { // rotations per second
-        velocity = Math.min(velocity, velocityCap);
+        velocity = Math.min(velocity, velocityCap); // Make sure that the inputted velocity is not greater than the velocity cap
         topVelocitySetpoint = velocity;
         botVelocitySetpoint = velocity;
 
-        double rps = velocity / 60;
-        shooterTopM.setControl(topVelocityVoltage.withVelocity(rps));
-        shooterBottomM.setControl(bottomVelocityVoltage.withVelocity(rps));
+        shooterTopM.setControl(topVelocityVoltage.withVelocity(velocity));
+        shooterBottomM.setControl(bottomVelocityVoltage.withVelocity(velocity));
     }
 
     /**
-     * testing purposes only
+     * Set the velocity of the top shooter motor.
+     * @param velocity Velocity in Rotations Per Second to set top shooter motor to.
      */
-    double currentPercentage;
+    public void setTopVelocity(double velocity) {
+        topVelocitySetpoint = velocity;
 
-    public void setPercentOutput(double percent) {
-        shooterTopM.set(percent);
-        shooterBottomM.set(percent);
-        currentPercentage = percent;
+        shooterTopM.setControl(topVelocityVoltage.withVelocity(velocity));
     }
 
-    public void incPercentOutput() {
-        currentPercentage += 0.05;
-        shooterTopM.set(currentPercentage);
-        shooterBottomM.set(currentPercentage);
+    /**
+     * Set the velocity of the bottom shooter motor.
+     * @param velocity Velocity in Rotations Per Second to set bottom shooter motor to.
+     */
+    public void setBottomVelocity(double velocity) {
+        botVelocitySetpoint = velocity;
+
+        shooterBottomM.setControl(bottomVelocityVoltage.withVelocity(velocity));
     }
 
-    public void decPercentOutput() {
-        currentPercentage -= 0.05;
-        shooterTopM.set(currentPercentage);
-        shooterBottomM.set(currentPercentage);
-    }
-
-    public double getBottomSetpoint() { // gets specific Speed (i hope)
-        return botVelocitySetpoint;
-    }
-
-    public double[] getBothSpeeds() {
-        return new double[] { (shooterTopM.getVelocity().getValueAsDouble()),
-                (shooterBottomM.getVelocity().getValueAsDouble()) };
+    /**
+     * Set the voltage of both the shooter motors.
+     * @param volts Voltage to set shooter motors to.
+     */
+    public void setVoltage(double volts) {
+        shooterTopM.setVoltage(volts);
+        shooterBottomM.setVoltage(volts);
     }
 
     public void setTopVoltage(double voltage) {
         shooterTopM.setVoltage(voltage);
     }
 
-    public void setBotVoltage(double voltage) {
+    public void setBottomVoltage(double voltage) {
         shooterBottomM.setVoltage(voltage);
     }
 
+
+    /**
+     * Set the speed of both the shooter motors.
+     * @param volts Percent output to set shooter motors to. From -1 to 1.
+     */
+    public void setPercentage(double volts) {
+        shooterTopM.setVoltage(volts);
+        shooterBottomM.setVoltage(volts);
+    }
+
+    /**
+     * Set the speed of the top shooter motor.
+     * @param percent Percent output to set top shooter motor to. From -1 to 1.
+     */
     public void setTopPercent(double percent) {
         shooterTopM.set(percent);
     }
 
-    public void setBotPercent(double percent) {
+    /**
+     * Set the speed of the bottom shooter motor.
+     * @param percent Percent output to set bottom shooter motor to. From -1 to 1.
+     */
+    public void setBottomPercent(double percent) {
         shooterBottomM.set(percent);
     }
 
-    public void setTopVelocity(double velocity) {
-        topVelocitySetpoint = velocity;
-        shooterTopM.setControl(topVelocityVoltage.withVelocity(velocity));
-    }
 
-    public void setBotVelocity(double velocity) {
-        botVelocitySetpoint = velocity;
-        shooterBottomM.setControl(bottomVelocityVoltage.withVelocity(velocity));
-    }
-
-    public void setToIdle() {
-        setVelocity(1000);
-    }
-
-    public double getTopMotorVoltage() {
-        return shooterTopM.getMotorVoltage().getValueAsDouble();
-    }
-
-    public double getBotMotorVoltage() {
-        return shooterBottomM.getMotorVoltage().getValueAsDouble();
-    }
-
+    /**
+     * Are the velocities of the shooter motors within an acceptable error?
+     * @param acceptableError The acceptable error in rotations per second.
+     * @return
+     */
     public boolean velocitiesWithinError(double acceptableError) {
-        double[] shooterSpeeds = getBothSpeeds();
+        double[] shooterSpeeds = getBothVelocities();
         double averageError = ((shooterSpeeds[0] - topVelocitySetpoint) + (shooterSpeeds[1] - botVelocitySetpoint)) / 2;
         return Math.abs(averageError) < acceptableError;
     }
 
-    public double getTopMotorVelocity() {
-        return (shooterTopM.getVelocity().getValueAsDouble());
-    }
 
-    public double getBottomMotorVelocity() {
-        return shooterBottomM.getVelocity().getValueAsDouble();
-    }
 
     @Override
     public void periodic() {
-        //Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
-        //Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
+        Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
+        Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
 
         
-        // Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
-        // Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
+         Logger.recordOutput("Shooter/topMotorVelocity", getTopVelocity());
+         Logger.recordOutput("Shooter/bottomMotorVelocity", getBottomVelocity());
 
-        SmartDashboard.putNumber("Shooter/Shooter top motor velocity", getTopMotorVelocity());
-        SmartDashboard.putNumber("Shooter/Shooter bot motor velocity", getBottomMotorVelocity());
-
-
-        //Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
-        //Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
-
-        // SmartDashboard.putNumber("ShootT Err", 3000 - topEncoder.getVelocity());
-        // SmartDashboard.putNumber("ShootB Err", 3000 - bottomEncoder.getVelocity());
-
-        // SmartDashboard.putString("Top Speed", String.valueOf(currentTopSpeed));
-        // SmartDashboard.putString("Bottom Speed", String.valueOf(currentBottomSpeed));
+        SmartDashboard.putNumber("Shooter/topMotorVelocity", getTopVelocity());
+        SmartDashboard.putNumber("Shooter/bottomMotorVelocity", getBottomVelocity());
     }
 
     @Override
