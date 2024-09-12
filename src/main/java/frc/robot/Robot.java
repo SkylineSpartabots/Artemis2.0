@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.*;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -23,13 +24,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Autos.AutoPath;
 import frc.robot.commands.Pivot.AlignPivot;
-import frc.robot.subsystems.Amp;
-import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Pivot;
-import frc.robot.subsystems.Shooter;
-//import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Vision;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -41,7 +36,7 @@ public class Robot extends LoggedRobot {
   private final Indexer s_Indexer;
   private final Intake s_Intake;
   private final Pivot s_Pivot;
-  // private final Vision s_Vision;
+   private final Vision s_Vision;
   private final Climb s_Climb;
   private final Amp s_Amp;
 
@@ -51,7 +46,7 @@ public class Robot extends LoggedRobot {
     s_Indexer = Indexer.getInstance();
     s_Intake = Intake.getInstance();
     s_Pivot = Pivot.getInstance();
-    // s_Vision = Vision.getInstance();
+     s_Vision = Vision.getInstance();
     s_Climb = Climb.getInstance();
     s_Amp = Amp.getInstance();
   }
@@ -146,7 +141,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("Turn in place", AutoPath.NOTHINGTEST);*/
     SmartDashboard.putData("Auto choices", autoChooser);
     m_robotContainer = RobotContainer.getInstance();
-    //PortForwarder.add(5800, "photonvision.local", 5800);
+    PortForwarder.add(5800, "photonvision.local", 5800);
 
   }
 
