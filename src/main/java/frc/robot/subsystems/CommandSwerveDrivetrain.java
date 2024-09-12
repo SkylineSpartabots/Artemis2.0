@@ -259,7 +259,8 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     public Double[] tractionControl(double driverLX, double driverLY) {
 
         dt = (System.currentTimeMillis()/1000 - lastTimeReset);
-        lastTimeReset = System.currentTimeMillis()/1000;
+        lastTimeReset = System.currentTimeMillis()/1000; //in seconds
+        // gets the time inbetween executes
 
         Double[] outputs = new Double[6]; // reset to null every call
 
@@ -287,12 +288,15 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
-            double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity;
-            SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
 
-            if (wheelRPM < 0.001) { // minimize drift by recalibrating if we are at rest
+            //gets the ratio between what the encoders think our velocity is and the real velocity
+            double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
+            SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio); 
+
+            // minimize sensor drift by recalibrating if we are at rest
+            if (wheelRPM < 0.001) { 
                 k++;
-                if (k == 3) { // if all 4 wheels say we are at rest, reset acceleration and velocity to 0
+                if (k == 3) { // if 3 wheels say we are at rest, recalibrate values
                     prevAccelMagnitude = 0;
                     prevFilteredAccelMagnitude = 0;
                     prevVelocity = 0;
@@ -301,34 +305,30 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
                 }
             }
 
+            //if over the threshold save the value
             if (slipRatio > slipThreshold) {
                 outputs[i] = slipRatio;
             }
         }
 
-        double desiredAcceleration = (desiredVelocity - currentVelocity) / dt;
+        
+        double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
 
-        double maxAcceleration = (9.80665 * frictionCoefficant);
+        double maxAcceleration = (9.80665 * frictionCoefficant) * 1.1; // 1.1 is the boost
         /*
          * maximum acceleration we can have is equal to g*CoF, where g is the
          * acceleration due to gravity and CoF is the coefficient of friction between
-         * the floor and the wheels (rubber and carpet i assumed), last number is for
-         * the max acceleration for traction in THIS time step
+         * the floor and the wheels (rubber and carpet i assumed)
          */
-        double alg = (9.80665 * frictionCoefficant) * dt + currentVelocity;
 
+         // smallest values of drive inputs that dont result in going over calculated max
         if (desiredAcceleration > maxAcceleration) {
-            while (desiredVelocity > alg) {
-                driverLX -= 0.05;
-                driverLY -= 0.05;
-                desiredVelocity = Math.hypot(driverLX, driverLY);
-            } // smallest values of drive inputs that dont result in going over calculated max
-              // acceleration
-        }
 
-        // will be removing all of this part if we can get max acceleration as a constant
+            double epsilon = driverLX/driverLY;
+            driverLY = Math.sqrt((currentVelocity + (maxAcceleration*dt))/(Math.pow(2, epsilon)+1));
+            driverLX = (epsilon * driverLY);
+        }            // omg its so clean 
 
-        // predict acceleration based on input
         // UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
 
         outputs[4] = driverLX;
@@ -352,8 +352,9 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
             setLastHeading();
             headingOn = false;
             SmartDashboard.putBoolean("headingON", headingOn);
-            SmartDashboard.putNumber("lastHeading", lastHeading);
         }
+
+        SmartDashboard.putNumber("lastHeading", lastHeading);
 
         return driverRX;
 
@@ -396,12 +397,13 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     // goodbye my little kalman
 
     public void slipCorrection(Double[] inputs) {
+        // divides by slip factor, more agressive if far above slip threshold 
         for (int i = 0; i < ModuleCount; i++) {
             if (inputs[i] != null) {
                 TalonFX module = Modules[i].getDriveMotor();
                 module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
                 SmartDashboard.putBoolean("slipON", true);
-            }  else {SmartDashboard.putBoolean("slipON", false);} // divides by slip factor, more agressive if far above slip threshold 
+            }  else {SmartDashboard.putBoolean("slipON", false);} 
         }
     }
 
