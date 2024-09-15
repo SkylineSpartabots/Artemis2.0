@@ -8,7 +8,9 @@ import java.util.function.Supplier;
 
 import javax.crypto.Mac;
 
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -297,9 +299,9 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
             if (wheelRPM < 0.001) { 
                 k++;
                 if (k == 3) { // if 3 wheels say we are at rest, recalibrate values
-                    prevAccelMagnitude = 0;
-                    prevFilteredAccelMagnitude = 0;
-                    prevVelocity = 0;
+//                    prevAccelMagnitude = 0;
+//                    prevFilteredAccelMagnitude = 0;
+//                    prevVelocity = 0;
                     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
                     break;
                 }
@@ -456,6 +458,14 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
 
     public void setAutoStartPose(Pose2d pose) {
         autoStartPose = pose;
+    }
+    @AutoLogOutput(key = "SwerveStates/Measured")
+    private SwerveModuleState[] getModuleStates() {
+        SwerveModuleState[] states = new SwerveModuleState[4];
+        for (int i = 0; i < 4; i++) {
+            states[i] = Modules[i].getCurrentState();
+        }
+        return states;
     }
 
     @Override
