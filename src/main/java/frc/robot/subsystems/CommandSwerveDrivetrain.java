@@ -256,7 +256,10 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     double alpha = 0.98; //TODO tune
     double prevAccelMagnitude = 0;
     double prevFilteredAccelMagnitude = 0;
-    double prevVelocity = 0;
+    double prevVelocity = 0;        
+    int k = 0;
+
+    
 
     public Double[] tractionControl(double driverLX, double driverLY) {
 
@@ -286,7 +289,6 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         // double estimatedVelocity = UKF.getXhat(1);
         // SmartDashboard.putNumber("UKF estimated velocity", estimatedVelocity);
 
-        int k = 0;
         for (int i = 0; i < ModuleCount; i++) {
             TalonFX module = Modules[i].getDriveMotor();
             double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
@@ -296,14 +298,15 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
             SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio); 
 
             // minimize sensor drift by recalibrating if we are at rest
-            if (wheelRPM < 0.001) { 
+            if (wheelRPM < 0.0001) { 
                 k++;
-                if (k == 3) { // if 3 wheels say we are at rest, recalibrate values
-//                    prevAccelMagnitude = 0;
-//                    prevFilteredAccelMagnitude = 0;
-//                    prevVelocity = 0;
+                if (k*dt >= 1000) {
+                   prevAccelMagnitude = 0;
+                   prevFilteredAccelMagnitude = 0;
+                   prevVelocity = 0;
                     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
-                    break;
+                } else {
+                    k = 0;
                 }
             }
 
