@@ -233,19 +233,19 @@ public class Vision extends SubsystemBase {
             // calculatePoseFromVision();
         } catch (Exception e){}
 
-        Logger.recordOutput("has target", hasValidTarget() != null);
-        Logger.recordOutput("Vision/TargetYaw", getYaw());
-        Logger.recordOutput("Vision/TargetPitch", getPitch());
-        Logger.recordOutput("Vision/FloorDistance", getFloorDistance());
-        Logger.recordOutput("Vision/BestTargetID", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
-        Logger.recordOutput("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
+        // Logger.recordOutput("has target", hasValidTarget() != null);
+        // Logger.recordOutput("Vision/TargetYaw", getYaw());
+        // Logger.recordOutput("Vision/TargetPitch", getPitch());
+        // Logger.recordOutput("Vision/FloorDistance", getFloorDistance());
+        // Logger.recordOutput("Vision/BestTargetID", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
+        // Logger.recordOutput("Vision/BestTargetAmbiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
 
-        SmartDashboard.putBoolean("has target", hasValidTarget() != null);
-        SmartDashboard.putNumber("Target yaw", getYaw());
-        SmartDashboard.putNumber("Target pitch", getPitch());
-        SmartDashboard.putNumber("Target floor distance", getFloorDistance());
-        SmartDashboard.putNumber("target id", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
-        SmartDashboard.putNumber("Pose ambiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
+        // SmartDashboard.putBoolean("has target", hasValidTarget() != null);
+        // SmartDashboard.putNumber("Target yaw", getYaw());
+        // SmartDashboard.putNumber("Target pitch", getPitch());
+        // SmartDashboard.putNumber("Target floor distance", getFloorDistance());
+        // SmartDashboard.putNumber("target id", getBestTarget() == null ? -1 : getBestTarget().getFiducialId());
+        // SmartDashboard.putNumber("Pose ambiguity", getBestTarget() != null ? getBestTarget().getPoseAmbiguity() : -1);
         //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());
     }
 }

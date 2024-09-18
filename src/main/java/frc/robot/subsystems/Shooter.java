@@ -218,8 +218,8 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
-        Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
+        // Logger.recordOutput("Shooter/TopSetpoints", topVelocitySetpoint);
+        // Logger.recordOutput("Shooter/BottomSetpoints", botVelocitySetpoint);
 
         
         // Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
@@ -229,8 +229,8 @@ public class Shooter extends SubsystemBase {
         // SmartDashboard.putNumber("Shooter bot motor velocity", getBottomMotorVelocity());
 
 
-        Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
-        Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
+        // Logger.recordOutput("Shooter/topMotorSpeed", getTopMotorVelocity());
+        // Logger.recordOutput("Shooter/bottomMotorSpeed", getBottomMotorVelocity());
 
         // SmartDashboard.putNumber("ShootT Err", 3000 - topEncoder.getVelocity());
         // SmartDashboard.putNumber("ShootB Err", 3000 - bottomEncoder.getVelocity());

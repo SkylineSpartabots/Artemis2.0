@@ -142,8 +142,8 @@ public class Music extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putString("Song", song);
-    SmartDashboard.putBoolean("isPlaying", m_Orchestra.isPlaying());
+    // SmartDashboard.putString("Song", song);
+    // SmartDashboard.putBoolean("isPlaying", m_Orchestra.isPlaying());
     // This method will be called once per scheduler run
   }
 }

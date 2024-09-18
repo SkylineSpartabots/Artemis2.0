@@ -68,6 +68,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     Vision m_Camera;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+    private Timer timer;
 
     public static final double translationDeadband = 0.05;
     public static final double rotDeadband = 0.05;
@@ -75,7 +76,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     // traction control variables
     Pigeon2 pigeon = getPigeon2(); //using the already contructed pigeon
 
-    double dt = 0.03;
+    double dt = 0.02;
     
     private boolean tractionControl = false; // for toggling traction control
     private boolean headingControl = false; // for toggling heading control
@@ -110,7 +111,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
                                    SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); // look here for parent library methods
-
+         timer = new Timer();                           
         m_Camera = Vision.getInstance();
 
         if (Utils.isSimulation()) {
@@ -304,9 +305,12 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
                    prevAccelMagnitude = 0;
                    prevFilteredAccelMagnitude = 0;
                    prevVelocity = 0;
+                   SmartDashboard.putNumber("big nathan timer", timer.get());
                     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
                 } else {
                     k = 0;
+                    timer.reset();
+                    timer.start();
                 }
             }
 
@@ -482,32 +486,32 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         SmartDashboard.putBoolean("heading control", headingControl);
         SmartDashboard.putBoolean("traction control", tractionControl);
         SmartDashboard.putBoolean("heading on", headingOn);
-        SmartDashboard.putBoolean("Odo Reset (last 5 sec)",
-                lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        SmartDashboard.putNumber("ODO X", currPose.getX());
-        SmartDashboard.putNumber("ODO Y", currPose.getY());
-        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
-        SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
-        SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
-        SmartDashboard.putNumber("Chassis Velocity from wheels", robotAbsoluteVelocity());
+        // SmartDashboard.putBoolean("Odo Reset (last 5 sec)",
+        //         lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
+        // SmartDashboard.putNumber("ODO X", currPose.getX());
+        // SmartDashboard.putNumber("ODO Y", currPose.getY());
+        // SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
+        // SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
+        // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
+        // SmartDashboard.putNumber("Chassis Velocity from wheels", robotAbsoluteVelocity());
 
-        SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
-        m_field.setRobotPose(m_odometry.getEstimatedPosition());
-        SmartDashboard.putData("field", m_field);
+        // SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
+        // m_field.setRobotPose(m_odometry.getEstimatedPosition());
+        // SmartDashboard.putData("field", m_field);
 
-        for (int i = 0; i < ModuleCount; i++) {
-            Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            Logger.recordOutput("Swerve/CANcoder module " + i,
-                    Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            // Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
-            SmartDashboard.putNumber("CANcoder position module " + i,
-                    Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            // SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
-            SmartDashboard.putNumber("drive motor velocity mod " + i,
-                    Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            SmartDashboard.putNumber("Angle motor velocity mod " + i,
-                    Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
-        }
+        // for (int i = 0; i < ModuleCount; i++) {
+        //     Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+        //     Logger.recordOutput("Swerve/CANcoder module " + i,
+        //             Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+        //     // Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
+        //     SmartDashboard.putNumber("CANcoder position module " + i,
+        //             Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+        //     // SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
+        //     SmartDashboard.putNumber("drive motor velocity mod " + i,
+        //             Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+        //     SmartDashboard.putNumber("Angle motor velocity mod " + i,
+        //             Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
+        // }
 
     }
 
