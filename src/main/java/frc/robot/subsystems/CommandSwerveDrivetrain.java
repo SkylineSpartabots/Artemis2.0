@@ -258,9 +258,7 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     double prevAccelMagnitude = 0;
     double prevFilteredAccelMagnitude = 0;
     double prevVelocity = 0;        
-    int k = 0;
-
-    
+    //prop put these at the top but like bruh
 
     public Double[] tractionControl(double driverLX, double driverLY) {
 
@@ -299,38 +297,29 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
             SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio); 
 
             // minimize sensor drift by recalibrating if we are at rest
-            if (wheelRPM < 0.0001) { 
-                k++;
-                if (k*dt >= 1000) {
+            if (wheelRPM < 0.0001 && timer.get() >= 1) { //timer is in seconds btw
                    prevAccelMagnitude = 0;
                    prevFilteredAccelMagnitude = 0;
                    prevVelocity = 0;
                    SmartDashboard.putNumber("big nathan timer", timer.get());
                     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
                 } else {
-                    k = 0;
                     timer.reset();
                     timer.start();
                 }
-            }
 
             //if over the threshold save the value
             if (slipRatio > slipThreshold) {
                 outputs[i] = slipRatio;
             }
         }
-
         
         double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
 
-        double maxAcceleration = (9.80665 * frictionCoefficant) * 1.1; // 1.1 is the boost
-        /*
-         * maximum acceleration we can have is equal to g*CoF, where g is the
-         * acceleration due to gravity and CoF is the coefficient of friction between
-         * the floor and the wheels (rubber and carpet i assumed)
-         */
+        double maxAcceleration = (9.80665 * frictionCoefficant);
+        // coefficient of friction between the floor and the wheels PLEASE TEST FOR CoF!!
 
-         // smallest values of drive inputs that dont result in going over calculated max
+        // smallest values of drive inputs that dont result in going over calculated max
         if (desiredAcceleration > maxAcceleration) {
 
             double epsilon = driverLX/driverLY;
@@ -353,7 +342,7 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     }
 
     public double headingControl(double driverRX) {
-        if(Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband)) { // if the driver is not touching right stick ie trying to turn
+        if(Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband)) { // if the driver is not touching right stick, turn on control
             driverRX = pidHeading.calculate(getPose().getRotation().getRadians(), lastHeading);
             headingOn = true;
             SmartDashboard.putBoolean("headingON", headingOn);

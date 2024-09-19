@@ -126,8 +126,8 @@ public class RobotContainer {
         // driver.leftBumper().onTrue(new SetShooterCommand(45));
         // driver.leftBumper().onTrue(onIntake());
 
-        //  driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
-        //  driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
+         driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
         //  driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
         //  driverDpadLeft.onTrue(CommandFactory.ampShootSequence());
         //  driverDpadRight.onTrue(new ZeroPivot()); //FINAL
@@ -171,7 +171,5 @@ public class RobotContainer {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
         drivetrain.registerTelemetry(logger::telemeterize);
-
-
     }
 }
