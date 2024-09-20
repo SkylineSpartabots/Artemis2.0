@@ -36,8 +36,8 @@ public class SetShooterCommand extends Command {
     public void initialize() {
         System.out.println("SHOOT");
         s_Shooter.setTopVelocity(velTop);
-        s_Shooter.setBotVelocity(velBot);
-
+        s_Shooter.setBottomVelocity(velBot);
+        
         s_Lights.setLEDs(ledModes.ShooterRamping);
     }
 
