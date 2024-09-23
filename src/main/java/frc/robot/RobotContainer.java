@@ -139,7 +139,6 @@ public class RobotContainer {
             drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drivetrain.drive(-driver.getLeftY(),-driver.getLeftX(),-driver.getRightX()))
             );
-            
 
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
 

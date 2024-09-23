@@ -262,17 +262,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public Double[] tractionControl(double driverLX, double driverLY) {
 
-        // dt = (System.currentTimeMillis()/1000 - lastTimeReset);
-        // lastTimeReset = System.currentTimeMillis()/1000; //in seconds
-        // gets the time inbetween executes
-
         Double[] outputs = new Double[6]; // reset to null every call
 
         double desiredVelocity = Math.hypot(driverLX, driverLY);
         SmartDashboard.putNumber("desired velocity", desiredVelocity);
 
         double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
-        SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude); //TODO TUNE
+        if (Math.abs(accelerationMagnitude) < 0.01) { //Pidegon is slightly off so im adding a threshold
+            accelerationMagnitude = 0;
+        }
+        SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude);
  
         // Filter Acceleration using Complimentary filter
         double filteredAccel = alpha * (accelerationMagnitude) + (1-alpha) * prevAccelMagnitude;
@@ -345,7 +344,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public double headingControl(double driverRX) {
         if(Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband)) { // if the driver is not touching right stick, turn on control
-            driverRX = pidHeading.calculate(getPose().getRotation().getRadians(), lastHeading);
+
+            double currentHeading = getPose().getRotation().getRadians();
+
+            driverRX = pidHeading.calculate(currentHeading, lastHeading);
+
             headingOn = true;
             SmartDashboard.putBoolean("headingON", headingOn);
         } else { // if they are trying to turn then dont run the pid, we need to also reset the heading to be whatever they set it to
