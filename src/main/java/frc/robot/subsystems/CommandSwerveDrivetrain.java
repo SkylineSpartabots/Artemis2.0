@@ -346,6 +346,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if(Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband)) { // if the driver is not touching right stick, turn on control
 
             double currentHeading = getPose().getRotation().getRadians();
+            double error = lastHeading - currentHeading;
+
+            //if the error is greater than pi its taking the least efficant route
+            if(error < -Math.PI) { lastHeading += 2 * Math.PI; }
+            else if(error > Math.PI) { lastHeading -= 2 * Math.PI; }
 
             driverRX = pidHeading.calculate(currentHeading, lastHeading);
 
