@@ -29,21 +29,22 @@ public class Toggles extends Command {
 
     @Override
     public void initialize() {
-        if (s_Swerve.getTractionBool() == false && s_Swerve.getHeadingControlBool() == false) {
+        // if (s_Swerve.getTractionBool() == false && s_Swerve.getHeadingControlBool() == false) {
 
-             s_Swerve.toggleTractionControl();} 
+             s_Swerve.toggleTractionControl();
+            // } 
 
-            else if (s_Swerve.getTractionBool() == true && s_Swerve.getHeadingControlBool() == false) {
+            // else if (s_Swerve.getTractionBool() == true && s_Swerve.getHeadingControlBool() == false) {
 
-                 s_Swerve.toggleTractionControl(); s_Swerve.toggleHeadingControl();  }
+            //      s_Swerve.toggleTractionControl(); s_Swerve.toggleHeadingControl();  }
 
-            else if (s_Swerve.getTractionBool() == false && s_Swerve.getHeadingControlBool() == true){
+            // else if (s_Swerve.getTractionBool() == false && s_Swerve.getHeadingControlBool() == true){
 
-                    s_Swerve.toggleTractionControl();
+            //         s_Swerve.toggleTractionControl();
 
-            } else if (s_Swerve.getTractionBool() == true && s_Swerve.getHeadingControlBool() == true) {
+            // } else if (s_Swerve.getTractionBool() == true && s_Swerve.getHeadingControlBool() == true) {
 
-                     s_Swerve.toggleTractionControl(); s_Swerve.toggleHeadingControl(); } 
+            //          s_Swerve.toggleTractionControl(); s_Swerve.toggleHeadingControl(); } 
 
     } //first run toggles only traction, then traction and heading, then both turn off
     

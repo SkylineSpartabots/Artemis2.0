@@ -86,7 +86,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private final double slipFactor = 5; // how agressive slip correction is, higher = less agressive
     private final double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
 
-    private final double frictionCoefficant = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
+    private final double frictionCoefficient = 0.8; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
     
     // deadband
     private final double deadbandFactor = 0.8; // closer to 0 is more linear deadband controls
@@ -152,33 +152,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
     }
-
-    // In CommandSwerveDrivetrain.java
-public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
-    driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
-    driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
-    driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed; //desired inputs in velocity
-
-    if (getTractionBool()) {
-        Double[] adjustedInputs = tractionControl(driverLX, driverLY);
-        driverLX = adjustedInputs[4];
-        driverLY = adjustedInputs[5];
-
-        slipCorrection(adjustedInputs);
-    }
-
-    if(getHeadingControlBool()) {
-        driverRX = headingControl(driverRX);
-    }
-
-    return new SwerveRequest.FieldCentric()
-        .withVelocityX(driverLY)
-        .withVelocityY(driverLX) //its like this for a reason
-        .withRotationalRate(driverRX)
-        .withDeadband(Constants.MaxSpeed * translationDeadband)
-        .withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-}
 
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
@@ -253,8 +226,35 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         // }
     }
 
+        // better to be here
+    public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
+        driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
+        driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
+        driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
 
-    double alpha = 0.98; //TODO tune
+    if (getTractionBool()) {
+        Double[] adjustedInputs = tractionControl(driverLX, driverLY);
+        driverLX = adjustedInputs[4];
+        driverLY = adjustedInputs[5];
+
+        slipCorrection(adjustedInputs);
+    }
+
+    if(getHeadingControlBool()) {
+        driverRX = headingControl(driverRX);
+    }
+
+    return new SwerveRequest.FieldCentric()
+        .withVelocityX(driverLY)
+        .withVelocityY(driverLX) //its like this for a reason
+        .withRotationalRate(driverRX * Constants.MaxAngularRate)
+        .withDeadband(Constants.MaxSpeed * translationDeadband)
+        .withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+}
+
+
+    double alpha = 0.75; //TODO tune
     double prevAccelMagnitude = 0;
     double prevFilteredAccelMagnitude = 0;
     double prevVelocity = 0;        
@@ -262,8 +262,8 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
 
     public Double[] tractionControl(double driverLX, double driverLY) {
 
-        dt = (System.currentTimeMillis()/1000 - lastTimeReset);
-        lastTimeReset = System.currentTimeMillis()/1000; //in seconds
+        // dt = (System.currentTimeMillis()/1000 - lastTimeReset);
+        // lastTimeReset = System.currentTimeMillis()/1000; //in seconds
         // gets the time inbetween executes
 
         Double[] outputs = new Double[6]; // reset to null every call
@@ -272,13 +272,14 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         SmartDashboard.putNumber("desired velocity", desiredVelocity);
 
         double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
-        SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude);
+        SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude); //TODO TUNE
  
         // Filter Acceleration using Complimentary filter
         double filteredAccel = alpha * (accelerationMagnitude) + (1-alpha) * prevAccelMagnitude;
 
         // Trapaziodal integration (obtain velocity)
         double currentVelocity = prevVelocity + ((filteredAccel + prevFilteredAccelMagnitude) / 2) * dt;
+        SmartDashboard.putNumber("currentVelocity", currentVelocity);
 
         //set prev values
         prevAccelMagnitude = accelerationMagnitude;
@@ -294,14 +295,16 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
 
             //gets the ratio between what the encoders think our velocity is and the real velocity
             double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
-            SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio); 
-
+            SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
+            SmartDashboard.putNumber("Module " + i + " RPM", wheelRPM);
+            
             // minimize sensor drift by recalibrating if we are at rest
-            if (wheelRPM < 0.0001 && timer.get() >= 1) { //timer is in seconds btw
+            if (wheelRPM < 0.0001 && timer.get() >= 1) { //timer is in seconds btw 
                    prevAccelMagnitude = 0;
                    prevFilteredAccelMagnitude = 0;
                    prevVelocity = 0;
-                   SmartDashboard.putNumber("big nathan timer", timer.get());
+                    SmartDashboard.putNumber("big nathan timer", timer.get());
+                    timer.reset();
                     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
                 } else {
                     timer.reset();
@@ -316,12 +319,11 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
         
         double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
 
-        double maxAcceleration = (9.80665 * frictionCoefficant);
+        double maxAcceleration = (9.80665 * frictionCoefficient);
         // coefficient of friction between the floor and the wheels PLEASE TEST FOR CoF!!
 
         // smallest values of drive inputs that dont result in going over calculated max
         if (desiredAcceleration > maxAcceleration) {
-
             double epsilon = driverLX/driverLY;
             driverLY = Math.sqrt((currentVelocity + (maxAcceleration*dt))/(Math.pow(2, epsilon)+1));
             driverLX = (epsilon * driverLY);

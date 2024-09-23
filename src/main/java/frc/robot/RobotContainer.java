@@ -38,7 +38,6 @@ import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Intake.SetIntake;
-import frc.robot.commands.Drive.Drive;
 import frc.robot.commands.Drive.Toggles;
 import frc.robot.commands.Drive.HoldHeading;
 
@@ -140,6 +139,7 @@ public class RobotContainer {
             drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drivetrain.drive(-driver.getLeftY(),-driver.getLeftX(),-driver.getRightX()))
             );
+            
 
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
 
