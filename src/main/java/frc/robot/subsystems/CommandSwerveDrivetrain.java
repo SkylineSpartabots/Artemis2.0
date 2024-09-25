@@ -232,8 +232,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
 
+        double desiredVelocity = Math.hypot(driverLX, driverLY);
+
+
     if (getTractionBool()) {
-        Double[] adjustedInputs = tractionControl(driverLX, driverLY);
+        Double[] adjustedInputs = tractionControl(driverLX, driverLY, desiredVelocity);
         driverLX = adjustedInputs[4];
         driverLY = adjustedInputs[5];
 
@@ -241,7 +244,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     if(getHeadingControlBool()) {
-        driverRX = headingControl(driverRX);
+        driverRX = headingControl(driverRX, desiredVelocity);
     }
 
     return new SwerveRequest.FieldCentric()
@@ -260,11 +263,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     double prevVelocity = 0;        
     //prop put these at the top but like bruh
 
-    public Double[] tractionControl(double driverLX, double driverLY) {
+    public Double[] tractionControl(double driverLX, double driverLY, double desiredVelocity) {
 
         Double[] outputs = new Double[6]; // reset to null every call
 
-        double desiredVelocity = Math.hypot(driverLX, driverLY);
         SmartDashboard.putNumber("desired velocity", desiredVelocity);
 
         double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
@@ -342,28 +344,34 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("lastHeading", lastHeading);
     }
 
-    public double headingControl(double driverRX) {
-        if((Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband)) && robotAbsoluteVelocity() > 0.02) { // if the driver is not touching right stick, turn on control
+    // if 
+
+    public double headingControl(double driverRX, double desiredVelocity) {
+        boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
+        boolean leftJoy = Math.abs(desiredVelocity) > 0.15;
+
+    if ((rightJoy && leftJoy) || (rightJoy && !leftJoy)){
+
+                setLastHeading();
+                headingOn = false;
+                SmartDashboard.putBoolean("headingON", headingOn);
+
+    } else if (!rightJoy && leftJoy || robotAbsoluteVelocity() > 0.01) {
 
             double currentHeading = getPose().getRotation().getRadians();
+            SmartDashboard.putNumber("heading",currentHeading);
             double error = lastHeading - currentHeading;
             SmartDashboard.putNumber("Heading deadband", Constants.MaxAngularRate * rotDeadband);
 
-        if(error >= 0.15) {
             //if the error is greater than pi its taking the least efficant route
             if(error < -Math.PI) { lastHeading += 2 * Math.PI; }
             else if(error > Math.PI) { lastHeading -= 2 * Math.PI; }
 
             driverRX = pidHeading.calculate(currentHeading, lastHeading);
-        }
 
             headingOn = true;
             SmartDashboard.putBoolean("headingON", headingOn);
-        } else { // if they are trying to turn then dont run the pid, we need to also reset the heading to be whatever they set it to
-            setLastHeading();
-            headingOn = false;
-            SmartDashboard.putBoolean("headingON", headingOn);
-        }
+    }
 
         SmartDashboard.putNumber("lastHeading", lastHeading);
 
