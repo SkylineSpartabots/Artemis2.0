@@ -294,10 +294,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             TalonFX module = Modules[i].getDriveMotor();
             double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
 
-            //gets the ratio between what the encoders think our velocity is and the real velocity
-            double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
-            SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
-            SmartDashboard.putNumber("Module " + i + " RPM", wheelRPM);
+            // //gets the ratio between what the encoders think our velocity is and the real velocity
+            // double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
+
+            // SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
+            // SmartDashboard.putNumber("Module " + i + " RPM", wheelRPM);
             
             // minimize sensor drift by recalibrating if we are at rest
             if (wheelRPM < 0.0001) { //timer is in seconds btw   && timer.get() >= 1
@@ -307,15 +308,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                     // SmartDashboard.putNumber("big nathan timer", timer.get());
                     // timer.reset();
                     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
-                } else {
-                    // timer.reset();
-                    // timer.start();
-                }
+            }
 
             //if over the threshold save the value
-            if (slipRatio > slipThreshold) {
-                outputs[i] = slipRatio;
-            }
+            // if (slipRatio > slipThreshold) {
+            //     outputs[i] = slipRatio;
+            // }
         }
         
         double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
@@ -325,10 +323,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         // smallest values of drive inputs that dont result in going over calculated max
         if (desiredAcceleration > maxAcceleration) {
-            double epsilon = driverLX/driverLY;
-            driverLY = Math.sqrt((currentVelocity + (maxAcceleration*dt))/(Math.pow(2, epsilon)+1));
+            double epsilon = driverLX/(driverLY+1e-1);
+            driverLY = Math.sqrt(Math.pow((currentVelocity + (maxAcceleration*dt)), 2)/(Math.pow(2, epsilon)+1));
             driverLX = (epsilon * driverLY);
-        }            // omg its so clean 
+        }
 
         // UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
 
@@ -350,7 +348,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
         boolean leftJoy = Math.abs(desiredVelocity) > 0.15;
 
-    if ((rightJoy && leftJoy) || (rightJoy && !leftJoy)){
+    if ((rightJoy)){
 
                 setLastHeading();
                 headingOn = false;
@@ -378,6 +376,22 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return driverRX;
 
     } // me when im bored and i need to expand ignacious drive
+
+    // public void slipCorrection(Double[] inputs) {
+    // // divides by slip factor, more agressive if far above slip threshold 
+    // for (int i = 0; i < ModuleCount; i++) {
+
+    //     if (inputs[i] != null) {
+    //         TalonFX module = Modules[i].getDriveMotor();
+
+    //         module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
+
+    //         SmartDashboard.putBoolean("slipON", true);
+    //     }  else {
+    //         SmartDashboard.putBoolean("slipON", false);
+    //     } 
+    // }
+    // }
     
     // public void initKalman() {
     //     // creating the functions
@@ -414,17 +428,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     //     // double nominalDtSeconds)
     //     // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/estimator/UnscentedKalmanFilter.html
     // goodbye my little kalman
-
-    public void slipCorrection(Double[] inputs) {
-        // divides by slip factor, more agressive if far above slip threshold 
-        for (int i = 0; i < ModuleCount; i++) {
-            if (inputs[i] != null) {
-                TalonFX module = Modules[i].getDriveMotor();
-                module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
-                SmartDashboard.putBoolean("slipON", true);
-            }  else {SmartDashboard.putBoolean("slipON", false);} 
-        }
-    }
 
     public double extrapolate(double prevValue, double value, double latency, double dt) {
         return ((value - prevValue) / latency) * dt + value;
