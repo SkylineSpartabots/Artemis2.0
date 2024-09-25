@@ -83,8 +83,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean headingOn = false;
     private double lastTimeReset = 0;
 
-    private final double slipFactor = 5; // how agressive slip correction is, higher = less agressive
-    private final double slipThreshold = 1.15; // a little bit of slip is good but needs to be tuned
+    double alpha = 0.75; //TODO tune
+    double prevAccelMagnitude = 0;
+    double prevFilteredAccelMagnitude = 0;
+    double prevVelocity = 0;        
+
+    private final double slipFactor = 15; // how agressive slip correction is, higher = less agressive
+    private final double slipThreshold = 0.15; // how much over and under the slip we allow
 
     private final double frictionCoefficient = 0.8; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
     
@@ -226,13 +231,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // }
     }
 
-        // better to be here
-    public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
-        driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
-        driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
-        driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
+    // ════════════════ Control Systems and Joystick processing ═══════════════════════════════════════════
 
-        double desiredVelocity = Math.hypot(driverLX, driverLY);
+        // better to be here
+public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
+    driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
+    driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
+    driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
+
+    double desiredVelocity = Math.hypot(driverLX, driverLY);
 
 
     if (getTractionBool()) {
@@ -249,7 +256,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     return new SwerveRequest.FieldCentric()
         .withVelocityX(driverLY)
-        .withVelocityY(driverLX) //its like this for a reason
+        .withVelocityY(driverLX)
         .withRotationalRate(driverRX * Constants.MaxAngularRate)
         .withDeadband(Constants.MaxSpeed * translationDeadband)
         .withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
@@ -257,99 +264,103 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 }
 
 
-    double alpha = 0.75; //TODO tune
-    double prevAccelMagnitude = 0;
-    double prevFilteredAccelMagnitude = 0;
-    double prevVelocity = 0;        
-    //prop put these at the top but like bruh
+public Double[] tractionControl(double driverLX, double driverLY, double desiredVelocity) {
 
-    public Double[] tractionControl(double driverLX, double driverLY, double desiredVelocity) {
+    Double[] outputs = new Double[6]; // reset to null every call
 
-        Double[] outputs = new Double[6]; // reset to null every call
+    SmartDashboard.putNumber("desired velocity", desiredVelocity);
 
-        SmartDashboard.putNumber("desired velocity", desiredVelocity);
+    double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
 
-        double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
-        if (Math.abs(accelerationMagnitude) < 0.01) { //Pidegon is slightly off so im adding a threshold
-            accelerationMagnitude = 0;
-        }
-        SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude);
- 
-        // Filter Acceleration using Complimentary filter
-        double filteredAccel = alpha * (accelerationMagnitude) + (1-alpha) * prevAccelMagnitude;
-
-        // Trapaziodal integration (obtain velocity)
-        double currentVelocity = prevVelocity + ((filteredAccel + prevFilteredAccelMagnitude) / 2) * dt;
-        SmartDashboard.putNumber("currentVelocity", currentVelocity);
-
-        //set prev values
-        prevAccelMagnitude = accelerationMagnitude;
-        prevFilteredAccelMagnitude = filteredAccel;
-        prevVelocity = currentVelocity;
-
-        // double estimatedVelocity = UKF.getXhat(1);
-        // SmartDashboard.putNumber("UKF estimated velocity", estimatedVelocity);
-
-        for (int i = 0; i < ModuleCount; i++) {
-            TalonFX module = Modules[i].getDriveMotor();
-            double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
-
-            // //gets the ratio between what the encoders think our velocity is and the real velocity
-            // double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
-
-            // SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
-            // SmartDashboard.putNumber("Module " + i + " RPM", wheelRPM);
-            
-            // minimize sensor drift by recalibrating if we are at rest
-            if (wheelRPM < 0.0001) { //timer is in seconds btw   && timer.get() >= 1
-                   prevAccelMagnitude = 0;
-                   prevFilteredAccelMagnitude = 0;
-                   prevVelocity = 0;
-                    // SmartDashboard.putNumber("big nathan timer", timer.get());
-                    // timer.reset();
-                    // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
-            }
-
-            //if over the threshold save the value
-            // if (slipRatio > slipThreshold) {
-            //     outputs[i] = slipRatio;
-            // }
-        }
-
-        /* TODO  Control the rate of change of wheel speed (also known as acceleration) to match what the surface can handle
-            In addition to controlling the change, you also make sure the wheel speed is close to the frame of reference speed.
-        */
-        
-        double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
-
-        // coefficient of friction between the floor and the wheels PLEASE TEST FOR CoF!!
-        double maxAcceleration = (9.80665 * frictionCoefficient);
-
-        // smallest values of drive inputs that dont result in going over maximum accleration for the time step
-        if (desiredAcceleration > maxAcceleration) {
-
-            double epsilon;
-            if(driverLY==0) { epsilon = 0; } else { epsilon = driverLX/(driverLY); }
-
-            driverLY = Math.sqrt(Math.pow((currentVelocity + (maxAcceleration*dt)), 2)/(Math.pow(2, epsilon) + 1));
-            driverLX = (epsilon * driverLY);
-        }
-
-        // UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
-
-        outputs[4] = driverLX;
-        outputs[5] = driverLY;
-
-        return outputs;
-
-    } // runs periodically as a default command
-
-    public void setLastHeading(){
-        lastHeading = getPose().getRotation().getRadians();
-        SmartDashboard.putNumber("lastHeading", lastHeading);
+    if (Math.abs(accelerationMagnitude) < 0.01) { //Pidegon is slightly off so im adding a threshold
+        accelerationMagnitude = 0;
     }
 
-    // if 
+    SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude);
+
+    // Filter Acceleration using Complimentary filter
+    double filteredAccel = alpha * (accelerationMagnitude) + (1-alpha) * prevAccelMagnitude;
+
+    // Trapaziodal integration (obtain velocity)
+    double currentVelocity = prevVelocity + ((filteredAccel + prevFilteredAccelMagnitude) / 2) * dt;
+    SmartDashboard.putNumber("currentVelocity", currentVelocity);
+
+    //set prev values
+    prevAccelMagnitude = accelerationMagnitude;
+    prevFilteredAccelMagnitude = filteredAccel;
+    prevVelocity = currentVelocity;
+
+    // double estimatedVelocity = UKF.getXhat(1);
+    // SmartDashboard.putNumber("UKF estimated velocity", estimatedVelocity);
+    
+    double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
+
+    // coefficient of friction between the floor and the wheels PLEASE TEST FOR CoF!!
+    double maxAcceleration = (9.80665 * frictionCoefficient);
+
+
+    // ---------------All values for control have been caluculated------------------------------------
+
+
+        // smallest values of drive inputs that dont result in going over maximum accleration for the time step
+    if (desiredAcceleration > maxAcceleration) {
+
+        double epsilon;
+        if(driverLY==0) { epsilon = 0; } else { epsilon = driverLX/(driverLY); }
+
+        driverLY = Math.sqrt(Math.pow((currentVelocity + (maxAcceleration*dt)), 2)/(Math.pow(2, epsilon) + 1));
+        driverLX = (epsilon * driverLY);
+    }
+
+    for (int i = 0; i < ModuleCount; i++) { 
+        TalonFX module = Modules[i].getDriveMotor();
+        double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
+
+        //gets the ratio between what the encoders think our velocity is and the real velocity
+        double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
+
+        SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
+        SmartDashboard.putNumber("Module " + i + " RPM", wheelRPM);
+        
+        // minimize sensor drift by recalibrating if we are at rest
+        if (wheelRPM < 0.0001) { //timer is in seconds btw   && timer.get() >= 1
+            prevAccelMagnitude = 0;
+            prevFilteredAccelMagnitude = 0;
+            prevVelocity = 0;
+            // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
+        }
+
+        //if over the upper or lower threshold save the value
+        if (slipRatio > (slipThreshold + 1) || slipRatio < (1 - slipThreshold)) {
+            outputs[i] = slipRatio;
+        }
+    }
+
+    // UKF.predict(MatBuilder.fill(Nat.N1(), Nat.N1(), desiredVelocity), dt);
+
+    outputs[4] = driverLX;
+    outputs[5] = driverLY;
+
+    return outputs;
+
+} // runs periodically as a default command
+
+    public void slipCorrection(Double[] inputs) {
+        // divides by slip factor, more agressive if far above slip threshold 
+        for (int i = 0; i < ModuleCount; i++) {
+
+            if (inputs[i] != null) {
+                TalonFX module = Modules[i].getDriveMotor();
+                
+                module.set(module.get() * (1 + (Math.signum(inputs[i] - 1)) * (inputs[i] - slipThreshold)) / slipFactor);
+                //https://www.desmos.com/calculator/afe5omf92p how slipfactor changes slip aggression
+
+                SmartDashboard.putBoolean("slipON", true);
+            }  else {
+                SmartDashboard.putBoolean("slipON", false);
+            } 
+        }
+    }
 
     public double headingControl(double driverRX, double desiredVelocity) {
         boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
@@ -384,22 +395,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     } // me when im bored and i need to expand ignacious drive
 
-    // public void slipCorrection(Double[] inputs) {
-    // // divides by slip factor, more agressive if far above slip threshold 
-    // for (int i = 0; i < ModuleCount; i++) {
+    public void setLastHeading(){
+        lastHeading = getPose().getRotation().getRadians();
+        SmartDashboard.putNumber("lastHeading", lastHeading);
+    }
 
-    //     if (inputs[i] != null) {
-    //         TalonFX module = Modules[i].getDriveMotor();
-
-    //         module.set(module.get() * (1 - (inputs[i] - slipThreshold)) / slipFactor);
-
-    //         SmartDashboard.putBoolean("slipON", true);
-    //     }  else {
-    //         SmartDashboard.putBoolean("slipON", false);
-    //     } 
-    // }
-    // }
-    
     // public void initKalman() {
     //     // creating the functions
     //     // f function needs to predict the next states based on the previous and the input alone
