@@ -99,11 +99,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
 
     //Heading 
-    PIDController pidHeading = new PIDController(8, 0, 1);
+    PIDController pidHeading = new PIDController(2.5, 0, 2);
     private final double headingControlSensitivity = 0.1; // heading control should be active when driverRX input is less than this value * constants.MaxAngularRate
 
     public void setPidHeadingTolerance() {
-        pidHeading.setTolerance(Math.toRadians(2.5));
+        pidHeading.setTolerance(Math.toRadians(5));
     }
 
     double lastHeading = 0; // in radians
@@ -111,7 +111,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
                                    SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); // look here for parent library methods
-         timer = new Timer();                           
+        //  timer = new Timer();                           
         m_Camera = Vision.getInstance();
 
         if (Utils.isSimulation()) {
@@ -237,7 +237,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         driverLX = adjustedInputs[4];
         driverLY = adjustedInputs[5];
 
-        slipCorrection(adjustedInputs);
+        // slipCorrection(adjustedInputs);
     }
 
     if(getHeadingControlBool()) {
@@ -298,16 +298,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             SmartDashboard.putNumber("Module " + i + " RPM", wheelRPM);
             
             // minimize sensor drift by recalibrating if we are at rest
-            if (wheelRPM < 0.0001 && timer.get() >= 1) { //timer is in seconds btw 
+            if (wheelRPM < 0.0001) { //timer is in seconds btw   && timer.get() >= 1
                    prevAccelMagnitude = 0;
                    prevFilteredAccelMagnitude = 0;
                    prevVelocity = 0;
-                    SmartDashboard.putNumber("big nathan timer", timer.get());
-                    timer.reset();
+                    // SmartDashboard.putNumber("big nathan timer", timer.get());
+                    // timer.reset();
                     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
                 } else {
-                    timer.reset();
-                    timer.start();
+                    // timer.reset();
+                    // timer.start();
                 }
 
             //if over the threshold save the value
@@ -343,16 +343,19 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public double headingControl(double driverRX) {
-        if(Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband)) { // if the driver is not touching right stick, turn on control
+        if((Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband)) && robotAbsoluteVelocity() > 0.02) { // if the driver is not touching right stick, turn on control
 
             double currentHeading = getPose().getRotation().getRadians();
             double error = lastHeading - currentHeading;
+            SmartDashboard.putNumber("Heading deadband", Constants.MaxAngularRate * rotDeadband);
 
+        if(error >= 0.15) {
             //if the error is greater than pi its taking the least efficant route
             if(error < -Math.PI) { lastHeading += 2 * Math.PI; }
             else if(error > Math.PI) { lastHeading -= 2 * Math.PI; }
 
             driverRX = pidHeading.calculate(currentHeading, lastHeading);
+        }
 
             headingOn = true;
             SmartDashboard.putBoolean("headingON", headingOn);
@@ -489,13 +492,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         //         lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         // SmartDashboard.putNumber("ODO X", currPose.getX());
         // SmartDashboard.putNumber("ODO Y", currPose.getY());
-        // SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
+        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
         // SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
         // SmartDashboard.putNumber("Chassis Velocity from wheels", robotAbsoluteVelocity());
 
         // SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
-        // m_field.setRobotPose(m_odometry.getEstimatedPosition());
+        m_field.setRobotPose(m_odometry.getEstimatedPosition());
         // SmartDashboard.putData("field", m_field);
 
         // for (int i = 0; i < ModuleCount; i++) {

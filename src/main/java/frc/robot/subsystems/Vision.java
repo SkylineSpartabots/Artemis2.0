@@ -228,10 +228,10 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        updateAprilTagResults();
-        try {
-            // calculatePoseFromVision();
-        } catch (Exception e){}
+        // updateAprilTagResults();
+        // try {
+        //     // calculatePoseFromVision();
+        // } catch (Exception e){}
 
         // Logger.recordOutput("has target", hasValidTarget() != null);
         // Logger.recordOutput("Vision/TargetYaw", getYaw());
