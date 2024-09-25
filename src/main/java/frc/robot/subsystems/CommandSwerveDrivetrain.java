@@ -315,16 +315,23 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             //     outputs[i] = slipRatio;
             // }
         }
+
+        /* TODO  Control the rate of change of wheel speed (also known as acceleration) to match what the surface can handle
+            In addition to controlling the change, you also make sure the wheel speed is close to the frame of reference speed.
+        */
         
         double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
 
-        double maxAcceleration = (9.80665 * frictionCoefficient);
         // coefficient of friction between the floor and the wheels PLEASE TEST FOR CoF!!
+        double maxAcceleration = (9.80665 * frictionCoefficient);
 
-        // smallest values of drive inputs that dont result in going over calculated max
+        // smallest values of drive inputs that dont result in going over maximum accleration for the time step
         if (desiredAcceleration > maxAcceleration) {
-            double epsilon = driverLX/(driverLY+1e-1);
-            driverLY = Math.sqrt(Math.pow((currentVelocity + (maxAcceleration*dt)), 2)/(Math.pow(2, epsilon)+1));
+
+            double epsilon;
+            if(driverLY==0) { epsilon = 0; } else { epsilon = driverLX/(driverLY); }
+
+            driverLY = Math.sqrt(Math.pow((currentVelocity + (maxAcceleration*dt)), 2)/(Math.pow(2, epsilon) + 1));
             driverLX = (epsilon * driverLY);
         }
 
@@ -348,11 +355,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
         boolean leftJoy = Math.abs(desiredVelocity) > 0.15;
 
-    if ((rightJoy)){
+    if (rightJoy) {
 
-                setLastHeading();
-                headingOn = false;
-                SmartDashboard.putBoolean("headingON", headingOn);
+            setLastHeading();
+            headingOn = false;
+            SmartDashboard.putBoolean("headingON", headingOn);
 
     } else if (!rightJoy && leftJoy || robotAbsoluteVelocity() > 0.01) {
 
