@@ -104,7 +104,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
 
     //Heading 
-    PIDController pidHeading = new PIDController(2.5, 0, 2);
+    PIDController pidHeading = new PIDController(1, 0, 2);
     private final double headingControlSensitivity = 0.1; // heading control should be active when driverRX input is less than this value * constants.MaxAngularRate
 
     public void setPidHeadingTolerance() {
@@ -363,9 +363,10 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
     }
 
     public double headingControl(double driverRX, double desiredVelocity) {
-        boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
+        boolean rightJoy = Math.abs(driverRX) > rotDeadband;
         boolean leftJoy = Math.abs(desiredVelocity) > 0.15;
-
+        SmartDashboard.putBoolean("rightJoy", rightJoy);
+        SmartDashboard.putBoolean("leftJoy", leftJoy);
     if (rightJoy) {
 
             setLastHeading();
