@@ -83,13 +83,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean headingOn = false;
     private double lastTimeReset = 0;
 
-    double alpha = 0.75; //TODO tune
+    double alpha = 0.6; //TODO tune
     double prevAccelMagnitude = 0;
     double prevFilteredAccelMagnitude = 0;
     double prevVelocity = 0;        
 
     private final double slipFactor = 25; // how agressive slip correction is, higher = less agressive
-    private final double slipThreshold = 0.15; // how much over and under the slip we allow
+    private final double slipThreshold = 0.20; // how much over and under the slip we allow
 
     private final double frictionCoefficient = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
     
@@ -241,7 +241,6 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
 
     double desiredVelocity = Math.hypot(driverLX, driverLY);
 
-
     if (getTractionBool()) {
         Double[] adjustedInputs = tractionControl(driverLX, driverLY, desiredVelocity);
         driverLX = adjustedInputs[4];
@@ -272,7 +271,7 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
 
     double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
 
-    if (Math.abs(accelerationMagnitude) < 0.01) { //Pidegon is slightly off so im adding a threshold
+    if (Math.abs(accelerationMagnitude) < 0.02) { //Pidegon is slightly off so im adding a threshold
         accelerationMagnitude = 0;
     }
 
@@ -322,7 +321,6 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
             slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
         }
 
-
         SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
         SmartDashboard.putNumber("Module " + i + " RPM", wheelRPM);
         
@@ -371,11 +369,9 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
         boolean leftJoy = Math.abs(desiredVelocity) > 0.15 && robotAbsoluteVelocity() > 0.5;
 
     if (rightJoy) {
-
             setLastHeading();
             headingOn = false;
             SmartDashboard.putBoolean("headingON", headingOn);
-
     } else if (!rightJoy && leftJoy || robotAbsoluteVelocity() > 0.01) {
 
             double currentHeading = getPose().getRotation().getRadians();
@@ -447,10 +443,8 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
     public double obtainAcceleration() {
         double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
         double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
-        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue();
-        //technically we dont need z but it should help if the robot tilts a bit (no harm in having it)
 
-        return Math.sqrt(Math.pow(accelerationX, 2) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
+        return Math.signum(accelerationX) * (Math.signum(accelerationY) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2)));
     }
 
     public double obtainGyro() {

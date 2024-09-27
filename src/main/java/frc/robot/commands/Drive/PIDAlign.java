@@ -111,15 +111,6 @@ public class PIDAlign extends Command {
     // desiredYaw = Math.atan2(translatedPoint.y, translatedPoint.x);
   }
 
-  // public double checkRoute() {
-  //   double rawError = desiredYaw - currentYaw;
-  //   if (Math.abs(rawError) > Math.PI) {
-  //     desiredYaw -= Math.signum(desiredYaw) * Math.PI * 2;
-  //   }
-  //   // 🍔 im going insane :(
-  //   return desiredYaw;
-  // }
-
   @Override
   public void end(boolean interrupted) {
     s_Swerve.setControl(drive.withRotationalRate(0));

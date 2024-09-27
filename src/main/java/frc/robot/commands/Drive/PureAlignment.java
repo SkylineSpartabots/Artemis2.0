@@ -43,25 +43,12 @@ public class PureAlignment extends Command {
     
     @Override
     public void execute(){
-        SmartDashboard.putBoolean("PureAlign", true);
-        hasSpeaker = false;
-        List<PhotonTrackedTarget> targets = s_Vision.getTargets();
-        for(PhotonTrackedTarget a : targets){
-            if(a.getFiducialId() == 4 || a.getFiducialId() == 8){
-                hasSpeaker = true;
-                target = a;
-            }
-        }
-        if(hasSpeaker){
-            lastYaw = target.getYaw();
-            s_Swerve.setControl(drive.withRotationalRate(Math.copySign(1.12, -lastYaw))); //0.2 is a constant, rad/s
-        }
+        
     }
 
     @Override
     public void end(boolean interrupted) { 
-        SmartDashboard.putBoolean("PureAlign", false);
-        s_Swerve.setControl(drive.withRotationalRate(0));
+
     }
 
     @Override
