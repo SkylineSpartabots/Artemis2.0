@@ -88,10 +88,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     double prevFilteredAccelMagnitude = 0;
     double prevVelocity = 0;        
 
-    private final double slipFactor = 15; // how agressive slip correction is, higher = less agressive
+    private final double slipFactor = 25; // how agressive slip correction is, higher = less agressive
     private final double slipThreshold = 0.15; // how much over and under the slip we allow
 
-    private final double frictionCoefficient = 0.8; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
+    private final double frictionCoefficient = 0.7; // this is an educated guess of the dynamic traction coeffiant (only for in motion friction)
     
     // deadband
     private final double deadbandFactor = 0.8; // closer to 0 is more linear deadband controls
@@ -308,7 +308,7 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
         double epsilon;
         if(driverLY==0) { epsilon = 0; } else { epsilon = driverLX/(driverLY); }
 
-        driverLY = Math.sqrt(Math.pow((currentVelocity + (maxAcceleration*dt)), 2)/(Math.pow(2, epsilon) + 1));
+        driverLY = Math.sqrt(Math.pow((currentVelocity + (maxAcceleration*dt)), 2)/(Math.pow(epsilon, 2) + 1));
         driverLX = (epsilon * driverLY);
     }
 
@@ -317,18 +317,22 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
         double wheelRPM = Math.abs(module.getVelocity().getValue() * 60);
 
         //gets the ratio between what the encoders think our velocity is and the real velocity
-        double slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
+        double slipRatio;
+        if(currentVelocity == 0) { slipRatio = 1; } else {
+            slipRatio = (((2 * Math.PI) / 60) * (wheelRPM * TunerConstants.getWheelRadius() * 0.0254)) / currentVelocity; 
+        }
+
 
         SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
         SmartDashboard.putNumber("Module " + i + " RPM", wheelRPM);
         
         // minimize sensor drift by recalibrating if we are at rest
-        if (wheelRPM < 0.0001) { //timer is in seconds btw   && timer.get() >= 1
-            prevAccelMagnitude = 0;
-            prevFilteredAccelMagnitude = 0;
-            prevVelocity = 0;
-            // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
-        }
+        // if (wheelRPM < 0.001) { //timer is in seconds btw   && timer.get() >= 1
+        //     prevAccelMagnitude = 0;
+        //     prevFilteredAccelMagnitude = 0;
+        //     prevVelocity = 0;
+        //     // UKF.setXhat(MatBuilder.fill(Nat.N2(), Nat.N1(), 0, 0));
+        // }
 
         //if over the upper or lower threshold save the value
         if (slipRatio > (slipThreshold + 1) || slipRatio < (1 - slipThreshold)) {
@@ -364,7 +368,7 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
 
     public double headingControl(double driverRX, double desiredVelocity) {
         boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
-        boolean leftJoy = Math.abs(desiredVelocity) > 0.15;
+        boolean leftJoy = Math.abs(desiredVelocity) > 0.15 && robotAbsoluteVelocity() > 0.5;
 
     if (rightJoy) {
 
