@@ -1,57 +1,40 @@
 package frc.robot.subsystems;
 
-import java.sql.Driver;
-import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-import javax.crypto.Mac;
-
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.opencv.core.Point;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.wpilibj.AnalogAccelerometer;
+import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.RobotContainer;
-import frc.robot.generated.TunerConstants;
 import frc.robot.Constants;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
-import edu.wpi.first.math.interpolation.Interpolator;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N2;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.numbers.N4;
-import edu.wpi.first.math.MatBuilder;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.controller.PIDController;
+import frc.robot.generated.TunerConstants;
 
 
 /**
@@ -250,7 +233,8 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     }
 
     if(getHeadingControlBool()) {
-        driverRX = headingControl(driverRX, desiredVelocity);
+        // driverRX = headingControl(driverRX, desiredVelocity);
+         driverRX = pidAlignment(driverRX); // for testing
     }
 
     return new SwerveRequest.FieldCentric()
@@ -267,14 +251,11 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
 
     Double[] outputs = new Double[6]; // reset to null every call
 
-    SmartDashboard.putNumber("desired velocity", desiredVelocity);
-
     double accelerationMagnitude = obtainAcceleration() * 9.80665; // g to m/s
 
     if (Math.abs(accelerationMagnitude) < 0.02) { //Pidegon is slightly off so im adding a threshold
         accelerationMagnitude = 0;
     }
-
     SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude);
 
     // Filter Acceleration using Complimentary filter
@@ -284,15 +265,15 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
     double currentVelocity = prevVelocity + ((filteredAccel + prevFilteredAccelMagnitude) / 2) * dt;
     SmartDashboard.putNumber("currentVelocity", currentVelocity);
 
+    // Obtain desired acceleration from inputs
+    double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
+
     //set prev values
     prevAccelMagnitude = accelerationMagnitude;
     prevFilteredAccelMagnitude = filteredAccel;
     prevVelocity = currentVelocity;
 
     // double estimatedVelocity = UKF.getXhat(1);
-    // SmartDashboard.putNumber("UKF estimated velocity", estimatedVelocity);
-    
-    double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
 
     // coefficient of friction between the floor and the wheels PLEASE TEST FOR CoF!!
     double maxAcceleration = (9.80665 * frictionCoefficient);
@@ -364,34 +345,53 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
         }
     }
 
+    public double pidAlignment(double driverRX) {
+        boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
+            
+        // Find our (current) x and y, find target's x and y, calculate heading needed to face target, PID to that heading
+        if (!rightJoy) {
+            
+            Point target = (true) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();  
+
+            Pose2d pose = getPose();
+
+            double desiredHeading = Math.atan2(target.x - pose.getX(), target.y - pose.getY());
+
+            double currentHeading = pose.getRotation().getRadians();  
+
+            driverRX = pidHeading.calculate(currentHeading, desiredHeading);
+        }
+        return driverRX;
+    }
+
     public double headingControl(double driverRX, double desiredVelocity) {
+
         boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
         boolean leftJoy = Math.abs(desiredVelocity) > 0.15 && robotAbsoluteVelocity() > 0.5;
 
-    if (rightJoy) {
-            setLastHeading();
-            headingOn = false;
-            SmartDashboard.putBoolean("headingON", headingOn);
-    } else if (!rightJoy && leftJoy || robotAbsoluteVelocity() > 0.01) {
+        if (rightJoy) {
+                setLastHeading();
+                headingOn = false;
+                SmartDashboard.putBoolean("headingON", headingOn);
+        } else if (!rightJoy && leftJoy || robotAbsoluteVelocity() > 0.01) {
 
-            double currentHeading = getPose().getRotation().getRadians();
-            SmartDashboard.putNumber("heading",currentHeading);
-            double error = lastHeading - currentHeading;
-            SmartDashboard.putNumber("Heading deadband", Constants.MaxAngularRate * rotDeadband);
+                double currentHeading = getPose().getRotation().getRadians();
+                SmartDashboard.putNumber("heading",currentHeading);
+                double error = lastHeading - currentHeading;
+                SmartDashboard.putNumber("Heading deadband", Constants.MaxAngularRate * rotDeadband);
 
-            //if the error is greater than pi its taking the least efficant route
-            if(error < -Math.PI) { lastHeading += 2 * Math.PI; }
-            else if(error > Math.PI) { lastHeading -= 2 * Math.PI; }
+                //if the error is greater than pi its taking the least efficant route
+                if(error < -Math.PI) { lastHeading += 2 * Math.PI; }
+                else if(error > Math.PI) { lastHeading -= 2 * Math.PI; }
 
-            driverRX = pidHeading.calculate(currentHeading, lastHeading);
+                driverRX = pidHeading.calculate(currentHeading, lastHeading);
 
-            headingOn = true;
-            SmartDashboard.putBoolean("headingON", headingOn);
-    }
+                headingOn = true;
+                SmartDashboard.putBoolean("headingON", headingOn);
+        }
 
-        SmartDashboard.putNumber("lastHeading", lastHeading);
-
-        return driverRX;
+            SmartDashboard.putNumber("lastHeading", lastHeading);
+            return driverRX;
 
     } // me when im bored and i need to expand ignacious drive
 
@@ -436,15 +436,16 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
     //     // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/estimator/UnscentedKalmanFilter.html
     // goodbye my little kalman
 
-    public double extrapolate(double prevValue, double value, double latency, double dt) {
+    public double extrapolate(double prevValue, double value, double latency, double dt) { //unused
         return ((value - prevValue) / latency) * dt + value;
     }
 
     public double obtainAcceleration() {
         double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
         double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
+        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue();
 
-        return Math.signum(accelerationX) * (Math.signum(accelerationY) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2)));
+        return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
     }
 
     public double obtainGyro() {
