@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.Drive.PureAlignment;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -59,10 +58,8 @@ public class CommandFactory {
 
     public static Command autoShootSequence(){
         return new SequentialCommandGroup(
-            new ParallelCommandGroup(
                 new SetShooterCommand(60), 
-                new PureAlignment()
-            ), 
+            
             new AlignPivot(), 
             new SetIndexer(IndexerStates.ON),
             Commands.waitSeconds(0.5),

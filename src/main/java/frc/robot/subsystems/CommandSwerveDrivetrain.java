@@ -90,11 +90,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     // PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
 
     //Heading 
-    PIDController pidHeading = new PIDController(2.5, 0, 2);
-    private final double headingControlSensitivity = 0.1; // heading control should be active when driverRX input is less than this value * constants.MaxAngularRate
+    PIDController pidHeading = new PIDController(7, 0, 1);
 
     public void setPidHeadingTolerance() {
-        pidHeading.setTolerance(Math.toRadians(5));
+        pidHeading.setTolerance(Math.toRadians(2.5));
     }
 
     double lastHeading = 0; // in radians
@@ -356,11 +355,9 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
             
         // Find our (current) x and y, find target's x and y, calculate heading needed to face target, PID to that heading
         if (!rightJoy) {
-            
-
             Pose2d pose = getPose();
 
-            double desiredHeading = Math.atan2(target.x - pose.getX(), target.y - pose.getY());
+            double desiredHeading = Math.atan2(pose.getX() - target.x, pose.getY() - target.y);
 
             double currentHeading = pose.getRotation().getRadians();  
 
@@ -373,32 +370,16 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
     public double headingControl(double driverRX, double desiredVelocity) {
 
         boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
-        boolean leftJoy = Math.abs(desiredVelocity) > 0.15 && robotAbsoluteVelocity() > 0.5;
 
-        if (rightJoy) {
-                setLastHeading();
-                headingOn = false;
-                SmartDashboard.putBoolean("headingON", headingOn);
-        } else if (!rightJoy && leftJoy || robotAbsoluteVelocity() > 0.01) {
-
+        if (!rightJoy) {
                 double currentHeading = getPose().getRotation().getRadians();
-                SmartDashboard.putNumber("heading",currentHeading);
                 double error = lastHeading - currentHeading;
-                SmartDashboard.putNumber("Heading deadband", Constants.MaxAngularRate * rotDeadband);
-
-                //if the error is greater than pi its taking the least efficant route
                 if(error < -Math.PI) { lastHeading += 2 * Math.PI; }
                 else if(error > Math.PI) { lastHeading -= 2 * Math.PI; }
-
                 driverRX = pidHeading.calculate(currentHeading, lastHeading);
-
-                headingOn = true;
-                SmartDashboard.putBoolean("headingON", headingOn);
         }
 
-            SmartDashboard.putNumber("lastHeading", lastHeading);
             return driverRX;
-
     } // me when im bored and i need to expand ignacious drive
 
     public void setLastHeading(){
