@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -18,14 +19,12 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -47,7 +46,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     static Interpolator<Double> interpolator;
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    UnscentedKalmanFilter<N2, N1, N1> UKF;
+    // UnscentedKalmanFilter<N2, N1, N1> UKF;
     Vision m_Camera;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
@@ -59,6 +58,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     // traction control variables
     Pigeon2 pigeon = getPigeon2(); //using the already contructed pigeon
 
+    // Alliance
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+
+    // time inbetween resets
     double dt = 0.02;
     
     private boolean tractionControl = false; // for toggling traction control
@@ -83,8 +86,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Field2d m_field = new Field2d();
 
     //UKF variables
-    PIDController pidAcceleration = new PIDController(0.3, 0.001, 0);
-    PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
+    // PIDController pidAcceleration = new PIDController(0.3, 0.001, 0);
+    // PIDController pidVelocity = new PIDController(0.3, 0.001, 0);
 
     //Heading 
     PIDController pidHeading = new PIDController(2.5, 0, 2);
@@ -347,11 +350,13 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
 
     public double pidAlignment(double driverRX) {
         boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
+
+        // Im like 75% sure this is correct, if null it should default to red
+        Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
             
         // Find our (current) x and y, find target's x and y, calculate heading needed to face target, PID to that heading
         if (!rightJoy) {
             
-            Point target = (true) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();  
 
             Pose2d pose = getPose();
 
@@ -361,6 +366,7 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
 
             driverRX = pidHeading.calculate(currentHeading, desiredHeading);
         }
+        
         return driverRX;
     }
 
