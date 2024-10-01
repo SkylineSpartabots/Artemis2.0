@@ -81,6 +81,7 @@ public class Amp extends SubsystemBase {
         TalonFXConfiguration config = new TalonFXConfiguration();
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
 
+        motor.optimizeBusUtilization();
 
         currentLimitsConfigs.SupplyCurrentLimit = Constants.ampContinuousCurrentLimit;
         currentLimitsConfigs.StatorCurrentLimit = Constants.ampContinuousCurrentLimit;

@@ -147,6 +147,7 @@ public class Pivot extends SubsystemBase {
         TalonFXConfiguration config = new TalonFXConfiguration();
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
 
+        motor.optimizeBusUtilization();
 
         currentLimitsConfigs.SupplyCurrentLimit = Constants.pivotContinuousCurrentLimit;
         currentLimitsConfigs.StatorCurrentLimit = Constants.pivotContinuousCurrentLimit;

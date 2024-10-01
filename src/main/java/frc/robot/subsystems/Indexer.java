@@ -44,6 +44,10 @@ public class Indexer extends SubsystemBase {
         indexerLeaderM.setInverted(true);
         indexerFollowerM.setControl(follow);
         colorSensor = new ColorSensorV3(onboardI2C);
+
+        indexerLeaderM.optimizeBusUtilization();
+        indexerFollowerM.optimizeBusUtilization();
+
     }
 
     public enum IndexerStates {

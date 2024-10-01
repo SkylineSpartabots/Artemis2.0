@@ -74,6 +74,8 @@ public class Intake extends SubsystemBase {
         TalonFXConfiguration config = new TalonFXConfiguration();
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
 
+        motor.optimizeBusUtilization();
+
         currentLimitsConfigs.SupplyCurrentLimit = Constants.intakeContinuousCurrentLimit;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
         currentLimitsConfigs.SupplyCurrentThreshold = Constants.intakePeakCurrentLimit;

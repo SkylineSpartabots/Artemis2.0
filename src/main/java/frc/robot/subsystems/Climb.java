@@ -49,6 +49,8 @@ public class Climb extends SubsystemBase {
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
 
+        motor.optimizeBusUtilization();
+
     currentLimitsConfigs.SupplyCurrentLimit = Constants.climbContinuousCurrentLimit;
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.SupplyCurrentThreshold = Constants.climbPeakCurrentLimit;

@@ -74,6 +74,9 @@ public class Shooter extends SubsystemBase {
         slot0Configs.kS = kS;
         slot0Configs.kV = kV;
 
+        motor.optimizeBusUtilization();
+
+
         config.CurrentLimits = currentLimitsConfigs;
         motor.getConfigurator().apply(config);
         motor.getConfigurator().apply(slot0Configs);
