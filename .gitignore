@@ -164,6 +164,7 @@ bin/
 *.iws
 .idea/
 out/
+.run/
 
 # Fleet
 .fleet
