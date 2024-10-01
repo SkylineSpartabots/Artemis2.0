@@ -394,26 +394,26 @@ public class Vision extends SubsystemBase {
     public void periodic() {
         try {
             // System.out.println("Calculate PoseEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-            calculatePoseFromVision();
+            //calculatePoseFromVision();
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        PhotonTrackedTarget bestTarget = getBestTarget(); // this way i dont call it to check if null and then output the return from a second call. basically calling it twice allowed the return value to become null on the second call
+        //PhotonTrackedTarget bestTarget = getBestTarget(); // this way i dont call it to check if null and then output the return from a second call. basically calling it twice allowed the return value to become null on the second call
 
 //        Logger.recordOutput("Has Target", hasValidTarget() != null); //TODO
-        Logger.recordOutput("Vision/BestTargetYaw", getBestYaw());
-        Logger.recordOutput("Vision/BestTargetPitch", getBestPitch());
+        //Logger.recordOutput("Vision/BestTargetYaw", getBestYaw());
+        //Logger.recordOutput("Vision/BestTargetPitch", getBestPitch());
 //        Logger.recordOutput("Vision/FloorDistance", getFloorDistance()); // TODO
-        Logger.recordOutput("Vision/BestTargetID", bestTarget != null ? bestTarget.getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
-        Logger.recordOutput("Vision/BestTargetAmbiguity", bestTarget != null ? bestTarget.getPoseAmbiguity() : -1);
+        //Logger.recordOutput("Vision/BestTargetID", bestTarget != null ? bestTarget.getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
+        //Logger.recordOutput("Vision/BestTargetAmbiguity", bestTarget != null ? bestTarget.getPoseAmbiguity() : -1);
 
 //        SmartDashboard.putBoolean("has target", hasValidTarget() != null);
         SmartDashboard.putNumber("Vision/BestTargetYaw", getBestYaw());
         SmartDashboard.putNumber("Vision/BestTargetPitch", getBestPitch());
 //        SmartDashboard.putNumber("Target floor distance", getFloorDistance());
-        SmartDashboard.putNumber("Vision/BestTargetID", bestTarget != null ? bestTarget.getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
-        SmartDashboard.putNumber("Vision/BestTargetAmbiguity", bestTarget != null ? bestTarget.getPoseAmbiguity() : -1);
+        //SmartDashboard.putNumber("Vision/BestTargetID", bestTarget != null ? bestTarget.getFiducialId() : -1); // If not null return FiducialID, otherwise return -1
+        //SmartDashboard.putNumber("Vision/BestTargetAmbiguity", bestTarget != null ? bestTarget.getPoseAmbiguity() : -1);
         //SmartDashboard.putNumber("target pitch", getBestTarget().getPitch());    }
     }
 }

@@ -87,7 +87,7 @@ public class CommandFactory {
                 new SetIndexer(IndexerStates.REV), 
                 new SetIntake(IntakeStates.REV)
             ), 
-            new WaitCommand(0.065),
+            new WaitCommand(0.005),
             new ParallelCommandGroup(
                 new SetIndexer(IndexerStates.OFF), 
                 new SetIntake(IntakeStates.OFF)

@@ -26,7 +26,7 @@ public class SetIntake extends Command {
         this.time = time;
         timer = new Timer();
 
-        addRequirements(s_Intake, s_Indexer);
+        addRequirements(s_Intake);
     }
 
     // Overloaded constructor

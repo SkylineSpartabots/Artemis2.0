@@ -186,7 +186,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
-         updateOdometryByVision();
+         //updateOdometryByVision();
         Pose2d currPose = getPose();
 
         Logger.recordOutput("SwerveStates/ModuleStates",  getModuleStates());

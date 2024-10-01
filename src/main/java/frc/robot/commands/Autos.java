@@ -385,7 +385,7 @@ public final class Autos {
       );
     }
 
-    public static Command FirstLine() {
+    /*public static Command FirstLine() {
         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FirstLine");
         return new SequentialCommandGroup(
 
@@ -417,7 +417,7 @@ public final class Autos {
         );
     }
         
-
+*/
     public static Command FourNoteCloseSide() {
         ArrayList<ChoreoTrajectory> trajectory = Choreo.getTrajectoryGroup("FourNoteCloseSide");
         return new SequentialCommandGroup(
@@ -884,7 +884,7 @@ public final class Autos {
         TwoNoteSubwoofer("TwoNoteSubwoofer", TwoNoteSubwoofer()),
         ThreeNoteSubwooferMidTop("ThreeNoteSubwooferMidTop", ThreeNoteSubwooferMidTop()),
         ThreeNoteSubwooferMidBot("ThreeNoteSubwooferMidBot", ThreeNoteSubwooferMidBot()),
-        FirstLine("FirstLine", FirstLine()),
+        //FirstLine("FirstLine", FirstLine()),
         TwoNoteFarSide("TwoNoteFarSide", TwoNoteFarSide()),
         FourNoteSubwooferNew("FourNoteSubwooferNew", FourNoteSubwooferNew());
         //FourNoteFarSide("FourNoteFarSide", FourNoteFarSide());
@@ -901,7 +901,7 @@ public final class Autos {
         }
     }
 
-    public static Command FollowIntakePath(Command ChoreoDriveCommand, double pathTimeLength, double intakeRevTime) {
+   /* public static Command FollowIntakePath(Command ChoreoDriveCommand, double pathTimeLength, double intakeRevTime) {
         return new ParallelCommandGroup(
                 new SetShooterCommand(0),
                 new SetIndexer(IndexerStates.ON, true, pathTimeLength + 0.5),
@@ -959,7 +959,7 @@ public final class Autos {
                 )
         );
     }
-
+*/
 
 
 }
