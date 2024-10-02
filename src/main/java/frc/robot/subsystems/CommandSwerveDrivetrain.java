@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.Logger;
+import org.opencv.core.Point;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -38,6 +40,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+    private double deadbandFactor = 0.8;
+
     private double lastTimeReset = -1;
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
@@ -47,6 +51,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean headingControlOn = false;
     private boolean headingControl = false;
     private double lastHeading = 0;
+
+    private boolean aligning = false;
 
     //Vision m_Camera;
 
@@ -144,18 +150,25 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         headingControl = !headingControl;
     }
 
+    public double scaledDeadBand(double input) {
+        return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
+    }
+
     public SwerveRequest drive(double driverLY, double driverLX, double driverRX){
-        driverLY = driverLY * Constants.MaxSpeed;
-        driverLX = driverLX * Constants.MaxSpeed;
-        driverRX = driverRX * Constants.MaxAngularRate;
-        if(headingControl == true){
-            driverRX = headingControl(driverRX);
+        driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
+        driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
+        driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
+
+        if(headingControl) {
+            
+        } else if (aligning) {
+            driverRX = pidAlignment(driverRX); // for testing
         }
 
         return new SwerveRequest.FieldCentric()
         .withVelocityX(driverLY)
         .withVelocityY(driverLX)
-        .withRotationalRate(driverRX)
+        .withRotationalRate(driverRX * Constants.MaxAngularRate)
         .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
         .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -165,6 +178,26 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         resetOdoUtil(pose);
         resetOdoUtil(pose);
         resetOdoUtil(pose);
+    }
+
+    public double pidAlignment(double driverRX) {
+        // boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
+
+        // Im like 75% sure this is correct, if null it should default to red
+        // Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
+            
+        // Find our (current) x and y, find target's x and y, calculate heading needed to face target, PID to that heading
+        // if (!rightJoy) { 
+            
+
+            double desiredHeading = Math.PI;
+
+            double currentHeading = getPose().getRotation().getRadians();  
+
+            driverRX = pidHeading.calculate(currentHeading, desiredHeading);
+        // }
+        
+        return driverRX;
     }
 
     public double headingControl(double driverRX){
