@@ -17,9 +17,9 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.RobotContainer;
 
-public class HoldAlign extends Command {
+public class SpeakerAlign extends Command {
 
-    public HoldAlign() {
+    public SpeakerAlign() {
       s_Swerve = CommandSwerveDrivetrain.getInstance();
     }
 
@@ -43,6 +43,6 @@ public class HoldAlign extends Command {
 
     @Override
     public boolean isFinished() { //always use in WhileTrue
-        return false;
+        return (Math.abs(s_Swerve.getPose().getRotation().getRadians() - Math.PI) < 0.05); //pi is placeholder, change to desired angle
     }
 }

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Amp.SetAmp;
 import frc.robot.commands.Amp.ZeroAmp;
+import frc.robot.commands.Drive.SpeakerAlign;
 //import frc.robot.commands.Drive.PureAlignment;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
@@ -117,6 +118,14 @@ public class CommandFactory {
         return new ParallelCommandGroup(
             new ZeroPivot(),
             new ZeroAmp()
+        );
+    }
+
+    public static Command stageShootPrep() {
+        return new ParallelCommandGroup(
+            new AlignPivot(PivotState.STAGE), //need to set pivot angle for stage
+            new SetShooterCommand(45),
+            new SpeakerAlign()
         );
     }
 

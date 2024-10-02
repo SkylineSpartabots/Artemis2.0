@@ -96,5 +96,6 @@ public class Amp extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Amp position", getPosition());
+    SmartDashboard.putNumber("Amp current", getMotorCurrent());
   }
 }

@@ -33,6 +33,7 @@ import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.Amp.SetAmp;
 import frc.robot.commands.Amp.ZeroAmp;
+import frc.robot.commands.Drive.HoldHeading;
 import frc.robot.commands.Drive.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
@@ -108,7 +109,7 @@ public class RobotContainer {
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(CommandFactory.eject()); //FINAL
         //driver.b().onTrue(new ZeroAmp()); for testing
-        driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
+        driver.y().whileTrue(new SlowDrive()); //FINAL
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
@@ -116,7 +117,7 @@ public class RobotContainer {
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
-        driver.leftTrigger().whileTrue(new SlowDrive());
+        driver.leftTrigger().whileTrue(new HoldHeading());
         // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
@@ -124,7 +125,7 @@ public class RobotContainer {
 
 
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
-        driver.rightTrigger().onTrue(CommandFactory.lobNote());
+        driver.rightTrigger().onTrue(new SetIndexer(IndexerStates.SHOOTING));
         //driver.leftBumper().onTrue(CommandFactory.defensiveStance());
         //driver.rightBumper().onTrue(new SetShooterCommand(20, 9)); //for test
         //driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
@@ -136,7 +137,8 @@ public class RobotContainer {
         // driver.leftBumper().onTrue(onIntake());
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
-        driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+        //driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+        driverDpadLeft.onTrue(CommandFactory.lobNote());
         //driverDpadLeft.onTrue(new SetAmp(AmpState.PUSH));
         //driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED)); //for test
         //driverDpadLeft.onTrue(CommandFactory.ampPrep());
