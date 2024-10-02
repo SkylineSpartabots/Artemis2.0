@@ -150,6 +150,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         headingControl = !headingControl;
     }
 
+    public void toggleAlignment() {
+        aligning = !aligning;
+    }
+
+
     public double scaledDeadBand(double input) {
         return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
     }
@@ -160,7 +165,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
 
         if(headingControl) {
-            
+            driverRX = headingControl(driverRX);
         } else if (aligning) {
             driverRX = pidAlignment(driverRX); // for testing
         }
