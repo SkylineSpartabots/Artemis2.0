@@ -224,20 +224,20 @@ public SwerveRequest drive(double driverLY, double driverLX, double driverRX) {
     driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
     driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
 
-    double desiredVelocity = Math.hypot(driverLX, driverLY);
+    // double desiredVelocity = Math.hypot(driverLX, driverLY);
 
-    if (getTractionBool()) {
-        Double[] adjustedInputs = tractionControl(driverLX, driverLY, desiredVelocity);
-        driverLX = adjustedInputs[4];
-        driverLY = adjustedInputs[5];
+    // if (getTractionBool()) {
+    //     Double[] adjustedInputs = tractionControl(driverLX, driverLY, desiredVelocity);
+    //     driverLX = adjustedInputs[4];
+    //     driverLY = adjustedInputs[5];
 
-        // slipCorrection(adjustedInputs);
-    }
+    //     // slipCorrection(adjustedInputs);
+    // }
 
-    if(getHeadingControlBool()) {
-        // driverRX = headingControl(driverRX, desiredVelocity);
-         driverRX = pidAlignment(driverRX); // for testing
-    }
+    // if(getHeadingControlBool()) {
+    //     // driverRX = headingControl(driverRX, desiredVelocity);
+    //      driverRX = pidAlignment(driverRX); // for testing
+    // }
 
     return new SwerveRequest.FieldCentric()
         .withVelocityX(driverLY)
@@ -348,7 +348,7 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
     }
 
     public double pidAlignment(double driverRX) {
-        boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
+        // boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
 
         // Im like 75% sure this is correct, if null it should default to red
         // Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
