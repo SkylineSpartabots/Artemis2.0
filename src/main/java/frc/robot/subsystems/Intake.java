@@ -123,7 +123,7 @@ public class Intake extends SubsystemBase {
     public void setSpeed(IntakeStates state) {
         intakeLeaderM.setControl(dutyCycleRequest.withOutput(state.speed));
         
-        intakeFollowerM.setControl(dutyCycleRequest.withOutput(state.speed));
+        intakeFollowerM.setControl(dutyCycleRequest.withOutput(-state.speed));
         serialM.set(state.serialSpeed);
         currentState = state;
     }
