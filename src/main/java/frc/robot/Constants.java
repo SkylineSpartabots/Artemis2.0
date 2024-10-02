@@ -4,18 +4,15 @@
 
 package frc.robot;
 
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.apriltag.AprilTagPoseEstimate;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.Vision.AprilTags;
-
 import org.opencv.core.Point;
 
 import com.revrobotics.CANSparkBase.IdleMode;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 /**
@@ -27,7 +24,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static double MaxSpeed = 6; //can be lowered during testing
+    public static double MaxSpeed = 6; //can be lowered during testing (BOOOOOO)
     public static double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
     public static final int timeOutMs = 10;
@@ -111,20 +108,18 @@ public final class Constants {
     }
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-    enum AlignmentTargets {
-
-
-            // BLUE_SPEAKER(new Point(Vision.getApriltagPose(2).get().getX(),5.55)),
+    
+    public enum AlignmentTargets {
+            BLUE_SPEAKER(new Point(0.47,5.55)),
             RED_SPEAKER(new Point(16.06, 5.55)),
-            BLUE_AMP(new Point(1.815, 8.3)),
+            BLUE_AMP(new Point(1.815, 8.3)), // on choreo it doesint give good amp cords ill find elsewhere
             RED_AMP(new Point(14.715, 8.3));
             
-            private Point point;
+            final private Point point;
 
-            public Point getValue(){return point;}
+            public Point getValue() { return point; }
 
             AlignmentTargets(Point point) {this.point = point;}
-
     }
 
     public static final class FieldConstants {

@@ -6,6 +6,8 @@ package frc.robot;
 
 
 // import frc.robot.commands.SetLightz;
+
+import frc.robot.commands.Drive.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Amp.AmpState;
 
@@ -29,6 +31,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.Amp.SetAmp;
@@ -40,18 +43,15 @@ import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Shooter.ZeroShooter;
 import frc.robot.commands.Intake.SetIntake;
+import frc.robot.commands.Drive.Toggles;
+import frc.robot.commands.Drive.HoldHeading;
 
 
 public class RobotContainer {
 
+    public static final double translationDeadband = 0.1;
+    public static final double rotDeadband = 0.1;
     private static RobotContainer container;
-
-    public static RobotContainer getInstance(){//so i can grab controller values lol
-        if(container == null){
-            container = new RobotContainer();
-        }
-        return container;
-    }
     /* Setting up bindings for necessary control of the swerve drive platform */
     public final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
     //private final CommandXboxController operator = new CommandXboxController(1); //Operator joystick
@@ -65,19 +65,14 @@ public class RobotContainer {
     private final Shooter s_Shooter = Shooter.getInstance();
     //private final Vision s_Vision = Vision.getInstance();
     // private final Music s_Orchestra = Music.getInstance();
-
+//     private final Vision s_Vision = Vision.getInstance();
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-
-    public static final double translationDeadband = 0.1;
-    public static final double rotDeadband = 0.1;
-
     // driving in open loop
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
-
     /* Driver Buttons */
     private final Trigger driverBack = driver.back();
     private final Trigger driverStart = driver.start();
@@ -93,8 +88,18 @@ public class RobotContainer {
     private final Trigger driverDpadDown = driver.povDown();
     private final Trigger driverDpadLeft = driver.povLeft();
     private final Trigger driverDpadRight = driver.povRight();
+    public RobotContainer() {
+        configureBindings();
+    }
 
-    public CommandXboxController getDriverController(){
+    public static RobotContainer getInstance() {//so i can grab controller values lol
+        if (container == null) {
+            container = new RobotContainer();
+        }
+        return container;
+    }
+
+    public CommandXboxController getDriverController() {
         return driver;
     }
 
@@ -109,6 +114,7 @@ public class RobotContainer {
         driver.b().onTrue(CommandFactory.eject()); //FINAL
         //driver.b().onTrue(new ZeroAmp()); for testing
         driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
+        driver.leftBumper().onTrue(new Toggles()); //FINAL
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
@@ -116,10 +122,11 @@ public class RobotContainer {
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
-        driver.leftTrigger().whileTrue(new SlowDrive());
+        // driver.leftTrigger().whileTrue(new SlowDrive());
         // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
+        driver.leftTrigger().whileTrue(new HoldHeading());
 
 
 
@@ -144,18 +151,14 @@ public class RobotContainer {
         // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
         driverDpadRight.onTrue(CommandFactory.zeroAmpPivot()); //FINAL
 
-        
         /*
          * Drivetrain bindings
          */
-        drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
-                        // negative Y (forward)
-                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-                ));
+            //    new Drive(-driver.getLeftY(),-driver.getLeftX(),-driver.getRightX())
+            drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(() -> drivetrain.drive(-driver.getLeftY(),-driver.getLeftX(),-driver.getRightX()))
+            );
 
-        // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
         driverStart.onTrue(new ZeroShooter());
         
@@ -187,14 +190,6 @@ public class RobotContainer {
         if (Utils.isSimulation()) {
             drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
         }
-        
         drivetrain.registerTelemetry(logger::telemeterize);
-
-
-    }
-
-    public RobotContainer() {
-
-        configureBindings();
     }
 }

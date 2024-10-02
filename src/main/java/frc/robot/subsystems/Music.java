@@ -12,7 +12,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-//lol this is so dumb 
+//lol this is so dumb
+
+//NO ITS GOATED!! -iggy
 
 public class Music extends SubsystemBase {
   public static Music instance;
@@ -140,8 +142,8 @@ public class Music extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putString("Song", song);
-    SmartDashboard.putBoolean("isPlaying", m_Orchestra.isPlaying());
+    // SmartDashboard.putString("Song", song);
+    // SmartDashboard.putBoolean("isPlaying", m_Orchestra.isPlaying());
     // This method will be called once per scheduler run
   }
 }
