@@ -47,7 +47,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
     // UnscentedKalmanFilter<N2, N1, N1> UKF;
-    Vision m_Camera;
+    // Vision m_Camera;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
     private Timer timer;
@@ -102,7 +102,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                                    SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); // look here for parent library methods
         //  timer = new Timer();                           
-        m_Camera = Vision.getInstance();
+        // m_Camera = Vision.getInstance();
 
         if (Utils.isSimulation()) {
             startSimThread();
@@ -351,10 +351,12 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
         boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
 
         // Im like 75% sure this is correct, if null it should default to red
-        Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
+        // Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
             
         // Find our (current) x and y, find target's x and y, calculate heading needed to face target, PID to that heading
-        if (!rightJoy) {
+        // if (!rightJoy) {
+
+            Point target = new Point(0.5, 5.55); //hardcoded point for testing
             Pose2d pose = getPose();
 
             double desiredHeading = Math.atan2(pose.getX() - target.x, pose.getY() - target.y);
@@ -362,7 +364,7 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
             double currentHeading = pose.getRotation().getRadians();  
 
             driverRX = pidHeading.calculate(currentHeading, desiredHeading);
-        }
+        // }
         
         return driverRX;
     }
