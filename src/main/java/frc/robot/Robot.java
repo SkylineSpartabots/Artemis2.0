@@ -25,6 +25,7 @@ import frc.robot.commands.Autos.AutoPath;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.subsystems.Amp;
 import frc.robot.subsystems.Climb;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pivot;
@@ -45,6 +46,7 @@ public class Robot extends LoggedRobot {
   //private final Vision s_Vision;
   private final Climb s_Climb;
   private final Amp s_Amp;
+  private final CommandSwerveDrivetrain s_Swerve;
 
   public Robot() {
     super();
@@ -55,6 +57,7 @@ public class Robot extends LoggedRobot {
     //s_Vision = Vision.getInstance();
     s_Climb = Climb.getInstance();
     s_Amp = Amp.getInstance();
+    s_Swerve = CommandSwerveDrivetrain.getInstance();
   }
 
   @Override
@@ -96,7 +99,7 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Auto choices", autoChooser);
     m_robotContainer = RobotContainer.getInstance();
     //PortForwarder.add(5800, "photonvision.local", 5800);
-
+    s_Swerve.setHeadingTolerance(2.5);
   }
 
   @Override

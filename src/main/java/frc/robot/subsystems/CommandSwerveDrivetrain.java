@@ -15,6 +15,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,6 +25,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
 
 /**
@@ -39,6 +42,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
+    PIDController pidHeading = new PIDController(8, 0, 1);
+
+    private boolean headingControlOn = false;
+    private boolean headingControl = false;
+    private double lastHeading = 0;
+
     //Vision m_Camera;
 
     private Field2d m_field = new Field2d();
@@ -50,6 +59,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
         return s_Swerve;
         
+    }
+
+    public void setHeadingTolerance(double headingToleranceDegrees){
+        pidHeading.setTolerance(Math.toRadians(headingToleranceDegrees));
     }
 
     private void limit() {
@@ -123,10 +136,49 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
+    public void setLastHeading() {
+        lastHeading = getPose().getRotation().getRadians(); 
+    }
+
+    public void toggleHeadingControl() {
+        headingControl = !headingControl;
+    }
+
+    public SwerveRequest drive(double driverLY, double driverLX, double driverRX){
+        driverLY = driverLY * Constants.MaxSpeed;
+        driverLX = driverLX * Constants.MaxSpeed;
+        driverRX = driverRX * Constants.MaxAngularRate;
+        if(headingControl == true){
+            driverRX = headingControl(driverRX);
+        }
+
+        return new SwerveRequest.FieldCentric()
+        .withVelocityX(driverLY)
+        .withVelocityY(driverLX)
+        .withRotationalRate(driverRX)
+        .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
+        .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    }
+
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
         resetOdoUtil(pose);
         resetOdoUtil(pose);
+    }
+
+    public double headingControl(double driverRX){
+        if(Math.abs(driverRX) < (Constants.MaxAngularRate * 0.1)) { //0.5 is placeholder
+            driverRX = pidHeading.calculate(getPose().getRotation().getRadians() , lastHeading);
+            headingControlOn = true;
+            SmartDashboard.putBoolean("headingON", headingControlOn);
+        } else {
+            headingControlOn = false;
+            SmartDashboard.putBoolean("headingON", headingControlOn);
+            SmartDashboard.putNumber("lastHeading", lastHeading);
+        }
+
+        return driverRX;
     }
 
     public Pose2d getPose(){

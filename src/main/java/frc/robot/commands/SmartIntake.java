@@ -26,7 +26,7 @@ public class SmartIntake extends Command {
 
   @Override
   public void initialize() {
-    s_Indexer.setState(IndexerStates.ON);
+    new SetIndexer(IndexerStates.ON).schedule();
     s_Intake.setSpeed(IntakeStates.ON);
     new AlignPivot(PivotState.INTAKE).schedule();
   }
