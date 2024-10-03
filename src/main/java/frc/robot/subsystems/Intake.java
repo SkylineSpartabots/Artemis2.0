@@ -128,6 +128,10 @@ public class Intake extends SubsystemBase {
         currentState = state;
     }
 
+    public double getSerialCurrent() {
+        return serialM.getStatorCurrent().getValueAsDouble();
+    }
+
 
     /**
      * Testing purposes only, should not be used during any comps
@@ -161,6 +165,7 @@ public class Intake extends SubsystemBase {
         //     SmartDashboard.putString("Intake State", stateName);
         // }
         SmartDashboard.putBoolean("Intake On", intakeLeaderM.getMotorVoltage().getValueAsDouble() > 2);
+        SmartDashboard.putNumber("serialization current", getSerialCurrent());
     }
 
     @Override

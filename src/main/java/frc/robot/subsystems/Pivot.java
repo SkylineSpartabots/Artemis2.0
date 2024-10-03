@@ -184,6 +184,10 @@ public class Pivot extends SubsystemBase {
         // resetCANcoder(0.2);
     }
 
+    public double getPivotVelocity(){
+        return pivotLeaderM.getVelocity().getValueAsDouble();
+    }
+
     /**
      * Calculates the current angle the pivot is at in degrees, relative to the ground. 
      * @return The current angle the pivot is at relative to the ground. This is measured by converting CANcoder units to degrees and then subtracting the offset. 
@@ -204,5 +208,6 @@ public class Pivot extends SubsystemBase {
         // SmartDashboard.putNumber("Pivot Motor Encoder", getMotorPosition());
         SmartDashboard.putBoolean("CANcoder working", CANcoderWorking());
         SmartDashboard.putNumber("Pivot Current", getMotorCurrent());
+        SmartDashboard.putNumber("pivot velocity", getPivotVelocity());
     }
 }

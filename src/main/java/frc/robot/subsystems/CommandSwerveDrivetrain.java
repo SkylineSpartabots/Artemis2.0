@@ -46,7 +46,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    PIDController pidHeading = new PIDController(8, 0, 1);
+    PIDController pidHeading = new PIDController(4, 0, 3);
 
     private boolean headingControlOn = false;
     private boolean headingControl = false;
@@ -154,6 +154,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         aligning = !aligning;
     }
 
+    public double getHeading() {
+        return getPose().getRotation().getRadians();
+    }
+
 
     public double scaledDeadBand(double input) {
         return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
@@ -162,7 +166,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public SwerveRequest drive(double driverLY, double driverLX, double driverRX){
         driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
-        driverRX = scaledDeadBand(driverRX); //desired inputs in velocity
+     //desired inputs in velocity
 
         if(headingControl) {
             driverRX = headingControl(driverRX);
@@ -205,8 +209,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return driverRX;
     }
 
+    public double getLastHeading() {
+        return lastHeading;
+    }
+
     public double headingControl(double driverRX){
-        if(Math.abs(driverRX) < (Constants.MaxAngularRate * 0.1)) { //0.5 is placeholder
+        if(Math.abs(driverRX) < 0.1 && (Math.abs(lastHeading - getPose().getRotation().getRadians())) < 0.05 && robotAbsoluteVelocity() > 0.1) { //0.5 is placeholder
             driverRX = pidHeading.calculate(getPose().getRotation().getRadians() , lastHeading);
             headingControlOn = true;
             SmartDashboard.putBoolean("headingON", headingControlOn);
@@ -271,7 +279,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
         SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
-
+        SmartDashboard.putNumber("current heading", getHeading());
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
         m_field.setRobotPose(m_odometry.getEstimatedPosition());
         SmartDashboard.putData("field", m_field); 

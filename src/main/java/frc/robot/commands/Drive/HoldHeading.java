@@ -29,6 +29,7 @@ public class HoldHeading extends Command {
     public void initialize() {
       s_Swerve.setLastHeading();
       s_Swerve.toggleHeadingControl();
+      SmartDashboard.putNumber("last heading", s_Swerve.getLastHeading());
       SmartDashboard.putBoolean("headingON", true);
     }
     

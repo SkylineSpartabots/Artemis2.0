@@ -92,8 +92,8 @@ public final class Constants {
         public static final int shooterBottomM = 50;
         public static final int shooterTopM = 51;
 
-        public static final int indexerTopM = 31;
-        public static final int indexerBottomM = 30;
+        public static final int indexerTopM = 30;
+        public static final int indexerBottomM = 31;
         
         public static final int intakeLeaderM = 21;
         public static final int intakeFollowerM = 20;

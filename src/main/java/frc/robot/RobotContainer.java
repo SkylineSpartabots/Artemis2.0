@@ -35,6 +35,7 @@ import frc.robot.commands.Amp.SetAmp;
 import frc.robot.commands.Amp.ZeroAmp;
 import frc.robot.commands.Drive.HoldHeading;
 import frc.robot.commands.Drive.SlowDrive;
+import frc.robot.commands.Drive.SpeakerAlign;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -108,8 +109,9 @@ public class RobotContainer {
         driver.a().onTrue(CommandFactory.offEverything()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(CommandFactory.eject()); //FINAL
+        //driver.y().onTrue(new SpeakerAlign());
         //driver.b().onTrue(new ZeroAmp()); for testing
-        driver.y().whileTrue(new SlowDrive()); //FINAL
+        //driver.y().whileTrue(new SlowDrive()); //FINAL
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
@@ -118,6 +120,7 @@ public class RobotContainer {
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
         driver.leftTrigger().whileTrue(new HoldHeading());
+        driver.leftBumper().whileTrue(new SlowDrive());
         // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
@@ -139,19 +142,20 @@ public class RobotContainer {
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         //driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
         driverDpadLeft.onTrue(CommandFactory.lobNote());
+        driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER));
         //driverDpadLeft.onTrue(new SetAmp(AmpState.PUSH));
         //driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED)); //for test
         //driverDpadLeft.onTrue(CommandFactory.ampPrep());
         //driverDpadLeft.onTrue(new AlignPivot(PivotState.AMP)); //for testing only
         // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
-        driverDpadRight.onTrue(CommandFactory.zeroAmpPivot()); //FINAL
+        //driverDpadRight.onTrue(CommandFactory.zeroAmpPivot()); //FINAL
 
         
         /*
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drivetrain.drive(-driver.getLeftY(), -driver.getLeftX(), driver.getRightX()) // Drive counterclockwise with negative X (left)
+                drivetrain.applyRequest(() -> drivetrain.drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
                 ));
 
         // reset the field-centric heading. AKA reset odometry

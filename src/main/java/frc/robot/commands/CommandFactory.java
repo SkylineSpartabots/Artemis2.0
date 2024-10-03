@@ -63,8 +63,8 @@ public class CommandFactory {
                 new SetIntake(IntakeStates.OFF), 
                 Commands.waitSeconds(0.5), 
                 new SetIndexer(IndexerStates.OFF), 
-                new AlignPivot(PivotState.GROUND),
-                new SetAmp(AmpState.ZERO)
+                new AlignPivot(PivotState.GROUND)
+                //new SetAmp(AmpState.ZERO)
             )
         );
     }
@@ -133,9 +133,9 @@ public class CommandFactory {
         return new SequentialCommandGroup(
         new ParallelCommandGroup(
             new AlignPivot(PivotState.FARWING),
-            new SetShooterCommand(20)  
+            new SetShooterCommand(45)  
           ),
-        new SetIndexer(IndexerStates.AMP)
+        new SetIndexer(IndexerStates.SHOOTING)
         );
     }
 }
