@@ -69,7 +69,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean headingOn = false;
     private double lastTimeReset = 0;
 
-    double alpha = 0.6; //TODO tune
     double prevAccelMagnitude = 0;
     double prevFilteredAccelMagnitude = 0;
     double prevVelocity = 0;        
@@ -260,26 +259,17 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
     }
     SmartDashboard.putNumber("acceleration magnitude", accelerationMagnitude);
 
-    // Filter Acceleration using Complimentary filter
-    double filteredAccel = alpha * (accelerationMagnitude) + (1-alpha) * prevAccelMagnitude;
-
     // Trapaziodal integration (obtain velocity)
-    double currentVelocity = prevVelocity + ((filteredAccel + prevFilteredAccelMagnitude) / 2) * dt;
+    double currentVelocity = prevVelocity + ((accelerationMagnitude + prevFilteredAccelMagnitude) / 2) * dt;
     SmartDashboard.putNumber("currentVelocity", currentVelocity);
 
     // Obtain desired acceleration from inputs
-    double desiredAcceleration = filteredAccel + (desiredVelocity - currentVelocity) / dt;
-
-    //set prev values
-    prevAccelMagnitude = accelerationMagnitude;
-    prevFilteredAccelMagnitude = filteredAccel;
-    prevVelocity = currentVelocity;
+    double desiredAcceleration = accelerationMagnitude + (desiredVelocity - currentVelocity) / dt;
 
     // double estimatedVelocity = UKF.getXhat(1);
 
     // coefficient of friction between the floor and the wheels PLEASE TEST FOR CoF!!
     double maxAcceleration = (9.80665 * frictionCoefficient);
-
 
     // ---------------All values for control have been caluculated------------------------------------
 
@@ -430,12 +420,11 @@ public Double[] tractionControl(double driverLX, double driverLY, double desired
     public double obtainAcceleration() {
         double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
         double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
-        double accelerationZ = pigeon.getAccelerationZ().getValue() - pigeon.getGravityVectorZ().getValue();
-
-        return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2) + Math.pow(accelerationZ, 2));
+        
+        return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2));
     }
 
-    public double obtainGyro() {
+    public double obtainGyro() { //dont use this -iggy
         double gyroX = pigeon.getAngularVelocityXDevice().getValue();
         double gyroY = pigeon.getAngularVelocityYDevice().getValue();
         double gyroZ = pigeon.getAngularVelocityZDevice().getValue();
