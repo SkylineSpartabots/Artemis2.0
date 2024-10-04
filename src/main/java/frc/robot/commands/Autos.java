@@ -491,7 +491,7 @@ public final class Autos {
                         new SetShooterCommand(40)
                 ),
 
-                Commands.waitSeconds(1),
+                Commands.waitSeconds(0.2),
                 new SetIndexer(IndexerStates.ON, false),
                 Commands.waitSeconds(0.3),
 
