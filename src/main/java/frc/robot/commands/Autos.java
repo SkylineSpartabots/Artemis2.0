@@ -476,12 +476,13 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
                         new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true, 4.75),
-                        new SetIntake(IntakeStates.ON, 4.5),
+                        new SetIndexer(IndexerStates.ON, true, 4.25),
+                        new SetIntake(IntakeStates.ON, 4),
                         new AlignPivot(PivotState.INTAKE)
                 ),
 
                 Commands.waitSeconds(0.5),
+                CommandFactory.eject(),
                 CommandFactory.eject(),
 
                 new ParallelCommandGroup(

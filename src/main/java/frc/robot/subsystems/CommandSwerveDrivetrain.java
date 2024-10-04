@@ -46,7 +46,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    PIDController pidHeading = new PIDController(4, 0, 3);
+    PIDController pidHeading = new PIDController(8, 0, 1);
 
     private boolean headingControlOn = false;
     private boolean headingControl = false;
