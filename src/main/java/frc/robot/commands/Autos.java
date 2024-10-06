@@ -480,7 +480,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(1)),
-                        new AlignPivot(77),
+                        new AlignPivot(57),
                         new SetShooterCommand(45)
                 ),
 
