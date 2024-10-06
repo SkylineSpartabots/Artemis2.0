@@ -36,7 +36,7 @@ public class Pivot extends SubsystemBase {
         // Current max is .38, can change later
         SUBWOOFER(55),
 
-        STAGE(35), //PLACEHOLDER, change
+        STAGE(32), //PLACEHOLDER, change
 
         FARWING(23),
 

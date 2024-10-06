@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -14,6 +15,7 @@ import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Shooter.ZeroShooter;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Amp.AmpState;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
@@ -86,12 +88,17 @@ public class CommandFactory {
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
                 new SetIndexer(IndexerStates.REV), 
-                new SetIntake(IntakeStates.REV)
+                new SetIntake(IntakeStates.REV),
+                new InstantCommand(() -> Shooter.getInstance().setTopVelocity(-10)),
+                new InstantCommand(() -> Shooter.getInstance().setBotVelocity(-10))
             ), 
-            new WaitCommand(0.065),
+            new WaitCommand(0.1),
             new ParallelCommandGroup(
                 new SetIndexer(IndexerStates.OFF), 
-                new SetIntake(IntakeStates.OFF)
+                new SetIntake(IntakeStates.OFF),
+                new InstantCommand(() -> Shooter.getInstance().setTopVelocity(0)),
+                new InstantCommand(() -> Shooter.getInstance().setBotVelocity(0))
+
             )
         );
     }
@@ -124,15 +131,24 @@ public class CommandFactory {
     public static Command stageShootPrep() {
         return new ParallelCommandGroup(
             new AlignPivot(PivotState.STAGE), //need to set pivot angle for stage
-            new SetShooterCommand(45),
-            new SpeakerAlign()
+            new SetShooterCommand(45)
         );
     }
 
-    public static Command lobNote() {
+    public static Command highLob() {
         return new SequentialCommandGroup(
         new ParallelCommandGroup(
-            new AlignPivot(PivotState.FARWING),
+            new AlignPivot(35),
+            new SetShooterCommand(40)  
+          ),
+        new SetIndexer(IndexerStates.SHOOTING)
+        );
+    }
+
+    public static Command lowLob() {
+        return new SequentialCommandGroup(
+        new ParallelCommandGroup(
+            new AlignPivot(23),
             new SetShooterCommand(45)  
           ),
         new SetIndexer(IndexerStates.SHOOTING)

@@ -109,7 +109,7 @@ public class RobotContainer {
         driver.a().onTrue(CommandFactory.offEverything()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(CommandFactory.eject()); //FINAL
-        //driver.y().onTrue(new SpeakerAlign());
+        driver.y().onTrue(CommandFactory.stageShootPrep());
         //driver.b().onTrue(new ZeroAmp()); for testing
         //driver.y().whileTrue(new SlowDrive()); //FINAL
 
@@ -141,8 +141,8 @@ public class RobotContainer {
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
         //driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
-        driverDpadLeft.onTrue(CommandFactory.lobNote());
-        driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER));
+        driverDpadLeft.onTrue(CommandFactory.highLob());
+        driverDpadUp.onTrue(CommandFactory.lowLob());
         //driverDpadLeft.onTrue(new SetAmp(AmpState.PUSH));
         //driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED)); //for test
         //driverDpadLeft.onTrue(CommandFactory.ampPrep());
@@ -160,7 +160,7 @@ public class RobotContainer {
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
-        driverStart.onTrue(new ZeroShooter());
+        driverStart.onTrue(new SetShooterCommand(1));
         
 
         /*

@@ -49,13 +49,7 @@ public final class Autos {
     private static final PIDController yController = new PIDController(5, 1, 0);
 
     public static Command getAutoCommand(AutoPath autoPath) {
-        return new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                  new ZeroPivot(),
-                  new ZeroAmp()      
-                ), 
-                autoPath.autoCommand
-                );
+        return autoPath.autoCommand;
     }
 
     public static Command FollowChoreoTrajectory(ChoreoTrajectory path) {
@@ -476,13 +470,12 @@ public final class Autos {
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(0)),
                         new SetShooterCommand(0),
-                        new SetIndexer(IndexerStates.ON, true, 4.25),
-                        new SetIntake(IntakeStates.ON, 4),
+                        new SetIndexer(IndexerStates.ON, true, 4.45),
+                        new SetIntake(IntakeStates.ON, 4.2),
                         new AlignPivot(PivotState.INTAKE)
                 ),
 
                 Commands.waitSeconds(0.5),
-                CommandFactory.eject(),
                 CommandFactory.eject(),
 
                 new ParallelCommandGroup(

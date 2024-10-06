@@ -21,7 +21,7 @@ public class AlignPivot extends Command {
     double distance;
 
     // Tune later
-    PIDController CANController = new PIDController(59, 30, 0);
+    PIDController CANController = new PIDController(64, 30, 0);
 
     public AlignPivot(double desiredAngle) {
         s_Pivot = Pivot.getInstance();
