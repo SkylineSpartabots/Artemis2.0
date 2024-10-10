@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.sql.Driver;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -9,6 +10,7 @@ import org.opencv.core.Point;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
@@ -54,6 +56,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private boolean aligning = false;
 
+    Pigeon2 pigeon = getPigeon2(); //using the already contructed pigeon
+
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+
     //Vision m_Camera;
 
     private Field2d m_field = new Field2d();
@@ -65,10 +71,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
         return s_Swerve;
         
-    }
-
-    public void setHeadingTolerance(double headingToleranceDegrees){
-        pidHeading.setTolerance(Math.toRadians(headingToleranceDegrees));
     }
 
     private void limit() {
@@ -95,6 +97,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
         limit();
     }
+
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         if (Utils.isSimulation()) {
@@ -124,8 +127,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
         tareEverything();
-        tareEverything();
-        tareEverything();
     }
 
     public void resetOdoUtil(Pose2d pose){
@@ -142,30 +143,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public void setLastHeading() {
-        lastHeading = getPose().getRotation().getRadians(); 
-    }
-
-    public void toggleHeadingControl() {
-        headingControl = !headingControl;
-    }
-
-    public void toggleAlignment() {
-        aligning = !aligning;
-    }
-
-    public double getHeading() {
-        return getPose().getRotation().getRadians();
-    }
-
-
     public double scaledDeadBand(double input) {
         return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
     }
 
+    // ════════════════ Control Systems and Joystick processing ═══════════════════════════════════════════
+
     public SwerveRequest drive(double driverLY, double driverLX, double driverRX){
         driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
+        driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed;
      //desired inputs in velocity
 
         if(headingControl) {
@@ -190,21 +177,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public double pidAlignment(double driverRX) {
-        // boolean rightJoy = Math.abs(driverRX) < (Constants.MaxAngularRate * rotDeadband);
 
-        // Im like 75% sure this is correct, if null it should default to red
-        // Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
-            
+        Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
         // Find our (current) x and y, find target's x and y, calculate heading needed to face target, PID to that heading
-        // if (!rightJoy) { 
             
-
             double desiredHeading = Math.PI;
 
             double currentHeading = getPose().getRotation().getRadians();  
 
             driverRX = pidHeading.calculate(currentHeading, desiredHeading);
-        // }
         
         return driverRX;
     }
@@ -239,23 +220,23 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return roughVel/4.0;
     }
 
-    public void setVoltage(double voltage){
+    public double robotAngularVelocity(){
+        double angularX = pigeon.getAngularVelocityXDevice().getValue();
+        double angularY = pigeon.getAngularVelocityYDevice().getValue();
         
-        for(int i = 0; i < ModuleCount; i++){
-        }
-        // s_Swerve.Modules[0].apply(null, null);
+        return Math.signum(Math.atan2(angularY, angularX)) * Math.sqrt((Math.pow(angularX, 2)) + Math.pow(angularY, 2));
     }
 
-    public void updateOdometryByVision(){
-        Pose3d poseFromVision = null;
-        try {
-            // poseFromVision = m_Camera.calculatePoseFromVision();
-        } catch (Exception e) {
-        }
+    public double robotAcceleration() {
+        double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
+        double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
+        
+        return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2));
+    }
+
+    public void updateOdometryByVision(Pose3d poseFromVision){
         if(poseFromVision != null){
             s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-            //TODO: add our own timer
-            
         }
     }
 
@@ -264,14 +245,28 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void setAutoStartPose(Pose2d pose){
         autoStartPose = pose;
     }
+        public void setLastHeading() {
+        lastHeading = getPose().getRotation().getRadians(); 
+    }
+
+    public void toggleHeadingControl() {
+        headingControl = !headingControl;
+    }
+
+    public void toggleAlignment() {
+        aligning = !aligning;
+    }
+
+    public double getHeading() {
+        return getPose().getRotation().getRadians();
+    }
 
     @Override
     public void periodic() {
         // updateOdometryByVision();
         Pose2d currPose = getPose();
 
-        
-        
+
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", currPose.getX());
@@ -296,20 +291,5 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
 
     }
-
-    // private double getOffset(int id) {
-    // if (id == 1) {
-    //     return TunerConstants.kFrontLeftEncoderOffset;
-    // }
-    // else if (id == 2) {
-    //     return TunerConstants.kFrontRightEncoderOffset;
-    // }
-    // else if (id == 3) {
-    //     return TunerConstants.kBackLeftEncoderOffset;
-    // }
-    // else {
-    //     return TunerConstants.kBackRightEncoderOffset;
-    // }
-//}
 
 }
