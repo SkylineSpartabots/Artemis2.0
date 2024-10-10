@@ -22,6 +22,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -234,9 +235,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2));
     }
 
-    public void updateOdometryByVision(Pose3d poseFromVision){
-        if(poseFromVision != null){
-            s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
+    public void updateOdometryByVision(Transform3d transformFromVision){
+        if(transformFromVision != null){
+            s_Swerve.m_odometry.addVisionMeasurement(new Pose2d(transformFromVision.getX(),transformFromVision.getY(),
+            transformFromVision.getRotation().toRotation2d()), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
         }
     }
 

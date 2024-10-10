@@ -211,15 +211,14 @@ public class Vision extends SubsystemBase {
 
         if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
                 if(Math.abs(s_Swerve.robotAngularVelocity()) > 175) { //in dps
-
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent) {
                         if(shouldUseMultiTag()) {
                             return cameraResult.getMultiTagResult().estimatedPose.best;
-                        }   
+                        }
                     }
-                } 
+                }
 
-            } else {System.out.println("Rejected; old");}
+            } else { System.out.println("Vision skip"); }
             
         }
 
