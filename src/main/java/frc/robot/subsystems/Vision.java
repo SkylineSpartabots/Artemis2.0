@@ -50,6 +50,7 @@ public class Vision extends SubsystemBase {
         new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0))); //center cam
 
     public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+//    private static PhotonCamera visionCamera;
 
     private Vision() {
         centerCamera = new PhotonCamera(Constants.Vision.centerCameraName);
@@ -117,7 +118,10 @@ public class Vision extends SubsystemBase {
         if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
                 if(Math.abs(s_Swerve.robotAngularVelocity()) > 175) { //in dps
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
-                        s_Swerve.updateOdometryByVision(cameraResult.getMultiTagResult().estimatedPose.best);
+                        Transform3d cameraToTarget = cameraResult.getMultiTagResult().estimatedPose.best;
+                    
+
+                        s_Swerve.updateOdometryByVision();
                         return;
                     }
 

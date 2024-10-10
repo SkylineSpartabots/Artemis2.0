@@ -177,7 +177,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public double pidAlignment(double driverRX) {
 
-        Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
+        // Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
         // Find our (current) x and y, find target's x and y, calculate heading needed to face target, PID to that heading
             
             double desiredHeading = Math.PI;
@@ -236,13 +236,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void updateOdometryByVision(Transform3d transformFromVision){
         if(transformFromVision != null){
             s_Swerve.m_odometry.addVisionMeasurement(new Pose2d(transformFromVision.getX(),transformFromVision.getY(),
-            transformFromVision.getRotation().toRotation2d()), Logger.getRealTimestamp()); //Timer.getFPGATimestamp() TODO
+            transformFromVision.getRotation().toRotation2d()), Timer.getFPGATimestamp()); // TODO
         }
     }
 
     public void updateOdometryByVision(Pose3d transformFromVision){
         if(transformFromVision != null){
-            s_Swerve.m_odometry.addVisionMeasurement(transformFromVision.toPose2d(), Logger.getRealTimestamp()); 
+            s_Swerve.m_odometry.addVisionMeasurement(transformFromVision.toPose2d(), Timer.getFPGATimestamp()); 
         }
     }
 
