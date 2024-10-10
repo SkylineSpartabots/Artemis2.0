@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+
+import java.io.ObjectInputStream.GetField;
 import java.util.List;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -13,12 +15,15 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.UnitBuilder;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.PhotonUtils;
 import org.photonvision.proto.Photon;
 import org.photonvision.targeting.MultiTargetPNPResult;
@@ -35,7 +40,7 @@ public class Vision extends SubsystemBase {
     private static PhotonPipelineResult cameraResult;
     private static PhotonTrackedTarget lastValidTarget;
 
-    private double lastProcessedTimestamp = 0.0;
+    private double lastProcessedTimestamp = -1;
 
     private static CommandSwerveDrivetrain s_Swerve;
     
@@ -52,8 +57,10 @@ public class Vision extends SubsystemBase {
     public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 //    private static PhotonCamera visionCamera;
 
+    PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, centerCamera, cameraToRobotTransform);
     private Vision() {
         centerCamera = new PhotonCamera(Constants.Vision.centerCameraName);
+        photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
         updateAprilTagResults();
     }
 
@@ -118,22 +125,21 @@ public class Vision extends SubsystemBase {
         if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
                 if(Math.abs(s_Swerve.robotAngularVelocity()) > 175) { //in dps
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
-                        Transform3d cameraToTarget = cameraResult.getMultiTagResult().estimatedPose.best;
-                    
 
-                        s_Swerve.updateOdometryByVision();
-                        return;
+                        s_Swerve.updateOdometryByVision(photonPoseEstimator.update());
                     }
 
                     if(cameraResult.getBestTarget() != null) {
-                        PhotonTrackedTarget bestTarget = cameraResult.getBestTarget();
-                        Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
-                        // s_Swerve.updateOdometryByVision(PhotonUtils.estimateFieldToRobotAprilTag(aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId())));
-                        // ill fix this like
+                        photonPoseEstimator.setReferencePose(s_Swerve.getPose());
+                        Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
+
+                        s_Swerve.updateOdometryByVision(PhotonUtils.estimateFieldToRobotAprilTag(cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform););
+
                     } else { System.out.println("Vision failed: no targets");}
-                    
                 }
             } else { System.out.println("Vision skip"); }
+
+            lastProcessedTimestamp = cameraResult.getTimestampSeconds();
         }
 
     @Override

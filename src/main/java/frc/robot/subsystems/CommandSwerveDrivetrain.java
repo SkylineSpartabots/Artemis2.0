@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.Logger;
 import org.opencv.core.Point;
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -243,6 +244,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void updateOdometryByVision(Pose3d transformFromVision){
         if(transformFromVision != null){
             s_Swerve.m_odometry.addVisionMeasurement(transformFromVision.toPose2d(), Timer.getFPGATimestamp()); 
+        }
+    }
+    public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
+        if(estimatedPose.isPresent()){
+            s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
         }
     }
 
