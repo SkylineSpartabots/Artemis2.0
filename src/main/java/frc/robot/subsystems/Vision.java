@@ -207,19 +207,24 @@ public class Vision extends SubsystemBase {
     /**
      * calculates field-relative robot pose from vision reading, feed to pose estimator (Kalman filter)
      */
-    public Pose3d updateVision() throws Exception{
+    public void updateVision() throws Exception{
 
         if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
                 if(Math.abs(s_Swerve.robotAngularVelocity()) > 175) { //in dps
-                    if(cameraResult.getMultiTagResult().estimatedPose.isPresent) {
-                        if(shouldUseMultiTag()) {
-                            return cameraResult.getMultiTagResult().estimatedPose.best;
-                        }
+                    if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
+                        s_Swerve.updateOdometryByVision(cameraResult.getMultiTagResult().estimatedPose.best);
+                        return;
                     }
-                }
 
+                    if(cameraResult.getBestTarget() != null) {
+                        PhotonTrackedTarget bestTarget = cameraResult.getBestTarget();
+                        Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
+                        // s_Swerve.updateOdometryByVision(PhotonUtils.estimateFieldToRobotAprilTag(aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId())));
+                        // ill fix this like tmr
+                    } else { System.out.println("Vision failed: no targets");}
+                    
+                }
             } else { System.out.println("Vision skip"); }
-            
         }
 
         // PhotonTrackedTarget bestTarget = getBestTarget();
@@ -228,8 +233,7 @@ public class Vision extends SubsystemBase {
         // } else {
         //     Pose3d targetPose = aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()).orElse(null);
         //     return PhotonUtils.estimateFieldToRobotAprilTag(aprilTagFieldLayout.getTagPose(bestTarget.getFiducialId()));
-        }
-    }
+    
 
     @Override
     public void periodic() {

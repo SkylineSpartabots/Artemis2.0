@@ -173,8 +173,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
-        resetOdoUtil(pose);
-        resetOdoUtil(pose);
     }
 
     public double pidAlignment(double driverRX) {
@@ -238,7 +236,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void updateOdometryByVision(Transform3d transformFromVision){
         if(transformFromVision != null){
             s_Swerve.m_odometry.addVisionMeasurement(new Pose2d(transformFromVision.getX(),transformFromVision.getY(),
-            transformFromVision.getRotation().toRotation2d()), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
+            transformFromVision.getRotation().toRotation2d()), Logger.getRealTimestamp()); //Timer.getFPGATimestamp() TODO
+        }
+    }
+
+    public void updateOdometryByVision(Pose3d transformFromVision){
+        if(transformFromVision != null){
+            s_Swerve.m_odometry.addVisionMeasurement(transformFromVision.toPose2d(), Logger.getRealTimestamp()); 
         }
     }
 
