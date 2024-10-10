@@ -6,15 +6,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.Amp.SetAmp;
-import frc.robot.commands.Amp.ZeroAmp;
 import frc.robot.commands.Drive.SpeakerAlign;
 //import frc.robot.commands.Drive.PureAlignment;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
-import frc.robot.commands.Shooter.ZeroShooter;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Amp.AmpState;
 import frc.robot.subsystems.Indexer.IndexerStates;
@@ -51,17 +48,9 @@ public class CommandFactory {
         );
     }
 
-    public static Command defensiveStance() {
-        return new ParallelCommandGroup(
-            new AlignPivot(67.4),
-            new SetAmp(AmpState.DEFENSE) 
-        );
-    }
-
     public static Command offEverything(){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new ZeroShooter(), 
                 new SetIntake(IntakeStates.OFF), 
                 Commands.waitSeconds(0.5), 
                 new SetIndexer(IndexerStates.OFF), 
@@ -107,24 +96,6 @@ public class CommandFactory {
         return new ParallelCommandGroup(
             new AlignPivot(PivotState.SUBWOOFER), 
             new SetShooterCommand(45)
-        );
-    }
-
-    public static Command ampPrep() {
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                new SetShooterCommand(22, 7),
-                new AlignPivot(PivotState.AMP),
-                new SetAmp(AmpState.DEPLOYED)
-            )
-           
-        );
-    }
-
-    public static Command zeroAmpPivot() {
-        return new ParallelCommandGroup(
-            new ZeroPivot(),
-            new ZeroAmp()
         );
     }
 

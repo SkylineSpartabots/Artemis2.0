@@ -110,9 +110,14 @@ public final class Constants {
         
     }
 
+    public static final class VisionConstants {
+
+        public static final int k_rotationLimitDPS = 175;
+
+    }
+
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     enum AlignmentTargets {
-
 
             // BLUE_SPEAKER(new Point(Vision.getApriltagPose(2).get().getX(),5.55)),
             RED_SPEAKER(new Point(16.06, 5.55)),

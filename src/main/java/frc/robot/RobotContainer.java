@@ -31,8 +31,6 @@ import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
-import frc.robot.commands.Amp.SetAmp;
-import frc.robot.commands.Amp.ZeroAmp;
 import frc.robot.commands.Drive.HoldHeading;
 import frc.robot.commands.Drive.SlowDrive;
 import frc.robot.commands.Drive.SpeakerAlign;
@@ -40,7 +38,6 @@ import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
-import frc.robot.commands.Shooter.ZeroShooter;
 import frc.robot.commands.Intake.SetIntake;
 
 

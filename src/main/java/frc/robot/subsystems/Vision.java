@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 
 import java.io.ObjectInputStream.GetField;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.photonvision.proto.Photon;
 import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import frc.robot.Constants;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -55,7 +57,6 @@ public class Vision extends SubsystemBase {
         new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0))); //center cam
 
     public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-//    private static PhotonCamera visionCamera;
 
     PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, centerCamera, cameraToRobotTransform);
     private Vision() {
@@ -89,7 +90,7 @@ public class Vision extends SubsystemBase {
     private Boolean shouldUseMultiTag() {
         MultiTargetPNPResult multiTagResult = cameraResult.getMultiTagResult();
 
-        if(multiTagResult.estimatedPose.bestReprojErr > 0.1) {
+        if(multiTagResult.estimatedPose.bestReprojErr > VisionConstants.k_reprojectionLimit) {
             System.out.println("Rejected MultiTag: high error");
             return false;
         }
@@ -97,12 +98,12 @@ public class Vision extends SubsystemBase {
             System.out.println("Rejected MultiTag: insufficient ids");
             return false;
         } 
-        if(multiTagResult.estimatedPose.best.getTranslation().getNorm() < 1) {
+        if(multiTagResult.estimatedPose.best.getTranslation().getNorm() < VisionConstants.k_normThreshold) {
             System.out.println("Rejected MultiTag: norm check failed");
             return false;
         } 
-        if(multiTagResult.estimatedPose.ambiguity > 0.9) {
-            System.out.println("Rejected MultiTag: ambiguity");
+        if(multiTagResult.estimatedPose.ambiguity > VisionConstants.k_ambiguityLimit) {
+            System.out.println("Rejected MultiTag: high ambiguity");
             return false;
         }
 
@@ -123,21 +124,20 @@ public class Vision extends SubsystemBase {
     public void updateVision() throws Exception{
 
         if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
-                if(Math.abs(s_Swerve.robotAngularVelocity()) > 175) { //in dps
+                if(Math.abs(s_Swerve.robotAngularVelocity()) > VisionConstants.k_rotationLimitDPS) { //in dps
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
-
                         s_Swerve.updateOdometryByVision(photonPoseEstimator.update());
                     }
 
-                    if(cameraResult.getBestTarget() != null) {
+                    if(cameraResult.getBestTarget() != null && hasValidTarget()) {
                         photonPoseEstimator.setReferencePose(s_Swerve.getPose());
                         Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
 
-                        s_Swerve.updateOdometryByVision(PhotonUtils.estimateFieldToRobotAprilTag(cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform););
+                        s_Swerve.updateOdometryByVision(PhotonUtils.estimateFieldToRobotAprilTag(cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform));
 
                     } else { System.out.println("Vision failed: no targets");}
                 }
-            } else { System.out.println("Vision skip"); }
+            } else { System.out.println("Vision failed: old"); }
 
             lastProcessedTimestamp = cameraResult.getTimestampSeconds();
         }
