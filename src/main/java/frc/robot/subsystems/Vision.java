@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.Vision.VisionLimits;
 
 import java.io.ObjectInputStream.GetField;
 import java.util.List;
@@ -90,7 +90,7 @@ public class Vision extends SubsystemBase {
     private Boolean shouldUseMultiTag() {
         MultiTargetPNPResult multiTagResult = cameraResult.getMultiTagResult();
 
-        if(multiTagResult.estimatedPose.bestReprojErr > VisionConstants.k_reprojectionLimit) {
+        if(multiTagResult.estimatedPose.bestReprojErr > VisionLimits.k_reprojectionLimit) {
             System.out.println("Rejected MultiTag: high error");
             return false;
         }
@@ -98,11 +98,11 @@ public class Vision extends SubsystemBase {
             System.out.println("Rejected MultiTag: insufficient ids");
             return false;
         } 
-        if(multiTagResult.estimatedPose.best.getTranslation().getNorm() < VisionConstants.k_normThreshold) {
+        if(multiTagResult.estimatedPose.best.getTranslation().getNorm() < VisionLimits.k_normThreshold) {
             System.out.println("Rejected MultiTag: norm check failed");
             return false;
         } 
-        if(multiTagResult.estimatedPose.ambiguity > VisionConstants.k_ambiguityLimit) {
+        if(multiTagResult.estimatedPose.ambiguity > VisionLimits.k_ambiguityLimit) {
             System.out.println("Rejected MultiTag: high ambiguity");
             return false;
         }
@@ -115,7 +115,7 @@ public class Vision extends SubsystemBase {
         // }
 
         return true;
-    } //ill make constants later
+    }
 
 
     /**
@@ -124,7 +124,8 @@ public class Vision extends SubsystemBase {
     public void updateVision() throws Exception{
 
         if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
-                if(Math.abs(s_Swerve.robotAngularVelocity()) > VisionConstants.k_rotationLimitDPS) { //in dps
+                if(Math.abs(s_Swerve.robotAngularVelocity()) > VisionLimits.k_rotationLimitDPS) {
+
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
                         s_Swerve.updateOdometryByVision(photonPoseEstimator.update());
                     }
@@ -132,11 +133,11 @@ public class Vision extends SubsystemBase {
                     if(cameraResult.getBestTarget() != null && hasValidTarget()) {
                         photonPoseEstimator.setReferencePose(s_Swerve.getPose());
                         Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-
-                        s_Swerve.updateOdometryByVision(PhotonUtils.estimateFieldToRobotAprilTag(cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform));
-
+                        s_Swerve.updateOdometryByVision(PhotonUtils.estimateFieldToRobotAprilTag(
+                            cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform));
                     } else { System.out.println("Vision failed: no targets");}
-                }
+
+                } else { System.out.println("Vision failed: high rotation"); }
             } else { System.out.println("Vision failed: old"); }
 
             lastProcessedTimestamp = cameraResult.getTimestampSeconds();
@@ -144,14 +145,12 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-
         updateAprilTagResults();
         if(!cameraResult.targets.isEmpty()) {
             try {
                 updateVision();
             } catch (Exception e){}
         }
-
     }
 
 }

@@ -100,6 +100,7 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Auto choices", autoChooser);
     m_robotContainer = RobotContainer.getInstance();
     //PortForwarder.add(5800, "photonvision.local", 5800);
+    s_Swerve.setHeadingTolerance();
     new InstantCommand(() -> s_Pivot.resetCANcoder(0.2)).schedule();
   }
 

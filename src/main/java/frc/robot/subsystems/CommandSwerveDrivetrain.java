@@ -23,7 +23,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.robotPIDs.HeadingControlPID;
 import frc.robot.generated.TunerConstants;
 
 /**
@@ -50,7 +51,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    PIDController pidHeading = new PIDController(8, 0, 1);
+    PIDController pidHeading = new PIDController(0, 0, 0);
 
     private boolean headingControlOn = false;
     private boolean headingControl = false;
@@ -145,8 +146,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public double scaledDeadBand(double input) {
-        return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
+    public Pose2d getPose(){
+        return s_Swerve.m_odometry.getEstimatedPosition();
+    }
+
+    public void resetOdo(Pose2d pose){
+        resetOdoUtil(pose);
     }
 
     // ════════════════ Control Systems and Joystick processing ═══════════════════════════════════════════
@@ -155,13 +160,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed;
-     //desired inputs in velocity
 
-        if(headingControl) {
+        if(headingControl && driverRX < 0.1) {
             driverRX = headingControl(driverRX);
-        } else if (aligning) {
-            driverRX = pidAlignment(driverRX); // for testing
-        }
+        } 
 
         return new SwerveRequest.FieldCentric()
         .withVelocityX(driverLY)
@@ -172,44 +174,40 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     }
 
-    public void resetOdo(Pose2d pose){
-        resetOdoUtil(pose);
-    }
-
-    public double pidAlignment(double driverRX) {
-
-        // Point target = (alliance.equals(DriverStation.Alliance.Blue)) ? Constants.AlignmentTargets.BLUE_SPEAKER.getValue() : Constants.AlignmentTargets.RED_SPEAKER.getValue();
-        // Find our (current) x and y, find target's x and y, calculate heading needed to face target, PID to that heading
-            
-            double desiredHeading = Math.PI;
-
-            double currentHeading = getPose().getRotation().getRadians();  
-
-            driverRX = pidHeading.calculate(currentHeading, desiredHeading);
-        
-        return driverRX;
-    }
-
-    public double getLastHeading() {
-        return lastHeading;
-    }
-
     public double headingControl(double driverRX){
-        if(Math.abs(driverRX) < 0.1 && (Math.abs(lastHeading - getPose().getRotation().getRadians())) < 0.05 && robotAbsoluteVelocity() > 0.1) { //0.5 is placeholder
+        if (!pidHeading.atSetpoint()) {
+            double velocity = robotAbsoluteVelocity();
+            updateGains(velocity);
+            
             driverRX = pidHeading.calculate(getPose().getRotation().getRadians() , lastHeading);
-            headingControlOn = true;
-            SmartDashboard.putBoolean("headingON", headingControlOn);
+            SmartDashboard.putBoolean("headingON", true);
+
         } else {
-            headingControlOn = false;
-            SmartDashboard.putBoolean("headingON", headingControlOn);
+            SmartDashboard.putBoolean("headingON", false);
             SmartDashboard.putNumber("lastHeading", lastHeading);
         }
 
         return driverRX;
     }
 
-    public Pose2d getPose(){
-        return s_Swerve.m_odometry.getEstimatedPosition();
+    public void updateGains(double velocity) {
+        double speedRatio = Math.abs(Constants.MaxSpeed/velocity); //velocity is from wheels so could be off
+        speedRatio = Math.max(0, Math.min(1, speedRatio));
+        //clamp between 0 and 1
+
+        pidHeading.setPID(
+            interpolate(Constants.robotPIDs.HeadingControlPID.lowP, Constants.robotPIDs.HeadingControlPID.highP, speedRatio), // P
+            0, // I (we do not need I)
+            interpolate(Constants.robotPIDs.HeadingControlPID.lowD, Constants.robotPIDs.HeadingControlPID.highD, speedRatio) // D
+            ); 
+    }
+
+    public double scaledDeadBand(double input) {
+        return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
+    }
+
+    public double interpolate(double lower, double upper, double scale) {
+        return Interpolator.forDouble().interpolate(lower, upper, scale);
     }
 
     public double robotAbsoluteVelocity(){
@@ -234,18 +232,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2));
     }
 
-    public void updateOdometryByVision(Transform3d transformFromVision){
-        if(transformFromVision != null){
-            s_Swerve.m_odometry.addVisionMeasurement(new Pose2d(transformFromVision.getX(),transformFromVision.getY(),
-            transformFromVision.getRotation().toRotation2d()), Timer.getFPGATimestamp()); // TODO
-        }
-    }
-
     public void updateOdometryByVision(Pose3d transformFromVision){
         if(transformFromVision != null){
             s_Swerve.m_odometry.addVisionMeasurement(transformFromVision.toPose2d(), Timer.getFPGATimestamp()); 
         }
     }
+
     public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
         if(estimatedPose.isPresent()){
             s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
@@ -257,7 +249,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void setAutoStartPose(Pose2d pose){
         autoStartPose = pose;
     }
-        public void setLastHeading() {
+
+    public void setLastHeading() {
         lastHeading = getPose().getRotation().getRadians(); 
     }
 
@@ -271,6 +264,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public double getHeading() {
         return getPose().getRotation().getRadians();
+    }
+
+    public void setHeadingTolerance() {
+        pidHeading.setTolerance(0.1745); // 10 degrees in radians
     }
 
     @Override

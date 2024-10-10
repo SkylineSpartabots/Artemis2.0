@@ -31,7 +31,7 @@ public final class Constants {
     public static double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
     public static final int timeOutMs = 10;
-    public static final double stickDeadband = 0.15;
+    public static final double stickDeadband = 0.05;
     public static final double triggerDeadzone = 0.2;
 
     public static final class Vision {
@@ -50,7 +50,15 @@ public final class Constants {
         public static final double centerCameraHeight = Units.inchesToMeters(10.15);
         public static final double centerCameraPitch = Units.degreesToRadians(15);
 
-        
+
+        public static final class VisionLimits {
+
+        public static final int k_rotationLimitDPS = 175;
+        public static final double k_reprojectionLimit = 0.1;
+        public static final double k_normThreshold = 0.1;
+        public static final double k_ambiguityLimit = 0.9;
+
+        }
 
         public static final class AprilTags {
             public static final int blueSourceRight = 1;
@@ -76,7 +84,7 @@ public final class Constants {
     // hardware ports for all hardware components on the robot
     // these include CAN IDs, pneumatic hub ports, etc.
 
-    public static final class hardwarePIDs {
+    public static final class robotPIDs {
         public static final double shooterkP = 0.5;
         public static final double shooterkI = 0.00;
         public static final double shooterkD = 0.00;
@@ -84,6 +92,17 @@ public final class Constants {
         public static final double pivotkP = 0.5;
         public static final double pivotkI = 0.00;
         public static final double pivotkD = 0.00;
+
+        public static final class HeadingControlPID {
+            public static final double highP = 12;
+            public static final double highI = 0;
+            public static final double highD = 4;
+
+            public static final double lowP = 7;
+            public static final double lowI = 0;
+            public static final double lowD = 1.5;
+        }
+
     }
 
     public static final class HardwarePorts {
@@ -110,11 +129,7 @@ public final class Constants {
         
     }
 
-    public static final class VisionConstants {
 
-        public static final int k_rotationLimitDPS = 175;
-
-    }
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     enum AlignmentTargets {

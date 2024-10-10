@@ -25,12 +25,10 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
-import frc.robot.commands.Amp.ZeroAmp;
 import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
-import frc.robot.commands.Shooter.ZeroShooter;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerStates;
@@ -102,7 +100,7 @@ public final class Autos {
                 Commands.waitSeconds(0.2),
 
                 new ParallelCommandGroup(
-                        new ZeroShooter(),
+                        // new ZeroShooter(),
                         new SetIndexer(IndexerStates.ON, true, 5),
                         new SetIntake(IntakeStates.ON),
                         new AlignPivot(PivotState.INTAKE),
@@ -124,7 +122,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(2)),
-                        new ZeroShooter(),
+                        // new ZeroShooter(),
                         new AlignPivot(PivotState.INTAKE),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
@@ -145,7 +143,7 @@ public final class Autos {
 
                 new ParallelCommandGroup(
                         FollowChoreoTrajectory(trajectory.get(4)),
-                        new ZeroShooter(),
+                        // new ZeroShooter(),
                         new AlignPivot(PivotState.INTAKE),
                         new SetIndexer(IndexerStates.ON, true),
                         new SetIntake(IntakeStates.ON)
@@ -163,8 +161,8 @@ public final class Autos {
                 new ParallelCommandGroup(new SetShooterCommand(40), new AlignPivot(PivotState.SUBWOOFER)),
                 new SetIndexer(IndexerStates.ON),
                 Commands.waitSeconds(0.5),
-                new SetIndexer(IndexerStates.OFF),
-                new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new ZeroShooter()));
+                new SetIndexer(IndexerStates.OFF));
+                // new ParallelCommandGroup(new AlignPivot(PivotState.GROUND), new ZeroShooter()));
     }
 
     public static Command FourNoteSubwooferNew() {
