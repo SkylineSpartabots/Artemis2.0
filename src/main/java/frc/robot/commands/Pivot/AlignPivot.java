@@ -31,7 +31,7 @@ public class AlignPivot extends Command {
         addRequirements(s_Pivot);
     }
 
-    public AlignPivot() {
+    public AlignPivot() { // jalkjflksadfjdsa IGGY!!!!!
         s_Pivot = Pivot.getInstance();
         //s_Vision = Vision.getInstance();
         //distance = s_Vision.getFloorDistance();
