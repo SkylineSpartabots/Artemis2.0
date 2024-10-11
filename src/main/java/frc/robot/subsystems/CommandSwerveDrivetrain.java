@@ -56,6 +56,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     PIDController pidHeading = new PIDController(0, 0, 0);
 
     private boolean headingControlOn = false;
+    private boolean slipControlOn = false;
     private boolean headingControl = false;
     private boolean shooterMode = false;
     private double lastHeading = 0;
@@ -171,8 +172,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         } 
 
         //TODO consistent pivot and drivetrain alignment to target
-
-        slipCorrection(slipControl(robotAbsoluteVelocity()));
+        if (slipControlOn) {
+        slipCorrection(slipControl(robotAbsoluteVelocity())); 
+        }
 
         return new SwerveRequest.FieldCentric()
         .withVelocityX(driverLY)
@@ -181,7 +183,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
         .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
     }
 
     public double headingControl(double driverRX){ //TODO tune high and low PID values
@@ -215,7 +216,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
         
         //if over the upper or lower threshold save the value
-        if (slipRatio > (slipThreshold + 1) || slipRatio < (1 - slipThreshold)) {
+        if (slipRatio > (Constants.slipThreshold + 1) || slipRatio < (1 - Constants.slipThreshold)) {
             outputs[i] = slipRatio;
         }
     }
@@ -231,7 +232,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 TalonFX module = Modules[i].getDriveMotor();
                 
                 module.set(module.get() *
-                 (1 + (Math.signum(inputs[i] - 1)) * (inputs[i] - slipThreshold)) / 25);
+                 (1 + (Math.signum(inputs[i] - 1)) * (inputs[i] - Constants.slipThreshold)) / Constants.slipFactor);
                 //https://www.desmos.com/calculator/afe5omf92p how slipfactor changes slip aggression
 
                 SmartDashboard.putBoolean("slipON", true);
@@ -317,6 +318,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void toggleAlignment() {
         aligning = !aligning;
+    }
+
+    public void toggleSlipControl() {
+        slipControlOn = !slipControlOn;
     }
 
     public double getHeading() {
