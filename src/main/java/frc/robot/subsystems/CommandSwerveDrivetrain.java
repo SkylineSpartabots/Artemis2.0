@@ -12,6 +12,7 @@ import org.photonvision.EstimatedRobotPose;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
@@ -32,9 +33,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
+import frc.robot.generated.TunerConstants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.robotPIDs.HeadingControlPID;
-import frc.robot.generated.TunerConstants;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -48,6 +49,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private double deadbandFactor = 0.8;
 
     private double lastTimeReset = -1;
+    private double slipThreshold = 0.15;
 
     private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
@@ -55,6 +57,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private boolean headingControlOn = false;
     private boolean headingControl = false;
+    private boolean shooterMode = false;
     private double lastHeading = 0;
 
     private boolean aligning = false;
@@ -161,9 +164,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed;
 
-        if(headingControl && driverRX < 0.1) {
+        if (shooterMode) {
+            driverRX = shooterMode();
+        } else if (headingControl && driverRX < 0.1) {
             driverRX = headingControl(driverRX);
         } 
+
+        //TODO consistent pivot and drivetrain alignment to target
+
+        slipCorrection(slipControl(robotAbsoluteVelocity()));
 
         return new SwerveRequest.FieldCentric()
         .withVelocityX(driverLY)
@@ -172,9 +181,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
         .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
     }
 
-    public double headingControl(double driverRX){
+    public double headingControl(double driverRX){ //TODO tune high and low PID values
         if (!pidHeading.atSetpoint()) {
             double velocity = robotAbsoluteVelocity();
             updateGains(velocity);
@@ -188,6 +198,53 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         return driverRX;
+    }
+
+    public Double[] slipControl(double currentVelocity) {
+
+    Double[] outputs = new Double[4]; // reset to null every call
+    SmartDashboard.putNumber("currentVelocity", currentVelocity);
+
+        for (int i = 0; i < ModuleCount; i++) { 
+        
+        //gets the ratio between what the encoders think our velocity is and the real velocity
+        double slipRatio;
+        if(currentVelocity == 0) { slipRatio = 1; } else {
+            slipRatio = ((Modules[i].getCurrentState().speedMetersPerSecond) / currentVelocity); 
+        }
+        SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
+        
+        //if over the upper or lower threshold save the value
+        if (slipRatio > (slipThreshold + 1) || slipRatio < (1 - slipThreshold)) {
+            outputs[i] = slipRatio;
+        }
+    }
+
+    return outputs;
+    } // runs periodically as a default command
+
+    public void slipCorrection(Double[] inputs) {
+        // divides by slip factor, more agressive if far above slip threshold 
+        for (int i = 0; i < ModuleCount; i++) {
+
+            if (inputs[i] != null) {
+                TalonFX module = Modules[i].getDriveMotor();
+                
+                module.set(module.get() *
+                 (1 + (Math.signum(inputs[i] - 1)) * (inputs[i] - slipThreshold)) / 25);
+                //https://www.desmos.com/calculator/afe5omf92p how slipfactor changes slip aggression
+
+                SmartDashboard.putBoolean("slipON", true);
+            }  else {
+                SmartDashboard.putBoolean("slipON", false);
+            } 
+        }
+    }
+
+    public double shooterMode() { // I WANT MODES FOR THE NEXT ROBOT!!!!
+        // continuously sets pivot to based on lookup table and aligns drivetrain
+        // only shoots when both systems return true
+        return -1;
     }
 
     public void updateGains(double velocity) {
@@ -297,7 +354,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
             SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
         }
-
 
     }
 
