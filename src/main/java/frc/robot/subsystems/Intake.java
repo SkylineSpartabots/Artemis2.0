@@ -24,7 +24,7 @@ import frc.robot.Constants;
 
 
 public class Intake extends SubsystemBase {
-
+//bRUH!
     private static Intake instance;
     private Follower follow = new Follower(Constants.HardwarePorts.intakeLeaderM, false );
     private DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
