@@ -1,11 +1,8 @@
 package frc.robot.commands.Climb;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.Pivot;
-import frc.robot.subsystems.Pivot.PivotState;
 
 public class SetClimb extends Command{
     Climb s_Climb;

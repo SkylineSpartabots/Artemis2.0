@@ -7,11 +7,6 @@ package frc.robot;
 
 // import frc.robot.commands.SetLightz;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Amp.AmpState;
-
-import java.time.Instant;
-
-import org.opencv.core.Point;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
@@ -20,26 +15,17 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
-import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
-import frc.robot.commands.Amp.SetAmp;
-import frc.robot.commands.Amp.ZeroAmp;
 import frc.robot.commands.Drive.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
-import frc.robot.commands.Pivot.ZeroPivot;
-import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Shooter.ZeroShooter;
-import frc.robot.commands.Intake.SetIntake;
 
 
 public class RobotContainer {

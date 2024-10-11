@@ -1,7 +1,5 @@
 package frc.robot.commands.Pivot;
 
-import org.photonvision.simulation.VisionSystemSim;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;

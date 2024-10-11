@@ -19,8 +19,6 @@ public class SmartIntake extends Command {
   private final Indexer s_Indexer;
   private final Lights s_Lights;
 
-  private final int motorCurrentThreshold = 150;
-
   public SmartIntake() {
     s_Intake = Intake.getInstance();
     s_Indexer = Indexer.getInstance();
