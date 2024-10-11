@@ -42,6 +42,7 @@ import frc.robot.subsystems.Shooter;
 
 public final class Autos {
     private static CommandSwerveDrivetrain s_Swerve = CommandSwerveDrivetrain.getInstance();
+    private static Shooter s_Shooter = Shooter.getInstance();
 
     private static final PIDController thetaController = new PIDController(3, 1.4, 0); //tune?
     private static final PIDController xController = new PIDController(5, 1, 0);
