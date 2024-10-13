@@ -13,7 +13,9 @@ import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 import org.opencv.photo.Photo;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -33,6 +35,8 @@ public class Vision extends SubsystemBase {
     // TODO move these to constants - the transforms
     // Cameras
     private static PhotonCamera centerCamera;
+
+    private PhotonPoseEstimator Elliot;
     // private static PhotonCamera rightBackCamera;
     // private static PhotonCamera leftBackCamera;
 
@@ -69,6 +73,7 @@ public class Vision extends SubsystemBase {
     // Constructor
     private Vision() {
         centerCamera = new PhotonCamera("centerCamera");
+        Elliot = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, centerCamToRobotTransform);
         // rightBackCamera = new PhotonCamera("rightBackCamera");
         // leftBackCamera = new PhotonCamera("leftBackCamera");
         getBestTargets();
