@@ -31,14 +31,13 @@ import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
-import frc.robot.commands.Drive.HoldHeading;
-import frc.robot.commands.Drive.SlowDrive;
-import frc.robot.commands.Drive.SpeakerAlign;
+import frc.robot.commands.Drivetrain.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
 import frc.robot.commands.Intake.SetIntake;
+import frc.robot.subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 
 
 public class RobotContainer {
@@ -64,6 +63,8 @@ public class RobotContainer {
     private final Shooter s_Shooter = Shooter.getInstance();
     //private final Vision s_Vision = Vision.getInstance();
     // private final Music s_Orchestra = Music.getInstance();
+
+    private DriveControlSystems controlSystem  = new DriveControlSystems();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
@@ -116,7 +117,6 @@ public class RobotContainer {
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
-        driver.leftTrigger().whileTrue(new HoldHeading());
         driver.leftBumper().whileTrue(new SlowDrive());
         // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
@@ -147,12 +147,11 @@ public class RobotContainer {
         // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
         driverDpadRight.whileTrue(new ZeroPivot()); //FINAL
 
-        
         /*
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drivetrain.drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
+                drivetrain.applyRequest(() -> controlSystem.drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
                 ));
 
         // reset the field-centric heading. AKA reset odometry

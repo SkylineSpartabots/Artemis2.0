@@ -31,11 +31,13 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   SendableChooser<Autos.AutoPath> autoChooser = new SendableChooser<Autos.AutoPath>();
 
+  private DriveControlSystems controlSystem  = new DriveControlSystems();
 
   private RobotContainer m_robotContainer;
 
@@ -99,7 +101,7 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Auto choices", autoChooser);
     m_robotContainer = RobotContainer.getInstance();
     //PortForwarder.add(5800, "photonvision.local", 5800);
-    s_Swerve.setHeadingTolerance();
+    controlSystem.setHeadingTolerance();
     new InstantCommand(() -> s_Pivot.resetCANcoder(0.2)).schedule();
   }
 

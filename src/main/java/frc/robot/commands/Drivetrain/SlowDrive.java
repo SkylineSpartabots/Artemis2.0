@@ -1,8 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+package frc.robot.commands.Drivetrain;
 
-package frc.robot.commands.Drive;
+import java.util.List;
 
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -15,20 +13,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
+// import frc.robot.subsystems.Vision;
 import frc.robot.RobotContainer;
 
-public class SpeakerAlign extends Command {
+public class SlowDrive extends Command {
 
-    public SpeakerAlign() {
-      s_Swerve = Drivetrain.getInstance();
+    public SlowDrive() {
     }
 
-    Drivetrain s_Swerve;
 
     @Override
     public void initialize() {
-      s_Swerve.toggleAlignment();
-      SmartDashboard.putBoolean("headingON", true);
+        Constants.MaxAngularRate = 1*Math.PI;
+        Constants.MaxSpeed = 2;
     }
     
     @Override
@@ -37,12 +34,12 @@ public class SpeakerAlign extends Command {
 
     @Override
     public void end(boolean interrupted) {
-       s_Swerve.toggleAlignment(); 
-       SmartDashboard.putBoolean("headingON", false);
+        Constants.MaxAngularRate = 3*Math.PI;
+        Constants.MaxSpeed = 6;
     }
 
     @Override
     public boolean isFinished() { //always use in WhileTrue
-        return (Math.abs(s_Swerve.getPose().getRotation().getRadians() - Math.PI) < 0.05); //pi is placeholder, change to desired angle
+        return false;
     }
 }

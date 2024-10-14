@@ -13,8 +13,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 
-public class ControlSystems {
-
+public class DriveControlSystems {
     
     private double deadbandFactor = 0.8;
 
