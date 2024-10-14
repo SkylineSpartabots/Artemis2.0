@@ -29,22 +29,24 @@ import frc.robot.commands.Intake.SetIntake;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
 import frc.robot.commands.Shooter.SetShooterCommand;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerStates;
 import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 
 
 
 public final class Autos {
-    private static CommandSwerveDrivetrain s_Swerve = CommandSwerveDrivetrain.getInstance();
+    private static Drivetrain s_Swerve = Drivetrain.getInstance();
     private static Shooter s_Shooter = Shooter.getInstance();
 
     private static final PIDController thetaController = new PIDController(3, 1.4, 0); //tune?
     private static final PIDController xController = new PIDController(5, 1, 0);
     private static final PIDController yController = new PIDController(5, 1, 0);
+
+    // Will make segmented trajectories at some point
 
     public static Command getAutoCommand(AutoPath autoPath) {
         return autoPath.autoCommand;

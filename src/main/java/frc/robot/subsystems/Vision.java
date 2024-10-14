@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Vision.VisionLimits;
+import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 
 import java.io.ObjectInputStream.GetField;
 import java.util.List;
@@ -44,7 +45,7 @@ public class Vision extends SubsystemBase {
 
     private double lastProcessedTimestamp = -1;
 
-    private static CommandSwerveDrivetrain s_Swerve;
+    private static Drivetrain s_Swerve;
     
     private double targetYaw;
     private double targetDistance;

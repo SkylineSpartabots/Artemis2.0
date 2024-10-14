@@ -7,6 +7,7 @@ package frc.robot;
 
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Amp.AmpState;
+import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 
 import java.time.Instant;
 
@@ -56,7 +57,7 @@ public class RobotContainer {
 
     private final Amp s_Amp = Amp.getInstance();
     private final Climb s_Climb = Climb.getInstance();
-    private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
+    private final Drivetrain drivetrain = Drivetrain.getInstance(); // Drivetrain
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();

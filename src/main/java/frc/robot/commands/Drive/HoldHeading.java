@@ -14,16 +14,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 import frc.robot.RobotContainer;
 
 public class HoldHeading extends Command {
 
     public HoldHeading() {
-      s_Swerve = CommandSwerveDrivetrain.getInstance();
+      s_Swerve = Drivetrain.getInstance();
     }
 
-    CommandSwerveDrivetrain s_Swerve;
+    Drivetrain s_Swerve;
 
     @Override
     public void initialize() {

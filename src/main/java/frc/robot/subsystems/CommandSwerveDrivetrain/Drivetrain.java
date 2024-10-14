@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.CommandSwerveDrivetrain;
 
 import java.sql.Driver;
 import java.util.Optional;
@@ -36,34 +36,23 @@ import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.robotPIDs.HeadingControlPID;
+import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
  * so it can be used in command-based projects easily.
  */
-public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem {
+public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    private double deadbandFactor = 0.8;
-
     private double lastTimeReset = -1;
-    private double slipThreshold = 0.15;
 
-    private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    PIDController pidHeading = new PIDController(0, 0, 0);
+    private static Drivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    private boolean headingControlOn = false;
-    private boolean slipControlOn = false;
-    private boolean headingControl = false;
-    private boolean shooterMode = false;
-    private double lastHeading = 0;
-
-    private boolean aligning = false;
-
-    Pigeon2 pigeon = getPigeon2(); //using the already contructed pigeon
+    Pigeon2 pigeon = getPigeon2(); //using the already constructed pigeon
 
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
@@ -71,9 +60,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private Field2d m_field = new Field2d();
 
-    public static CommandSwerveDrivetrain getInstance(){
+    public static Drivetrain getInstance(){
         if(s_Swerve == null){
-            s_Swerve = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
+            s_Swerve = new Drivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
         }
         return s_Swerve;
@@ -94,18 +83,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
+    public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
         
-        //m_Camera = Vision.getInstance();
-
         if (Utils.isSimulation()) {
             startSimThread();
         }
         limit();
     }
 
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
+    public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
@@ -158,116 +145,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         resetOdoUtil(pose);
     }
 
-    // ════════════════ Control Systems and Joystick processing ═══════════════════════════════════════════
-
-    public SwerveRequest drive(double driverLY, double driverLX, double driverRX){
-        driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
-        driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
-        driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed;
-
-        if (shooterMode) {
-            driverRX = shooterMode();
-        } else if (headingControl && driverRX < 0.1) {
-            driverRX = headingControl(driverRX);
-        } 
-
-        //TODO consistent pivot and drivetrain alignment to target
-        if (slipControlOn) {
-        slipCorrection(slipControl(robotAbsoluteVelocity())); 
-        }
-
-        return new SwerveRequest.FieldCentric()
-        .withVelocityX(driverLY)
-        .withVelocityY(driverLX)
-        .withRotationalRate(driverRX * Constants.MaxAngularRate)
-        .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
-        .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    public double getHeading() {
+        return getPose().getRotation().getRadians();
     }
-
-    public double headingControl(double driverRX){ //TODO tune high and low PID values
-        if (!pidHeading.atSetpoint()) {
-            double velocity = robotAbsoluteVelocity();
-            updateGains(velocity);
-            
-            driverRX = pidHeading.calculate(getPose().getRotation().getRadians() , lastHeading);
-            SmartDashboard.putBoolean("headingON", true);
-
-        } else {
-            SmartDashboard.putBoolean("headingON", false);
-            SmartDashboard.putNumber("lastHeading", lastHeading);
-        }
-
-        return driverRX;
-    }
-
-    public Double[] slipControl(double currentVelocity) {
-
-    Double[] outputs = new Double[4]; // reset to null every call
-    SmartDashboard.putNumber("currentVelocity", currentVelocity);
-
-        for (int i = 0; i < ModuleCount; i++) { 
-        
-        //gets the ratio between what the encoders think our velocity is and the real velocity
-        double slipRatio;
-        if(currentVelocity == 0) { slipRatio = 1; } else {
-            slipRatio = ((Modules[i].getCurrentState().speedMetersPerSecond) / currentVelocity); 
-        }
-        SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
-        
-        //if over the upper or lower threshold save the value
-        if (slipRatio > (Constants.slipThreshold + 1) || slipRatio < (1 - Constants.slipThreshold)) {
-            outputs[i] = slipRatio;
-        }
-    }
-
-    return outputs;
-    } // runs periodically as a default command
-
-    public void slipCorrection(Double[] inputs) {
-        // divides by slip factor, more agressive if far above slip threshold 
-        for (int i = 0; i < ModuleCount; i++) {
-
-            if (inputs[i] != null) {
-                TalonFX module = Modules[i].getDriveMotor();
-                
-                module.set(module.get() *
-                 (1 + (Math.signum(inputs[i] - 1)) * (inputs[i] - Constants.slipThreshold)) / Constants.slipFactor);
-                //https://www.desmos.com/calculator/afe5omf92p how slipfactor changes slip aggression
-
-                SmartDashboard.putBoolean("slipON", true);
-            }  else {
-                SmartDashboard.putBoolean("slipON", false);
-            } 
-        }
-    }
-
-    public double shooterMode() { // I WANT MODES FOR THE NEXT ROBOT!!!!
-        // continuously sets pivot to based on lookup table and aligns drivetrain
-        // only shoots when both systems return true
-        return -1;
-    }
-
-    public void updateGains(double velocity) {
-        double speedRatio = Math.abs(Constants.MaxSpeed/velocity); //velocity is from wheels so could be off
-        speedRatio = Math.max(0, Math.min(1, speedRatio));
-        //clamp between 0 and 1
-
-        pidHeading.setPID(
-            interpolate(Constants.robotPIDs.HeadingControlPID.lowP, Constants.robotPIDs.HeadingControlPID.highP, speedRatio), // P
-            0, // I (we do not need I)
-            interpolate(Constants.robotPIDs.HeadingControlPID.lowD, Constants.robotPIDs.HeadingControlPID.highD, speedRatio) // D
-            ); 
-    }
-
-    public double scaledDeadBand(double input) {
-        return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
-    }
-
-    public double interpolate(double lower, double upper, double scale) {
-        return Interpolator.forDouble().interpolate(lower, upper, scale);
-    }
-
     public double robotAbsoluteVelocity(){
         double roughVel = 0.0;
         for(int i = 0; i < ModuleCount; i++){
@@ -308,35 +188,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         autoStartPose = pose;
     }
 
-    public void setLastHeading() {
-        lastHeading = getPose().getRotation().getRadians(); 
-    }
-
-    public void toggleHeadingControl() {
-        headingControl = !headingControl;
-    }
-
-    public void toggleAlignment() {
-        aligning = !aligning;
-    }
-
-    public void toggleSlipControl() {
-        slipControlOn = !slipControlOn;
-    }
-
-    public double getHeading() {
-        return getPose().getRotation().getRadians();
-    }
-
-    public void setHeadingTolerance() {
-        pidHeading.setTolerance(0.1745); // 10 degrees in radians
-    }
-
     @Override
     public void periodic() {
-        // updateOdometryByVision();
         Pose2d currPose = getPose();
-
 
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
@@ -353,9 +207,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         for(int i = 0; i < ModuleCount; i++){
             //Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
             //Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            //Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
             SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            //SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
             SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
             SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
         }
