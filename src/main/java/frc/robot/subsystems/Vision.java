@@ -60,7 +60,18 @@ public class Vision extends SubsystemBase {
     public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
     PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, centerCamera, cameraToRobotTransform);
-    private Vision() {
+    
+    public static Vision getInstance() {
+        if (instance == null) {
+            instance = new Vision();
+        }
+        return instance;
+    }
+    
+    public Vision() {
+
+        s_Swerve = s_Swerve.getInstance();
+
         centerCamera = new PhotonCamera(Constants.Vision.centerCameraName);
         photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
         updateAprilTagResults();
@@ -79,9 +90,15 @@ public class Vision extends SubsystemBase {
         return cameraResult.getTargets();
     }
 
-    public Boolean hasValidTarget() {
-        PhotonTrackedTarget target = cameraResult.getBestTarget();
-        return cameraResult.hasTargets() && target.getFiducialId() >= 1 && target.getFiducialId() <= Constants.Vision.aprilTagMax && target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
+    public Boolean hasValidTarget(PhotonPipelineResult camera) {
+        if(camera.hasTargets()) {
+            PhotonTrackedTarget target = camera.getBestTarget();
+
+            return
+            target.getFiducialId() >= 1 &&
+            target.getFiducialId() <= Constants.Vision.aprilTagMax &&
+            target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
+        } else {return false;}
     }
 
     public double getDistanceToPose(Pose2d pose){
@@ -128,21 +145,25 @@ public class Vision extends SubsystemBase {
                 if(Math.abs(s_Swerve.robotAngularVelocity()) > VisionLimits.k_rotationLimitDPS) {
 
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
+                    
                         s_Swerve.updateOdometryByVision(photonPoseEstimator.update());
-                    }
+                    
+                    } else if (hasValidTarget(cameraResult)) {
 
-                    if(cameraResult.getBestTarget() != null && hasValidTarget()) {
-                        photonPoseEstimator.setReferencePose(s_Swerve.getPose());
                         Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-                        s_Swerve.updateOdometryByVision(PhotonUtils.estimateFieldToRobotAprilTag(
-                            cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform));
+                        Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(
+                            cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
+                        
+                        System.out.println("Pose Calculated"); //for testing
+                        s_Swerve.updateOdometryByVision(robotPose);
+                    
                     } else { System.out.println("Vision failed: no targets");}
 
-                } else { System.out.println("Vision failed: high rotation"); }
-            } else { System.out.println("Vision failed: old"); }
+            } else { System.out.println("Vision failed: high rotation"); }
+        } else { System.out.println("Vision failed: old"); }
 
-            lastProcessedTimestamp = cameraResult.getTimestampSeconds();
-        }
+        lastProcessedTimestamp = cameraResult.getTimestampSeconds();
+    }
 
     @Override
     public void periodic() {

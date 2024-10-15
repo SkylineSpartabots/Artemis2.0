@@ -170,13 +170,14 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2));
     }
 
-    public void updateOdometryByVision(Pose3d transformFromVision){
-        if(transformFromVision != null){
-            s_Swerve.m_odometry.addVisionMeasurement(transformFromVision.toPose2d(), Timer.getFPGATimestamp()); 
+    public void estimatedPose(Pose3d estimatedPose){
+        System.out.println("Pose sent");
+        if(estimatedPose != null){
+            s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
         }
     }
 
-    public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
+    public void estimatedPose(Optional<EstimatedRobotPose> estimatedPose){
         if(estimatedPose.isPresent()){
             s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
         }
@@ -205,7 +206,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         SmartDashboard.putData("field", m_field); 
 
         for(int i = 0; i < ModuleCount; i++){
-            //Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+            // Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
             //Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
             SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
             SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
