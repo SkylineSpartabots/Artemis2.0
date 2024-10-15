@@ -170,14 +170,14 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2));
     }
 
-    public void estimatedPose(Pose3d estimatedPose){
+    public void updateOdometryByVision(Pose3d estimatedPose){
         System.out.println("Pose sent");
         if(estimatedPose != null){
             s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
         }
     }
 
-    public void estimatedPose(Optional<EstimatedRobotPose> estimatedPose){
+    public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
         if(estimatedPose.isPresent()){
             s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
         }
