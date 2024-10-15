@@ -15,6 +15,7 @@ import java.util.function.BiFunction;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.UnitBuilder;
@@ -52,7 +53,7 @@ import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
 
 
 public class PoseEstimator_EKF { //will estimate pose for odometry, and velocity for control systems
-    ExtendedKalmanFilter<N5, N4, N2> EKF;
+    ExtendedKalmanFilter<N5, N4, N4> EKF;
     double dt = 0.002;
     // states: x & y pos, heading, (Pose2d), x & y velocity , 
     // inputs: Pose2d (from vision), x & y acceleration (raw), angular velocity
@@ -80,31 +81,43 @@ public class PoseEstimator_EKF { //will estimate pose for odometry, and velocity
             double x = state.get(0, 0);
             double y = state.get(1, 0);
             double heading = state.get(2, 0);
-            double vx = state.get(3, 0);
-            double vy = state.get(4, 0);
+            double velx = state.get(3, 0);
+            double vely = state.get(4, 0);
         
-            double ax = input.get(0, 0);
-            double ay = input.get(1, 0);
+            double accelx = input.get(0, 0);
+            double accely = input.get(1, 0);
             double omega = input.get(2, 0);  // Angular velocity
             double dt = input.get(3, 0);     // Time step
-            
-            return MatBuilder.fill(Nat.N5(), Nat.N1());
+
+            return VecBuilder.fill(
+                x + velx * dt,                // New x position
+                y + vely * dt,                // New y position
+                heading + omega * dt,        // New heading
+                velx + accelx * dt,               // New x velocity
+                vely + accely * dt                // New y velocity
+                );
         };
 
-        BiFunction<Matrix<N5, N1>, Matrix<N4, N1>, Matrix<N2, N1>> h = (stateEstimate, state) -> {
+        BiFunction<Matrix<N5, N1>, Matrix<N4, N1>, Matrix<N4, N1>> h = (stateEstimate, state) -> {
             double x = stateEstimate.get(0, 0);
             double y = stateEstimate.get(1, 0);
-            double vx = stateEstimate.get(3, 0);
-            double vy = stateEstimate.get(4, 0);
+            double heading = stateEstimate.get(2, 0);
+            double velx = stateEstimate.get(3, 0);
+            double vely = stateEstimate.get(4, 0);
 
-            return MatBuilder.fill(Nat.N2(), Nat.N1());
+            return VecBuilder.fill(
+                x,         //  x position
+                y,         //  y position
+                heading,                     // heading
+                Math.hypot(velx, vely) // velocity magnitude
+                );
         };
 
-        // Noise covariance for state and measurement functions
+        // TODO Noise covariance for state and measurement functions
         Matrix<N5, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.05, 0.2, 0.2); // obtained from noise when sensor is at rest
-        Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.05, 0.1); // idk how to find this but ill figure  it out
+        Matrix<N4, N1> measurementStdDevs = VecBuilder.fill(0.05, 0.1,0.1,0.1); // idk how to find this but ill figure  it out
         // matrixes are wrong sizes atm
-        EKF = new ExtendedKalmanFilter<>(Nat.N5(), Nat.N4(), Nat.N2(), f, h, stateStdDevs, measurementStdDevs, dt);
+        EKF = new ExtendedKalmanFilter<>(Nat.N5(), Nat.N4(), Nat.N4(), f, h, stateStdDevs, measurementStdDevs, dt);
         /*  ExtendedKalmanFilter​(Nat<States> states, Nat<Inputs> inputs, Nat<Outputs> outputs,
         BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
         BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<Outputs,​N1>> h,
