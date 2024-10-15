@@ -114,7 +114,6 @@ public class Shooter extends SubsystemBase {
      * speeds[i] = speed;
      * }
      * setSpeed(speeds, ShooterMotors.BOTH);
-     * } //what does do 🦅🦅🍔🍔🌭 ??
      */
 
     public double getTopSetpoint() { // gets specific Speed (i hope)
