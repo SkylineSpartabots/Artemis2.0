@@ -44,14 +44,15 @@ import org.opencv.video.KalmanFilter;
 
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.math.numbers.N5;
+import edu.wpi.first.math.numbers.N6;
 import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
 
 
 public class PoseEstimator_EKF { //will estimate pose for odometry, and velocity for control systems
 
-    ExtendedKalmanFilter<N5, N4, N2> EKF;
     double dt = 20;
     // states: x & y pos, heading, (Pose2d), x & y velocity , 
     // inputs: Pose2d (from vision), x & y acceleration (raw), angular velocity
@@ -76,18 +77,19 @@ public class PoseEstimator_EKF { //will estimate pose for odometry, and velocity
     public void initKalman() {
 
         // f function needs to predict the next states based on the previous and the input alone
-        BiFunction<Matrix<N2, N2>, Matrix<N2, N2>, Matrix<N2, N1>> f = (state, input) -> {
+        BiFunction<Matrix<N5, N1>, Matrix<N4, N1>, Matrix<N5, N1>> f = (state, input) -> {
+            return MatBuilder.fill(Nat.N5(), Nat.N1());
+        };
+
+        BiFunction<Matrix<N5, N1>, Matrix<N4, N1>, Matrix<N2, N1>> h = (stateEstimate, state) -> {
             return MatBuilder.fill(Nat.N2(), Nat.N1());
         };
 
-        BiFunction<Matrix<N2, N2>, Matrix<N2, N2>, Matrix<N2, N2>> h = (stateEstimate, state) -> {
-            return MatBuilder.fill(Nat.N2(), Nat.N2(), stateEstimate.get(1, 0));
-        };
-
         // Noise covariance for state and measurment funcitons
-        Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0, 0); // obtained from noise when sensor is at rest
-        Matrix<N1, N1> measurementStdDevs = VecBuilder.fill(0); // idk how to find this but ill figure it out
-
+        Matrix<N5, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.05, 0.2, 0.2); // obtained from noise when sensor is at rest
+        Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.05, 0.1); // idk how to find this but ill figure  it out
+        // matrixes are wrong sizes atm
+        ExtendedKalmanFilter<N5, N4, N2> EKF;
         EKF = new ExtendedKalmanFilter<>(Nat.N5(), Nat.N4(), Nat.N2(), f, h, stateStdDevs, measurementStdDevs, dt);
         /*  ExtendedKalmanFilter​(Nat<States> states, Nat<Inputs> inputs, Nat<Outputs> outputs,
         BiFunction<Matrix<States,​N1>,​Matrix<Inputs,​N1>,​Matrix<States,​N1>> f,
