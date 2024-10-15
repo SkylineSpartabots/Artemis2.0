@@ -39,7 +39,7 @@ public final class Constants {
 
     public static final class VisionConstants {
         public static final int aprilTagMax = 16;
-        public static final String centerCameraName = "Center";
+        public static final String centerCameraName = "camera";
         public static final String backLeftCameraName = "BackLeft";
         public static final String backRightCameraName = "BackRight";
         public static final double cameraHeight = 0; //fix

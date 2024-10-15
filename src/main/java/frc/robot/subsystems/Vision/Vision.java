@@ -146,7 +146,7 @@ public class Vision extends SubsystemBase {
 
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
                     
-                        s_Swerve.updateOdometryByVision(photonPoseEstimator.update());
+                        s_Swerve.updateOdometryByVision(photonPoseEstimator.update()); //send this to pose estimator in the future
                     
                     } else if (hasValidTarget(cameraResult)) {
 
@@ -155,7 +155,7 @@ public class Vision extends SubsystemBase {
                             cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
                         
                         System.out.println("Pose Calculated"); //for testing
-                        s_Swerve.updateOdometryByVision(robotPose);
+                        s_Swerve.updateOdometryByVision(robotPose); //send this to pose estimator in the future
                     
                     } else { System.out.println("Vision failed: no targets");}
 
