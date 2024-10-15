@@ -23,8 +23,13 @@ public class DriveControlSystems {
     private boolean aligning = false;
     private double lastHeading = 0;
 
+    Drivetrain drivetrain;
+
     PIDController pidHeading = new PIDController(0, 0, 0);
-    private final Drivetrain drivetrain = Drivetrain.getInstance(); // Drivetrain
+
+    public DriveControlSystems() {  
+        drivetrain = Drivetrain.getInstance();
+    }
 
     //interface with modules
     public SwerveModule getModule(int index) {

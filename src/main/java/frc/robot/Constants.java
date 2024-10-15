@@ -11,7 +11,7 @@ import edu.wpi.first.apriltag.AprilTagPoseEstimate;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.Vision.AprilTags;
+import frc.robot.Constants.VisionConstants.AprilTags;
 
 import org.opencv.core.Point;
 
@@ -37,7 +37,7 @@ public final class Constants {
     public static final double stickDeadband = 0.05;
     public static final double triggerDeadzone = 0.2;
 
-    public static final class Vision {
+    public static final class VisionConstants {
         public static final int aprilTagMax = 16;
         public static final String centerCameraName = "Center";
         public static final String backLeftCameraName = "BackLeft";

@@ -1,11 +1,11 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.Vision;
 
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.Vision.VisionLimits;
+import frc.robot.Constants.VisionConstants.VisionLimits;
 import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 
 import java.io.ObjectInputStream.GetField;
@@ -45,7 +45,7 @@ public class Vision extends SubsystemBase {
 
     private double lastProcessedTimestamp = -1;
 
-    private static Drivetrain s_Swerve;
+    Drivetrain s_Swerve;
     
     private double targetYaw;
     private double targetDistance;
@@ -70,9 +70,9 @@ public class Vision extends SubsystemBase {
     
     public Vision() {
 
-        s_Swerve = s_Swerve.getInstance();
+        s_Swerve = Drivetrain.getInstance();
 
-        centerCamera = new PhotonCamera(Constants.Vision.centerCameraName);
+        centerCamera = new PhotonCamera(Constants.VisionConstants.centerCameraName);
         photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
         updateAprilTagResults();
     }
@@ -96,7 +96,7 @@ public class Vision extends SubsystemBase {
 
             return
             target.getFiducialId() >= 1 &&
-            target.getFiducialId() <= Constants.Vision.aprilTagMax &&
+            target.getFiducialId() <= Constants.VisionConstants.aprilTagMax &&
             target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
         } else {return false;}
     }

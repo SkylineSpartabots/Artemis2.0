@@ -49,7 +49,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     private double lastTimeReset = -1;
 
-
     private static Drivetrain s_Swerve = TunerConstants.DriveTrain;
 
     Pigeon2 pigeon = getPigeon2(); //using the already constructed pigeon
@@ -171,7 +170,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     }
 
     public void updateOdometryByVision(Pose3d estimatedPose){
-        System.out.println("Pose sent");
+        System.out.println("Pose received");
         if(estimatedPose != null){
             s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
         }
