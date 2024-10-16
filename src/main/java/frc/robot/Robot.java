@@ -32,7 +32,7 @@ import frc.robot.subsystems.Pivot;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain.DriveControlSystems;
-import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Vision.Vision;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;

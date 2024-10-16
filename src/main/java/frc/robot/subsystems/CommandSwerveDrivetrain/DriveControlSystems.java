@@ -6,6 +6,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,12 +24,18 @@ public class DriveControlSystems {
     private boolean aligning = false;
     private double lastHeading = 0;
 
+    private SlewRateLimiter filterLX;
+    private SlewRateLimiter filterLY;
+
     Drivetrain drivetrain;
 
     PIDController pidHeading = new PIDController(0, 0, 0);
 
     public DriveControlSystems() {  
         drivetrain = Drivetrain.getInstance();
+        filterLX = new SlewRateLimiter(
+         10, -20, 0);
+        filterLY = new SlewRateLimiter(10, -20, 0);
     }
 
     //interface with modules
@@ -54,8 +61,8 @@ public class DriveControlSystems {
         }
 
         return new SwerveRequest.FieldCentric()
-        .withVelocityX(driverLY)
-        .withVelocityY(driverLX)
+        .withVelocityX(filterLY.calculate(driverLY))
+        .withVelocityY(filterLX.calculate(driverLX))
         .withRotationalRate(driverRX * Constants.MaxAngularRate)
         .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
         .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)
