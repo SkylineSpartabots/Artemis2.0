@@ -10,7 +10,7 @@ import frc.robot.subsystems.Amp;
 
 public class ZeroAmp extends Command {
   Amp s_Amp;
-  private double currentThreshold = 2;
+  private double currentThreshold = 7;
   private Timer timer;
   public ZeroAmp() {
     s_Amp = Amp.getInstance();

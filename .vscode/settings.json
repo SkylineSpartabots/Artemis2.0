@@ -1,6 +1,3 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "cSpell.words": [
-        "odometry"
-    ]
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

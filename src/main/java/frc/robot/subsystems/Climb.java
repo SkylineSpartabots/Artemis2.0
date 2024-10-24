@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -25,50 +24,69 @@ public class Climb extends SubsystemBase {
     return instance;
   }
 
-  private TalonFX m_climbLeader;
-  private TalonFX m_climbFollower;
+  private TalonFX climbMotor;
 
-  private Follower follow = new Follower(Constants.HardwarePorts.climbLeaderMotor, false );
+  private RelativeEncoder motorEncoder;
+
+  // Measured in motor rotations
+  private int maxHeight = 300;
+  private int setState;
 
   public Climb() {
-    m_climbFollower = new TalonFX(Constants.HardwarePorts.climbFollowerMotor);
-    m_climbLeader = new TalonFX(Constants.HardwarePorts.climbLeaderMotor);
-
-    m_climbFollower.setControl(follow);
-
-    configMotor(m_climbFollower, true);
-    configMotor(m_climbLeader, false);
+    climbMotor = new TalonFX(Constants.HardwarePorts.climbFollowerMotor);
+    configMotor(climbMotor, false);
+    setState = 2;
   }
 
-  private void configMotor(TalonFX motor, Boolean inverted) {
-    motor.setInverted(inverted);
+
+  private void configMotor(TalonFX motor, boolean inverted) {
+    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.climbContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    currentLimitsConfigs.SupplyCurrentThreshold = Constants.climbPeakCurrentLimit;
+    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfig.CurrentLimits = currentLimitsConfigs;
+
+    climbMotor.getConfigurator().apply(motorConfig);
   }
   
-
-  public enum ClimbStates {
-    ON(0.6),
-    OFF(0),
-    REV(-0.8);
-    
-    private double speed;
-
-    public double getValue() {
-        return speed;
-    }
-
-    ClimbStates(double speed) {
-        this.speed = speed;
-    }
-}
-
-  public void setSpeed(double speed) {
-    m_climbLeader.set(speed);
+  public void setClimbSpeed(double speed){
+    climbMotor.set(speed); //speed should be -1.0 to 1.0
   }
 
-    public void setSpeed(ClimbStates state) {
-    m_climbLeader.set(state.getValue());
+  public void setState(int state) {
+    setState = state;
   }
 
-  
+  public double getPosition() {
+    return motorEncoder.getPosition();
+  }
 
+  /**
+   * Sets the desired voltage to the climb leader motor. 
+   * @param voltage The desired voltage. 
+   */
+  public void setVoltage(double voltage) {
+    climbMotor.setVoltage(voltage);
+  }
+  public void setPercentOutput(double percent){
+    climbMotor.set(percent);
+  }
+
+  public double getSetPoint() {
+    return setState;
+  }
+
+  public double getMotorCurrent() {
+    return climbMotor.getStatorCurrent().getValueAsDouble();
+  }
+
+  @Override
+  public void periodic() {
+    // SmartDashboard.putNumber("Climb follower position", followEncoder.getPosition());
+    // This method will be called once per scheduler run
+  }
 }

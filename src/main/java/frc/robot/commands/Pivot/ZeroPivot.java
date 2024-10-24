@@ -15,19 +15,19 @@ public class ZeroPivot extends Command {
 
     @Override
     public void initialize() {
-        s_Pivot.setPercentageOutput(-0.08);
-        SmartDashboard.putBoolean("Running zero", true);
     }
 
     @Override
     public void execute() {
+        s_Pivot.setPercentageOutput(-0.08);
+        SmartDashboard.putBoolean("Running zero", true);
     }
 
-    private double currentThreshold = 2; //fix later
+    private double currentThreshold = 8; //fix later
 
     @Override
 	public boolean isFinished() {
-        return false;
+        return s_Pivot.getMotorCurrent() > currentThreshold;
 	}
 		
 	@Override
