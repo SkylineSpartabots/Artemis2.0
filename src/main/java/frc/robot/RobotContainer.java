@@ -5,8 +5,13 @@
 package frc.robot;
 
 
-// import frc.robot.commands.SetLightz;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Amp.AmpState;
+import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
+
+import java.time.Instant;
+
+import org.opencv.core.Point;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
@@ -15,17 +20,23 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Indexer.IndexerStates;
+import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
-import frc.robot.commands.Drive.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
-import frc.robot.commands.Shooter.ZeroShooter;
+import frc.robot.commands.Pivot.ZeroPivot;
+import frc.robot.commands.Shooter.SetShooterCommand;
+import frc.robot.commands.Intake.SetIntake;
+import frc.robot.subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 
 
 public class RobotContainer {
@@ -44,13 +55,15 @@ public class RobotContainer {
 
     private final Amp s_Amp = Amp.getInstance();
     private final Climb s_Climb = Climb.getInstance();
-    private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
+    private final Drivetrain drivetrain = Drivetrain.getInstance(); // Drivetrain
     private final Indexer s_Indexer = Indexer.getInstance();
     private final Intake s_Intake = Intake.getInstance();
     private final Pivot s_Pivot = Pivot.getInstance();
     private final Shooter s_Shooter = Shooter.getInstance();
     //private final Vision s_Vision = Vision.getInstance();
     // private final Music s_Orchestra = Music.getInstance();
+
+    private DriveControlSystems controlSystem  = new DriveControlSystems();
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
@@ -93,8 +106,9 @@ public class RobotContainer {
         driver.a().onTrue(CommandFactory.offEverything()); //FINAL
         driver.x().onTrue(new SmartIntake()); //FINAL
         driver.b().onTrue(CommandFactory.eject()); //FINAL
+        driver.y().onTrue(CommandFactory.stageShootPrep());
         //driver.b().onTrue(new ZeroAmp()); for testing
-        driver.y().whileTrue(new SetIndexer(IndexerStates.SHOOTING)); //FINAL
+        //driver.y().whileTrue(new SlowDrive()); //FINAL
 
         // driver.a().onTrue(new SetIndexer(IndexerStates.ON, false));
         // driver.b().onTrue(new SetIndexer(IndexerStates.OFF, false));
@@ -102,15 +116,13 @@ public class RobotContainer {
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
-        driver.leftTrigger().whileTrue(new SlowDrive());
         // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
 
 
-
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
-        driver.rightTrigger().onTrue(CommandFactory.lobNote());
+        driver.rightTrigger().onTrue(new SetIndexer(IndexerStates.SHOOTING));
         //driver.leftBumper().onTrue(CommandFactory.defensiveStance());
         //driver.rightBumper().onTrue(new SetShooterCommand(20, 9)); //for test
         //driver.rightTrigger().onTrue(CommandFactory.SubwooferShootSequence());
@@ -122,28 +134,26 @@ public class RobotContainer {
         // driver.leftBumper().onTrue(onIntake());
 
         driverDpadDown.onTrue(new AlignPivot(PivotState.GROUND)); //FINAL
-        driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+        //driverDpadUp.onTrue(new AlignPivot(PivotState.SUBWOOFER)); //FINAL
+        driverDpadLeft.onTrue(CommandFactory.highLob());
+        driverDpadUp.onTrue(CommandFactory.lowLob());
         //driverDpadLeft.onTrue(new SetAmp(AmpState.PUSH));
         //driverDpadUp.onTrue(new SetAmp(AmpState.DEPLOYED)); //for test
-        driverDpadLeft.onTrue(CommandFactory.ampPrep());
+        //driverDpadLeft.onTrue(CommandFactory.ampPrep());
         //driverDpadLeft.onTrue(new AlignPivot(PivotState.AMP)); //for testing only
         // driverDpadLeft.onTrue(CommandFactory.ampShootSequence()); 
-        driverDpadRight.onTrue(CommandFactory.zeroAmpPivot()); //FINAL
+        driverDpadRight.whileTrue(new ZeroPivot()); //FINAL
 
-        
         /*
          * Drivetrain bindings
          */
         drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getLeftY() * Constants.MaxSpeed) // Drive forward with
-                        // negative Y (forward)
-                        .withVelocityY(-driver.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drivetrain.applyRequest(() -> controlSystem.drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
                 ));
 
         // reset the field-centric heading. AKA reset odometry
         driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo(new Pose2d(0, 0, new Rotation2d()))));
-        driverStart.onTrue(new ZeroShooter());
+        driverStart.onTrue(new SetShooterCommand(1));
         
 
         /*

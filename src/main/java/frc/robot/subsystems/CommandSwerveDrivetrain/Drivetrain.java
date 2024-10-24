@@ -1,52 +1,68 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.CommandSwerveDrivetrain;
 
+import java.sql.Driver;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.opencv.core.Point;
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
+import frc.robot.RobotContainer;
+import frc.robot.Constants.robotPIDs.HeadingControlPID;
+import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.subsystems.RobotState.RobotState;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
  * so it can be used in command-based projects easily.
  */
-public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem {
+public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
     private double lastTimeReset = -1;
 
-    private static CommandSwerveDrivetrain s_Swerve = TunerConstants.DriveTrain;
+    RobotState robotState;
 
-    Vision m_Camera;
+    private static Drivetrain s_Swerve = TunerConstants.DriveTrain;
+
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+
+    //Vision m_Camera;
 
     private Field2d m_field = new Field2d();
 
-    public static CommandSwerveDrivetrain getInstance(){
+    public static Drivetrain getInstance(){
         if(s_Swerve == null){
-            s_Swerve = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
+            s_Swerve = new Drivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
         }
         return s_Swerve;
@@ -67,17 +83,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
+    public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
-        
-        m_Camera = Vision.getInstance();
+        robotState = RobotState.getInstance();
 
         if (Utils.isSimulation()) {
             startSimThread();
         }
         limit();
     }
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
+
+    public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
@@ -106,8 +122,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
         tareEverything();
-        tareEverything();
-        tareEverything();
     }
 
     public void resetOdoUtil(Pose2d pose){
@@ -124,17 +138,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public void resetOdo(Pose2d pose){
-        resetOdoUtil(pose);
-        resetOdoUtil(pose);
-        resetOdoUtil(pose);
-    }
-
-    @AutoLogOutput(key = "Swerve/Pose")
     public Pose2d getPose(){
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
 
+    public void resetOdo(Pose2d pose){
+        resetOdoUtil(pose);
+    }
+
+    public double getHeading() {
+        return getPose().getRotation().getRadians();
+    }
     public double robotAbsoluteVelocity(){
         double roughVel = 0.0;
         for(int i = 0; i < ModuleCount; i++){
@@ -143,31 +157,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return roughVel/4.0;
     }
 
-    public void setVoltage(double voltage){
-        
-        for(int i = 0; i < ModuleCount; i++){
-        }
-        // s_Swerve.Modules[0].apply(null, null);
-    }
+    // public void updateOdometryByVision(Pose3d estimatedPose){
+    //     System.out.println("Pose received");
+    //     if(estimatedPose != null){
+    //         s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
+    //     }
+    // }
 
-    public void updateOdometryByVision(){
-        Pose3d poseFromVision = null;
-        try {
-            if (m_Camera != null){
-                 poseFromVision = m_Camera.calculatePoseFromVision();
-            } else {
-                m_Camera = Vision.getInstance(); // this literally should be already initialized but here we are
-                poseFromVision = m_Camera.calculatePoseFromVision();
-            }
-        } catch (Exception e) {
-           System.out.println(e);
-        }
-        if(poseFromVision != null){
-            s_Swerve.m_odometry.addVisionMeasurement(poseFromVision.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-            //TODO: add our own timer
-        }
-       else { System.out.println("poseFromVision was null");}
-    }
+    // public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
+    //     if(estimatedPose.isPresent()){
+    //         s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
+    //     }
+    // }
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
@@ -175,59 +176,31 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         autoStartPose = pose;
     }
 
-    @AutoLogOutput(key = "SwerveStates/Measured")
-    private SwerveModuleState[] getModuleStates() {
-        SwerveModuleState[] states = new SwerveModuleState[4];
-        for (int i = 0; i < 4; i++) {
-          states[i] = Modules[i].getCurrentState();
-        }
-        return states;
-      }
-
     @Override
     public void periodic() {
-         //updateOdometryByVision();
         Pose2d currPose = getPose();
+        robotState.odometryUpdate(m_odometry.getEstimatedPosition(), Timer.getFPGATimestamp());
 
-        Logger.recordOutput("SwerveStates/ModuleStates",  getModuleStates());
         //allows driver to see if resetting worked
-        SmartDashboard.putBoolean("Odometry/Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        SmartDashboard.putNumber("Odometry/ODO X", currPose.getX());
-        SmartDashboard.putNumber("Odometry/ODO Y", currPose.getY());
-        SmartDashboard.putNumber("Odometry/ODO ROT", currPose.getRotation().getRadians());
-        SmartDashboard.putNumber("Odometry/AUTO INIT X", autoStartPose.getX());
-        SmartDashboard.putNumber("Odometry/AUTO INIT Y", autoStartPose.getY());
-
+        SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
+        SmartDashboard.putNumber("ODO X", currPose.getX());
+        SmartDashboard.putNumber("ODO Y", currPose.getY());
+        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
+        SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
+        SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
+        SmartDashboard.putNumber("current heading", getHeading());
         SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
         m_field.setRobotPose(m_odometry.getEstimatedPosition());
         SmartDashboard.putData("field", m_field); 
 
         for(int i = 0; i < ModuleCount; i++){
-            //Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+            // Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
             //Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            //Logger.recordOutput("Swerve/CANCoder offset molule " + i, getOffset(i));
-            SmartDashboard.putNumber("CANcoder/CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            //SmartDashboard.putNumber("CANCoder offset molule " + i, getOffset(i));
-            SmartDashboard.putNumber("MotorVelocity/drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            SmartDashboard.putNumber("MotorVelocity/Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
+            SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+            SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+            SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
         }
 
-
     }
-
-    // private double getOffset(int id) {
-    // if (id == 1) {
-    //     return TunerConstants.kFrontLeftEncoderOffset;
-    // }
-    // else if (id == 2) {
-    //     return TunerConstants.kFrontRightEncoderOffset;
-    // }
-    // else if (id == 3) {
-    //     return TunerConstants.kBackLeftEncoderOffset;
-    // }
-    // else {
-    //     return TunerConstants.kBackRightEncoderOffset;
-    // }
-//}
 
 }

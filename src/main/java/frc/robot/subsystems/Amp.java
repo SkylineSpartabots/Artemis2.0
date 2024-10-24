@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -78,6 +81,7 @@ public class Amp extends SubsystemBase {
         TalonFXConfiguration config = new TalonFXConfiguration();
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
 
+        motor.optimizeBusUtilization();
 
         currentLimitsConfigs.SupplyCurrentLimit = Constants.ampContinuousCurrentLimit;
         currentLimitsConfigs.StatorCurrentLimit = Constants.ampContinuousCurrentLimit;
@@ -91,6 +95,7 @@ public class Amp extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Amp/Amp position", getPosition());
+    SmartDashboard.putNumber("Amp position", getPosition());
+    SmartDashboard.putNumber("Amp current", getMotorCurrent());
   }
 }
