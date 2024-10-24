@@ -3,6 +3,7 @@ package frc.robot.subsystems.RobotState;
 import frc.robot.subsystems.RobotState.RobotState;
 
 import java.io.ObjectInputStream.GetField;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -58,7 +59,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         return instance;
     }
 
-    AccelerationIntegrator accelIntegrator = new AccelerationIntegrator();
+    private static AccelerationIntegrator accelIntegrator = new AccelerationIntegrator();
+
 
     Drivetrain drivetrain;
     Pigeon2 pigeon = drivetrain.getPigeon2(); //getting the already constructed pigeon in swerve
@@ -81,20 +83,14 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         resetKalman();
     }
 
-    public void predict(double deltaTime) {
-        
+    public void visionUpdate(double timestamp, Pose2d pose) {}
+    public void odometryUpdate(double timestamp, Pose2d pose) {}
+    public void updateAccel() {
+        double[] newAccel = rawRobotAcceleration();
+        velocityMagnitude = accelIntegrator.update(newAccel[0], newAccel[1]);
     }
 
-    public void correct(Pose2d measurement) {
-        // Implement the measurement update from motion model (USE ODOMERY)
-    }
-
-    private void updateErrorCovariance(double kalmanGain) {
-
-    }
-
-    public void resetKalman() { // WIP!!
-
+    public void resetKalman() {
         EKF = new ExtendedKalmanFilter<>(Nat.N2(), Nat.N2(), Nat.N2(),
         (x,u) -> u, // return input as the output (f)
         (x,u) -> x, // return states as the output (h)
@@ -116,20 +112,22 @@ public class RobotState { //will estimate pose with odometry and correct drift w
          */
         }
 
-        
-
-        public double rawRobotAngularVelocity(){
+        public double[] rawRobotAngularVelocity(){
             double angularX = pigeon.getAngularVelocityXDevice().getValue();
             double angularY = pigeon.getAngularVelocityYDevice().getValue();
+
+            double timestamp = 0;
             
-            return Math.signum(Math.atan2(angularY, angularX)) * Math.sqrt((Math.pow(angularX, 2)) + Math.pow(angularY, 2));
+            return new double[] {(Math.signum(Math.atan2(angularY, angularX)) * Math.sqrt((Math.pow(angularX, 2)) + Math.pow(angularY, 2))), timestamp};
         }
     
-        public double rawRobotAcceleration() {
+        public double[] rawRobotAcceleration() {
             double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
             double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
             
-            return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2));
+            double timestamp = 0; //TODO how to get pigeon accurate timestamp
+
+            return new double[] {Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2)), timestamp};
         }
 
         // -----------------------------------------------------------
