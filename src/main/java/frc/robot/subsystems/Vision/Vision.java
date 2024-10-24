@@ -1,6 +1,5 @@
-package frc.robot.subsystems.Vision;
+package frc.robot.subsystems.Vision;    
 
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,9 +30,8 @@ import org.photonvision.proto.Photon;
 import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import frc.robot.Constants;
-
 import org.littletonrobotics.junction.Logger;
+import frc.robot.subsystems.RobotState.RobotState;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
@@ -141,8 +139,8 @@ public class Vision extends SubsystemBase {
      */
     public void updateVision() throws Exception{
 
-        if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
-                if(Math.abs(s_Swerve.robotAngularVelocity()) > VisionLimits.k_rotationLimitDPS) {
+        // if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
+                // if(Math.abs(s_Swerve.robotAngularVelocity()) > VisionLimits.k_rotationLimitDPS) {
 
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
                     
@@ -154,13 +152,14 @@ public class Vision extends SubsystemBase {
                         Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(
                             cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
                         
+                        
                         System.out.println("Pose Calculated"); //for testing
                         s_Swerve.updateOdometryByVision(robotPose); //send this to pose estimator in the future
                     
                     } else { System.out.println("Vision failed: no targets");}
 
-            } else { System.out.println("Vision failed: high rotation"); }
-        } else { System.out.println("Vision failed: old"); }
+            // } else { System.out.println("Vision failed: high rotation"); }
+        // } else { System.out.println("Vision failed: old"); }
 
         lastProcessedTimestamp = cameraResult.getTimestampSeconds();
     }

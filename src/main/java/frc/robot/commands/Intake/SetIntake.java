@@ -16,7 +16,6 @@ public class SetIntake extends Command {
     private Timer timer;
     private double time;
     private boolean intaking;
-    private final int colorSensorProximityThreshold = 110;
 
     public SetIntake(Intake.IntakeStates state, double time){
         s_Intake = Intake.getInstance();
@@ -57,6 +56,6 @@ public class SetIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        return intaking ?  (s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold || timer.hasElapsed(time)) : true;
+        return true;
     }
 }

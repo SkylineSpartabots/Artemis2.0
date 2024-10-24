@@ -51,6 +51,7 @@ public class DriveControlSystems {
 
         if (shooterMode) {
             driverRX = shooterMode();
+            driverRX = shooterMode();
         } else if (headingControl && driverRX < 0.1) {
             driverRX = headingControl(driverRX);
         } 
@@ -61,8 +62,8 @@ public class DriveControlSystems {
         }
 
         return new SwerveRequest.FieldCentric()
-        .withVelocityX(filterLY.calculate(driverLY))
-        .withVelocityY(filterLX.calculate(driverLX))
+        .withVelocityX((driverLY))
+        .withVelocityY((driverLX))
         .withRotationalRate(driverRX * Constants.MaxAngularRate)
         .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
         .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)

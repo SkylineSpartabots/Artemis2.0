@@ -51,8 +51,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     private static Drivetrain s_Swerve = TunerConstants.DriveTrain;
 
-    Pigeon2 pigeon = getPigeon2(); //using the already constructed pigeon
-
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
     //Vision m_Camera;
@@ -153,20 +151,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
             roughVel += Modules[i].getCurrentState().speedMetersPerSecond;
         }
         return roughVel/4.0;
-    }
-
-    public double robotAngularVelocity(){
-        double angularX = pigeon.getAngularVelocityXDevice().getValue();
-        double angularY = pigeon.getAngularVelocityYDevice().getValue();
-        
-        return Math.signum(Math.atan2(angularY, angularX)) * Math.sqrt((Math.pow(angularX, 2)) + Math.pow(angularY, 2));
-    }
-
-    public double robotAcceleration() {
-        double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
-        double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
-        
-        return Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2));
     }
 
     public void updateOdometryByVision(Pose3d estimatedPose){

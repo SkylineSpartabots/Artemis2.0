@@ -9,7 +9,6 @@ import frc.robot.subsystems.Indexer.IndexerStates;
 public class SetIndexer extends Command {
     private final Indexer s_Indexer;
     IndexerStates state;
-    private final int colorSensorProximityThreshold = 110; // Test this value later
     private final boolean intaking;
     private double time;
     private Timer timer;
@@ -47,6 +46,6 @@ public class SetIndexer extends Command {
 
     @Override
     public boolean isFinished() {
-        return intaking ? ((s_Indexer.getColorSensorResult() >= colorSensorProximityThreshold) || timer.hasElapsed(time)): true;
+        return true;
     }
 }

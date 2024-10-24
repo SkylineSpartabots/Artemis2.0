@@ -31,7 +31,6 @@ import frc.robot.subsystems.Intake.IntakeStates;
 import frc.robot.subsystems.Pivot.PivotState;
 import frc.robot.commands.SetIndexer;
 import frc.robot.commands.SmartIntake;
-import frc.robot.commands.Drivetrain.SlowDrive;
 import frc.robot.commands.CommandFactory;
 import frc.robot.commands.Pivot.AlignPivot;
 import frc.robot.commands.Pivot.ZeroPivot;
@@ -117,7 +116,6 @@ public class RobotContainer {
 
         // driver.rightTrigger().onTrue(shootSubwoofer()); //FINAL
         // driver.leftTrigger().onTrue(CommandFactory.autoShootSequence()); //automatic shooting, includes alignment
-        driver.leftBumper().whileTrue(new SlowDrive());
         // driver.leftTrigger().whileTrue(new SetIndexer(IndexerStates.AMP));
         // driver.leftTrigger().onTrue(new PureAlignment());
         // driver.leftTrigger().onTrue(new VisionAlign());
