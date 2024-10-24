@@ -121,7 +121,6 @@ public class RobotContainer {
         // driver.leftTrigger().onTrue(new VisionAlign());
 
 
-
         driver.rightBumper().onTrue(CommandFactory.shootSubwooferPrep());
         driver.rightTrigger().onTrue(new SetIndexer(IndexerStates.SHOOTING));
         //driver.leftBumper().onTrue(CommandFactory.defensiveStance());

@@ -1,14 +1,17 @@
 package frc.robot.subsystems.Vision;    
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.VisionConstants.VisionLimits;
 import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
 
 import java.io.ObjectInputStream.GetField;
 import java.util.List;
+import java.util.Optional;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -22,6 +25,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -44,6 +48,7 @@ public class Vision extends SubsystemBase {
     private double lastProcessedTimestamp = -1;
 
     Drivetrain s_Swerve;
+    RobotState robotState;
     
     private double targetYaw;
     private double targetDistance;
@@ -69,6 +74,7 @@ public class Vision extends SubsystemBase {
     public Vision() {
 
         s_Swerve = Drivetrain.getInstance();
+        robotState = RobotState.getInstance();
 
         centerCamera = new PhotonCamera(Constants.VisionConstants.centerCameraName);
         photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
@@ -139,27 +145,24 @@ public class Vision extends SubsystemBase {
      */
     public void updateVision() throws Exception{
 
-        // if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
-                // if(Math.abs(s_Swerve.robotAngularVelocity()) > VisionLimits.k_rotationLimitDPS) {
+        if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
+                if(Math.abs(robotState.rawRobotAngularVelocity()[0]) > VisionLimits.k_rotationLimitDPS) {
 
                     if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
-                    
-                        s_Swerve.updateOdometryByVision(photonPoseEstimator.update()); //send this to pose estimator in the future
-                    
+                        EstimatedRobotPose newPose = photonPoseEstimator.update().get();
+                        robotState.visionUpdate(newPose.estimatedPose.toPose2d(), newPose.timestampSeconds); //send this to pose estimator in the future
+                                                                                    // IT HAS BECOME THE FUTURE AHAHAHHA
                     } else if (hasValidTarget(cameraResult)) {
 
                         Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-                        Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(
+                        Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
                             cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
                         
-                        
-                        System.out.println("Pose Calculated"); //for testing
-                        s_Swerve.updateOdometryByVision(robotPose); //send this to pose estimator in the future
-                    
+                        robotState.visionUpdate(newPose.toPose2d(), cameraResult.getTimestampSeconds());
                     } else { System.out.println("Vision failed: no targets");}
 
-            // } else { System.out.println("Vision failed: high rotation"); }
-        // } else { System.out.println("Vision failed: old"); }
+            } else { System.out.println("Vision failed: high rotation"); }
+        } else { System.out.println("Vision failed: old"); }
 
         lastProcessedTimestamp = cameraResult.getTimestampSeconds();
     }

@@ -3,7 +3,6 @@ package frc.robot.subsystems.RobotState;
 import frc.robot.subsystems.RobotState.RobotState;
 
 import java.io.ObjectInputStream.GetField;
-import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -60,8 +59,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     }
 
     private static AccelerationIntegrator accelIntegrator = new AccelerationIntegrator();
-
-
+    
     Drivetrain drivetrain;
     Pigeon2 pigeon = drivetrain.getPigeon2(); //getting the already constructed pigeon in swerve
 
@@ -83,8 +81,10 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         resetKalman();
     }
 
-    public void visionUpdate(double timestamp, Pose2d pose) {}
-    public void odometryUpdate(double timestamp, Pose2d pose) {}
+    public synchronized void visionUpdate(Pose2d pose, double timestamp) {}
+    public synchronized void odometryUpdate(Pose2d pose, double timestamp) {} //propagate error
+    // still need to save our pose somewhere lol (prop use a interpolated tree map)
+
     public void updateAccel() {
         double[] newAccel = rawRobotAcceleration();
         velocityMagnitude = accelIntegrator.update(newAccel[0], newAccel[1]);
@@ -125,7 +125,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
             double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
             
-            double timestamp = 0; //TODO how to get pigeon accurate timestamp
+            double timestamp = 0; //TODO how to get pigeon accurate timestamp help
 
             return new double[] {Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2)), timestamp};
         }

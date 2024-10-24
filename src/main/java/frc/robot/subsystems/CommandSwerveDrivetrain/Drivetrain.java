@@ -37,6 +37,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.robotPIDs.HeadingControlPID;
 import frc.robot.subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.subsystems.RobotState.RobotState;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -48,6 +49,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     private double m_lastSimTime;
 
     private double lastTimeReset = -1;
+
+    RobotState robotState;
 
     private static Drivetrain s_Swerve = TunerConstants.DriveTrain;
 
@@ -82,7 +85,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
-        
+        robotState = RobotState.getInstance();
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -153,18 +157,18 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         return roughVel/4.0;
     }
 
-    public void updateOdometryByVision(Pose3d estimatedPose){
-        System.out.println("Pose received");
-        if(estimatedPose != null){
-            s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-        }
-    }
+    // public void updateOdometryByVision(Pose3d estimatedPose){
+    //     System.out.println("Pose received");
+    //     if(estimatedPose != null){
+    //         s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
+    //     }
+    // }
 
-    public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
-        if(estimatedPose.isPresent()){
-            s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
-        }
-    }
+    // public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
+    //     if(estimatedPose.isPresent()){
+    //         s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
+    //     }
+    // }
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
@@ -175,6 +179,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     @Override
     public void periodic() {
         Pose2d currPose = getPose();
+        robotState.odometryUpdate(m_odometry.getEstimatedPosition(), Timer.getFPGATimestamp());
 
         //allows driver to see if resetting worked
         SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);

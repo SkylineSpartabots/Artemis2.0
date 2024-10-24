@@ -6,14 +6,14 @@ public class AccelerationIntegrator {
     private double lastTimestamp = 0.0;
 
     private double filteredAccel = 0.0;
-    private final double alpha = 0.1;  // TODO tune
+    private final double alpha = 0.9;  // TODO tune
 
     public double lowPassFilter(double newAccel) {
         filteredAccel = alpha * newAccel + (1 - alpha) * filteredAccel;
         return filteredAccel;
     }
 
-    // Trapezoidal integration for velocity estimation
+    // Trapezoidal integration for velocity estimation (LIKE A BOSS)
     public double integrateAccel(double accel, double currentTime) {
         double dt = currentTime - lastTimestamp;
         velocity += 0.5 * (accel + prevAccel) * dt;
